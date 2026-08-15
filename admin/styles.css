@@ -7552,6 +7552,24 @@ button:disabled {
   background: var(--surface-raised);
 }
 
+.metric-ratio {
+  position: relative;
+  z-index: 1;
+  display: block;
+  height: 3px;
+  margin-top: 10px;
+  border-radius: 3px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.metric-ratio > span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+}
+
 .control-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(350px, 0.7fr);
@@ -7660,6 +7678,73 @@ button:disabled {
 .decision-icon--info {
   background: var(--info-soft);
   color: var(--info);
+}
+
+.queue-breakdown {
+  display: flex;
+  gap: 2px;
+  height: 6px;
+  margin: 0 20px 14px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.queue-breakdown__segment {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+}
+
+.queue-breakdown__segment--warning {
+  background: var(--amber);
+}
+
+.queue-breakdown__segment--info {
+  background: var(--info);
+}
+
+.queue-breakdown__segment--danger {
+  background: var(--red);
+}
+
+.status-strip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 7px;
+}
+
+.status-strip__track {
+  display: flex;
+  gap: 2px;
+  width: 76px;
+  height: 6px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.status-strip__segment {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+}
+
+.status-strip__segment--accent {
+  background: var(--accent);
+}
+
+.status-strip__segment--success {
+  background: var(--green);
+}
+
+.status-strip__segment--danger {
+  background: var(--red);
+}
+
+.status-strip__legend {
+  color: var(--text-muted);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
 }
 
 .active-operation {
@@ -7905,11 +7990,16 @@ button:disabled {
   color: var(--red);
 }
 
-.status-badge--info,
-.status-badge--accent {
+.status-badge--info {
   border-color: color-mix(in srgb, var(--info) 22%, transparent);
   background: var(--info-soft);
   color: var(--info);
+}
+
+.status-badge--accent {
+  border-color: color-mix(in srgb, var(--accent) 24%, transparent);
+  background: var(--accent-soft);
+  color: var(--accent-text);
 }
 
 .status-badge--neutral {

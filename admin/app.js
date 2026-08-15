@@ -454,11 +454,11 @@
   }
 
   function renderControlCenter() {
-    const decisionRows = [
+    const decisionQueue = [
       [
         "conflicts",
         "identity",
-        "5",
+        5,
         "Несовпадение идентичности Shikimori",
         "Сезон или найденный title не подтверждены",
         "git-compare-arrows",
@@ -467,7 +467,7 @@
       [
         "moderation",
         "moderation",
-        "12",
+        12,
         "Карточки после импорта",
         "7 no_video · 3 poster_url · 2 description",
         "shield-alert",
@@ -476,7 +476,7 @@
       [
         "backups",
         "backup",
-        "1",
+        1,
         "Не создан media-артефакт",
         "Database-копия готова, media завершилась ошибкой",
         "database-zap",
@@ -485,20 +485,28 @@
       [
         "parsers",
         "jobs",
-        "2",
+        2,
         "Ошибки задач за 24 часа",
         "Повторный запуск доступен из журнала задач",
         "triangle-alert",
         "danger",
       ],
-    ]
+    ];
+    const decisionTotal = decisionQueue.reduce((sum, row) => sum + row[2], 0);
+    const decisionRows = decisionQueue
       .map(
         (row) =>
           `<button class="decision-row" data-view="${row[0]}"><span class="decision-code">${row[1]}</span><span class="decision-count">${row[2]}</span><span class="decision-copy"><strong>${row[3]}</strong><small>${row[4]}</small></span><span class="decision-icon decision-icon--${row[6]}">${icon(row[5])}</span>${icon("chevron-right")}</button>`,
       )
       .join("");
-    const jobRows = jobs
-      .slice(0, 5)
+    const queueBreakdown = `<div class="queue-breakdown" role="img" aria-label="Состав очереди: ${decisionQueue.map((row) => `${row[3]} — ${row[2]}`).join(", ")}">${decisionQueue
+      .map(
+        (row) =>
+          `<span class="queue-breakdown__segment queue-breakdown__segment--${row[6]}" style="width:${(row[2] / decisionTotal) * 100}%"></span>`,
+      )
+      .join("")}</div>`;
+    const jobsSample = jobs.slice(0, 5);
+    const jobRows = jobsSample
       .map((job) => {
         const progress =
           job.progress === null
@@ -507,7 +515,21 @@
         return `<tr><td data-label="Задача"><button class="row-leading" data-action="view-job" data-id="${job.id}"><span class="job-glyph job-glyph--${job.status}">${icon(job.status === "running" ? "loader-circle" : job.status === "failed" ? "triangle-alert" : "check")}</span><span class="row-leading__copy"><strong>${job.source}</strong><span>${job.id} · ${job.scope}</span></span></button></td><td data-label="Статус">${status(labelForStatus(job.status), toneForStatus(job.status))}</td><td data-label="Прогресс">${progress}</td><td class="cell-muted" data-label="Старт">${job.started}</td><td class="cell-muted" data-label="Длительность">${job.duration}</td><td data-label=""><button class="icon-button" data-action="view-job" data-id="${job.id}" aria-label="Детали задачи">${icon("panel-right-open")}</button></td></tr>`;
       })
       .join("");
-    return `${heading({ eyebrow: `<span class="status-dot status-dot--ok"></span> Контрактный снимок · поля активного Go API`, title: "Контур управления Kitsu", description: "Решения оператора, реальные фоновые процессы и инфраструктура — без синтетических процентов.", actions: `${actionButton("Найти в источниках", "go-imports", "search-code")}${actionButton("Ручной запуск", "start-sync", "play", true)}` })}<div class="metric-grid"><article class="metric-card metric-card--focus"><span>Пользователи</span><strong>24 812</strong><small>1 284 активны за сутки</small></article><article class="metric-card"><span>Аниме</span><strong>3 402</strong><small>184 онгоинга</small></article><article class="metric-card"><span>Активные релизы</span><strong>18 429</strong><small>доступны в плеере</small></article><article class="metric-card"><span>Go process uptime</span><strong>3д 11ч</strong><small>данные runtime, не SLA</small></article></div><div class="control-layout"><section class="panel panel--flush decision-panel"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">01 · Очередь решений</span><h2 class="panel-title">Требуется оператор</h2><p class="panel-subtitle">Только события, которые нельзя безопасно завершить автоматически</p></div><span class="queue-total">20 открыто</span></header><div class="decision-list">${decisionRows}</div></section><aside class="active-operation"><div class="active-operation__head"><div><span class="section-kicker">02 · Активная операция</span><h2>Kodik full sync</h2><p>#J-8412 · ручной · sample response</p></div>${status("Выполняется", "info")}</div><div class="operation-clock"><strong>18:42</strong><span>прошло с запуска</span></div><div class="indeterminate-track" role="progressbar" aria-label="Задача выполняется без публикации точного прогресса"><span></span></div><div class="truth-note">${icon("info")}<p><strong>Полный sync не публикует промежуточный процент.</strong><br>Live-счётчики для full sync не публикуются. Частичные stats при cancel/timeout могут быть только в terminal ParserJobLog.details; checkpoint/resume API нет.</p></div><div class="operation-actions"><button class="button button--primary" data-action="view-job" data-id="#J-8412">${icon("panel-right-open")}Открыть задачу</button><button class="button button--danger" data-action="stop-job">${icon("square")}Остановить</button></div></aside></div><section class="health-ribbon" aria-label="Состояние сервисов"><button data-view="monitoring"><span>Go API</span><strong><i class="status-dot status-dot--ok"></i>online</strong><small>health snapshot</small></button><button data-view="monitoring"><span>PostgreSQL</span><strong><i class="status-dot status-dot--ok"></i>12 ms</strong><small>основная база</small></button><button data-view="monitoring"><span>Cache</span><strong><i class="status-dot status-dot--warning"></i>не проверен*</strong><small>backend возвращает online без probe</small></button><button data-view="parsers"><span>Workers</span><strong><i class="status-dot status-dot--ok"></i>2 active</strong><small>Inspector count · без denominator</small></button><button data-view="monitoring"><span>Storage</span><strong><i class="status-dot status-dot--warning"></i>68%</strong><small>root filesystem · disk_percent</small></button></section><section class="panel panel--flush"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">03 · Исполнение</span><h2 class="panel-title">Последние задачи</h2><p class="panel-subtitle">Статусы pending · running · completed · failed · cancelled</p></div><button class="panel-link" data-view="parsers">Задачи и логи ${icon("arrow-right")}</button></header><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Задача</th><th>Статус</th><th>Прогресс</th><th>Старт</th><th>Длительность</th><th></th></tr></thead><tbody>${jobRows}</tbody></table></div></section>`;
+    const jobStatusCounts = jobsSample.reduce((acc, job) => {
+      acc[job.status] = (acc[job.status] || 0) + 1;
+      return acc;
+    }, {});
+    const jobStatusTone = { running: "accent", success: "success", failed: "danger" };
+    const jobStatusLabel = { running: "в работе", success: "успешно", failed: "с ошибкой" };
+    const jobStatusOrder = Object.keys(jobStatusTone).filter((key) => jobStatusCounts[key]);
+    const jobStatusLegend = jobStatusOrder.map((key) => `${jobStatusCounts[key]} ${jobStatusLabel[key]}`).join(" · ");
+    const jobStatusStrip = `<div class="status-strip" role="img" aria-label="Статусы среди ${jobsSample.length} загруженных задач: ${jobStatusLegend}"><div class="status-strip__track">${jobStatusOrder
+      .map(
+        (key) =>
+          `<span class="status-strip__segment status-strip__segment--${jobStatusTone[key]}" style="width:${(jobStatusCounts[key] / jobsSample.length) * 100}%"></span>`,
+      )
+      .join("")}</div><span class="status-strip__legend">${jobStatusLegend}</span></div>`;
+    return `${heading({ eyebrow: `<span class="status-dot status-dot--ok"></span> Контрактный снимок · поля активного Go API`, title: "Контур управления Kitsu", description: "Решения оператора, реальные фоновые процессы и инфраструктура — без синтетических процентов.", actions: `${actionButton("Найти в источниках", "go-imports", "search-code")}${actionButton("Ручной запуск", "start-sync", "play", true)}` })}<div class="metric-grid"><article class="metric-card metric-card--focus"><span>Пользователи</span><strong>24 812</strong><small>1 284 активны за сутки</small><div class="metric-ratio" role="img" aria-label="1 284 из 24 812 активны за сутки"><span style="width:${((1284 / 24812) * 100).toFixed(1)}%"></span></div></article><article class="metric-card"><span>Аниме</span><strong>3 402</strong><small>184 онгоинга</small><div class="metric-ratio" role="img" aria-label="184 из 3 402 в статусе онгоинг"><span style="width:${((184 / 3402) * 100).toFixed(1)}%"></span></div></article><article class="metric-card"><span>Активные релизы</span><strong>18 429</strong><small>доступны в плеере</small></article><article class="metric-card"><span>Go process uptime</span><strong>3д 11ч</strong><small>данные runtime, не SLA</small></article></div><div class="control-layout"><section class="panel panel--flush decision-panel"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">01 · Очередь решений</span><h2 class="panel-title">Требуется оператор</h2><p class="panel-subtitle">Только события, которые нельзя безопасно завершить автоматически</p></div><span class="queue-total">20 открыто</span></header>${queueBreakdown}<div class="decision-list">${decisionRows}</div></section><aside class="active-operation"><div class="active-operation__head"><div><span class="section-kicker">02 · Активная операция</span><h2>Kodik full sync</h2><p>#J-8412 · ручной · sample response</p></div>${status("Выполняется", "info")}</div><div class="operation-clock"><strong>18:42</strong><span>прошло с запуска</span></div><div class="indeterminate-track" role="progressbar" aria-label="Задача выполняется без публикации точного прогресса"><span></span></div><div class="truth-note">${icon("info")}<p><strong>Полный sync не публикует промежуточный процент.</strong><br>Live-счётчики для full sync не публикуются. Частичные stats при cancel/timeout могут быть только в terminal ParserJobLog.details; checkpoint/resume API нет.</p></div><div class="operation-actions"><button class="button button--primary" data-action="view-job" data-id="#J-8412">${icon("panel-right-open")}Открыть задачу</button><button class="button button--danger" data-action="stop-job">${icon("square")}Остановить</button></div></aside></div><section class="health-ribbon" aria-label="Состояние сервисов"><button data-view="monitoring"><span>Go API</span><strong><i class="status-dot status-dot--ok"></i>online</strong><small>health snapshot</small></button><button data-view="monitoring"><span>PostgreSQL</span><strong><i class="status-dot status-dot--ok"></i>12 ms</strong><small>основная база</small></button><button data-view="monitoring"><span>Cache</span><strong><i class="status-dot status-dot--warning"></i>не проверен*</strong><small>backend возвращает online без probe</small></button><button data-view="parsers"><span>Workers</span><strong><i class="status-dot status-dot--ok"></i>2 active</strong><small>Inspector count · без denominator</small></button><button data-view="monitoring"><span>Storage</span><strong><i class="status-dot status-dot--warning"></i>68%</strong><small>root filesystem · disk_percent</small></button></section><section class="panel panel--flush"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">03 · Исполнение</span><h2 class="panel-title">Последние задачи</h2><p class="panel-subtitle">Статусы pending · running · completed · failed · cancelled</p>${jobStatusStrip}</div><button class="panel-link" data-view="parsers">Задачи и логи ${icon("arrow-right")}</button></header><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Задача</th><th>Статус</th><th>Прогресс</th><th>Старт</th><th>Длительность</th><th></th></tr></thead><tbody>${jobRows}</tbody></table></div></section>`;
   }
 
   function renderParserCenterReal() {
