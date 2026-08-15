@@ -7768,103 +7768,68 @@ button:disabled {
   box-shadow: var(--shadow-card);
 }
 
-.mini-trend {
-  padding: 18px 20px;
+.trend-panel .panel-header {
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
-.mini-trend__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
+.trend-panel .chart-legend {
+  margin-bottom: 0;
 }
 
-.mini-trend__head h3 {
-  margin: 5px 0 0;
-  font-family: var(--font-display);
-  font-size: 15px;
-}
-
-.mini-trend__legend {
-  display: grid;
-  gap: 5px;
-  padding-top: 3px;
-}
-
-.mini-trend__legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--text-muted);
-  font-size: 9px;
-  font-weight: 700;
-}
-
-.mini-trend__chart {
+.trend-grid {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 6px;
-  height: 110px;
-  padding-bottom: 2px;
-  border-bottom: 1px solid var(--line);
+  gap: 12px;
+  padding: 26px 24px 22px;
 }
 
-.mini-trend__day {
+.trend-column {
   display: flex;
   flex: 1;
-  height: 100%;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
+  gap: 12px;
   cursor: help;
 }
 
-.mini-trend__bars {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+.trend-column__cells {
+  display: grid;
+  grid-template-rows: repeat(16, 1fr);
   gap: 3px;
   width: 100%;
-  height: 100%;
+  max-width: 48px;
+  height: 260px;
 }
 
-.mini-trend__bar {
-  width: 7px;
-  min-height: 3px;
-  border-radius: 3px 3px 0 0;
+.trend-cell {
+  border-radius: 3px;
   transition: opacity var(--ease);
 }
 
-.mini-trend__day:hover .mini-trend__bar {
-  opacity: 0.72;
-}
-
-.mini-trend__bar--accent {
+.trend-cell--accent {
   background: var(--accent);
 }
 
-.mini-trend__bar--info {
+.trend-cell--info {
   background: var(--info);
 }
 
-.mini-trend__label {
+.trend-cell--empty {
+  background: var(--surface-hover);
+}
+
+.trend-column:hover .trend-cell--accent,
+.trend-column:hover .trend-cell--info {
+  opacity: 0.76;
+}
+
+.trend-column__label {
   color: var(--text-muted);
-  font-size: 8.5px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.mini-trend__total {
-  margin: 12px 0 0;
-  color: var(--text-secondary);
   font-size: 10px;
-}
-
-.mini-trend__total strong {
-  color: var(--text);
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
