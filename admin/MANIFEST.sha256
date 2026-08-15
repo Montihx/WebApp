@@ -1,6 +1,6 @@
 c0b8848512f60d90b12067647fac2656d17f67344151821da0dde08a01267193  ./AGENT_HANDOFF.md
 de385f403f127d612df00fc69ca3f6ae536436446fd2b1e71769f6678abb4a5b  ./README.md
-814458665245aa334d6a7ee21750e183aa50d333784c524b14e58011ccfc726c  ./app.js
+a3bca9c44d07b52ea8c448c5e38a659237d5bd27383fa0179caa6886925aa5e9  ./app.js
 cf6cc6a1b703650a80d78b9cf234f676843c6aa85eeae50eb708b3fe7c9172da  ./docs/ARCHIVE_INVENTORY.md
 87ba974691c2ecc781ccd62baf348b176d7dc53bf1c2c97094cca6fbaaa60684  ./docs/CODEX_MIGRATION_RUNBOOK.md
 0f4f6474ef35075ae31542ec772dc967976fa23f7c8917f52266c3e58a592b09  ./docs/DESIGN_SYSTEM.md
@@ -44,7 +44,7 @@ b9cde86fcfc341bc38496448203bd2d5a5513d2a3b584254fa54dbf5259641a9  ./fonts/onest-
 6b063f7a827fbd2d5c9b58685af05eae3d4412f3682531b3c0d736bf733c02e9  ./fonts/onest-latin-700-normal.woff2
 7ed04e60e45e9f2f911fe1599353f3de3329663f10755d80951d5abb89c8c348  ./fonts/onest-latin-800-normal.woff2
 fff83fc91e11f742508d98df0dd978e9ebf050935513ecf1232defd6ef48ce74  ./index.html
-bc07d2304654081b02686c9b760afae4375e7a76c5930e8797e961e69a35034a  ./qa-results.json
+16526d0c08d295d7538efea28419b1a3b72b6e3a1e9f3ce410b57af26b3d9e5b  ./qa-results.json
 1cb6719db95673e8dc9815dd07e7316f6ad44aa1f1d85aa2d661badb91a8d2ef  ./screenshots/anime-editor-light.png
 dd2570c9bcab74d79cc6e90ff10c39718db87c454512b3f2f8a22b2cf04bcc50  ./screenshots/audit-light.png
 0812dc36ae1b7ed2adbc0208493f683a7eb7e1e29754aee19d35a211e230629c  ./screenshots/backups-dark.png
@@ -63,7 +63,7 @@ f872ef5dfa72395d9e0f225ea9a8b1f648635101cf5aa2224a3842e410a3fe8b  ./screenshots/
 d483bce29d29e47cf53a0345d9a66c809bb394954aea26021f5c0d7d15bf96e0  ./screenshots/scheduler-light.png
 bd4493754fe3c3f39a57def11677883c1f0a579f87b1bedab15c864dbfab0368  ./screenshots/settings-light.png
 dc825987c4d76664e71d8d10d14c71101c1c8fdbb9fcd5e626fd9cbf6bd55ca3  ./screenshots/users-light.png
-ed2a8a5d9ff82225554211589f76eb323f460486828ad6df48bcada8ad8ae3ef  ./styles.css
+08d9ca698c0cc15f3c51fa1710112fba99370a63730f889c1f54635ab9db0d11  ./styles.css
 e1964bc05e1cd71149f30d77c86433160bceda9627050fea9f73b6327b89df4d  ./tools/qa.mjs
 1e7290b35280a048667bbf0ebabac1c7fd52a75300e8b2946ac165715997f2bc  ./vendor/LUCIDE-LICENSE.txt
 1b22c6c04a1c69b75a41c64c7ea992657e8f628dabd6324984ffc61c3761a56a  ./vendor/lucide.min.js

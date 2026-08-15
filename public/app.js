@@ -212,13 +212,38 @@
     const dialog = $("#search-dialog");
     if (!dialog) return;
     const query = value.trim().toLocaleLowerCase("ru");
+    const trending = $("#search-trending", dialog);
+    const results = $("#search-results", dialog);
+    const more = $("#search-more", dialog);
+    const count = $("#search-count", dialog);
+    const items = $$('[data-search-item]', dialog);
+    if (!query) {
+      items.forEach((item) => { item.hidden = true; });
+      $("#search-empty", dialog).hidden = true;
+      if (trending) trending.hidden = false;
+      if (results) results.hidden = true;
+      if (more) more.hidden = true;
+      if (count) count.textContent = "Введите запрос";
+      state.searchIndex = 0;
+      paintSearchIndex();
+      return;
+    }
+    if (trending) trending.hidden = true;
+    if (results) results.hidden = false;
     let visible = 0;
-    $$('[data-search-item]', dialog).forEach((item) => {
-      const matches = !query || item.dataset.searchItem.toLocaleLowerCase("ru").includes(query);
+    items.forEach((item) => {
+      const matches = item.dataset.searchItem.toLocaleLowerCase("ru").includes(query);
       item.hidden = !matches;
       if (matches) visible += 1;
     });
     $("#search-empty", dialog).hidden = visible > 0;
+    if (more) more.hidden = visible === 0;
+    if (count) {
+      count.textContent =
+        visible > 0
+          ? `${visible} ${visible === 1 ? "результат" : visible < 5 ? "результата" : "результатов"}`
+          : "Совпадений нет";
+    }
     state.searchIndex = 0;
     paintSearchIndex();
   }
@@ -288,6 +313,16 @@
 
     $$('[data-open-search]').forEach((control) => control.addEventListener("click", openSearch));
     $$('[data-close-search]').forEach((control) => control.addEventListener("click", () => closeDialog($("#search-dialog"))));
+
+    $$('[data-search-suggest]').forEach((control) => {
+      control.addEventListener("click", () => {
+        const input = $("#global-search");
+        if (!input) return;
+        input.value = control.dataset.searchSuggest;
+        filterSearch(input.value);
+        input.focus();
+      });
+    });
 
     const searchInput = $("#global-search");
     searchInput?.addEventListener("input", (event) => filterSearch(event.currentTarget.value));

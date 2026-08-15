@@ -227,6 +227,7 @@
               <div class="tabs" role="tablist" aria-label="Фильтр каталога" data-tabs="catalog">
                 <button class="tab is-active" type="button" role="tab" aria-selected="true" data-filter="all">Новые серии</button>
                 <button class="tab" type="button" role="tab" aria-selected="false" tabindex="-1" data-filter="ongoing">Онгоинги</button>
+                <button class="tab" type="button" role="tab" aria-selected="false" tabindex="-1" data-filter="announced">Анонсы</button>
                 <button class="tab" type="button" role="tab" aria-selected="false" tabindex="-1" data-filter="top">Высокая оценка</button>
               </div>
             </div>
@@ -287,6 +288,14 @@
                 <div class="card-title-row"><a href="./anime.html"><h3>Ван-Пис</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
                 <p>TV · 1999 · онгоинг</p>
               </article>
+              <article class="anime-card" data-status="announced">
+                <a class="poster-frame" href="./anime.html">
+                  <img src="https://shikimori.one/system/animes/original/54857.jpg" alt="Постер аниме «Re:Zero 3»" loading="lazy" referrerpolicy="no-referrer" />
+                  <span class="episode-badge">Анонс</span>
+                </a>
+                <div class="card-title-row"><a href="./anime.html"><h3>Re:Zero 3</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
+                <p>TV · 2026 · анонс</p>
+              </article>
             </div>
             <a class="wide-link" href="#catalog" data-prototype-action="Полный каталог откроется после подключения шаблона к маршрутам приложения."><span>Открыть весь каталог</span><i data-lucide="arrow-up-right"></i></a>
           </div>
@@ -310,15 +319,15 @@
               <div class="schedule-empty"><i data-lucide="calendar-check"></i><strong>Нет подтверждённых релизов</strong><span>Показываем только данные, которые пришли из календаря.</span></div>
             </div>
             <div class="schedule-list" data-day-panel="2026-08-13" hidden>
-              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>Релиз добавлен</small></span><time>13 авг</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small><i data-lucide="plus-circle"></i>Релиз добавлен</small></span><time>13 авг</time></a>
             </div>
             <div class="schedule-list" data-day-panel="2026-08-14" hidden>
-              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>Обновление перевода</small></span><time>14 авг</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small><i data-lucide="languages"></i>Обновление перевода</small></span><time>14 авг</time></a>
             </div>
             <div class="schedule-list" data-day-panel="2026-08-15">
-              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/21.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Ван-Пис</strong><small>Новая серия · Япония</small></span><time>сегодня</time></a>
-              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/40748.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Магическая битва</strong><small>Обновление перевода</small></span><time>сегодня</time></a>
-              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Фрирен</strong><small>Обновление релиза</small></span><time>сегодня</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/21.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Ван-Пис</strong><small><i data-lucide="play-circle"></i>Новая серия · Япония</small></span><time>сегодня</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/40748.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Магическая битва</strong><small><i data-lucide="languages"></i>Обновление перевода</small></span><time>сегодня</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Фрирен</strong><small><i data-lucide="refresh-cw"></i>Обновление релиза</small></span><time>сегодня</time></a>
             </div>
             <div class="schedule-list" data-day-panel="2026-08-16" hidden>
               <div class="schedule-empty"><i data-lucide="calendar-check"></i><strong>Нет подтверждённых релизов</strong><span>Показываем только данные, которые пришли из календаря.</span></div>
@@ -335,11 +344,11 @@
           <aside class="schedule-card" aria-labelledby="updates-title">
             <div class="schedule-head"><div><p class="section-kicker">Новые серии</p><h2 id="updates-title">Обновления аниме</h2></div><a href="#schedule" aria-label="Открыть все обновления"><i data-lucide="arrow-up-right"></i></a></div>
             <div class="schedule-list">
-              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small>Серия 74</small></span><time>сегодня · 14:20</time></a>
-              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>Серия 94</small></span><time>сегодня · 11:05</time></a>
-              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Врата Штейна</strong><small>Озвучка: AniDUB</small></span><time>вчера · 20:40</time></a>
-              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Стальной алхимик: Братство</strong><small>Серия 63 · AniLibria</small></span><time>вчера · 09:12</time></a>
-              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>Серия 26 · Focus</small></span><time>2 дня назад</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small><i data-lucide="play-circle"></i>Серия 74</small></span><time>сегодня · 14:20</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small><i data-lucide="play-circle"></i>Серия 94</small></span><time>сегодня · 11:05</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Врата Штейна</strong><small><i data-lucide="mic"></i>Озвучка: AniDUB</small></span><time>вчера · 20:40</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Стальной алхимик: Братство</strong><small><i data-lucide="play-circle"></i>Серия 63 · AniLibria</small></span><time>вчера · 09:12</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small><i data-lucide="play-circle"></i>Серия 26 · Focus</small></span><time>2 дня назад</time></a>
             </div>
             <p class="schedule-note"><i data-lucide="info"></i>GET /anime/recent-updates · дата не подставляется, если её нет в ответе.</p>
           </aside>
@@ -391,14 +400,24 @@
         </div>
         <div class="search-body">
           <div class="search-head"><div><p class="section-kicker">Быстрый поиск</p><h2 id="search-title">Найти тайтл</h2></div><button class="icon-button" type="button" data-close-search aria-label="Закрыть поиск"><i data-lucide="x"></i></button></div>
+          <div class="search-trending" id="search-trending">
+            <p class="search-trending__label">Популярные запросы</p>
+            <div class="search-trending__chips">
+              <button type="button" class="filter-chip" data-search-suggest="фрирен"><i data-lucide="trending-up"></i>Фрирен</button>
+              <button type="button" class="filter-chip" data-search-suggest="монстр"><i data-lucide="trending-up"></i>Монстр</button>
+              <button type="button" class="filter-chip" data-search-suggest="атака титанов"><i data-lucide="trending-up"></i>Атака титанов</button>
+              <button type="button" class="filter-chip" data-search-suggest="ковбой бибоп"><i data-lucide="trending-up"></i>Ковбой Бибоп</button>
+            </div>
+          </div>
           <div class="search-results" id="search-results">
-            <a class="search-result" href="./anime.html" data-search-item="монстр monster"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small>Monster · TV · 2004</small></span><i data-lucide="arrow-right"></i></a>
-            <a class="search-result" href="./anime.html" data-search-item="провожающая фрирен sousou frieren"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Провожающая в последний путь Фрирен</strong><small>Sousou no Frieren · TV · 2023</small></span><i data-lucide="arrow-right"></i></a>
-            <a class="search-result" href="./anime.html" data-search-item="ковбой бибоп cowboy bebop"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>Cowboy Bebop · TV · 1998</small></span><i data-lucide="arrow-right"></i></a>
-            <a class="search-result" href="./anime.html" data-search-item="атака титанов shingeki kyojin"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>Shingeki no Kyojin · TV · 2013</small></span><i data-lucide="arrow-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="монстр monster"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small>Monster · TV · 2004</small><span class="search-result__tags"><span class="search-result__score"><i data-lucide="star"></i>8.88</span><span class="search-result__genre">Триллер</span><span class="search-result__genre">Детектив</span></span></span><i data-lucide="arrow-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="провожающая фрирен sousou frieren"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Провожающая в последний путь Фрирен</strong><small>Sousou no Frieren · TV · 2023</small><span class="search-result__tags"><span class="search-result__score"><i data-lucide="star"></i>9.31</span><span class="search-result__genre">Фэнтези</span><span class="search-result__genre">Приключения</span></span></span><i data-lucide="arrow-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="ковбой бибоп cowboy bebop"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>Cowboy Bebop · TV · 1998</small><span class="search-result__tags"><span class="search-result__score"><i data-lucide="star"></i>8.90</span><span class="search-result__genre">Приключения</span><span class="search-result__genre">Фантастика</span></span></span><i data-lucide="arrow-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="атака титанов shingeki kyojin"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>Shingeki no Kyojin · TV · 2013</small><span class="search-result__tags"><span class="search-result__score"><i data-lucide="star"></i>8.55</span><span class="search-result__genre">Экшен</span><span class="search-result__genre">Драма</span></span></span><i data-lucide="arrow-right"></i></a>
             <div class="search-empty" id="search-empty" hidden><i data-lucide="search-x"></i><strong>Ничего не найдено</strong><span>Проверьте написание или измените запрос.</span></div>
           </div>
-          <p class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> перемещение</span><span><kbd>Enter</kbd> открыть</span></p>
+          <a class="search-more" id="search-more" href="#catalog" data-close-search hidden><i data-lucide="arrow-right"></i>Показать все результаты в каталоге</a>
+          <p class="search-hint"><span class="search-hint__keys"><span><kbd>↑</kbd><kbd>↓</kbd> перемещение</span><span><kbd>Enter</kbd> открыть</span></span><span id="search-count" class="search-hint__count">Введите запрос</span></p>
         </div>
       </div>
     </dialog>
