@@ -1459,6 +1459,30 @@ html[data-theme="light"] .theme-icon-dark {
   background: var(--accent-strong);
 }
 
+.legend-mark--info {
+  background: var(--info);
+}
+
+#areaPrimary .stop-start {
+  stop-color: var(--accent-strong);
+  stop-opacity: 0.28;
+}
+
+#areaPrimary .stop-end {
+  stop-color: var(--accent-strong);
+  stop-opacity: 0;
+}
+
+#areaSecondary .stop-start {
+  stop-color: var(--info);
+  stop-opacity: 0.22;
+}
+
+#areaSecondary .stop-end {
+  stop-color: var(--info);
+  stop-opacity: 0;
+}
+
 .chart-summary {
   margin-left: auto;
   color: var(--text-secondary);

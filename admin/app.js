@@ -290,6 +290,7 @@
     currentView: initialHashView in viewMeta ? initialHashView : "overview",
     catalogQuery: "",
     catalogFilter: "all",
+    usersRoleFilter: "all",
     selectedAnime: new Set(),
     catalogTimer: null,
     parserTab:
@@ -529,7 +530,34 @@
           `<span class="status-strip__segment status-strip__segment--${jobStatusTone[key]}" style="width:${(jobStatusCounts[key] / jobsSample.length) * 100}%"></span>`,
       )
       .join("")}</div><span class="status-strip__legend">${jobStatusLegend}</span></div>`;
-    return `${heading({ eyebrow: `<span class="status-dot status-dot--ok"></span> Контрактный снимок · поля активного Go API`, title: "Контур управления Kitsu", description: "Решения оператора, реальные фоновые процессы и инфраструктура — без синтетических процентов.", actions: `${actionButton("Найти в источниках", "go-imports", "search-code")}${actionButton("Ручной запуск", "start-sync", "play", true)}` })}<div class="metric-grid"><article class="metric-card metric-card--focus"><span>Пользователи</span><strong>24 812</strong><small>1 284 активны за сутки</small><div class="metric-ratio" role="img" aria-label="1 284 из 24 812 активны за сутки"><span style="width:${((1284 / 24812) * 100).toFixed(1)}%"></span></div></article><article class="metric-card"><span>Аниме</span><strong>3 402</strong><small>184 онгоинга</small><div class="metric-ratio" role="img" aria-label="184 из 3 402 в статусе онгоинг"><span style="width:${((184 / 3402) * 100).toFixed(1)}%"></span></div></article><article class="metric-card"><span>Активные релизы</span><strong>18 429</strong><small>доступны в плеере</small></article><article class="metric-card"><span>Go process uptime</span><strong>3д 11ч</strong><small>данные runtime, не SLA</small></article></div><div class="control-layout"><section class="panel panel--flush decision-panel"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">01 · Очередь решений</span><h2 class="panel-title">Требуется оператор</h2><p class="panel-subtitle">Только события, которые нельзя безопасно завершить автоматически</p></div><span class="queue-total">20 открыто</span></header>${queueBreakdown}<div class="decision-list">${decisionRows}</div></section><aside class="active-operation"><div class="active-operation__head"><div><span class="section-kicker">02 · Активная операция</span><h2>Kodik full sync</h2><p>#J-8412 · ручной · sample response</p></div>${status("Выполняется", "info")}</div><div class="operation-clock"><strong>18:42</strong><span>прошло с запуска</span></div><div class="indeterminate-track" role="progressbar" aria-label="Задача выполняется без публикации точного прогресса"><span></span></div><div class="truth-note">${icon("info")}<p><strong>Полный sync не публикует промежуточный процент.</strong><br>Live-счётчики для full sync не публикуются. Частичные stats при cancel/timeout могут быть только в terminal ParserJobLog.details; checkpoint/resume API нет.</p></div><div class="operation-actions"><button class="button button--primary" data-action="view-job" data-id="#J-8412">${icon("panel-right-open")}Открыть задачу</button><button class="button button--danger" data-action="stop-job">${icon("square")}Остановить</button></div></aside></div><section class="health-ribbon" aria-label="Состояние сервисов"><button data-view="monitoring"><span>Go API</span><strong><i class="status-dot status-dot--ok"></i>online</strong><small>health snapshot</small></button><button data-view="monitoring"><span>PostgreSQL</span><strong><i class="status-dot status-dot--ok"></i>12 ms</strong><small>основная база</small></button><button data-view="monitoring"><span>Cache</span><strong><i class="status-dot status-dot--warning"></i>не проверен*</strong><small>backend возвращает online без probe</small></button><button data-view="parsers"><span>Workers</span><strong><i class="status-dot status-dot--ok"></i>2 active</strong><small>Inspector count · без denominator</small></button><button data-view="monitoring"><span>Storage</span><strong><i class="status-dot status-dot--warning"></i>68%</strong><small>root filesystem · disk_percent</small></button></section><section class="panel panel--flush"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">03 · Исполнение</span><h2 class="panel-title">Последние задачи</h2><p class="panel-subtitle">Статусы pending · running · completed · failed · cancelled</p>${jobStatusStrip}</div><button class="panel-link" data-view="parsers">Задачи и логи ${icon("arrow-right")}</button></header><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Задача</th><th>Статус</th><th>Прогресс</th><th>Старт</th><th>Длительность</th><th></th></tr></thead><tbody>${jobRows}</tbody></table></div></section>`;
+    const processedDays = [
+      ["9 авг", 742, 210],
+      ["10 авг", 891, 340],
+      ["11 авг", 654, 180],
+      ["12 авг", 1023, 265],
+      ["13 авг", 986, 298],
+      ["14 авг", 1248, 410],
+      ["15 авг", 610, 155],
+    ];
+    const chartMax = Math.max(...processedDays.flatMap((row) => [row[1], row[2]]));
+    const chartTop = 20;
+    const chartBottom = 196;
+    const chartUsable = chartBottom - chartTop;
+    const chartX = (i) => i * 100 + 50;
+    const chartY = (v) => Math.round((chartBottom - (v / chartMax) * chartUsable) * 10) / 10;
+    const linePath = (key) =>
+      processedDays.map((row, i) => `${i === 0 ? "M" : "L"}${chartX(i)},${chartY(row[key])}`).join(" ");
+    const areaPath = (key) => {
+      const first = chartX(0);
+      const last = chartX(processedDays.length - 1);
+      return `M${first},${chartBottom} ${linePath(key).replace(/^M/, "L")} L${last},${chartBottom} Z`;
+    };
+    const points = (key) =>
+      processedDays.map((row, i) => `<circle class="chart-point" cx="${chartX(i)}" cy="${chartY(row[key])}" r="3"></circle>`).join("");
+    const totalKodik = processedDays.reduce((sum, row) => sum + row[1], 0);
+    const totalShikimori = processedDays.reduce((sum, row) => sum + row[2], 0);
+    const processedChart = `<section class="panel panel--flush"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">Обработка источников</span><h2 class="panel-title">Обработано за 7 дней</h2><p class="panel-subtitle">items_processed по Kodik incremental и Shikimori related refresh</p></div></header><div class="chart-wrap"><div class="chart-legend"><span class="legend-item"><i class="legend-mark"></i>Kodik · ${totalKodik.toLocaleString("ru-RU")}</span><span class="legend-item"><i class="legend-mark legend-mark--info"></i>Shikimori · ${totalShikimori.toLocaleString("ru-RU")}</span><span class="chart-summary">За неделю <strong>${(totalKodik + totalShikimori).toLocaleString("ru-RU")}</strong></span></div><div class="chart-canvas"><svg viewBox="0 0 700 208" preserveAspectRatio="none" role="img" aria-label="Обработанные записи за 7 дней: Kodik и Shikimori"><defs><linearGradient id="areaPrimary" x1="0" y1="0" x2="0" y2="1"><stop class="stop-start" offset="0%"></stop><stop class="stop-end" offset="100%"></stop></linearGradient><linearGradient id="areaSecondary" x1="0" y1="0" x2="0" y2="1"><stop class="stop-start" offset="0%"></stop><stop class="stop-end" offset="100%"></stop></linearGradient></defs><g class="chart-grid"><line x1="0" y1="196" x2="700" y2="196"></line><line x1="0" y1="130" x2="700" y2="130"></line><line x1="0" y1="64" x2="700" y2="64"></line></g><path class="chart-area-secondary" d="${areaPath(2)}"></path><path class="chart-area-primary" d="${areaPath(1)}"></path><path class="chart-line-secondary" d="${linePath(2)}"></path><path class="chart-line-primary" d="${linePath(1)}"></path>${points(2)}${points(1)}</svg></div><div class="chart-labels">${processedDays.map((row) => `<span>${row[0]}</span>`).join("")}</div></div></section>`;
+    return `${heading({ eyebrow: `<span class="status-dot status-dot--ok"></span> Контрактный снимок · поля активного Go API`, title: "Контур управления Kitsu", description: "Решения оператора, реальные фоновые процессы и инфраструктура — без синтетических процентов.", actions: `${actionButton("Найти в источниках", "go-imports", "search-code")}${actionButton("Ручной запуск", "start-sync", "play", true)}` })}<div class="metric-grid"><article class="metric-card metric-card--focus"><span>Пользователи</span><strong>24 812</strong><small>1 284 активны за сутки</small><div class="metric-ratio" role="img" aria-label="1 284 из 24 812 активны за сутки"><span style="width:${((1284 / 24812) * 100).toFixed(1)}%"></span></div></article><article class="metric-card"><span>Аниме</span><strong>3 402</strong><small>184 онгоинга</small><div class="metric-ratio" role="img" aria-label="184 из 3 402 в статусе онгоинг"><span style="width:${((184 / 3402) * 100).toFixed(1)}%"></span></div></article><article class="metric-card"><span>Активные релизы</span><strong>18 429</strong><small>доступны в плеере</small></article><article class="metric-card"><span>Go process uptime</span><strong>3д 11ч</strong><small>данные runtime, не SLA</small></article></div>${processedChart}<div class="control-layout"><section class="panel panel--flush decision-panel"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">01 · Очередь решений</span><h2 class="panel-title">Требуется оператор</h2><p class="panel-subtitle">Только события, которые нельзя безопасно завершить автоматически</p></div><span class="queue-total">20 открыто</span></header>${queueBreakdown}<div class="decision-list">${decisionRows}</div></section><aside class="active-operation"><div class="active-operation__head"><div><span class="section-kicker">02 · Активная операция</span><h2>Kodik full sync</h2><p>#J-8412 · ручной · sample response</p></div>${status("Выполняется", "info")}</div><div class="operation-clock"><strong>18:42</strong><span>прошло с запуска</span></div><div class="indeterminate-track" role="progressbar" aria-label="Задача выполняется без публикации точного прогресса"><span></span></div><div class="truth-note">${icon("info")}<p><strong>Полный sync не публикует промежуточный процент.</strong><br>Live-счётчики для full sync не публикуются. Частичные stats при cancel/timeout могут быть только в terminal ParserJobLog.details; checkpoint/resume API нет.</p></div><div class="operation-actions"><button class="button button--primary" data-action="view-job" data-id="#J-8412">${icon("panel-right-open")}Открыть задачу</button><button class="button button--danger" data-action="stop-job">${icon("square")}Остановить</button></div></aside></div><section class="health-ribbon" aria-label="Состояние сервисов"><button data-view="monitoring"><span>Go API</span><strong><i class="status-dot status-dot--ok"></i>online</strong><small>health snapshot</small></button><button data-view="monitoring"><span>PostgreSQL</span><strong><i class="status-dot status-dot--ok"></i>12 ms</strong><small>основная база</small></button><button data-view="monitoring"><span>Cache</span><strong><i class="status-dot status-dot--warning"></i>не проверен*</strong><small>backend возвращает online без probe</small></button><button data-view="parsers"><span>Workers</span><strong><i class="status-dot status-dot--ok"></i>2 active</strong><small>Inspector count · без denominator</small></button><button data-view="monitoring"><span>Storage</span><strong><i class="status-dot status-dot--warning"></i>68%</strong><small>root filesystem · disk_percent</small></button></section><section class="panel panel--flush"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">03 · Исполнение</span><h2 class="panel-title">Последние задачи</h2><p class="panel-subtitle">Статусы pending · running · completed · failed · cancelled</p>${jobStatusStrip}</div><button class="panel-link" data-view="parsers">Задачи и логи ${icon("arrow-right")}</button></header><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Задача</th><th>Статус</th><th>Прогресс</th><th>Старт</th><th>Длительность</th><th></th></tr></thead><tbody>${jobRows}</tbody></table></div></section>`;
   }
 
   function renderParserCenterReal() {
@@ -809,7 +837,7 @@
       selected[0] === "blacklist"
         ? `<section class="config-section"><header><div><span class="section-kicker">Отдельный ресурс</span><h2>ParserAnimeBlacklist</h2><p>Это GET/POST/DELETE /dashboard/parsers/blacklist, а не JSON из parser_settings.</p></div><button class="button" data-action="add-blacklist">${icon("plus")}Добавить запись</button></header><div class="blacklist-table"><div><strong>shikimori_id=58567</strong><span>kodik_id=498912 · slug=null</span><button class="row-action" data-action="remove-blacklist" aria-label="Удалить blacklist entry 58567">${icon("trash-2")}</button></div><div><strong>slug=sample-anime-slug</strong><span>shikimori_id=null · kodik_id=null</span><button class="row-action" data-action="remove-blacklist" aria-label="Удалить blacklist entry sample-anime-slug">${icon("trash-2")}</button></div><div><strong>kodik_id=472104</strong><span>shikimori_id=null · slug=null</span><button class="row-action" data-action="remove-blacklist" aria-label="Удалить blacklist entry 472104">${icon("trash-2")}</button></div></div></section>`
         : "";
-    return `${heading({ eyebrow: "Потоки данных · ParserSettings", title: "Настройки парсера", description: "Восемь seeded categories и произвольный JSON contract — без выдуманных typed-полей.", actions: actionButton("Сохранить JSON", "save-parser-settings", "save", true) })}<div class="config-layout"><nav class="config-nav" aria-label="Категории настроек парсера">${nav}</nav><main class="config-content"><div class="truth-note">${icon("triangle-alert")}<p><strong>Сохранено не значит применено.</strong><br>PATCH записывает category, description и config, но активный Go worker не читает parser_settings. Перед типизацией каждого ключа сначала найти runtime-consumer и тест.</p></div><section class="config-section"><header><div><span class="section-kicker">${selected[0]}</span><h2>${selected[1]}</h2><p>${selected[3]}</p></div>${status("Stored JSON", "neutral")}</header><div class="form-grid form-grid--editor"><label class="field field--full"><span>description</span><input value="${selected[3]}"></label><label class="field field--full"><span>config · JSON object</span><textarea rows="12" spellcheck="false" aria-label="JSON config ${selected[0]}">{}</textarea><small>GET возвращает фактический object. PATCH может upsert category; UI не должен подставлять клиентские defaults поверх ответа.</small></label></div><dl class="definition-list"><dt>Read</dt><dd>GET /dashboard/parsers/settings</dd><dt>Write</dt><dd>PATCH /dashboard/parsers/settings/${selected[0]}</dd><dt>Runtime consumer</dt><dd>Не найден в Go worker</dd><dt>Applied status</dt><dd>Неизвестно</dd></dl></section>${blacklist}<div class="config-footer"><span>updated_at и updated_by показывать только из GET response</span><button class="button button--primary" data-action="save-parser-settings">${icon("save")}Сохранить JSON</button></div></main></div>`;
+    return `${heading({ eyebrow: "Потоки данных · ParserSettings", title: "Настройки парсера", description: "Восемь seeded categories и произвольный JSON contract — без выдуманных typed-полей.", actions: `${actionButton("Экспорт JSON", "export-parser-settings", "download")}${actionButton("Сохранить JSON", "save-parser-settings", "save", true)}` })}<div class="config-layout"><nav class="config-nav" aria-label="Категории настроек парсера">${nav}</nav><main class="config-content"><div class="truth-note">${icon("triangle-alert")}<p><strong>Сохранено не значит применено.</strong><br>PATCH записывает category, description и config, но активный Go worker не читает parser_settings. Перед типизацией каждого ключа сначала найти runtime-consumer и тест.</p></div><section class="config-section"><header><div><span class="section-kicker">${selected[0]}</span><h2>${selected[1]}</h2><p>${selected[3]}</p></div>${status("Stored JSON", "neutral")}</header><div class="form-grid form-grid--editor"><label class="field field--full"><span>description</span><input value="${selected[3]}"></label><label class="field field--full"><span>config · JSON object</span><textarea id="parser-settings-config" rows="12" spellcheck="false" aria-label="JSON config ${selected[0]}">{}</textarea><small>GET возвращает фактический object. PATCH может upsert category; UI не должен подставлять клиентские defaults поверх ответа.</small></label></div><dl class="definition-list"><dt>Read</dt><dd>GET /dashboard/parsers/settings</dd><dt>Write</dt><dd>PATCH /dashboard/parsers/settings/${selected[0]}</dd><dt>Runtime consumer</dt><dd>Не найден в Go worker</dd><dt>Applied status</dt><dd>Неизвестно</dd></dl></section>${blacklist}<div class="config-footer"><span>updated_at и updated_by показывать только из GET response</span><button class="button button--primary" data-action="save-parser-settings">${icon("save")}Сохранить JSON</button></div></main></div>`;
   }
 
   function renderAnimeEditorReal() {
@@ -1091,7 +1119,7 @@
           `<tr><td data-label="Коллекция"><div class="row-leading"><span class="collection-cover">${icon("library")}</span><span class="row-leading__copy"><strong>${row[1]}</strong><span>/collections/${row[2]} · ${row[0]}</span></span></div></td><td data-label="Items"><strong>${row[3]}</strong><small class="cell-subline">позиции сохранены</small></td><td data-label="Public">${status(row[4] ? "Публичная" : "Скрыта", row[4] ? "success" : "neutral")}</td><td data-label="Просмотры">${row[5]}</td><td data-label="Лайки">${row[6]}</td><td><button class="icon-button" data-action="view-collection" data-id="${row[0]}" aria-label="Открыть загруженные данные">${icon("panel-right-open")}</button></td></tr>`,
       )
       .join("");
-    return `${heading({ eyebrow: "Контент · Collection", title: "Коллекции", description: "Superuser list доступен для обзора; update/delete по-прежнему проверяют owner, поэтому экран read-only.", actions: actionButton("Обновить", "refresh-catalog", "refresh-cw") })}<div class="metric-grid"><article class="metric-card metric-card--focus"><span>Загружено</span><strong>5</strong><small>superuser list snapshot</small></article><article class="metric-card"><span>Public</span><strong>4</strong><small>в загруженной выборке</small></article><article class="metric-card"><span>Anime placements</span><strong>112</strong><small>сумма загруженных rows</small></article><article class="metric-card"><span>Owner mutations</span><strong>Read only</strong><small>admin list не обходит ownership</small></article></div><section class="panel panel--flush"><div class="table-toolbar"><div class="toolbar-leading"><span class="timezone-chip">Superuser list snapshot · owner mutations не выполняются</span></div></div><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Коллекция</th><th>Items</th><th>Public</th><th>Просмотры</th><th>Лайки</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
+    return `${heading({ eyebrow: "Контент · Collection", title: "Коллекции", description: "Superuser list доступен для обзора; update/delete по-прежнему проверяют owner, поэтому экран read-only.", actions: `${actionButton("Экспорт CSV", "export-collections", "download")}${actionButton("Обновить", "refresh-catalog", "refresh-cw")}` })}<div class="metric-grid"><article class="metric-card metric-card--focus"><span>Загружено</span><strong>5</strong><small>superuser list snapshot</small></article><article class="metric-card"><span>Public</span><strong>4</strong><small>в загруженной выборке</small></article><article class="metric-card"><span>Anime placements</span><strong>112</strong><small>сумма загруженных rows</small></article><article class="metric-card"><span>Owner mutations</span><strong>Read only</strong><small>admin list не обходит ownership</small></article></div><section class="panel panel--flush"><div class="table-toolbar"><div class="toolbar-leading"><span class="timezone-chip">Superuser list snapshot · owner mutations не выполняются</span></div></div><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Коллекция</th><th>Items</th><th>Public</th><th>Просмотры</th><th>Лайки</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
   }
 
   function renderAssetsReal() {
@@ -1128,7 +1156,7 @@
   }
 
   function renderUsersReal() {
-    const accounts = [
+    const accountsData = [
       [
         "U-1",
         "DM",
@@ -1195,7 +1223,18 @@
         "5 дней назад",
         "2 июл 2023",
       ],
-    ]
+    ];
+    const roleFilterOptions = ["all", ...new Set(accountsData.map((row) => row[4]))];
+    const roleFilterChips = roleFilterOptions
+      .map(
+        (role) =>
+          `<button class="filter-chip ${state.usersRoleFilter === role ? "is-active" : ""}" data-role-filter="${role}">${role === "all" ? "Все роли" : role}</button>`,
+      )
+      .join("");
+    const filteredAccounts = accountsData.filter(
+      (row) => state.usersRoleFilter === "all" || row[4] === state.usersRoleFilter,
+    );
+    const accounts = filteredAccounts
       .map((row) => {
         const ban = row[6]
           ? `<button class="button button--small" disabled>Superuser защищён</button>`
@@ -1233,7 +1272,7 @@
     const body =
       state.usersTab === "roles"
         ? `<div class="role-grid-real">${roles}</div>`
-        : `<section class="panel panel--flush"><div class="table-toolbar"><div class="toolbar-leading"><label class="search-field search-field--wide">${icon("search")}<input placeholder="Username или email" aria-label="Поиск пользователей"></label><span class="timezone-chip">Server query: q · skip · limit; total отсутствует</span></div></div><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Пользователь</th><th>Роль</th><th>Активен</th><th>Последняя активность</th><th>Создан</th><th></th></tr></thead><tbody>${accounts}</tbody></table></div></section>`;
+        : `<section class="panel panel--flush"><div class="table-toolbar table-toolbar--two-row"><div class="toolbar-leading"><label class="search-field search-field--wide">${icon("search")}<input placeholder="Username или email" aria-label="Поиск пользователей"></label><span class="timezone-chip">Server query: q · skip · limit; total отсутствует</span></div><div class="toolbar-actions">${roleFilterChips}</div></div><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Пользователь</th><th>Роль</th><th>Активен</th><th>Последняя активность</th><th>Создан</th><th></th></tr></thead><tbody>${accounts}</tbody></table></div><footer class="table-footer"><span>Показано ${filteredAccounts.length} из ${accountsData.length} загруженных · фильтр по роли — клиентский</span></footer></section>`;
     return `${heading({ eyebrow: "Управление · User и Role", title: "Пользователи и роли", description: "Загруженная страница пользователей, superuser-защита и назначение существующего role_id; роли read-only.", actions: actionButton("Обновить", "refresh-catalog", "refresh-cw") })}<div class="metric-grid"><article class="metric-card metric-card--focus"><span>Загружено</span><strong>6</strong><small>текущая page без server total</small></article><article class="metric-card"><span>Активны</span><strong>5</strong><small>в загруженной выборке</small></article><article class="metric-card"><span>Seeded roles</span><strong>4</strong><small>roles endpoint read-only</small></article><article class="metric-card"><span>Заблокированы</span><strong>1</strong><small>в загруженной выборке</small></article></div><div class="section-bar">${sectionTabs(
       [
         ["accounts", "Аккаунты"],
@@ -1837,6 +1876,34 @@
       return toast(
         "CSV скачан",
         "Экспортированы только строки загруженной страницы",
+      );
+    }
+    if (action === "export-collections") {
+      const rows = [...document.querySelectorAll(".data-table tr")].map((row) =>
+        [...row.querySelectorAll("th, td")]
+          .map((cell) => `"${cell.innerText.replaceAll('"', '""').trim()}"`)
+          .join(","),
+      );
+      downloadTextFile(
+        "kitsu-collections-loaded-page.csv",
+        rows.join("\n"),
+        "text/csv;charset=utf-8",
+      );
+      return toast(
+        "CSV скачан",
+        "Экспортированы только строки загруженной superuser list",
+      );
+    }
+    if (action === "export-parser-settings") {
+      const textarea = document.querySelector("#parser-settings-config");
+      downloadTextFile(
+        `kitsu-parser-settings-${state.parserSettingsTab}.json`,
+        textarea ? textarea.value : "{}",
+        "application/json;charset=utf-8",
+      );
+      return toast(
+        "JSON скачан",
+        `Экспортирован loaded config категории ${state.parserSettingsTab}`,
       );
     }
     if (action === "go-imports" || action === "import-kodik")
@@ -2487,6 +2554,12 @@
     const filter = event.target.closest("[data-filter]");
     if (filter) {
       state.catalogFilter = filter.dataset.filter;
+      renderCurrent();
+      return;
+    }
+    const roleFilter = event.target.closest("[data-role-filter]");
+    if (roleFilter) {
+      state.usersRoleFilter = roleFilter.dataset.roleFilter;
       renderCurrent();
       return;
     }
