@@ -396,6 +396,10 @@
   function initHeroSlider() {
     const root = $("#hero-slider");
     if (!root) return;
+    // .hero-section is display:none below 920px — same "desktop-only hero"
+    // treatment kitsu-enterprise-site's Hero.tsx uses (hidden lg:block).
+    // No point wiring up autoplay for a carousel nobody can see.
+    if (!window.matchMedia("(min-width: 921px)").matches) return;
     const slides = $$("[data-hero-slide]", root);
     const dotsWrap = $("[data-hero-dots]", root);
     const timerSpan = $("[data-hero-timer]", root);

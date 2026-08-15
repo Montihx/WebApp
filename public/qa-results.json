@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-15T08:21:45.053Z",
+  "generated_at": "2026-08-15T08:25:33.011Z",
   "summary": {
     "status": "pass",
     "total": 28,
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "671 блоков, структура сбалансирована"
+      "detail": "658 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
