@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0d0d0f" />
+    <title>Монстр — Kitsu · Anime Graphite</title>
+    <meta
+      name="description"
+      content="Интерактивный HTML-макет страницы аниме Kitsu в единой дизайн-системе Anime Graphite"
+    />
+    <script>
+      (() => {
+        try {
+          const saved = localStorage.getItem("kitsu-theme");
+          if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+        } catch (_) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="anime">
+    <a class="skip-link" href="#main-content">К основному содержимому</a>
+
+    <header class="site-header site-header--solid" id="site-header">
+      <div class="header-inner">
+        <a class="brand" href="./index.html" aria-label="Kitsu — главная">
+          <span class="brand-mark" aria-hidden="true"><span>K</span></span>
+          <span class="brand-word">KITSU<span>.</span></span>
+        </a>
+        <nav class="desktop-nav" aria-label="Основная навигация">
+          <a class="nav-link" href="./index.html#catalog">Каталог</a>
+          <a class="nav-link" href="./index.html#schedule">Расписание</a>
+          <a class="nav-link" href="./index.html#collections">Коллекции</a>
+          <a class="nav-link is-active" href="#title-info">Тайтл</a>
+        </nav>
+        <div class="header-actions">
+          <button class="search-trigger" type="button" data-open-search aria-label="Открыть поиск">
+            <i data-lucide="search"></i><span>Найти аниме</span><kbd>/</kbd>
+          </button>
+          <button class="icon-button" type="button" data-theme-toggle aria-label="Включить светлую тему">
+            <i data-lucide="sun" class="theme-icon theme-icon--sun"></i>
+            <i data-lucide="moon" class="theme-icon theme-icon--moon"></i>
+          </button>
+          <div class="popover-wrap">
+            <button class="icon-button" id="notification-trigger" type="button" aria-label="Уведомления" aria-expanded="false" aria-controls="notification-popover">
+              <i data-lucide="bell"></i><span class="notification-dot" aria-label="2 новых уведомления"></span>
+            </button>
+            <div class="notification-popover" id="notification-popover" hidden>
+              <div class="popover-head"><strong>Уведомления</strong><button type="button" data-mark-read>Прочитать все</button></div>
+              <a class="notification-item" href="#player"><span class="notification-icon notification-icon--success"><i data-lucide="play"></i></span><span><strong>Новый релиз доступен</strong><small>Откройте список переводов в плеере</small></span><time>12 мин</time></a>
+              <a class="notification-item" href="#comments"><span class="notification-icon"><i data-lucide="message-circle"></i></span><span><strong>Ответ на комментарий</strong><small>Перейти к обсуждению тайтла</small></span><time>1 ч</time></a>
+            </div>
+          </div>
+          <a class="header-login" href="#login" data-prototype-action="Авторизация станет доступна после подключения шаблона к приложению.">Войти</a>
+        </div>
+        <button class="mobile-menu-button" type="button" id="mobile-menu-trigger" aria-label="Открыть меню"><i data-lucide="menu"></i></button>
+      </div>
+    </header>
+
+    <aside class="mobile-drawer" id="mobile-drawer" aria-label="Мобильное меню" aria-hidden="true">
+      <div class="mobile-drawer-head">
+        <a class="brand" href="./index.html"><span class="brand-mark"><span>K</span></span><span class="brand-word">KITSU<span>.</span></span></a>
+        <button class="icon-button" type="button" id="mobile-menu-close" aria-label="Закрыть меню"><i data-lucide="x"></i></button>
+      </div>
+      <button class="drawer-search" type="button" data-open-search><i data-lucide="search"></i><span>Найти аниме</span></button>
+      <nav class="mobile-drawer-nav">
+        <a href="./index.html#catalog"><i data-lucide="layout-grid"></i><span>Каталог</span></a>
+        <a href="#player"><i data-lucide="play-square"></i><span>Смотреть</span></a>
+        <a href="#episodes"><i data-lucide="list-video"></i><span>Серии</span></a>
+        <a href="#comments"><i data-lucide="message-circle"></i><span>Комментарии</span></a>
+      </nav>
+      <div class="drawer-theme-row"><span><i data-lucide="palette"></i>Оформление</span><button class="theme-switch" type="button" data-theme-toggle aria-label="Переключить тему"><span></span></button></div>
+    </aside>
+    <div class="drawer-scrim" id="drawer-scrim" hidden></div>
+
+    <main id="main-content">
+      <section class="title-hero" id="title-info" aria-labelledby="title-name">
+        <div class="title-backdrop" aria-hidden="true">
+          <div class="title-backdrop-plane"></div>
+          <img src="https://shikimori.one/system/animes/original/19.jpg" alt="" fetchpriority="high" referrerpolicy="no-referrer" />
+        </div>
+        <div class="page-container title-hero-inner">
+          <nav class="breadcrumbs" aria-label="Хлебные крошки">
+            <a href="./index.html">Главная</a><i data-lucide="chevron-right"></i><a href="./index.html#catalog">Каталог</a><i data-lucide="chevron-right"></i><span>Монстр</span>
+          </nav>
+          <div class="title-layout">
+            <div class="title-poster-wrap">
+              <div class="title-poster">
+                <img src="https://shikimori.one/system/animes/original/19.jpg" alt="Постер аниме «Монстр»" referrerpolicy="no-referrer" />
+                <span class="age-badge">R-17</span>
+              </div>
+              <div class="title-poster-actions">
+                <button class="button button--primary button--wide" type="button" data-scroll-player><i data-lucide="play"></i>Смотреть</button>
+                <div class="list-control">
+                  <button class="button button--secondary button--wide" type="button" id="list-trigger" aria-expanded="false" aria-controls="list-menu"><i data-lucide="bookmark-plus"></i><span id="list-label">В мой список</span><i data-lucide="chevron-down"></i></button>
+                  <div class="list-menu" id="list-menu" hidden>
+                    <button type="button" data-list-status="watching"><i data-lucide="play-circle"></i><span>Смотрю</span></button>
+                    <button type="button" data-list-status="completed"><i data-lucide="circle-check"></i><span>Просмотрено</span></button>
+                    <button type="button" data-list-status="planned"><i data-lucide="clock-3"></i><span>Запланировано</span></button>
+                    <button type="button" data-list-status="on_hold"><i data-lucide="pause-circle"></i><span>Отложено</span></button>
+                    <button type="button" data-list-status="dropped"><i data-lucide="circle-minus"></i><span>Брошено</span></button>
+                    <button class="list-remove" type="button" data-list-status="none"><i data-lucide="trash-2"></i><span>Удалить из списка</span></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="title-main-copy">
+              <div class="title-status-line"><span class="status-pill status-pill--released"><span></span>Завершён</span><span>TV-сериал</span><span>2004</span></div>
+              <div class="title-heading-row">
+                <div><h1 id="title-name">Монстр</h1><p>Monster · モンスター</p></div>
+                <button class="icon-button title-info-button" type="button" data-open-titles aria-label="Все названия"><i data-lucide="info"></i></button>
+              </div>
+              <div class="title-stats" aria-label="Статистика тайтла">
+                <div><span class="stat-icon stat-icon--score"><i data-lucide="star"></i></span><span><strong>8.88</strong><small>оценка</small></span></div>
+                <div><span class="stat-icon"><i data-lucide="list-video"></i></span><span><strong>74</strong><small>серии</small></span></div>
+                <div><span class="stat-icon"><i data-lucide="bookmark"></i></span><span><strong data-count-label="favorites">В списки</strong><small>добавить</small></span></div>
+                <button type="button" data-scroll-comments><span class="stat-icon"><i data-lucide="message-circle"></i></span><span><strong>Комментарии</strong><small>обсуждение</small></span></button>
+              </div>
+              <div class="title-meta-list">
+                <div><i data-lucide="map-pin"></i><span><small>Страна</small><strong>Япония</strong></span></div>
+                <div><i data-lucide="calendar-days"></i><span><small>Показ</small><strong>2004–2005</strong></span></div>
+                <div><i data-lucide="building-2"></i><span><small>Студия</small><strong>Madhouse</strong></span></div>
+                <div><i data-lucide="badge-check"></i><span><small>Статус</small><strong>Вышел</strong></span></div>
+              </div>
+              <div class="genre-links" aria-label="Жанры"><a href="./index.html#catalog">Драма</a><a href="./index.html#catalog">Детектив</a><a href="./index.html#catalog">Триллер</a><a href="./index.html#catalog">Психологическое</a></div>
+              <div class="title-description" id="title-description">
+                <p>
+                  Блестящий нейрохирург Кэндзо Тэмма спасает тяжело раненого мальчика, поставив врачебный долг выше распоряжения руководства. Спустя годы последствия этого решения возвращают его к старому пациенту и превращают спокойную жизнь в долгий поиск истины.
+                </p>
+                <p class="title-description-more" hidden>
+                  История разворачивается в послевоенной Европе и постепенно связывает личный выбор врача, исчезнувшие воспоминания и преступления, которые на первый взгляд не имеют ничего общего.
+                </p>
+                <button type="button" data-expand-description aria-expanded="false">Подробнее <i data-lucide="chevron-down"></i></button>
+              </div>
+              <div class="title-inline-actions">
+                <button class="labeled-icon-button" type="button" id="subscribe-trigger" aria-expanded="false" aria-controls="subscribe-menu"><i data-lucide="bell"></i><span>Уведомления</span><i data-lucide="chevron-down"></i></button>
+                <div class="subscribe-menu" id="subscribe-menu" hidden>
+                  <p>Уведомлять о</p>
+                  <button type="button" data-subscribe="episode"><i data-lucide="tv"></i><span>Новых сериях</span><i data-lucide="check"></i></button>
+                  <button type="button" data-subscribe="dubbing"><i data-lucide="mic-2"></i><span>Новых озвучках</span><i data-lucide="check"></i></button>
+                  <button type="button" data-subscribe="all"><i data-lucide="bell-ring"></i><span>Обо всех обновлениях</span><i data-lucide="check"></i></button>
+                  <button class="subscribe-remove" type="button" data-subscribe="none"><i data-lucide="bell-off"></i><span>Выключить</span></button>
+                </div>
+                <button class="labeled-icon-button" type="button" data-share><i data-lucide="share-2"></i><span>Поделиться</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section player-section" id="player" aria-labelledby="player-title">
+        <div class="page-container">
+          <div class="section-heading player-heading">
+            <div><p class="section-kicker">Просмотр</p><h2 id="player-title">Серия 1</h2><p class="section-subtitle" id="player-subtitle">Сезон 1 · выбранный перевод</p></div>
+            <div class="player-head-actions"><span class="last-update" id="release-status"><i data-lucide="radio"></i>Kodik · AniLibria.TV · 1080p</span><button class="icon-button" type="button" data-open-player-settings aria-label="Настройки плеера"><i data-lucide="settings-2"></i></button></div>
+          </div>
+
+          <div class="watch-layout">
+            <div class="player-column">
+              <div class="player-stage" id="player-stage" aria-label="Область видеоплеера">
+                <div class="player-stage-art" aria-hidden="true"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /></div>
+                <div class="player-stage-copy"><span class="player-kicker"><i data-lucide="play-square"></i>Kitsu Player</span><strong id="stage-episode-title">Серия 1</strong><small id="stage-translation">Выберите перевод и запустите воспроизведение</small></div>
+                <button class="player-main-button" type="button" id="player-toggle" aria-label="Запустить воспроизведение"><i data-lucide="play"></i><span>Воспроизвести</span></button>
+                <div class="player-controls">
+                  <button type="button" data-player-play aria-label="Запустить воспроизведение"><i data-lucide="play"></i></button>
+                  <div class="player-timeline" aria-label="Позиция воспроизведения"><span></span></div>
+                  <time>00:00 / 24:00</time>
+                  <button type="button" data-player-mute aria-label="Выключить звук"><i data-lucide="volume-2"></i></button>
+                  <button type="button" data-player-fullscreen aria-label="Полноэкранный режим"><i data-lucide="maximize"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <aside class="release-panel" aria-label="Выбор релиза">
+              <div class="release-panel-head"><div><p class="section-kicker">Релиз</p><h3>Источник и перевод</h3></div><span class="source-status"><span></span>доступен</span></div>
+              <label class="field-label" for="source-select">Источник потока</label>
+              <div class="select-wrap"><select id="source-select"><option value="Kodik">Kodik</option><option value="AniBoom">AniBoom</option></select><i data-lucide="chevron-down"></i></div>
+              <label class="field-label" for="translation-select">Перевод</label>
+              <div class="select-wrap"><select id="translation-select"><option value="AniLibria.TV">AniLibria.TV</option><option value="AniDub Online">AniDub Online</option><option value="Субтитры">Субтитры</option></select><i data-lucide="chevron-down"></i></div>
+              <div class="translation-facts"><span><small>Тип</small><strong id="release-type">Озвучка</strong></span><span><small>Язык</small><strong id="release-language">Русский</strong></span><span><small>Качество</small><strong id="release-quality">1080p</strong></span></div>
+              <fieldset class="player-options">
+                <legend>Поведение плеера</legend>
+                <label><input type="checkbox" checked data-player-option="opening" /><span class="check-ui"><i data-lucide="check"></i></span><span><strong>Пропускать опенинг</strong><small>Если есть skip times</small></span></label>
+                <label><input type="checkbox" checked data-player-option="ending" /><span class="check-ui"><i data-lucide="check"></i></span><span><strong>Пропускать эндинг</strong><small>Если есть skip times</small></span></label>
+                <label><input type="checkbox" data-player-option="autonext" /><span class="check-ui"><i data-lucide="check"></i></span><span><strong>Следующая серия</strong><small>Запускать автоматически</small></span></label>
+              </fieldset>
+              <div class="release-panel-footer"><i data-lucide="layers-3"></i><span><strong id="release-summary">Kodik</strong><small id="release-summary-detail">AniLibria.TV · 1080p</small></span></div>
+            </aside>
+          </div>
+
+          <div class="episodes-section" id="episodes">
+            <div class="episodes-toolbar">
+              <div class="episodes-title"><h3>Серии</h3><span>74 эпизода</span></div>
+              <div class="episodes-controls">
+                <label><span class="sr-only">Сезон</span><select id="season-select"><option value="1">Сезон 1</option></select><i data-lucide="chevron-down"></i></label>
+                <button class="view-toggle is-active" type="button" data-episode-view="grid" aria-label="Плитка"><i data-lucide="grid-2x2"></i></button>
+                <button class="view-toggle" type="button" data-episode-view="list" aria-label="Список"><i data-lucide="list"></i></button>
+              </div>
+            </div>
+            <div class="episode-grid" id="episode-grid">
+              <button class="episode-card is-selected" type="button" data-episode="1"><span class="episode-thumb"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span><span class="episode-copy"><strong>Серия 1</strong><small>Сезон 1</small></span><span class="episode-state"><i data-lucide="check-circle-2"></i></span></button>
+              <button class="episode-card" type="button" data-episode="2"><span class="episode-thumb"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span><span class="episode-copy"><strong>Серия 2</strong><small>Сезон 1</small></span><span class="episode-state"><i data-lucide="circle"></i></span></button>
+              <button class="episode-card" type="button" data-episode="3"><span class="episode-thumb"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span><span class="episode-copy"><strong>Серия 3</strong><small>Сезон 1</small></span><span class="episode-state"><i data-lucide="circle"></i></span></button>
+              <button class="episode-card" type="button" data-episode="4"><span class="episode-thumb"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span><span class="episode-copy"><strong>Серия 4</strong><small>Сезон 1</small></span><span class="episode-state"><i data-lucide="circle"></i></span></button>
+              <button class="episode-card" type="button" data-episode="5"><span class="episode-thumb"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span><span class="episode-copy"><strong>Серия 5</strong><small>Сезон 1</small></span><span class="episode-state"><i data-lucide="circle"></i></span></button>
+              <button class="episode-card" type="button" data-episode="6"><span class="episode-thumb"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span><span class="episode-copy"><strong>Серия 6</strong><small>Сезон 1</small></span><span class="episode-state"><i data-lucide="circle"></i></span></button>
+            </div>
+            <button class="load-more-button" type="button" data-load-episodes><span>Показать следующие серии</span><small>7–18 из 74</small><i data-lucide="chevron-down"></i></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section details-section" aria-labelledby="details-title">
+        <div class="page-container details-layout details-layout--single">
+          <div class="details-main">
+            <div class="section-heading"><div><p class="section-kicker">Карточка тайтла</p><h2 id="details-title">Подробности</h2></div></div>
+            <dl class="details-list">
+              <div><dt>Оригинальное название</dt><dd>モンスター</dd></div>
+              <div><dt>Английское название</dt><dd>Monster</dd></div>
+              <div><dt>Тип</dt><dd>TV-сериал</dd></div>
+              <div><dt>Эпизоды</dt><dd>74</dd></div>
+              <div><dt>Статус</dt><dd>Вышел</dd></div>
+              <div><dt>Дата показа</dt><dd>2004–2005</dd></div>
+              <div><dt>Студия</dt><dd>Madhouse</dd></div>
+              <div><dt>Возрастной рейтинг</dt><dd>R-17</dd></div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section" aria-labelledby="related-title">
+        <div class="page-container">
+          <div class="section-heading"><div><p class="section-kicker">Каталог</p><h2 id="related-title">Высокая оценка</h2></div><a class="section-link" href="./index.html#catalog">В каталог <i data-lucide="arrow-right"></i></a></div>
+          <div class="related-rail">
+            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="Постер аниме «Врата Штейна»" loading="lazy" referrerpolicy="no-referrer" /><span class="score-badge"><i data-lucide="star"></i>9.07</span><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a><div class="card-title-row"><a href="./anime.html"><h3>Врата Штейна</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p>TV · триллер</p></article>
+            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="Постер аниме «Ковбой Бибоп»" loading="lazy" referrerpolicy="no-referrer" /><span class="score-badge"><i data-lucide="star"></i>8.75</span><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a><div class="card-title-row"><a href="./anime.html"><h3>Ковбой Бибоп</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p>TV · драма</p></article>
+            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="Постер «Стального алхимика»" loading="lazy" referrerpolicy="no-referrer" /><span class="score-badge"><i data-lucide="star"></i>9.10</span><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a><div class="card-title-row"><a href="./anime.html"><h3>Стальной алхимик: Братство</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p>TV · приключения</p></article>
+            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/457.jpg" alt="Постер аниме «Мастер муси»" loading="lazy" referrerpolicy="no-referrer" /><span class="score-badge"><i data-lucide="star"></i>8.66</span><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a><div class="card-title-row"><a href="./anime.html"><h3>Мастер муси</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p>TV · сверхъестественное</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section content-section--last" id="comments" aria-labelledby="comments-title">
+        <div class="page-container comments-layout">
+          <div class="comments-main">
+            <div class="section-heading"><div><p class="section-kicker">Обсуждение</p><h2 id="comments-title">Комментарии</h2></div><span class="section-count">0</span></div>
+            <div class="login-comment-box"><span class="avatar-placeholder"><i data-lucide="user"></i></span><div><strong>Присоединитесь к обсуждению</strong><p>Авторизуйтесь, чтобы написать комментарий, ответить или поставить отметку.</p></div><button class="button button--secondary" type="button" data-prototype-action="Авторизация станет доступна после подключения шаблона к приложению."><i data-lucide="log-in"></i>Войти</button></div>
+            <div class="comments-empty"><span><i data-lucide="message-circle"></i></span><strong>Комментариев пока нет</strong><p>После публикации первого комментария здесь появится обсуждение тайтла.</p></div>
+          </div>
+          <aside class="discussion-rules"><i data-lucide="messages-square"></i><div><strong>Обсуждайте тайтл, а не друг друга</strong><p>Используйте спойлеры аккуратно и не публикуйте ссылки на сторонние копии видео.</p></div></aside>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="page-container footer-inner">
+        <div><a class="brand brand--footer" href="./index.html"><span class="brand-mark"><span>K</span></span><span class="brand-word">KITSU<span>.</span></span></a><p>Каталог, просмотр и личные списки — без визуального шума.</p></div>
+        <nav aria-label="Ссылки в подвале"><a href="./index.html#catalog">Каталог</a><a href="./index.html#schedule">Расписание</a><a href="./index.html#collections">Коллекции</a></nav>
+      </div>
+    </footer>
+
+    <nav class="mobile-bottom-nav" aria-label="Мобильная навигация">
+      <a href="./index.html"><i data-lucide="house"></i><span>Главная</span></a>
+      <a class="is-active" href="#player"><i data-lucide="play-square"></i><span>Смотреть</span></a>
+      <a href="#episodes"><i data-lucide="list-video"></i><span>Серии</span></a>
+      <a href="#comments"><i data-lucide="message-circle"></i><span>Обсуждение</span></a>
+    </nav>
+
+    <dialog class="search-dialog" id="search-dialog" aria-labelledby="search-title">
+      <div class="search-panel">
+        <div class="search-field-row"><i data-lucide="search"></i><input id="global-search" type="search" placeholder="Название на русском, английском или японском" autocomplete="off" aria-labelledby="search-title" /><kbd>Esc</kbd></div>
+        <div class="search-body">
+          <div class="search-head"><div><p class="section-kicker">Быстрый поиск</p><h2 id="search-title">Найти тайтл</h2></div><button class="icon-button" type="button" data-close-search aria-label="Закрыть поиск"><i data-lucide="x"></i></button></div>
+          <div class="search-results" id="search-results">
+            <a class="search-result" href="./anime.html" data-search-item="монстр monster"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small>Monster · TV · 2004</small></span><i data-lucide="arrow-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="провожающая фрирен sousou frieren"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Провожающая в последний путь Фрирен</strong><small>Sousou no Frieren · TV · 2023</small></span><i data-lucide="arrow-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="ковбой бибоп cowboy bebop"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>Cowboy Bebop · TV · 1998</small></span><i data-lucide="arrow-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="атака титанов shingeki kyojin"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>Shingeki no Kyojin · TV · 2013</small></span><i data-lucide="arrow-right"></i></a>
+            <div class="search-empty" id="search-empty" hidden><i data-lucide="search-x"></i><strong>Ничего не найдено</strong><span>Проверьте написание или измените запрос.</span></div>
+          </div>
+          <p class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> перемещение</span><span><kbd>Enter</kbd> открыть</span></p>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="content-dialog" id="titles-dialog" aria-labelledby="titles-dialog-title">
+      <div class="content-dialog-head"><div><p class="section-kicker">Названия</p><h2 id="titles-dialog-title">Монстр</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Закрыть"><i data-lucide="x"></i></button></div>
+      <dl class="dialog-data-list"><div><dt>Русское</dt><dd>Монстр</dd></div><div><dt>Английское</dt><dd>Monster</dd></div><div><dt>Оригинальное</dt><dd>モンスター</dd></div></dl>
+      <button class="button button--secondary button--wide" type="button" data-close-dialog>Закрыть</button>
+    </dialog>
+
+    <dialog class="content-dialog" id="player-settings-dialog" aria-labelledby="player-settings-title">
+      <div class="content-dialog-head"><div><p class="section-kicker">Плеер</p><h2 id="player-settings-title">Настройки просмотра</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Закрыть"><i data-lucide="x"></i></button></div>
+      <div class="settings-fields">
+        <label class="field-label" for="player-mode">Режим воспроизведения</label><div class="select-wrap"><select id="player-mode"><option>Автоматически</option><option>HLS</option><option>Kodik embed</option></select><i data-lucide="chevron-down"></i></div>
+        <label class="field-label" for="player-speed">Скорость</label><div class="select-wrap"><select id="player-speed"><option>1×</option><option>1.25×</option><option>1.5×</option><option>2×</option></select><i data-lucide="chevron-down"></i></div>
+        <label class="field-label" for="player-quality">Качество</label><div class="select-wrap"><select id="player-quality"><option>Автоматически</option><option>1080p</option><option>720p</option><option>480p</option></select><i data-lucide="chevron-down"></i></div>
+      </div>
+      <button class="button button--primary button--wide" type="button" data-save-player-settings><i data-lucide="check"></i>Сохранить</button>
+    </dialog>
+
+    <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
+    <script src="./vendor/lucide.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

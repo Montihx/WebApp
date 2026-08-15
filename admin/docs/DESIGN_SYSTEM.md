@@ -1,0 +1,182 @@
+# Anime Graphite — дизайн-система Kitsu
+
+## Замысел
+
+Система сохраняет компактность и расположение понравившегося dashboard. Dark строится на почти чёрном canvas и нейтральных graphite surfaces; светлая primary-кнопка создаёт ясную иерархию, а mauve появляется только в focus, selection и identity markers. Light использует тёплый нейтральный canvas, белые поверхности и `#381932` как локальный сильный action/brand anchor.
+
+Это собственная система Kitsu, а не копия Anixart и не набор случайных компонентов из UI-каталогов.
+
+## Цветовые роли
+
+Feature-компоненты используют semantic tokens. Raw hex разрешён только в token layer, poster placeholder/visualization palette и проверяемых third-party media states.
+
+| Роль           |      Dark |     Light | Применение                         |
+| -------------- | --------: | --------: | ---------------------------------- |
+| Canvas         | `#0D0D0F` | `#F5F4F2` | фон приложения                     |
+| Sidebar        | `#111113` | `#FBFAF9` | постоянная нейтральная навигация   |
+| Surface        | `#19191C` | `#FFFFFF` | panels, tables, cards              |
+| Raised         | `#212124` | `#F7F5F4` | popover, toolbar, input            |
+| Hover          | `#27272B` | `#EFEDEC` | обычный hover без brand tint       |
+| Active         | `#2D2D32` | `#E8E4E7` | selected surface                  |
+| Border         | `#2E2E33` | `#DEDADD` | обычная граница                    |
+| Strong border  | `#46464E` | `#C5BFC4` | focus/context boundary             |
+| Text           | `#F3F2F4` | `#252225` | основной текст                     |
+| Secondary      | `#B9B6BC` | `#5E5960` | пояснения                          |
+| Muted          | `#8B8790` | `#746E74` | metadata с AA-контрастом           |
+| Mauve marker   | `#93658A` | `#5B344F` | focus, selection rail, small cues  |
+| Mauve text     | `#C392B7` | `#5B344F` | малый accent text с AA-контрастом  |
+| Primary fill   | `#ECEAEC` | `#381932` | один главный action в контексте    |
+| Primary text   | `#171719` | `#FFFFFF` | текст главного action              |
+| Success        | `#56AD91` | `#2F7B66` | только подтверждённый success      |
+| Warning        | `#D0A052` | `#99671C` | attention/partial/unknown          |
+| Danger         | `#DE6D78` | `#B94155` | destructive/error                  |
+| Info           | `#7F9FBD` | `#4E789C` | редкое информационное состояние    |
+
+### Запреты цвета
+
+- Mauve не используется как canvas, sidebar fill, массовая заливка cards или общая тень. Его площадь должна оставаться небольшой.
+- Green не используется для brand, primary navigation или decorative glow.
+- Slate-blue не является темой или CTA: он разрешён только для информационного status и всегда сопровождается иконкой/текстом.
+- Red не используется для ordinary attention: warning остаётся amber.
+- Primary button и danger button никогда не имеют одинаковый вес рядом.
+- Status нельзя передавать только цветом: всегда label/icon/текст.
+- Gradients не являются фоном canvas или каждой карточки; допустимы только poster/media placeholders.
+
+## Правила иерархии из UX-референсов
+
+- Destructive confirmation всегда красный; brand/mauve не маскирует удаление, stop или ban.
+- Иконка сопровождается подписью, если действие нельзя однозначно распознать без контекста. Icon-only control обязан иметь accessible name и tooltip.
+- Radio применяется для одного выбора, checkbox — для независимого множественного выбора; switch — только для непосредственного boolean state.
+- Поле всегда имеет видимый label. Placeholder показывает пример, но не объясняет назначение поля.
+- Длинная form разделяется смысловыми headings, а не плоским набором inputs.
+- Название действия короткое и конкретное: `Удалить`, `Заменить связь`, `Остановить`, а не абстрактное `Продолжить`.
+- В одном контексте есть один визуально главный action; secondary и danger не конкурируют с ним.
+
+## Контраст и состояния
+
+Минимальные цели:
+
+- body text — WCAG AA 4.5:1;
+- large text/icons/controls — 3:1;
+- focus ring — видим на canvas, surface и sidebar;
+- disabled — контраст снижается, но label остаётся читаемым;
+- placeholder не заменяет label;
+- hover не является единственным признаком интерактивности.
+
+Проверять контраст автоматикой и вручную после каждого изменения токенов. Не считать вычисленный token contrast доказательством для текста поверх media/gradient.
+
+## Типографика
+
+- `Manrope` — body, controls, tables и длинный русский текст.
+- `Outfit` — page title, крупные числа и короткие product headings.
+- `Space Grotesk` — IDs, timestamps, API fields и telemetry, но не абзацы.
+- Production подключает шрифты через `next/font`; standalone хранит лицензированные woff2 локально.
+
+Рекомендуемые production размеры:
+
+| Уровень       | Размер / line-height | Правило                       |
+| ------------- | -------------------- | ----------------------------- |
+| Page title    | 28–34 / 1.1          | максимум две строки на mobile |
+| Section title | 18–22 / 1.2          | один смысловой блок           |
+| Card title    | 14–16 / 1.3          | не uppercase                  |
+| Body          | 14–16 / 1.5          | основной текст                |
+| Table         | 13–14 / 1.35         | плотный, но доступный         |
+| Metadata      | 11–12 / 1.4          | не ниже 11 px в production    |
+
+Standalone-прототип визуально уменьшен для обзорных screenshots; при переносе не копировать его пиксельные размеры вслепую — использовать production scale и проверить информационную плотность.
+
+## Геометрия и ритм
+
+- base spacing: 4 px; рабочие интервалы 8/12/16/24/32;
+- controls: 36–40 px desktop, минимум 44 px touch target на mobile;
+- table row: 48–56 px desktop;
+- radius: 8–12 px controls/panels, 14–18 px крупные overlays;
+- border: 1 px; elevation создаётся сочетанием границы и мягкой тени;
+- sidebar остаётся спокойным и постоянным, active item отмечается left rail + background, а не яркой pill;
+- page heading не превращается в marketing hero внутри admin.
+
+## Компоненты
+
+Единственная foundation — source-owned shadcn/UI components на Radix:
+
+- Button, IconButton, Badge/Status, Input, Textarea, Select, Checkbox, Switch;
+- FormField/FormMessage, Dialog/AlertDialog, Drawer/Sheet;
+- Popover, DropdownMenu, Tooltip, Tabs, Command;
+- Table/DataGrid shell, Pagination, Skeleton, EmptyState, ErrorState;
+- Toast через Sonner;
+- charts через Recharts только в admin и только для реальных series.
+
+Все variants используют semantic tokens, единый focus contract и consistent icon sizes. Feature code не создаёт собственные dialog/toast/button systems.
+
+## Information architecture dashboard
+
+1. Page heading объясняет объект и даёт максимум два primary-level actions.
+2. Summary показывает только реально доступные totals/snapshots/series.
+3. Filter toolbar отделяет query state от mutations.
+4. Table/card list сохраняет сравнимость ключевых полей.
+5. Drawer — inspect/read context; Dialog — short decision/confirmation; отдельная page — длинная form/workflow.
+6. Bulk bar появляется только после selection и показывает impact/count.
+7. Unsupported/gap не прячется: `Not probed`, `Read-only`, `Backend gap`, `Unknown`.
+
+## Формы
+
+- Form schema строится по create/update DTO, не по list/detail response.
+- Label, description и error имеют стабильные IDs/association.
+- Backend field errors маппятся в конкретные поля; form-level error содержит request ID.
+- Save button не сообщает success до успешного response.
+- Dirty navigation guard используется для длинных editors.
+- URL format validation не называется stream/availability check.
+- Dangerous changes показывают точный target, impact и необратимость.
+
+## Data/request states
+
+| State   | Требование                                                      |
+| ------- | --------------------------------------------------------------- |
+| Loading | skeleton сохраняет геометрию; controls корректно disabled       |
+| Empty   | предметная причина и только поддерживаемое следующее действие   |
+| Error   | сообщение, retry при допустимости, request ID; не пустой список |
+| Stale   | старые данные явно помечены; mutation risk ограничен            |
+| Partial | отсутствующий provider/field отделён от успешной части          |
+| Unknown | не заменяется `0`, green или synthetic score                    |
+| Success | только после подтверждённого response                           |
+
+## Motion
+
+- CSS — hover/focus/short layout transitions.
+- Motion (`motion/react`) — dialog/drawer presence, один public hero reveal, intentional list transition.
+- Duration обычно 120–220 ms; easing consistency важнее эффектности.
+- Никаких background animation loops в dashboard.
+- Indeterminate animation применяется только при реально неизвестном progress.
+- `prefers-reduced-motion` отключает transforms, loops и nonessential reveals.
+
+## Responsive
+
+- 1440+: полный sidebar и широкие tables.
+- 1024–1439: collapsible sidebar, сохранение ключевых columns.
+- 768–1023: off-canvas navigation, grids в 1–2 колонки.
+- 360–767: mobile dock/drawer, forms в один столбец, dialogs как sheet при необходимости.
+- Таблица становится domain cards только если сравнительная структура не теряется; иначе — доступный horizontal scroll с явным контекстом.
+- Проверять long Russian labels, 200% zoom, software keyboard и safe areas.
+
+## Public adaptation
+
+Public site использует те же colors, typography, controls, overlays и states, но:
+
+- media/posters получают больше площади;
+- borders и operational metadata становятся спокойнее;
+- Server Components обеспечивают полноценный first response;
+- authenticated interactions остаются малыми islands;
+- один выразительный visual moment допустим на home/auth, но не повторяется на каждом viewport;
+- player имеет отдельный high-contrast control layer, не зависит от surface palette страницы.
+
+## Анти-паттерны
+
+- generic AI dashboard с одинаковыми bento cards;
+- огромный hero в admin;
+- glassmorphism поверх таблиц;
+- gradient text и sparkles как brand substitute;
+- synthetic trend/chart из одной точки;
+- live indicator без реального live source;
+- hidden destructive action в icon-only menu без label/confirmation;
+- перенос hardcoded sample values в production;
+- второй theme engine или component runtime из внешнего каталога.

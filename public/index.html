@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0d0d0f" />
+    <title>Kitsu — главная · Anime Graphite</title>
+    <meta
+      name="description"
+      content="Интерактивный HTML-макет главной страницы Kitsu в единой дизайн-системе Anime Graphite"
+    />
+    <script>
+      (() => {
+        try {
+          const saved = localStorage.getItem("kitsu-theme");
+          if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+        } catch (_) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-page="home">
+    <a class="skip-link" href="#main-content">К основному содержимому</a>
+
+    <header class="site-header" id="site-header">
+      <div class="header-inner">
+        <a class="brand" href="./index.html" aria-label="Kitsu — главная">
+          <span class="brand-mark" aria-hidden="true"><span>K</span></span>
+          <span class="brand-word">KITSU<span>.</span></span>
+        </a>
+
+        <nav class="desktop-nav" aria-label="Основная навигация">
+          <a class="nav-link is-active" href="#catalog">Каталог</a>
+          <a class="nav-link" href="#schedule">Расписание</a>
+          <a class="nav-link" href="#collections">Коллекции</a>
+          <div class="nav-menu-wrap">
+            <button
+              class="nav-link nav-link--button"
+              type="button"
+              id="category-trigger"
+              aria-expanded="false"
+              aria-controls="category-menu"
+            >
+              Категории <i data-lucide="chevron-down"></i>
+            </button>
+            <div class="category-menu" id="category-menu" hidden>
+              <div class="category-column">
+                <p class="menu-caption">Жанры</p>
+                <a href="#catalog" data-filter-link="action"><i data-lucide="swords"></i>Экшен</a>
+                <a href="#catalog" data-filter-link="romance"><i data-lucide="heart"></i>Романтика</a>
+                <a href="#catalog" data-filter-link="fantasy"><i data-lucide="wand-sparkles"></i>Фэнтези</a>
+                <a href="#catalog" data-filter-link="drama"><i data-lucide="theater"></i>Драма</a>
+              </div>
+              <div class="category-column">
+                <p class="menu-caption">Тип</p>
+                <a href="#catalog" data-filter-link="tv"><i data-lucide="tv"></i>TV-сериалы</a>
+                <a href="#catalog" data-filter-link="movie"><i data-lucide="clapperboard"></i>Фильмы</a>
+                <a href="#catalog" data-filter-link="ova"><i data-lucide="disc-3"></i>OVA</a>
+                <a href="#catalog" data-filter-link="ona"><i data-lucide="radio-tower"></i>ONA</a>
+              </div>
+              <div class="category-column">
+                <p class="menu-caption">Подборки</p>
+                <a href="#catalog" data-filter-link="top"><i data-lucide="star"></i>Топ рейтинга</a>
+                <a href="#catalog" data-filter-link="ongoing"><i data-lucide="radio"></i>Онгоинги</a>
+                <a href="#season"><i data-lucide="calendar-days"></i>Сезон</a>
+                <a href="#collections"><i data-lucide="library"></i>Коллекции</a>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <div class="header-actions">
+          <button class="search-trigger" type="button" data-open-search aria-label="Открыть поиск">
+            <i data-lucide="search"></i>
+            <span>Найти аниме</span>
+            <kbd>/</kbd>
+          </button>
+          <button class="icon-button" type="button" data-theme-toggle aria-label="Включить светлую тему">
+            <i data-lucide="sun" class="theme-icon theme-icon--sun"></i>
+            <i data-lucide="moon" class="theme-icon theme-icon--moon"></i>
+          </button>
+          <div class="popover-wrap">
+            <button
+              class="icon-button"
+              id="notification-trigger"
+              type="button"
+              aria-label="Уведомления"
+              aria-expanded="false"
+              aria-controls="notification-popover"
+            >
+              <i data-lucide="bell"></i>
+              <span class="notification-dot" aria-label="2 новых уведомления"></span>
+            </button>
+            <div class="notification-popover" id="notification-popover" hidden>
+              <div class="popover-head">
+                <strong>Уведомления</strong>
+                <button type="button" data-mark-read>Прочитать все</button>
+              </div>
+              <a class="notification-item" href="./anime.html">
+                <span class="notification-icon notification-icon--success"><i data-lucide="play"></i></span>
+                <span><strong>Вышла новая серия</strong><small>Продолжите просмотр со страницы тайтла</small></span>
+                <time>12 мин</time>
+              </a>
+              <a class="notification-item" href="#schedule">
+                <span class="notification-icon"><i data-lucide="calendar-clock"></i></span>
+                <span><strong>Расписание изменилось</strong><small>Откройте календарь и историю переносов</small></span>
+                <time>1 ч</time>
+              </a>
+            </div>
+          </div>
+          <a class="header-login" href="#login" data-prototype-action="Авторизация станет доступна после подключения шаблона к приложению.">Войти</a>
+        </div>
+
+        <button class="mobile-menu-button" type="button" id="mobile-menu-trigger" aria-label="Открыть меню">
+          <i data-lucide="menu"></i>
+        </button>
+      </div>
+    </header>
+
+    <aside class="mobile-drawer" id="mobile-drawer" aria-label="Мобильное меню" aria-hidden="true">
+      <div class="mobile-drawer-head">
+        <a class="brand" href="./index.html"><span class="brand-mark"><span>K</span></span><span class="brand-word">KITSU<span>.</span></span></a>
+        <button class="icon-button" type="button" id="mobile-menu-close" aria-label="Закрыть меню"><i data-lucide="x"></i></button>
+      </div>
+      <button class="drawer-search" type="button" data-open-search><i data-lucide="search"></i><span>Найти аниме</span></button>
+      <nav class="mobile-drawer-nav">
+        <a href="#catalog"><i data-lucide="layout-grid"></i><span>Каталог</span></a>
+        <a href="#schedule"><i data-lucide="calendar-days"></i><span>Расписание</span></a>
+        <a href="#collections"><i data-lucide="library"></i><span>Коллекции</span></a>
+        <a href="#continue"><i data-lucide="history"></i><span>История просмотра</span></a>
+      </nav>
+      <div class="drawer-theme-row">
+        <span><i data-lucide="palette"></i>Оформление</span>
+        <button class="theme-switch" type="button" data-theme-toggle aria-label="Переключить тему"><span></span></button>
+      </div>
+    </aside>
+    <div class="drawer-scrim" id="drawer-scrim" hidden></div>
+
+    <main id="main-content">
+      <section class="hero-section" aria-labelledby="hero-title">
+        <div class="page-container">
+          <article class="feature-hero">
+            <div class="hero-copy">
+              <div class="hero-eyebrow">
+                <span class="status-marker status-marker--released"></span>
+                <span>TV-сериал · 28 серий · завершён</span>
+              </div>
+              <h1 id="hero-title">Провожающая в последний путь Фрирен</h1>
+              <p class="hero-subtitle">Sousou no Frieren</p>
+              <p class="hero-description">
+                После окончания великого путешествия эльфийка Фрирен пытается лучше понять людей и ценность коротких мгновений, которые раньше казались ей незначительными.
+              </p>
+              <div class="hero-tags" aria-label="Жанры">
+                <a href="#catalog">Фэнтези</a><a href="#catalog">Приключения</a><a href="#catalog">Драма</a>
+              </div>
+              <div class="hero-actions">
+                <a class="button button--primary" href="./anime.html"><i data-lucide="play"></i>Смотреть</a>
+                <a class="button button--secondary" href="./anime.html"><i data-lucide="info"></i>О тайтле</a>
+              </div>
+              <div class="hero-facts" aria-label="Основные данные">
+                <span><i data-lucide="star"></i><strong>9.31</strong></span>
+                <span><i data-lucide="calendar"></i>2023</span>
+                <span><i data-lucide="building-2"></i>Madhouse</span>
+              </div>
+            </div>
+            <div class="hero-art" aria-hidden="true">
+              <div class="hero-art-plane"></div>
+              <img
+                src="https://shikimori.one/system/animes/original/52991.jpg"
+                alt=""
+                fetchpriority="high"
+                referrerpolicy="no-referrer"
+              />
+              <div class="hero-poster-note"><span>9.31</span><small>оценка</small></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="content-section" id="continue" aria-labelledby="continue-title">
+        <div class="page-container">
+          <div class="section-heading">
+            <div><p class="section-kicker">История просмотра</p><h2 id="continue-title">Продолжить</h2></div>
+            <a class="section-link" href="#continue">Вся история <i data-lucide="arrow-right"></i></a>
+          </div>
+          <div class="continue-grid">
+            <article class="continue-card">
+              <a class="continue-poster" href="./anime.html" aria-label="Продолжить просмотр Атаки титанов">
+                <img src="https://shikimori.one/system/animes/original/16498.jpg" alt="Постер аниме «Атака титанов»" loading="lazy" referrerpolicy="no-referrer" />
+                <span class="continue-play"><i data-lucide="play"></i></span>
+              </a>
+              <div class="continue-copy">
+                <div class="continue-topline"><span>Сезон 1 · серия 12</span><button class="quiet-icon" type="button" data-remove-card aria-label="Убрать из истории"><i data-lucide="x"></i></button></div>
+                <a href="./anime.html"><h3>Атака титанов</h3></a>
+                <p>Остановились на 18:42</p>
+                <div class="progress-track" aria-label="Просмотрено 73 процента"><span style="width:73%"></span></div>
+              </div>
+            </article>
+            <article class="continue-card">
+              <a class="continue-poster" href="./anime.html" aria-label="Продолжить просмотр Ковбоя Бибопа">
+                <img src="https://shikimori.one/system/animes/original/1.jpg" alt="Постер аниме «Ковбой Бибоп»" loading="lazy" referrerpolicy="no-referrer" />
+                <span class="continue-play"><i data-lucide="play"></i></span>
+              </a>
+              <div class="continue-copy">
+                <div class="continue-topline"><span>Серия 7</span><button class="quiet-icon" type="button" data-remove-card aria-label="Убрать из истории"><i data-lucide="x"></i></button></div>
+                <a href="./anime.html"><h3>Ковбой Бибоп</h3></a>
+                <p>Остановились на 09:18</p>
+                <div class="progress-track" aria-label="Просмотрено 38 процентов"><span style="width:38%"></span></div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section" id="catalog" aria-labelledby="catalog-title">
+        <div class="page-container catalog-layout">
+          <div class="catalog-main">
+            <div class="section-heading section-heading--tabs">
+              <div><p class="section-kicker">Каталог</p><h2 id="catalog-title">Что посмотреть</h2></div>
+              <div class="tabs" role="tablist" aria-label="Фильтр каталога" data-tabs="catalog">
+                <button class="tab is-active" type="button" role="tab" aria-selected="true" data-filter="all">Новые серии</button>
+                <button class="tab" type="button" role="tab" aria-selected="false" tabindex="-1" data-filter="ongoing">Онгоинги</button>
+                <button class="tab" type="button" role="tab" aria-selected="false" tabindex="-1" data-filter="top">Высокая оценка</button>
+              </div>
+            </div>
+
+            <div class="anime-grid" id="anime-grid">
+              <article class="anime-card" data-status="released top">
+                <a class="poster-frame" href="./anime.html">
+                  <img src="https://shikimori.one/system/animes/original/19.jpg" alt="Постер аниме «Монстр»" loading="lazy" referrerpolicy="no-referrer" />
+                  <span class="score-badge"><i data-lucide="star"></i>8.88</span>
+                  <span class="episode-badge">74 эп.</span>
+                  <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
+                </a>
+                <div class="card-title-row"><a href="./anime.html"><h3>Монстр</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить «Монстр» в список"><i data-lucide="bookmark"></i></button></div>
+                <p>TV · 2004 · завершён</p>
+              </article>
+              <article class="anime-card" data-status="released top">
+                <a class="poster-frame" href="./anime.html">
+                  <img src="https://shikimori.one/system/animes/original/5114.jpg" alt="Постер «Стального алхимика»" loading="lazy" referrerpolicy="no-referrer" />
+                  <span class="score-badge"><i data-lucide="star"></i>9.10</span><span class="episode-badge">64 эп.</span>
+                  <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
+                </a>
+                <div class="card-title-row"><a href="./anime.html"><h3>Стальной алхимик: Братство</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
+                <p>TV · 2009 · завершён</p>
+              </article>
+              <article class="anime-card" data-status="released top">
+                <a class="poster-frame" href="./anime.html">
+                  <img src="https://shikimori.one/system/animes/original/9253.jpg" alt="Постер аниме «Врата Штейна»" loading="lazy" referrerpolicy="no-referrer" />
+                  <span class="score-badge"><i data-lucide="star"></i>9.07</span><span class="episode-badge">24 эп.</span>
+                  <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
+                </a>
+                <div class="card-title-row"><a href="./anime.html"><h3>Врата Штейна</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
+                <p>TV · 2011 · завершён</p>
+              </article>
+              <article class="anime-card" data-status="released top">
+                <a class="poster-frame" href="./anime.html">
+                  <img src="https://shikimori.one/system/animes/original/52991.jpg" alt="Постер аниме «Фрирен»" loading="lazy" referrerpolicy="no-referrer" />
+                  <span class="score-badge"><i data-lucide="star"></i>9.31</span><span class="episode-badge">28 эп.</span>
+                  <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
+                </a>
+                <div class="card-title-row"><a href="./anime.html"><h3>Провожающая в последний путь Фрирен</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
+                <p>TV · 2023 · завершён</p>
+              </article>
+              <article class="anime-card" data-status="released top">
+                <a class="poster-frame" href="./anime.html">
+                  <img src="https://shikimori.one/system/animes/original/40748.jpg" alt="Постер аниме «Магическая битва»" loading="lazy" referrerpolicy="no-referrer" />
+                  <span class="score-badge"><i data-lucide="star"></i>8.55</span><span class="episode-badge">47 эп.</span>
+                  <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
+                </a>
+                <div class="card-title-row"><a href="./anime.html"><h3>Магическая битва</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
+                <p>TV · 2020 · завершён</p>
+              </article>
+              <article class="anime-card" data-status="ongoing">
+                <a class="poster-frame" href="./anime.html">
+                  <img src="https://shikimori.one/system/animes/original/21.jpg" alt="Постер аниме «Ван-Пис»" loading="lazy" referrerpolicy="no-referrer" />
+                  <span class="score-badge"><i data-lucide="star"></i>8.73</span><span class="episode-badge">онгоинг</span>
+                  <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
+                </a>
+                <div class="card-title-row"><a href="./anime.html"><h3>Ван-Пис</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
+                <p>TV · 1999 · онгоинг</p>
+              </article>
+            </div>
+            <a class="wide-link" href="#catalog" data-prototype-action="Полный каталог откроется после подключения шаблона к маршрутам приложения."><span>Открыть весь каталог</span><i data-lucide="arrow-up-right"></i></a>
+          </div>
+
+          <aside class="schedule-card" id="schedule" aria-labelledby="schedule-title">
+            <div class="schedule-head"><div><p class="section-kicker">Календарь</p><h2 id="schedule-title">Расписание</h2></div><a href="#schedule" aria-label="Открыть полное расписание"><i data-lucide="arrow-up-right"></i></a></div>
+            <div class="day-tabs" role="tablist" aria-label="Дни недели" data-tabs="schedule">
+              <button type="button" class="day-tab" role="tab" aria-selected="false" tabindex="-1" data-day="prev">Вчера</button>
+              <button type="button" class="day-tab is-active" role="tab" aria-selected="true" data-day="today">Сегодня</button>
+              <button type="button" class="day-tab" role="tab" aria-selected="false" tabindex="-1" data-day="next">Завтра</button>
+            </div>
+            <div class="schedule-list" data-day-panel="today">
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/21.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Ван-Пис</strong><small>Новая серия · Япония</small></span><time>сегодня</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/40748.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Магическая битва</strong><small>Обновление перевода</small></span><time>сегодня</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Фрирен</strong><small>Обновление релиза</small></span><time>сегодня</time></a>
+            </div>
+            <div class="schedule-list" data-day-panel="prev" hidden>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>Релиз добавлен</small></span><time>вчера</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>Обновление перевода</small></span><time>вчера</time></a>
+            </div>
+            <div class="schedule-list" data-day-panel="next" hidden>
+              <div class="schedule-empty"><i data-lucide="calendar-check"></i><strong>Нет подтверждённых релизов</strong><span>Показываем только данные, которые пришли из календаря.</span></div>
+            </div>
+            <p class="schedule-note"><i data-lucide="info"></i>Время не показывается, если его нет в ответе API.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="content-section" id="season" aria-labelledby="season-title">
+        <div class="page-container">
+          <div class="section-heading"><div><p class="section-kicker">Сезон</p><h2 id="season-title">Сильные истории</h2></div><a class="section-link" href="#season">Показать все <i data-lucide="arrow-right"></i></a></div>
+          <div class="landscape-grid">
+            <a class="landscape-card" href="./anime.html"><img src="https://shikimori.one/system/animes/original/37521.jpg" alt="Постер «Саги о Винланде»" loading="lazy" referrerpolicy="no-referrer" /><span class="landscape-shade"></span><span class="landscape-copy"><small>Историческая драма</small><strong>Сага о Винланде</strong></span><span class="landscape-count"><i data-lucide="bookmark"></i>В списки</span></a>
+            <a class="landscape-card" href="./anime.html"><img src="https://shikimori.one/system/animes/original/33352.jpg" alt="Постер «Вайолет Эвергарден»" loading="lazy" referrerpolicy="no-referrer" /><span class="landscape-shade"></span><span class="landscape-copy"><small>Драма</small><strong>Вайолет Эвергарден</strong></span><span class="landscape-count"><i data-lucide="bookmark"></i>В списки</span></a>
+            <a class="landscape-card" href="./anime.html"><img src="https://shikimori.one/system/animes/original/457.jpg" alt="Постер «Мастер муси»" loading="lazy" referrerpolicy="no-referrer" /><span class="landscape-shade"></span><span class="landscape-copy"><small>Сверхъестественное</small><strong>Мастер муси</strong></span><span class="landscape-count"><i data-lucide="bookmark"></i>В списки</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section content-section--last" id="collections" aria-labelledby="collections-title">
+        <div class="page-container">
+          <div class="section-heading"><div><p class="section-kicker">Коллекции пользователей</p><h2 id="collections-title">Подборки недели</h2></div><a class="section-link" href="#collections">Все коллекции <i data-lucide="arrow-right"></i></a></div>
+          <div class="collection-grid">
+            <a class="collection-card" href="#collections"><div class="collection-stack"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div><div><strong>Истории, которые остаются</strong><span>12 тайтлов · открытая коллекция</span></div><i data-lucide="arrow-up-right"></i></a>
+            <a class="collection-card" href="#collections"><div class="collection-stack"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/457.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/33352.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div><div><strong>Спокойное фэнтези</strong><span>9 тайтлов · открытая коллекция</span></div><i data-lucide="arrow-up-right"></i></a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="page-container footer-inner">
+        <div><a class="brand brand--footer" href="./index.html"><span class="brand-mark"><span>K</span></span><span class="brand-word">KITSU<span>.</span></span></a><p>Каталог, просмотр и личные списки — без визуального шума.</p></div>
+        <nav aria-label="Ссылки в подвале"><a href="#catalog">Каталог</a><a href="#schedule">Расписание</a><a href="#collections">Коллекции</a></nav>
+      </div>
+    </footer>
+
+    <nav class="mobile-bottom-nav" aria-label="Мобильная навигация">
+      <a class="is-active" href="./index.html"><i data-lucide="house"></i><span>Главная</span></a>
+      <a href="#catalog"><i data-lucide="compass"></i><span>Обзор</span></a>
+      <a href="#continue"><i data-lucide="bookmark"></i><span>Закладки</span></a>
+      <a href="#login" data-prototype-action="Профиль станет доступен после подключения авторизации."><i data-lucide="circle-user-round"></i><span>Профиль</span></a>
+    </nav>
+
+    <dialog class="search-dialog" id="search-dialog" aria-labelledby="search-title">
+      <div class="search-panel">
+        <div class="search-field-row">
+          <i data-lucide="search"></i>
+          <input id="global-search" type="search" placeholder="Название на русском, английском или японском" autocomplete="off" aria-labelledby="search-title" />
+          <kbd>Esc</kbd>
+        </div>
+        <div class="search-body">
+          <div class="search-head"><div><p class="section-kicker">Быстрый поиск</p><h2 id="search-title">Найти тайтл</h2></div><button class="icon-button" type="button" data-close-search aria-label="Закрыть поиск"><i data-lucide="x"></i></button></div>
+          <div class="search-results" id="search-results">
+            <a class="search-result" href="./anime.html" data-search-item="монстр monster"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small>Monster · TV · 2004</small></span><i data-lucide="arrow-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="провожающая фрирен sousou frieren"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Провожающая в последний путь Фрирен</strong><small>Sousou no Frieren · TV · 2023</small></span><i data-lucide="arrow-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="ковбой бибоп cowboy bebop"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>Cowboy Bebop · TV · 1998</small></span><i data-lucide="arrow-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="атака титанов shingeki kyojin"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>Shingeki no Kyojin · TV · 2013</small></span><i data-lucide="arrow-right"></i></a>
+            <div class="search-empty" id="search-empty" hidden><i data-lucide="search-x"></i><strong>Ничего не найдено</strong><span>Проверьте написание или измените запрос.</span></div>
+          </div>
+          <p class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> перемещение</span><span><kbd>Enter</kbd> открыть</span></p>
+        </div>
+      </div>
+    </dialog>
+
+    <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
+
+    <script src="./vendor/lucide.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

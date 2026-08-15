@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "project": "Kitsu public template · Anime Graphite",
+  "generated_at": "2026-08-14T01:26:35.003Z",
+  "summary": {
+    "status": "pass",
+    "total": 24,
+    "passed": 24,
+    "failed": 0
+  },
+  "results": [
+    {
+      "id": "files.required",
+      "label": "Обязательные файлы",
+      "status": "pass",
+      "detail": "8 файлов на месте"
+    },
+    {
+      "id": "index.html.document",
+      "label": "index.html: документ",
+      "status": "pass",
+      "detail": "lang=ru, viewport и один H1"
+    },
+    {
+      "id": "index.html.ids",
+      "label": "index.html: уникальные ID",
+      "status": "pass",
+      "detail": "28 уникальных ID"
+    },
+    {
+      "id": "index.html.references",
+      "label": "index.html: локальные ссылки",
+      "status": "pass",
+      "detail": "38 локальных ссылок разрешены"
+    },
+    {
+      "id": "index.html.aria",
+      "label": "index.html: ARIA-ссылки",
+      "status": "pass",
+      "detail": "10 ссылок разрешены"
+    },
+    {
+      "id": "index.html.buttons",
+      "label": "index.html: типы кнопок",
+      "status": "pass",
+      "detail": "у каждой кнопки указан type"
+    },
+    {
+      "id": "index.html.images",
+      "label": "index.html: alt у изображений",
+      "status": "pass",
+      "detail": "27 изображений проверено"
+    },
+    {
+      "id": "index.html.anchors",
+      "label": "index.html: ссылки без заглушек",
+      "status": "pass",
+      "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "anime.html.document",
+      "label": "anime.html: документ",
+      "status": "pass",
+      "detail": "lang=ru, viewport и один H1"
+    },
+    {
+      "id": "anime.html.ids",
+      "label": "anime.html: уникальные ID",
+      "status": "pass",
+      "detail": "51 уникальных ID"
+    },
+    {
+      "id": "anime.html.references",
+      "label": "anime.html: локальные ссылки",
+      "status": "pass",
+      "detail": "33 локальных ссылок разрешены"
+    },
+    {
+      "id": "anime.html.aria",
+      "label": "anime.html: ARIA-ссылки",
+      "status": "pass",
+      "detail": "17 ссылок разрешены"
+    },
+    {
+      "id": "anime.html.buttons",
+      "label": "anime.html: типы кнопок",
+      "status": "pass",
+      "detail": "у каждой кнопки указан type"
+    },
+    {
+      "id": "anime.html.images",
+      "label": "anime.html: alt у изображений",
+      "status": "pass",
+      "detail": "17 изображений проверено"
+    },
+    {
+      "id": "anime.html.anchors",
+      "label": "anime.html: ссылки без заглушек",
+      "status": "pass",
+      "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "css.structure",
+      "label": "CSS: синтаксическая структура",
+      "status": "pass",
+      "detail": "631 блоков, структура сбалансирована"
+    },
+    {
+      "id": "css.themes",
+      "label": "CSS: две темы",
+      "status": "pass",
+      "detail": "тёмные и светлые токены присутствуют"
+    },
+    {
+      "id": "css.responsive",
+      "label": "CSS: адаптивность",
+      "status": "pass",
+      "detail": "контрольные точки 1180/920/720/460 px"
+    },
+    {
+      "id": "css.a11y",
+      "label": "CSS: доступность",
+      "status": "pass",
+      "detail": "focus-visible и reduced-motion присутствуют"
+    },
+    {
+      "id": "css.contrast",
+      "label": "CSS: контраст токенов",
+      "status": "pass",
+      "detail": "10 пар, минимум 4.97:1"
+    },
+    {
+      "id": "css.fonts",
+      "label": "CSS: локальные шрифты",
+      "status": "pass",
+      "detail": "12 локальных файлов подключено"
+    },
+    {
+      "id": "js.capabilities",
+      "label": "JS: ключевые сценарии",
+      "status": "pass",
+      "detail": "11 сценариев покрыто"
+    },
+    {
+      "id": "js.storage",
+      "label": "JS: локальные предпочтения",
+      "status": "pass",
+      "detail": "тема и демонстрационные состояния сохраняются локально"
+    },
+    {
+      "id": "assets.fontInventory",
+      "label": "Ассеты: набор шрифтов",
+      "status": "pass",
+      "detail": "16 WOFF2-файлов"
+    }
+  ]
+}
