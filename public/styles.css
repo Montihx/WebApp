@@ -1449,6 +1449,10 @@ html[data-theme="light"] .hero-art img {
   transition: opacity var(--ease), transform var(--ease);
 }
 
+.anime-card:hover {
+  transform: translateY(-4px);
+}
+
 .anime-card.is-filtered-out {
   display: none;
 }
@@ -1462,6 +1466,12 @@ html[data-theme="light"] .hero-art img {
   border-radius: var(--radius-md);
   background: var(--surface);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transition: box-shadow var(--ease), border-color var(--ease);
+}
+
+.anime-card:hover .poster-frame {
+  border-color: var(--line-strong);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22);
 }
 
 .poster-frame::after {
@@ -1481,7 +1491,7 @@ html[data-theme="light"] .hero-art img {
 }
 
 .anime-card:hover .poster-frame img {
-  transform: scale(1.035);
+  transform: scale(1.06);
 }
 
 .anime-card:hover .poster-frame::after {
