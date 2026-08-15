@@ -57,12 +57,12 @@
 ## Design contract
 
 - Сохранить геометрию, плотность и информационную иерархию этого шаблона.
-- Dark: `#0d0d0f` canvas, `#111113` sidebar, `#19191c` surface; primary action светлый, mauve `#93658a` используется только как marker/focus/selection.
-- Light: `#f5f4f2` canvas, `#fbfaf9` sidebar, `#ffffff` surface; `#381932` остаётся сильным primary/brand anchor, но не заливает навигацию и карточки.
+- Dark: `#0d0d0f` canvas, `#111113` sidebar, `#19191c` surface; primary action светлый, фиолетовый accent `#7242e0` используется только как marker/focus/selection/running.
+- Light: `#f5f4f2` canvas, `#fbfaf9` sidebar, `#ffffff` surface; `#1f1d20` остаётся сильным primary/brand anchor, но не заливает навигацию и карточки.
 - Green никогда не является брендовым акцентом: только success. Slate-blue допустим только для info. Amber — warning, red — destructive/error. Все состояния имеют текст или иконку, а не только цвет.
-- Danger — `#b94155` в light и `#de6d78` в dark; опасные действия не конкурируют с primary.
+- Danger — `#b91c1c` в light и `#ff7a7a` в dark; опасные действия не конкурируют с primary.
 - Не копировать Anixart буквально: перенести нейтральную иерархию black/graphite surfaces и сдержанную selected-state логику, а не чужие assets/layout.
-- Не возвращать фиолетовые page backgrounds, sidebar fills, тени и gradients одновременно. Mauve обязан занимать малую площадь экрана.
+- Не возвращать фиолетовые page backgrounds, sidebar fills, тени и gradients одновременно. Accent обязан занимать малую площадь экрана.
 - Не делать AI-generic UI: нет одинаковых огромных карточек, бессмысленного bento, gradient text, случайных sparkles, neon glow, фальшивых live dots и декоративных charts.
 - Любая иконка без текста имеет accessible name и tooltip; focus ring видим в обеих темах.
 - Motion короткий, функциональный, без background loops; `prefers-reduced-motion` обязателен.

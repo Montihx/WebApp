@@ -17,15 +17,15 @@ Anime Graphite строит иерархию контрастом нейтрал
 | Text | `#F3F2F4` | `#252225` | основной текст |
 | Secondary | `#B9B6BC` | `#5E5960` | подписи |
 | Muted | `#8B8790` | `#746E74` | второстепенные метаданные |
-| Accent | `#93658A` | `#5B344F` | selection/focus/identity |
-| Primary background | `#ECEAEC` | `#381932` | главное действие |
+| Accent | `#7242E0` | `#36255C` | selection/focus/identity |
+| Primary background | `#ECEAEC` | `#1F1D20` | главное действие |
 | Primary foreground | `#171719` | `#FFFFFF` | текст primary |
-| Success | `#56AD91` | `#2F7B66` | доступно/готово |
-| Warning | `#D0A052` | `#99671C` | внимание |
-| Danger | `#DE6D78` | `#B94155` | ошибка/удаление |
-| Info | `#7F9FBD` | `#4E789C` | нейтральная информация |
+| Success | `#56AD91` | `#166534` | доступно/готово |
+| Warning | `#D0A052` | `#854D0E` | внимание |
+| Danger | `#FF7A7A` | `#B91C1C` | ошибка/удаление |
+| Info | `#7F9FBD` | `#1D4ED8` | нейтральная информация |
 
-Представительные contrast pairs: dark muted/surface `4.98:1`, light muted/surface `4.97:1`, dark accent-text/canvas `7.50:1`, light primary `15.52:1`.
+Значения синхронизированы с `public/styles.css` и проверяются автоматически в `public/tools/qa.mjs`; таблица обновляется вручную после `qa.mjs --write`, сама проверка — источник истины. Представительные contrast pairs (surface-фон): dark muted `4.98:1`, light muted `4.97:1`, dark accent-text `10.76:1`, light accent-text `13.32:1`, light primary-fg `16.73:1`.
 
 ## Типографика
 
@@ -56,11 +56,13 @@ Anime Graphite строит иерархию контрастом нейтрал
 
 | Ширина | Поведение |
 | --- | --- |
-| `>1180` | полная desktop navigation, 4-column catalog, двухколоночный player |
-| `≤1180` | desktop nav скрыта, уплотнённые сетки |
-| `≤920` | mobile drawer, каталог/расписание в одну колонку, player panel под видео |
+| `>1180` | полная desktop navigation, 5-column catalog grid, двухколоночный player |
+| `≤1180` | desktop nav скрыта, 4-column catalog grid |
+| `≤920` | mobile drawer, расписание/обновления в одну колонку (была 2), player panel под видео |
 | `≤720` | fixed bottom navigation, media hero stacked, 3-column poster grid |
 | `≤460` | 2-column poster/episode grid, компактные title actions |
+
+Каталог: `.anime-grid` — 5/4/3/2 колонки по брейкпоинтам выше (не 4 фиксированные). Блок «Расписание + Обновления аниме» (`.schedule-updates-grid`) — отдельная 2-колоночная секция под каталогом, схлопывается в 1 колонку при `≤920`.
 
 Минимальная поддерживаемая ширина — `320 px`. Горизонтальный скролл допустим только в явно обозначенных rails/tabs.
 

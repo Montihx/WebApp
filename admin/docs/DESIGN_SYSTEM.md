@@ -2,7 +2,7 @@
 
 ## Замысел
 
-Система сохраняет компактность и расположение понравившегося dashboard. Dark строится на почти чёрном canvas и нейтральных graphite surfaces; светлая primary-кнопка создаёт ясную иерархию, а mauve появляется только в focus, selection и identity markers. Light использует тёплый нейтральный canvas, белые поверхности и `#381932` как локальный сильный action/brand anchor.
+Система сохраняет компактность и расположение понравившегося dashboard. Dark строится на почти чёрном canvas и нейтральных graphite surfaces; светлая primary-кнопка создаёт ясную иерархию, а фиолетовый accent появляется только в focus, selection и identity markers (running/in-progress). Light использует тёплый нейтральный canvas, белые поверхности и почти чёрный `#1F1D20` как локальный сильный action/brand anchor.
 
 Это собственная система Kitsu, а не копия Anixart и не набор случайных компонентов из UI-каталогов.
 
@@ -23,18 +23,20 @@ Feature-компоненты используют semantic tokens. Raw hex ра�
 | Text           | `#F3F2F4` | `#252225` | основной текст                     |
 | Secondary      | `#B9B6BC` | `#5E5960` | пояснения                          |
 | Muted          | `#8B8790` | `#746E74` | metadata с AA-контрастом           |
-| Mauve marker   | `#93658A` | `#5B344F` | focus, selection rail, small cues  |
-| Mauve text     | `#C392B7` | `#5B344F` | малый accent text с AA-контрастом  |
-| Primary fill   | `#ECEAEC` | `#381932` | один главный action в контексте    |
+| Accent marker  | `#7242E0` | `#36255C` | focus, selection rail, running/in-progress |
+| Accent text    | `#D2C3F6` | `#36255C` | малый accent text с AA-контрастом  |
+| Primary fill   | `#ECEAEC` | `#1F1D20` | один главный action в контексте    |
 | Primary text   | `#171719` | `#FFFFFF` | текст главного action              |
-| Success        | `#56AD91` | `#2F7B66` | только подтверждённый success      |
-| Warning        | `#D0A052` | `#99671C` | attention/partial/unknown          |
-| Danger         | `#DE6D78` | `#B94155` | destructive/error                  |
-| Info           | `#7F9FBD` | `#4E789C` | редкое информационное состояние    |
+| Success        | `#56AD91` | `#166534` | только подтверждённый success      |
+| Warning        | `#D0A052` | `#854D0E` | attention/partial/unknown          |
+| Danger         | `#FF7A7A` | `#B91C1C` | destructive/error                  |
+| Info           | `#7F9FBD` | `#1D4ED8` | редкое информационное состояние    |
+
+Значения синхронизированы с custom properties в `admin/styles.css` и проверяются автоматически контраст-чеками в `admin/tools/qa.mjs`. Источник истины — CSS-токены и `qa-results.json`, не эта таблица: при изменении токенов сначала прогонять `qa.mjs --write`, потом обновлять таблицу.
 
 ### Запреты цвета
 
-- Mauve не используется как canvas, sidebar fill, массовая заливка cards или общая тень. Его площадь должна оставаться небольшой.
+- Accent (фиолетовый) не используется как canvas, sidebar fill, массовая заливка cards или общая тень. Его площадь должна оставаться небольшой и означать только selected/running/in-progress.
 - Green не используется для brand, primary navigation или decorative glow.
 - Slate-blue не является темой или CTA: он разрешён только для информационного status и всегда сопровождается иконкой/текстом.
 - Red не используется для ordinary attention: warning остаётся amber.
@@ -44,7 +46,7 @@ Feature-компоненты используют semantic tokens. Raw hex ра�
 
 ## Правила иерархии из UX-референсов
 
-- Destructive confirmation всегда красный; brand/mauve не маскирует удаление, stop или ban.
+- Destructive confirmation всегда красный; brand/accent не маскирует удаление, stop или ban.
 - Иконка сопровождается подписью, если действие нельзя однозначно распознать без контекста. Icon-only control обязан иметь accessible name и tooltip.
 - Radio применяется для одного выбора, checkbox — для независимого множественного выбора; switch — только для непосредственного boolean state.
 - Поле всегда имеет видимый label. Placeholder показывает пример, но не объясняет назначение поля.

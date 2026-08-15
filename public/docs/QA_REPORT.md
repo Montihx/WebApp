@@ -1,10 +1,10 @@
 # QA report — Kitsu Public Anime Graphite
 
-Дата финальной локальной проверки: 14 августа 2026 года.
+Дата последней сверки документа с `qa-results.json`: 15 августа 2026 года.
 
 ## Итог
 
-- `24/24` автоматических статических checks — pass;
+- `28/28` автоматических статических checks — pass (`node tools/qa.mjs`);
 - `2/2` HTML documents разобраны без parser errors;
 - `0` duplicate IDs;
 - `0` unresolved `aria-controls`, `aria-labelledby` и label `for` references;
@@ -12,12 +12,11 @@
 - `0` buttons без явного `type`;
 - `0` images без `alt`;
 - `0` bare `href="#"`/`javascript:` links;
-- CSS: `631` сбалансированный block, `5` media sections;
-- responsive gates: `1180`, `920`, `720`, `460 px`, минимальная ширина `320 px`;
+- CSS: `673` сбалансированных block, контрольные точки `1180`/`920`/`720`/`460 px`;
 - `node --check app.js` — pass;
-- `12` локальных font references разрешены;
+- `24` локальных WOFF2 font-файлов подключено;
 - `11` ключевых JS interaction families обнаружены QA-script;
-- `10` представительных contrast pairs: минимум `4.97:1`.
+- `18` contrast pairs (9 на тему), минимум `4.97:1`.
 
 Полный machine-readable результат: `qa-results.json`. Повторный запуск:
 
@@ -43,22 +42,24 @@ node tools/qa.mjs --write
 
 | Pair | Ratio |
 | --- | ---: |
-| Dark text / canvas | `17.40:1` |
+| Dark text / surface | `15.72:1` |
 | Dark secondary / surface | `8.75:1` |
 | Dark muted / surface | `4.98:1` |
 | Dark primary | `14.96:1` |
-| Dark accent text / canvas | `7.50:1` |
-| Light text / canvas | `14.32:1` |
+| Dark accent text / surface | `10.76:1` |
+| Light text / surface | `15.74:1` |
 | Light secondary / surface | `6.83:1` |
 | Light muted / surface | `4.97:1` |
-| Light primary | `15.52:1` |
-| Light accent / canvas | `9.32:1` |
+| Light primary | `16.73:1` |
+| Light accent text / surface | `13.32:1` |
+
+Полный набор — 18 пар (9 на тему, включает green/amber/red/info) в `qa-results.json`; таблица выше — только репрезентативная выборка.
 
 ## Ограничение среды
 
-Внутренний browser preview server запустился, но browser runtime не получил к нему доступ. Поэтому в архив намеренно не добавлены неподтверждённые screenshots и не заявлен полноценный visual/interaction browser pass. Это инфраструктурное ограничение, а не обнаруженная ошибка шаблона.
+Исходное ограничение (browser runtime без доступа к preview server) снято: последующие сессии подтвердили headless Chromium через `playwright-core` и добавили реальные screenshot/interaction прогоны — theme toggle, search dialog (trending → результаты), catalog filters (включая новую вкладку «Анонсы»), day-tabs расписания, hover-состояния карточек, мобильные/планшетные ширины `390`/`900`/`1440 px`. Console errors и duplicate ids проверены на каждом прогоне — не найдено.
 
-Перед production merge обязательны Chromium/Firefox/WebKit или проектный Playwright на реальном frontend. Минимальная matrix: `360×800`, `390×844`, `768×1024`, `1024×768`, `1440×900`; обе темы; search, drawer, tabs, list/subscription, player, episodes, dialogs, comments; horizontal overflow и console errors.
+Не заменяет полноценный проектный Playwright/CI на реальном frontend перед production merge — минимальная matrix остаётся: `360×800`, `390×844`, `768×1024`, `1024×768`, `1440×900`; обе темы; search, drawer, tabs, list/subscription, player, episodes, dialogs, comments; horizontal overflow и console errors.
 
 ## Граница результата
 

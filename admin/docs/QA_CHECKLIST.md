@@ -129,7 +129,7 @@
 - [ ] dialogs не выходят за viewport и имеют scrollable body;
 - [ ] long Russian/English titles, UUID, URLs, errors не ломают layout;
 - [ ] light/dark/system theme без flash;
-- [ ] Dark использует near-black/graphite и светлый primary; light — neutral/white с локальным `#381932`; mauve только focus/selection, green только success, slate-blue только info;
+- [ ] Dark использует near-black/graphite и светлый primary; light — neutral/white с локальным `#1f1d20`; фиолетовый accent только focus/selection, green только success, slate-blue только info;
 - [ ] Нет generic AI bento, neon/glass/gradient-text, fake live indicators и декоративных charts;
 - [ ] empty/error/loading heights не вызывают сильный shift;
 - [ ] zoom 200% остаётся usable.

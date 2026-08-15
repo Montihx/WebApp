@@ -79,7 +79,7 @@ Gate: typecheck/build/Biome/unit tests; no duplicate runtimes.
 - success/warning/danger/info + foreground;
 - radii, shadow, spacing, type scale, motion duration/easing.
 
-Palette contract: dark `#0d0d0f/#111113/#19191c` со светлым primary и mauve только для focus/selection; light `#f5f4f2/#fbfaf9/#ffffff` с `#381932` как primary anchor. Green не становится primary, slate-blue используется только для info, amber — warning, red — destructive/error.
+Palette contract: dark `#0d0d0f/#111113/#19191c` со светлым primary и фиолетовым accent только для focus/selection; light `#f5f4f2/#fbfaf9/#ffffff` с `#1f1d20` как primary anchor. Green не становится primary, slate-blue используется только для info, amber — warning, red — destructive/error.
 
 Site settings `accent_primary`/`accent_danger` маппятся только через validated theme boundary, а не в arbitrary inline styles.
 

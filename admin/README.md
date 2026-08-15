@@ -15,8 +15,8 @@
 ## Визуальное направление
 
 - Dark: `#0D0D0F` canvas, нейтральные graphite surfaces и светлая primary-кнопка в духе зрелых media-приложений.
-- Light: `#F5F4F2` canvas, белые поверхности и `#381932` только как сильный брендовый action anchor.
-- Mauve используется для focus, selection и небольших identity cues, а не как заливка всего интерфейса.
+- Light: `#F5F4F2` canvas, белые поверхности и `#1F1D20` только как сильный брендовый action anchor.
+- Фиолетовый accent (`#7242E0` dark / `#36255C` light) используется для focus, selection и небольших identity/running cues, а не как заливка всего интерфейса.
 - Green, amber, red и slate-blue используются только семантически: success, warning, danger и info; каждый status имеет текст/иконку.
 - Никакого neon/lime, синего SaaS-оформления, стеклянных карточек, случайных bento-блоков или бесконечных эффектов.
 - Направление dark опирается на нейтральную иерархию Anixart-референсов, но не копирует их экраны, assets или layout.

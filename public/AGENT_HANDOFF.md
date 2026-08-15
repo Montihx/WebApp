@@ -34,7 +34,7 @@
 
 - Переиспользовать токены из `docs/DESIGN_SYSTEM.md`; public и dashboard должны выглядеть как один продукт.
 - Сохранить крупную медийную иерархию public hero, но избегать neon/glow, gradient text, glassmorphism и bento ради bento.
-- Mauve занимает малую площадь. Green — только success, amber — warning, red — error/destructive, blue — info.
+- Фиолетовый accent занимает малую площадь. Green — только success, amber — warning, red — error/destructive, blue — info.
 - Все icon-only controls получают accessible name; keyboard focus и `prefers-reduced-motion` обязательны.
 - На `360/390 px` нижняя навигация не перекрывает контент, плеер не создаёт horizontal overflow, source/translation остаются читаемыми.
 

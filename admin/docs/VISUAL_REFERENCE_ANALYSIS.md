@@ -22,7 +22,7 @@
 | Placeholder не заменяет label | все формы и dialog inputs имеют видимые labels; placeholder используется только как пример/search hint |
 | Формам нужна иерархия | editors разделены headings и domain sections, а короткие решения остаются в dialog |
 | Текст действий должен быть конкретным | `Удалить задачу`, `Заменить связь`, `Остановить задачу`, `Создать расписание` вместо абстрактного `Продолжить` |
-| Один главный action | primary, secondary и danger визуально разведены; destructive не окрашен в mauve |
+| Один главный action | primary, secondary и danger визуально разведены; destructive не окрашен в accent |
 
 ## Что намеренно не переносится
 
@@ -33,9 +33,9 @@
 
 ## Финальная цветовая логика
 
-Dark: нейтральные `#0D0D0F → #111113 → #19191C → #212124 → #2D2D32`, светлый primary `#ECEAEC`, mauve marker `#93658A` и контрастный mauve text `#C392B7`.
+Dark: нейтральные `#0D0D0F → #111113 → #19191C → #212124 → #2D2D32`, светлый primary `#ECEAEC`, фиолетовый accent marker `#7242E0` и контрастный accent text `#D2C3F6`.
 
-Light: `#F5F4F2 → #FBFAF9 → #FFFFFF`, нейтральные hover/borders, локальный primary `#381932` и менее тяжёлый marker `#5B344F`.
+Light: `#F5F4F2 → #FBFAF9 → #FFFFFF`, нейтральные hover/borders, локальный primary `#1F1D20` и менее тяжёлый marker `#36255C`.
 
 Semantic palette применяется только по значению: green success, amber warning/unknown, red danger/error, slate-blue info. Ни один status не передаётся только цветом.
 
@@ -43,7 +43,7 @@ Semantic palette применяется только по значению: gree
 
 Перед правкой агент обязан сравнить screenshot с этими критериями:
 
-1. На dark нейтральные pixels визуально доминируют над mauve.
+1. На dark нейтральные pixels визуально доминируют над accent.
 2. На light sidebar и cards не становятся сплошными фиолетовыми блоками.
 3. Primary заметен один раз в локальном контексте; danger остаётся красным.
 4. Media может быть цветным, но UI chrome не конкурирует с контентом.

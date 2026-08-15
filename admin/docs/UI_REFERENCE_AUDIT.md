@@ -56,7 +56,7 @@
 
 Pattern отклоняется, если он:
 
-- меняет neutral graphite/white основу на сплошную mauve, lime, cyan или blue theme;
+- меняет neutral graphite/white основу на сплошную фиолетовую, lime, cyan или blue theme;
 - делает dashboard похожим на generic AI-generated SaaS;
 - вводит одинаковые округлые bento cards без информационной причины;
 - использует gradient text, sparkles или grid background вместо бренда;

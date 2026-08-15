@@ -1,6 +1,6 @@
 # Roadmap публичного шаблона
 
-Публичный сайт начинается после стабилизации admin tokens/primitives. Он использует ту же Anime Graphite foundation и тот же stack, но не копирует плотность админских tables и не превращает весь сайт в client application. Dark остаётся почти чёрным с нейтральными graphite surfaces и редким mauve selection; light — тёплым нейтральным с локальным `#381932`. Это один продукт, а не два несвязанных шаблона.
+Публичный сайт начинается после стабилизации admin tokens/primitives. Он использует ту же Anime Graphite foundation и тот же stack, но не копирует плотность админских tables и не превращает весь сайт в client application. Dark остаётся почти чёрным с нейтральными graphite surfaces и редким фиолетовым accent-selection; light — тёплым нейтральным с локальным `#1f1d20`. Это один продукт, а не два несвязанных шаблона.
 
 ## Общая foundation
 
@@ -163,7 +163,7 @@ Anime Graphite сохраняется, но публичный сайт легч
 
 - больше воздуха и editorial typography;
 - poster/cover imagery становится главным контентом;
-- `#381932` остаётся light primary/brand anchor, mauve — focus/selection; green — только подтверждённый success, slate-blue — только info;
+- `#1f1d20` остаётся light primary/brand anchor, фиолетовый accent — focus/selection; green — только подтверждённый success, slate-blue — только info;
 - cards имеют меньше borders и metadata density;
 - operational warning/danger language используется только там, где нужно пользователю.
 
