@@ -1459,10 +1459,6 @@ html[data-theme="light"] .theme-icon-dark {
   background: var(--accent-strong);
 }
 
-.legend-mark--pink {
-  background: var(--info);
-}
-
 .chart-summary {
   margin-left: auto;
   color: var(--text-secondary);
@@ -6927,8 +6923,7 @@ body::before {
   stroke: var(--accent);
 }
 
-.chart-line-secondary,
-.legend-mark--pink {
+.chart-line-secondary {
   stroke: var(--info);
   background: var(--info);
 }

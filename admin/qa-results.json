@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu enterprise admin template · Anime Graphite",
-  "generated_at": "2026-08-15T09:31:35.510Z",
+  "generated_at": "2026-08-15T09:49:45.838Z",
   "summary": {
     "status": "pass",
     "total": 18,
@@ -31,7 +31,7 @@
       "id": "index.references",
       "label": "index.html: локальные ссылки",
       "status": "pass",
-      "detail": "3 локальных ссылок разрешены"
+      "detail": "4 локальных ссылок разрешены"
     },
     {
       "id": "index.buttons",
@@ -43,7 +43,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "1745 блоков, структура сбалансирована"
+      "detail": "1744 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",

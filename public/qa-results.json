@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-15T09:19:19.106Z",
+  "generated_at": "2026-08-15T09:49:45.916Z",
   "summary": {
     "status": "pass",
     "total": 28,
@@ -31,7 +31,7 @@
       "id": "index.html.references",
       "label": "index.html: локальные ссылки",
       "status": "pass",
-      "detail": "38 локальных ссылок разрешены"
+      "detail": "39 локальных ссылок разрешены"
     },
     {
       "id": "index.html.aria",
@@ -73,7 +73,7 @@
       "id": "anime.html.references",
       "label": "anime.html: локальные ссылки",
       "status": "pass",
-      "detail": "33 локальных ссылок разрешены"
+      "detail": "34 локальных ссылок разрешены"
     },
     {
       "id": "anime.html.aria",

@@ -15,6 +15,7 @@ d606f6dc9d26547cfeed632ed7ced001499168be5b4ba0f8c9c36625e8118cc8  ./docs/REPOSIT
 e52b9221c8f1dcc61af422fecdf1eabd918b87daae9bc94354ed886e515bd5e5  ./docs/STACK_DECISION.md
 ec075ee01d7cd7c6311fcc94770cead11f463d9ca9b0cdd5b77f8bdeccd00c4a  ./docs/UI_REFERENCE_AUDIT.md
 2ce8cfb775b340ffc5288ea5b443ee59c8d5d2757aa88490941e7b1a7a651b89  ./docs/VISUAL_REFERENCE_ANALYSIS.md
+407530df967596f7bcbbc698e86e3c578f4bb9fd64876fe1d8b96a7024385c11  ./favicon.svg
 b2fe5e8987594e9ffd1d2ca52a2f5d73eb8335243893c5d6254b5ad69269591d  ./fonts/JETBRAINS-MONO-LICENSE.txt
 d826ab6583b12c26807d8716a545bdbbb672df04f48608a364ba9efdbe501c30  ./fonts/MANROPE-LICENSE.txt
 071195d8806e226faeee60259c28ca67b458227af5195a73f5cfcab06e3003bc  ./fonts/ONEST-LICENSE.txt
@@ -42,8 +43,8 @@ b9cde86fcfc341bc38496448203bd2d5a5513d2a3b584254fa54dbf5259641a9  ./fonts/onest-
 41814dbd1b4f88de5c9b8ed3433d4b42bbe57383acd7281d094d448753bfb6c8  ./fonts/onest-latin-600-normal.woff2
 6b063f7a827fbd2d5c9b58685af05eae3d4412f3682531b3c0d736bf733c02e9  ./fonts/onest-latin-700-normal.woff2
 7ed04e60e45e9f2f911fe1599353f3de3329663f10755d80951d5abb89c8c348  ./fonts/onest-latin-800-normal.woff2
-2c80581e582b4c8eaf117c0328a1e996c8b39456c154cf5ffbf8d91fde5054eb  ./index.html
-6d836d6d935562b374c49a0fc501edb5e23343b44425fb56838e89a497296824  ./qa-results.json
+fff83fc91e11f742508d98df0dd978e9ebf050935513ecf1232defd6ef48ce74  ./index.html
+406a0ab4f808015d0af1ce67c19f3100fe35d54ab4d32c68f50daf099b1c147e  ./qa-results.json
 1cb6719db95673e8dc9815dd07e7316f6ad44aa1f1d85aa2d661badb91a8d2ef  ./screenshots/anime-editor-light.png
 dd2570c9bcab74d79cc6e90ff10c39718db87c454512b3f2f8a22b2cf04bcc50  ./screenshots/audit-light.png
 0812dc36ae1b7ed2adbc0208493f683a7eb7e1e29754aee19d35a211e230629c  ./screenshots/backups-dark.png
@@ -62,7 +63,7 @@ f872ef5dfa72395d9e0f225ea9a8b1f648635101cf5aa2224a3842e410a3fe8b  ./screenshots/
 d483bce29d29e47cf53a0345d9a66c809bb394954aea26021f5c0d7d15bf96e0  ./screenshots/scheduler-light.png
 bd4493754fe3c3f39a57def11677883c1f0a579f87b1bedab15c864dbfab0368  ./screenshots/settings-light.png
 dc825987c4d76664e71d8d10d14c71101c1c8fdbb9fcd5e626fd9cbf6bd55ca3  ./screenshots/users-light.png
-866d3aeaff0e2c81191e45d868af7b054d4a8a2ce2356e69444945535afce1ba  ./styles.css
+78547b5f26e113ef92a6da245a8c5113b2b02a6b4ae36e45bc4d26dfee993af0  ./styles.css
 e1964bc05e1cd71149f30d77c86433160bceda9627050fea9f73b6327b89df4d  ./tools/qa.mjs
 1e7290b35280a048667bbf0ebabac1c7fd52a75300e8b2946ac165715997f2bc  ./vendor/LUCIDE-LICENSE.txt
 1b22c6c04a1c69b75a41c64c7ea992657e8f628dabd6324984ffc61c3761a56a  ./vendor/lucide.min.js
