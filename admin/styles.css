@@ -1394,6 +1394,12 @@ html[data-theme="light"] .theme-icon-dark {
   min-width: 0;
 }
 
+.panel-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .panel-title {
   margin: 0;
   font-family: var(--font-display);
