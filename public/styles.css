@@ -1,33 +1,145 @@
 @font-face {
-  font-family: "Outfit";
+  font-family: "Onest";
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url("./fonts/outfit-latin-500-normal.woff2") format("woff2");
+  src: url("./fonts/onest-cyrillic-500-normal.woff2") format("woff2");
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
 }
 
 @font-face {
-  font-family: "Outfit";
+  font-family: "Onest";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./fonts/onest-latin-500-normal.woff2") format("woff2");
+  unicode-range: U+0000-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF;
+}
+
+@font-face {
+  font-family: "Onest";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url("./fonts/outfit-latin-600-normal.woff2") format("woff2");
+  src: url("./fonts/onest-cyrillic-600-normal.woff2") format("woff2");
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
 }
 
 @font-face {
-  font-family: "Outfit";
+  font-family: "Onest";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("./fonts/onest-latin-600-normal.woff2") format("woff2");
+  unicode-range: U+0000-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF;
+}
+
+@font-face {
+  font-family: "Onest";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("./fonts/outfit-latin-700-normal.woff2") format("woff2");
+  src: url("./fonts/onest-cyrillic-700-normal.woff2") format("woff2");
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
 }
 
 @font-face {
-  font-family: "Outfit";
+  font-family: "Onest";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("./fonts/onest-latin-700-normal.woff2") format("woff2");
+  unicode-range: U+0000-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF;
+}
+
+@font-face {
+  font-family: "Onest";
   font-style: normal;
   font-weight: 800;
   font-display: swap;
-  src: url("./fonts/outfit-latin-800-normal.woff2") format("woff2");
+  src: url("./fonts/onest-cyrillic-800-normal.woff2") format("woff2");
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-family: "Onest";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("./fonts/onest-latin-800-normal.woff2") format("woff2");
+  unicode-range: U+0000-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/jetbrains-mono-cyrillic-400-normal.woff2") format("woff2");
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./fonts/jetbrains-mono-cyrillic-500-normal.woff2") format("woff2");
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("./fonts/jetbrains-mono-latin-500-normal.woff2") format("woff2");
+  unicode-range: U+0000-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("./fonts/jetbrains-mono-cyrillic-600-normal.woff2") format("woff2");
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("./fonts/jetbrains-mono-latin-600-normal.woff2") format("woff2");
+  unicode-range: U+0000-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("./fonts/jetbrains-mono-cyrillic-700-normal.woff2") format("woff2");
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("./fonts/jetbrains-mono-latin-700-normal.woff2") format("woff2");
+  unicode-range: U+0000-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF;
 }
 
 @font-face {
@@ -100,8 +212,9 @@
 
 :root {
   color-scheme: dark;
-  --font-display: "Outfit", "Manrope", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Onest", "Manrope", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-body: "Manrope", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
   --canvas: #0d0d0f;
   --sidebar: #111113;
   --surface: #19191c;
@@ -113,11 +226,11 @@
   --text: #f3f2f4;
   --text-secondary: #b9b6bc;
   --text-muted: #8b8790;
-  --accent: #93658a;
-  --accent-strong: #aa789f;
-  --accent-text: #c392b7;
-  --accent-soft: rgba(147, 101, 138, 0.12);
-  --accent-softer: rgba(147, 101, 138, 0.07);
+  --accent: #7c3aed;
+  --accent-strong: #8b5cf6;
+  --accent-text: #a78bfa;
+  --accent-soft: rgba(124, 58, 237, 0.14);
+  --accent-softer: rgba(124, 58, 237, 0.08);
   --primary-bg: #eceaec;
   --primary-bg-hover: #ffffff;
   --primary-fg: #171719;
@@ -126,8 +239,8 @@
   --green-soft: rgba(86, 173, 145, 0.12);
   --amber: #d0a052;
   --amber-soft: rgba(208, 160, 82, 0.13);
-  --red: #de6d78;
-  --red-soft: rgba(222, 109, 120, 0.13);
+  --red: #ff7a7a;
+  --red-soft: rgba(255, 122, 122, 0.13);
   --info: #7f9fbd;
   --info-soft: rgba(127, 159, 189, 0.12);
   --overlay: rgba(5, 5, 6, 0.72);
@@ -159,23 +272,23 @@ html[data-theme="light"] {
   --text: #252225;
   --text-secondary: #5e5960;
   --text-muted: #746e74;
-  --accent: #5b344f;
-  --accent-strong: #43233a;
-  --accent-text: #5b344f;
-  --accent-soft: rgba(91, 52, 79, 0.09);
-  --accent-softer: rgba(91, 52, 79, 0.055);
-  --primary-bg: #381932;
-  --primary-bg-hover: #4d2744;
+  --accent: #6d28d9;
+  --accent-strong: #5b21b6;
+  --accent-text: #6d28d9;
+  --accent-soft: rgba(109, 40, 217, 0.1);
+  --accent-softer: rgba(109, 40, 217, 0.06);
+  --primary-bg: #1f1d20;
+  --primary-bg-hover: #333134;
   --primary-fg: #ffffff;
-  --primary-border: #381932;
-  --green: #2f7b66;
-  --green-soft: rgba(47, 123, 102, 0.1);
-  --amber: #99671c;
-  --amber-soft: rgba(153, 103, 28, 0.1);
-  --red: #b94155;
-  --red-soft: rgba(185, 65, 85, 0.1);
-  --info: #4e789c;
-  --info-soft: rgba(78, 120, 156, 0.1);
+  --primary-border: #1f1d20;
+  --green: #166534;
+  --green-soft: rgba(22, 101, 52, 0.1);
+  --amber: #854d0e;
+  --amber-soft: rgba(133, 77, 14, 0.1);
+  --red: #b91c1c;
+  --red-soft: rgba(185, 28, 28, 0.1);
+  --info: #1d4ed8;
+  --info-soft: rgba(29, 78, 216, 0.1);
   --overlay: rgba(37, 34, 37, 0.34);
   --header-bg: rgba(245, 244, 242, 0.92);
   --shadow-menu: 0 20px 58px rgba(25, 22, 25, 0.13);
@@ -1146,6 +1259,7 @@ html[data-theme="light"] .hero-art img {
   margin: 5px 0 10px;
   color: var(--text-muted);
   font-size: 10px;
+  font-variant-numeric: tabular-nums;
 }
 
 .progress-track {
@@ -1274,8 +1388,10 @@ html[data-theme="light"] .hero-art img {
   background: rgba(13, 13, 15, 0.78);
   color: #fff;
   backdrop-filter: blur(10px);
+  font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
 
 .score-badge {
@@ -1635,8 +1751,10 @@ html[data-theme="light"] .hero-art img {
   background: rgba(13, 13, 15, 0.72);
   color: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(10px);
+  font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 750;
+  font-variant-numeric: tabular-nums;
 }
 
 .landscape-count svg {
@@ -2396,6 +2514,7 @@ html[data-theme="light"] .title-backdrop img {
   font-family: var(--font-display);
   font-size: 13px;
   font-weight: 750;
+  font-variant-numeric: tabular-nums;
 }
 
 .title-stats small {
@@ -2669,14 +2788,14 @@ html[data-theme="light"] .title-backdrop img {
   gap: 9px;
   padding: 0 16px;
   border-radius: 13px;
-  background: rgba(236, 234, 236, 0.95);
-  color: #171719;
+  background: color-mix(in srgb, var(--primary-bg) 95%, transparent);
+  color: var(--primary-fg);
   transform: translate(-50%, -50%);
   transition: transform var(--ease), background var(--ease);
 }
 
 .player-main-button:hover {
-  background: #fff;
+  background: var(--primary-bg-hover);
   transform: translate(-50%, -50%) scale(1.025);
 }
 
@@ -2735,8 +2854,10 @@ html[data-theme="light"] .title-backdrop img {
 }
 
 .player-controls time {
+  font-family: var(--font-mono);
   font-size: 8px;
   font-weight: 650;
+  font-variant-numeric: tabular-nums;
 }
 
 .player-timeline {
@@ -3344,8 +3465,10 @@ html[data-theme="light"] .title-backdrop img {
   border-radius: 9px;
   background: var(--surface);
   color: var(--text-muted);
+  font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 750;
+  font-variant-numeric: tabular-nums;
 }
 
 .login-comment-box {

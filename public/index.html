@@ -13,7 +13,13 @@
       (() => {
         try {
           const saved = localStorage.getItem("kitsu-theme");
-          if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+          if (saved === "light" || saved === "dark") {
+            document.documentElement.dataset.theme = saved;
+          } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            document.documentElement.dataset.theme = "dark";
+          } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+            document.documentElement.dataset.theme = "light";
+          }
         } catch (_) {}
       })();
     </script>
