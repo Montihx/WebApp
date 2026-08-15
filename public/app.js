@@ -450,10 +450,6 @@
 
     prevButton?.addEventListener("click", () => goTo(index - 1, true));
     nextButton?.addEventListener("click", () => goTo(index + 1, true));
-    root.addEventListener("mouseenter", () => { if (timer) window.clearInterval(timer); });
-    root.addEventListener("mouseleave", resetAutoPlay);
-    root.addEventListener("focusin", () => { if (timer) window.clearInterval(timer); });
-    root.addEventListener("focusout", resetAutoPlay);
 
     render();
     restartTimer();

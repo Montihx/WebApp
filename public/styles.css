@@ -958,7 +958,7 @@ html[data-theme="light"] .theme-icon--moon {
   grid-template-columns: minmax(0, 1.04fr) minmax(360px, 0.76fr);
   visibility: hidden;
   opacity: 0;
-  transition: opacity 500ms ease;
+  transition: opacity 500ms ease, visibility 0s linear 500ms;
 }
 
 .hero-slide.is-active {
@@ -966,6 +966,7 @@ html[data-theme="light"] .theme-icon--moon {
   z-index: 2;
   visibility: visible;
   opacity: 1;
+  transition: opacity 500ms ease, visibility 0s linear 0s;
 }
 
 .hero-slider-timer {
