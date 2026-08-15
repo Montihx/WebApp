@@ -31,7 +31,9 @@
     loadedEpisodes: 6,
     playing: false,
     muted: false,
+    playbackSeconds: 0,
   };
+  const PLAYER_DURATION = 24 * 60;
 
   function refreshIcons() {
     if (!window.lucide) return;
@@ -391,7 +393,75 @@
     });
   }
 
+  function initHeroSlider() {
+    const root = $("#hero-slider");
+    if (!root) return;
+    const slides = $$("[data-hero-slide]", root);
+    const dotsWrap = $("[data-hero-dots]", root);
+    const timerSpan = $("[data-hero-timer]", root);
+    const prevButton = $("[data-hero-prev]", root);
+    const nextButton = $("[data-hero-next]", root);
+    if (slides.length < 2 || !dotsWrap) return;
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const AUTO_PLAY_MS = 7000;
+    let index = Math.max(0, slides.findIndex((slide) => slide.classList.contains("is-active")));
+    let timer = null;
+
+    slides.forEach((slide, slideIndex) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.setAttribute("role", "tab");
+      dot.setAttribute("aria-label", `Слайд ${slideIndex + 1} из ${slides.length}`);
+      dot.innerHTML = "<span></span>";
+      dot.addEventListener("click", () => goTo(slideIndex, true));
+      dotsWrap.appendChild(dot);
+    });
+    const dots = $$("button", dotsWrap);
+
+    function restartTimer() {
+      if (!timerSpan) return;
+      timerSpan.classList.remove("is-running");
+      // eslint-disable-next-line no-unused-expressions
+      timerSpan.offsetWidth; // force reflow so the animation restarts from 0%
+      if (!reduceMotion) timerSpan.classList.add("is-running");
+    }
+
+    function render() {
+      slides.forEach((slide, slideIndex) => slide.classList.toggle("is-active", slideIndex === index));
+      dots.forEach((dot, dotIndex) => {
+        dot.classList.toggle("is-active", dotIndex === index);
+        dot.setAttribute("aria-selected", String(dotIndex === index));
+      });
+    }
+
+    function goTo(nextIndex, manual = false) {
+      index = (nextIndex + slides.length) % slides.length;
+      render();
+      restartTimer();
+      if (manual) resetAutoPlay();
+    }
+
+    function resetAutoPlay() {
+      if (timer) window.clearInterval(timer);
+      if (reduceMotion) return;
+      timer = window.setInterval(() => goTo(index + 1), AUTO_PLAY_MS);
+    }
+
+    prevButton?.addEventListener("click", () => goTo(index - 1, true));
+    nextButton?.addEventListener("click", () => goTo(index + 1, true));
+    root.addEventListener("mouseenter", () => { if (timer) window.clearInterval(timer); });
+    root.addEventListener("mouseleave", resetAutoPlay);
+    root.addEventListener("focusin", () => { if (timer) window.clearInterval(timer); });
+    root.addEventListener("focusout", resetAutoPlay);
+
+    render();
+    restartTimer();
+    resetAutoPlay();
+  }
+
   function initHome() {
+    initHeroSlider();
     const filters = $$('[data-filter]');
     const cards = $$('.anime-card[data-status]');
     filters.forEach((control) => {
@@ -477,6 +547,54 @@
     if (text) text.textContent = subscriptionLabels[state.subscription] || subscriptionLabels.none;
   }
 
+  function formatPlayerTime(totalSeconds) {
+    const clamped = Math.max(0, Math.min(PLAYER_DURATION, Math.round(totalSeconds)));
+    const minutes = Math.floor(clamped / 60);
+    const seconds = clamped % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  }
+
+  function renderTimeline() {
+    const fill = $("[data-timeline-fill]");
+    const thumb = $("[data-timeline-thumb]");
+    const timeEl = $("#player-time");
+    const track = $("#player-timeline");
+    const percent = (state.playbackSeconds / PLAYER_DURATION) * 100;
+    if (fill) fill.style.width = `${percent}%`;
+    if (thumb) thumb.style.left = `${percent}%`;
+    if (timeEl) timeEl.textContent = `${formatPlayerTime(state.playbackSeconds)} / ${formatPlayerTime(PLAYER_DURATION)}`;
+    if (track) track.setAttribute("aria-valuenow", String(Math.round(percent)));
+  }
+
+  let playbackTimer = null;
+  let idleTimer = null;
+
+  function stopPlaybackTicker() {
+    if (playbackTimer) window.clearInterval(playbackTimer);
+    playbackTimer = null;
+  }
+
+  function startPlaybackTicker() {
+    stopPlaybackTicker();
+    playbackTimer = window.setInterval(() => {
+      state.playbackSeconds = Math.min(PLAYER_DURATION, state.playbackSeconds + 1);
+      renderTimeline();
+      if (state.playbackSeconds >= PLAYER_DURATION) {
+        state.playing = false;
+        syncPlayer();
+      }
+    }, 1000);
+  }
+
+  function armIdleHide() {
+    const stage = $("#player-stage");
+    if (!stage) return;
+    stage.classList.remove("is-idle");
+    if (idleTimer) window.clearTimeout(idleTimer);
+    if (!state.playing) return;
+    idleTimer = window.setTimeout(() => stage.classList.add("is-idle"), 2600);
+  }
+
   function syncPlayer() {
     const stage = $("#player-stage");
     const toggle = $("#player-toggle");
@@ -490,6 +608,91 @@
       compactToggle.setAttribute("aria-label", state.playing ? "Поставить на паузу" : "Запустить воспроизведение");
       setIcon(compactToggle, state.playing ? "pause" : "play");
     }
+    if (state.playing) {
+      startPlaybackTicker();
+      armIdleHide();
+    } else {
+      stopPlaybackTicker();
+      stage.classList.remove("is-idle");
+      if (idleTimer) window.clearTimeout(idleTimer);
+    }
+  }
+
+  function initPlayerTimeline() {
+    const track = $("#player-timeline");
+    const stage = $("#player-stage");
+    const tooltip = $("[data-timeline-tooltip]");
+    if (!track || !stage) return;
+
+    const secondsFromEvent = (event) => {
+      const rect = track.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+      return ratio * PLAYER_DURATION;
+    };
+
+    const showTooltip = (event) => {
+      if (!tooltip) return;
+      const seconds = secondsFromEvent(event);
+      const rect = track.getBoundingClientRect();
+      const percent = ((event.clientX - rect.left) / rect.width) * 100;
+      tooltip.style.left = `${Math.max(0, Math.min(100, percent))}%`;
+      tooltip.textContent = formatPlayerTime(seconds);
+      tooltip.classList.add("is-visible");
+    };
+    const hideTooltip = () => tooltip?.classList.remove("is-visible");
+
+    let scrubbing = false;
+
+    track.addEventListener("mousemove", (event) => {
+      showTooltip(event);
+      if (scrubbing) {
+        state.playbackSeconds = secondsFromEvent(event);
+        renderTimeline();
+      }
+    });
+    track.addEventListener("mouseleave", () => { if (!scrubbing) hideTooltip(); });
+
+    track.addEventListener("pointerdown", (event) => {
+      scrubbing = true;
+      track.classList.add("is-scrubbing");
+      track.setPointerCapture(event.pointerId);
+      state.playbackSeconds = secondsFromEvent(event);
+      renderTimeline();
+      showTooltip(event);
+    });
+    track.addEventListener("pointermove", (event) => {
+      if (!scrubbing) return;
+      state.playbackSeconds = secondsFromEvent(event);
+      renderTimeline();
+      showTooltip(event);
+    });
+    const endScrub = (event) => {
+      if (!scrubbing) return;
+      scrubbing = false;
+      track.classList.remove("is-scrubbing");
+      hideTooltip();
+      if (event?.pointerId !== undefined && track.hasPointerCapture?.(event.pointerId)) {
+        track.releasePointerCapture(event.pointerId);
+      }
+    };
+    track.addEventListener("pointerup", endScrub);
+    track.addEventListener("pointercancel", endScrub);
+
+    track.addEventListener("keydown", (event) => {
+      const step = event.shiftKey ? 30 : 5;
+      if (event.key === "ArrowRight") {
+        state.playbackSeconds = Math.min(PLAYER_DURATION, state.playbackSeconds + step);
+      } else if (event.key === "ArrowLeft") {
+        state.playbackSeconds = Math.max(0, state.playbackSeconds - step);
+      } else {
+        return;
+      }
+      event.preventDefault();
+      renderTimeline();
+    });
+
+    ["mousemove", "click", "keydown"].forEach((type) => stage.addEventListener(type, armIdleHide));
+    renderTimeline();
   }
 
   function syncReleaseSummary() {
@@ -511,6 +714,7 @@
   function selectEpisode(number) {
     state.selectedEpisode = number;
     state.playing = false;
+    state.playbackSeconds = 0;
     $$('[data-episode]').forEach((item) => {
       const selected = Number(item.dataset.episode) === number;
       item.classList.toggle("is-selected", selected);
@@ -522,6 +726,7 @@
     $("#stage-episode-title").textContent = `Серия ${number}`;
     syncReleaseSummary();
     syncPlayer();
+    renderTimeline();
     scrollToTarget("#player");
   }
 
@@ -565,6 +770,7 @@
     syncSubscriptionState();
     syncPlayer();
     syncReleaseSummary();
+    initPlayerTimeline();
 
     $("#list-trigger")?.addEventListener("click", (event) => {
       event.stopPropagation();

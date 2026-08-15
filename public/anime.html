@@ -170,8 +170,12 @@
                 <button class="player-main-button" type="button" id="player-toggle" aria-label="Запустить воспроизведение"><i data-lucide="play"></i><span>Воспроизвести</span></button>
                 <div class="player-controls">
                   <button type="button" data-player-play aria-label="Запустить воспроизведение"><i data-lucide="play"></i></button>
-                  <div class="player-timeline" aria-label="Позиция воспроизведения"><span></span></div>
-                  <time>00:00 / 24:00</time>
+                  <div class="player-timeline" id="player-timeline" role="slider" tabindex="0" aria-label="Позиция воспроизведения" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <div class="player-timeline-track"><span data-timeline-fill></span></div>
+                    <div class="player-timeline-thumb" data-timeline-thumb></div>
+                    <div class="player-timeline-tooltip" data-timeline-tooltip>00:00</div>
+                  </div>
+                  <time id="player-time">00:00 / 24:00</time>
                   <button type="button" data-player-mute aria-label="Выключить звук"><i data-lucide="volume-2"></i></button>
                   <button type="button" data-player-fullscreen aria-label="Полноэкранный режим"><i data-lucide="maximize"></i></button>
                 </div>
