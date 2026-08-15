@@ -220,7 +220,7 @@
       </section>
 
       <section class="content-section" id="catalog" aria-labelledby="catalog-title">
-        <div class="page-container catalog-layout">
+        <div class="page-container">
           <div class="catalog-main">
             <div class="section-heading section-heading--tabs">
               <div><p class="section-kicker">Каталог</p><h2 id="catalog-title">Что посмотреть</h2></div>
@@ -290,27 +290,58 @@
             </div>
             <a class="wide-link" href="#catalog" data-prototype-action="Полный каталог откроется после подключения шаблона к маршрутам приложения."><span>Открыть весь каталог</span><i data-lucide="arrow-up-right"></i></a>
           </div>
+        </div>
+      </section>
 
-          <aside class="schedule-card" id="schedule" aria-labelledby="schedule-title">
+      <section class="content-section" id="schedule" aria-labelledby="schedule-title">
+        <div class="page-container schedule-updates-grid">
+          <aside class="schedule-card" aria-labelledby="schedule-title">
             <div class="schedule-head"><div><p class="section-kicker">Календарь</p><h2 id="schedule-title">Расписание</h2></div><a href="#schedule" aria-label="Открыть полное расписание"><i data-lucide="arrow-up-right"></i></a></div>
-            <div class="day-tabs" role="tablist" aria-label="Дни недели" data-tabs="schedule">
-              <button type="button" class="day-tab" role="tab" aria-selected="false" tabindex="-1" data-day="prev">Вчера</button>
-              <button type="button" class="day-tab is-active" role="tab" aria-selected="true" data-day="today">Сегодня</button>
-              <button type="button" class="day-tab" role="tab" aria-selected="false" tabindex="-1" data-day="next">Завтра</button>
+            <div class="day-tabs" role="tablist" aria-label="Дни расписания" data-tabs="schedule">
+              <button type="button" class="day-tab" role="tab" aria-selected="false" tabindex="-1" data-day="2026-08-12"><span class="day-tab__dow">Ср</span><span class="day-tab__num">12</span><span class="day-tab__mon">авг</span></button>
+              <button type="button" class="day-tab" role="tab" aria-selected="false" tabindex="-1" data-day="2026-08-13"><span class="day-tab__dow">Чт</span><span class="day-tab__num">13</span><span class="day-tab__mon">авг</span><span class="day-tab__count">1</span></button>
+              <button type="button" class="day-tab" role="tab" aria-selected="false" tabindex="-1" data-day="2026-08-14"><span class="day-tab__dow">Пт</span><span class="day-tab__num">14</span><span class="day-tab__mon">авг</span><span class="day-tab__count">1</span></button>
+              <button type="button" class="day-tab is-active is-today" role="tab" aria-selected="true" tabindex="0" data-day="2026-08-15"><span class="day-tab__dow">Сб</span><span class="day-tab__num">15</span><span class="day-tab__mon">авг</span><span class="day-tab__count">3</span></button>
+              <button type="button" class="day-tab" role="tab" aria-selected="false" tabindex="-1" data-day="2026-08-16"><span class="day-tab__dow">Вс</span><span class="day-tab__num">16</span><span class="day-tab__mon">авг</span></button>
+              <button type="button" class="day-tab" role="tab" aria-selected="false" tabindex="-1" data-day="2026-08-17"><span class="day-tab__dow">Пн</span><span class="day-tab__num">17</span><span class="day-tab__mon">авг</span></button>
+              <button type="button" class="day-tab" role="tab" aria-selected="false" tabindex="-1" data-day="2026-08-18"><span class="day-tab__dow">Вт</span><span class="day-tab__num">18</span><span class="day-tab__mon">авг</span></button>
             </div>
-            <div class="schedule-list" data-day-panel="today">
+            <div class="schedule-list" data-day-panel="2026-08-12" hidden>
+              <div class="schedule-empty"><i data-lucide="calendar-check"></i><strong>Нет подтверждённых релизов</strong><span>Показываем только данные, которые пришли из календаря.</span></div>
+            </div>
+            <div class="schedule-list" data-day-panel="2026-08-13" hidden>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>Релиз добавлен</small></span><time>13 авг</time></a>
+            </div>
+            <div class="schedule-list" data-day-panel="2026-08-14" hidden>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>Обновление перевода</small></span><time>14 авг</time></a>
+            </div>
+            <div class="schedule-list" data-day-panel="2026-08-15">
               <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/21.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Ван-Пис</strong><small>Новая серия · Япония</small></span><time>сегодня</time></a>
               <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/40748.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Магическая битва</strong><small>Обновление перевода</small></span><time>сегодня</time></a>
               <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Фрирен</strong><small>Обновление релиза</small></span><time>сегодня</time></a>
             </div>
-            <div class="schedule-list" data-day-panel="prev" hidden>
-              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>Релиз добавлен</small></span><time>вчера</time></a>
-              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>Обновление перевода</small></span><time>вчера</time></a>
+            <div class="schedule-list" data-day-panel="2026-08-16" hidden>
+              <div class="schedule-empty"><i data-lucide="calendar-check"></i><strong>Нет подтверждённых релизов</strong><span>Показываем только данные, которые пришли из календаря.</span></div>
             </div>
-            <div class="schedule-list" data-day-panel="next" hidden>
+            <div class="schedule-list" data-day-panel="2026-08-17" hidden>
+              <div class="schedule-empty"><i data-lucide="calendar-check"></i><strong>Нет подтверждённых релизов</strong><span>Показываем только данные, которые пришли из календаря.</span></div>
+            </div>
+            <div class="schedule-list" data-day-panel="2026-08-18" hidden>
               <div class="schedule-empty"><i data-lucide="calendar-check"></i><strong>Нет подтверждённых релизов</strong><span>Показываем только данные, которые пришли из календаря.</span></div>
             </div>
             <p class="schedule-note"><i data-lucide="info"></i>Время не показывается, если его нет в ответе API.</p>
+          </aside>
+
+          <aside class="schedule-card" aria-labelledby="updates-title">
+            <div class="schedule-head"><div><p class="section-kicker">Новые серии</p><h2 id="updates-title">Обновления аниме</h2></div><a href="#schedule" aria-label="Открыть все обновления"><i data-lucide="arrow-up-right"></i></a></div>
+            <div class="schedule-list">
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small>Серия 74</small></span><time>сегодня · 14:20</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>Серия 94</small></span><time>сегодня · 11:05</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Врата Штейна</strong><small>Озвучка: AniDUB</small></span><time>вчера · 20:40</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Стальной алхимик: Братство</strong><small>Серия 63 · AniLibria</small></span><time>вчера · 09:12</time></a>
+              <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>Серия 26 · Focus</small></span><time>2 дня назад</time></a>
+            </div>
+            <p class="schedule-note"><i data-lucide="info"></i>GET /anime/recent-updates · дата не подставляется, если её нет в ответе.</p>
           </aside>
         </div>
       </section>

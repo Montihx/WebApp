@@ -1278,13 +1278,6 @@ html[data-theme="light"] .hero-art img {
 }
 
 /* Catalog */
-.catalog-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
-  gap: 22px;
-  align-items: start;
-}
-
 .catalog-main {
   min-width: 0;
 }
@@ -1293,8 +1286,7 @@ html[data-theme="light"] .hero-art img {
   align-items: center;
 }
 
-.tabs,
-.day-tabs {
+.tabs {
   display: flex;
   align-items: center;
   gap: 3px;
@@ -1304,8 +1296,7 @@ html[data-theme="light"] .hero-art img {
   background: var(--surface);
 }
 
-.tab,
-.day-tab {
+.tab {
   min-height: 34px;
   padding: 0 12px;
   border-radius: 8px;
@@ -1316,17 +1307,110 @@ html[data-theme="light"] .hero-art img {
 }
 
 .tab:hover,
-.tab.is-active,
-.day-tab:hover,
-.day-tab.is-active {
+.tab.is-active {
   background: var(--surface-active);
+  color: var(--text);
+}
+
+.day-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.day-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.day-tab {
+  position: relative;
+  display: flex;
+  flex: 1 0 auto;
+  min-width: 46px;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 4px 7px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  color: var(--text-muted);
+  transition: background var(--ease), color var(--ease), border-color var(--ease);
+}
+
+.day-tab:hover {
+  background: var(--surface-hover);
+}
+
+.day-tab.is-active {
+  border-color: var(--line-strong);
+  background: var(--surface-active);
+  color: var(--text);
+}
+
+.day-tab__dow {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.day-tab__num {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.day-tab__mon {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.day-tab.is-active .day-tab__mon {
+  color: var(--text-muted);
+}
+
+.day-tab.is-today .day-tab__dow::after {
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  margin-left: 3px;
+  border-radius: 50%;
+  background: var(--green);
+  content: "";
+  vertical-align: middle;
+}
+
+.day-tab__count {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  min-width: 13px;
+  height: 13px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface-hover);
+  color: var(--text-secondary);
+  font-size: 7px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.day-tab.is-active .day-tab__count {
+  background: var(--surface-raised);
   color: var(--text);
 }
 
 .anime-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px 14px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 20px 14px;
 }
 
 .anime-card {
@@ -1524,10 +1608,15 @@ html[data-theme="light"] .hero-art img {
   height: 15px;
 }
 
-/* Schedule */
+/* Schedule & updates */
+.schedule-updates-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+
 .schedule-card {
-  position: sticky;
-  top: calc(var(--header-height) + 20px);
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -3622,12 +3711,12 @@ img.is-image-error {
     grid-template-columns: minmax(0, 1.12fr) minmax(310px, 0.72fr);
   }
 
-  .catalog-layout {
-    grid-template-columns: minmax(0, 1fr) 300px;
+  .anime-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .anime-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .schedule-updates-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .title-layout {
@@ -3864,22 +3953,8 @@ img.is-image-error {
     grid-template-columns: 1fr;
   }
 
-  .catalog-layout {
+  .schedule-updates-grid {
     grid-template-columns: 1fr;
-  }
-
-  .schedule-card {
-    position: static;
-  }
-
-  .schedule-list {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 4px;
-  }
-
-  .schedule-item {
-    grid-template-columns: 42px minmax(0, 1fr);
   }
 
   .schedule-item time {
