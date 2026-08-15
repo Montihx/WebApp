@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-15T07:23:39.934Z",
+  "generated_at": "2026-08-15T08:03:36.565Z",
   "summary": {
     "status": "pass",
     "total": 28,
@@ -25,13 +25,13 @@
       "id": "index.html.ids",
       "label": "index.html: уникальные ID",
       "status": "pass",
-      "detail": "28 уникальных ID"
+      "detail": "29 уникальных ID"
     },
     {
       "id": "index.html.references",
       "label": "index.html: локальные ссылки",
       "status": "pass",
-      "detail": "38 локальных ссылок разрешены"
+      "detail": "46 локальных ссылок разрешены"
     },
     {
       "id": "index.html.aria",
@@ -49,7 +49,7 @@
       "id": "index.html.images",
       "label": "index.html: alt у изображений",
       "status": "pass",
-      "detail": "27 изображений проверено"
+      "detail": "31 изображений проверено"
     },
     {
       "id": "index.html.anchors",
@@ -67,7 +67,7 @@
       "id": "anime.html.ids",
       "label": "anime.html: уникальные ID",
       "status": "pass",
-      "detail": "51 уникальных ID"
+      "detail": "54 уникальных ID"
     },
     {
       "id": "anime.html.references",
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "643 блоков, структура сбалансирована"
+      "detail": "683 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -151,7 +151,7 @@
       "id": "css.tabularNums",
       "label": "CSS: tabular-nums на числовых узлах",
       "status": "pass",
-      "detail": "6 правил с tabular-nums"
+      "detail": "7 правил с tabular-nums"
     },
     {
       "id": "js.capabilities",
