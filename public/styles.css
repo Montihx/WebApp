@@ -1229,6 +1229,18 @@ html[data-theme="light"] .hero-art img {
   font-weight: 750;
 }
 
+.continue-topline > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.continue-topline > span svg {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+}
+
 .quiet-icon {
   width: 28px;
   height: 28px;
@@ -1256,10 +1268,20 @@ html[data-theme="light"] .hero-art img {
 }
 
 .continue-copy p {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   margin: 5px 0 10px;
   color: var(--text-muted);
   font-size: 10px;
   font-variant-numeric: tabular-nums;
+}
+
+.continue-copy p svg {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  color: var(--text-muted);
 }
 
 .progress-track {
@@ -1297,6 +1319,9 @@ html[data-theme="light"] .hero-art img {
 }
 
 .tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   min-height: 34px;
   padding: 0 12px;
   border-radius: 8px;
@@ -1304,6 +1329,12 @@ html[data-theme="light"] .hero-art img {
   font-size: 10px;
   font-weight: 750;
   transition: background var(--ease), color var(--ease);
+}
+
+.tab svg {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
 }
 
 .tab:hover,
