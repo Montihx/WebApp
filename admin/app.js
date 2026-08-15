@@ -284,18 +284,31 @@
     },
   ];
 
+  const [initialHashView, initialHashTab] = location.hash.slice(1).split("/");
+
   const state = {
-    currentView:
-      location.hash.slice(1) in viewMeta ? location.hash.slice(1) : "overview",
+    currentView: initialHashView in viewMeta ? initialHashView : "overview",
     catalogQuery: "",
     catalogFilter: "all",
     selectedAnime: new Set(),
     catalogTimer: null,
-    parserTab: "jobs",
-    conflictTab: "pending",
+    parserTab:
+      initialHashView === "parsers" &&
+      ["jobs", "logs", "sources"].includes(initialHashTab)
+        ? initialHashTab
+        : "jobs",
+    conflictTab:
+      initialHashView === "conflicts" &&
+      ["pending", "auto", "resolved"].includes(initialHashTab)
+        ? initialHashTab
+        : "pending",
     importMode: "search",
     assetTab: "avatars",
-    moderationTab: "import",
+    moderationTab:
+      initialHashView === "moderation" &&
+      ["import", "comments"].includes(initialHashTab)
+        ? initialHashTab
+        : "import",
     usersTab: "accounts",
     settingsTab: "general",
     parserSettingsTab: "general",
@@ -348,7 +361,7 @@
       success: "success",
       completed: "success",
       healthy: "success",
-      running: "info",
+      running: "accent",
       pending: "neutral",
       cancelled: "neutral",
       failed: "danger",
@@ -491,10 +504,10 @@
           job.progress === null
             ? `<span class="honest-progress"><i></i>Без live progress</span>`
             : `<div class="progress-line"><div class="progress-track"><div class="progress-value" style="width:${job.progress}%"></div></div><span>${job.progress}%</span></div>`;
-        return `<tr><td><button class="row-leading" data-action="view-job" data-id="${job.id}"><span class="job-glyph job-glyph--${job.status}">${icon(job.status === "running" ? "loader-circle" : job.status === "failed" ? "triangle-alert" : "check")}</span><span class="row-leading__copy"><strong>${job.source}</strong><span>${job.id} · ${job.scope}</span></span></button></td><td>${status(labelForStatus(job.status), toneForStatus(job.status))}</td><td>${progress}</td><td class="cell-muted">${job.started}</td><td class="cell-muted">${job.duration}</td><td><button class="icon-button" data-action="view-job" data-id="${job.id}" aria-label="Детали задачи">${icon("panel-right-open")}</button></td></tr>`;
+        return `<tr><td data-label="Задача"><button class="row-leading" data-action="view-job" data-id="${job.id}"><span class="job-glyph job-glyph--${job.status}">${icon(job.status === "running" ? "loader-circle" : job.status === "failed" ? "triangle-alert" : "check")}</span><span class="row-leading__copy"><strong>${job.source}</strong><span>${job.id} · ${job.scope}</span></span></button></td><td data-label="Статус">${status(labelForStatus(job.status), toneForStatus(job.status))}</td><td data-label="Прогресс">${progress}</td><td class="cell-muted" data-label="Старт">${job.started}</td><td class="cell-muted" data-label="Длительность">${job.duration}</td><td data-label=""><button class="icon-button" data-action="view-job" data-id="${job.id}" aria-label="Детали задачи">${icon("panel-right-open")}</button></td></tr>`;
       })
       .join("");
-    return `${heading({ eyebrow: `<span class="status-dot status-dot--ok"></span> Контрактный снимок · поля активного Go API`, title: "Контур управления Kitsu", description: "Решения оператора, реальные фоновые процессы и инфраструктура — без синтетических процентов.", actions: `${actionButton("Найти в источниках", "go-imports", "search-code")}${actionButton("Ручной запуск", "start-sync", "play", true)}` })}<div class="metric-grid"><article class="metric-card metric-card--focus"><span>Пользователи</span><strong>24 812</strong><small>1 284 активны за сутки</small></article><article class="metric-card"><span>Аниме</span><strong>3 402</strong><small>184 онгоинга</small></article><article class="metric-card"><span>Активные релизы</span><strong>18 429</strong><small>доступны в плеере</small></article><article class="metric-card"><span>Go process uptime</span><strong>3д 11ч</strong><small>данные runtime, не SLA</small></article></div><div class="control-layout"><section class="panel panel--flush decision-panel"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">01 · Очередь решений</span><h2 class="panel-title">Требуется оператор</h2><p class="panel-subtitle">Только события, которые нельзя безопасно завершить автоматически</p></div><span class="queue-total">20 открыто</span></header><div class="decision-list">${decisionRows}</div></section><aside class="active-operation"><div class="active-operation__head"><div><span class="section-kicker">02 · Активная операция</span><h2>Kodik full sync</h2><p>#J-8412 · ручной · sample response</p></div>${status("Выполняется", "info")}</div><div class="operation-clock"><strong>18:42</strong><span>прошло с запуска</span></div><div class="indeterminate-track" role="progressbar" aria-label="Задача выполняется без публикации точного прогресса"><span></span></div><div class="truth-note">${icon("info")}<p><strong>Полный sync не публикует промежуточный процент.</strong><br>Live-счётчики для full sync не публикуются. Частичные stats при cancel/timeout могут быть только в terminal ParserJobLog.details; checkpoint/resume API нет.</p></div><div class="operation-actions"><button class="button button--primary" data-action="view-job" data-id="#J-8412">${icon("panel-right-open")}Открыть задачу</button><button class="button button--danger" data-action="stop-job">${icon("square")}Остановить</button></div></aside></div><section class="health-ribbon" aria-label="Состояние сервисов"><button data-view="monitoring"><span>Go API</span><strong><i class="status-dot status-dot--ok"></i>online</strong><small>health snapshot</small></button><button data-view="monitoring"><span>PostgreSQL</span><strong><i class="status-dot status-dot--ok"></i>12 ms</strong><small>основная база</small></button><button data-view="monitoring"><span>Cache</span><strong><i class="status-dot status-dot--warning"></i>не проверен*</strong><small>backend возвращает online без probe</small></button><button data-view="parsers"><span>Workers</span><strong><i class="status-dot status-dot--ok"></i>2 active</strong><small>Inspector count · без denominator</small></button><button data-view="monitoring"><span>Storage</span><strong><i class="status-dot status-dot--warning"></i>68%</strong><small>root filesystem · disk_percent</small></button></section><section class="panel panel--flush"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">03 · Исполнение</span><h2 class="panel-title">Последние задачи</h2><p class="panel-subtitle">Статусы pending · running · completed · failed · cancelled</p></div><button class="panel-link" data-view="parsers">Задачи и логи ${icon("arrow-right")}</button></header><div class="table-shell"><table class="data-table"><thead><tr><th>Задача</th><th>Статус</th><th>Прогресс</th><th>Старт</th><th>Длительность</th><th></th></tr></thead><tbody>${jobRows}</tbody></table></div></section>`;
+    return `${heading({ eyebrow: `<span class="status-dot status-dot--ok"></span> Контрактный снимок · поля активного Go API`, title: "Контур управления Kitsu", description: "Решения оператора, реальные фоновые процессы и инфраструктура — без синтетических процентов.", actions: `${actionButton("Найти в источниках", "go-imports", "search-code")}${actionButton("Ручной запуск", "start-sync", "play", true)}` })}<div class="metric-grid"><article class="metric-card metric-card--focus"><span>Пользователи</span><strong>24 812</strong><small>1 284 активны за сутки</small></article><article class="metric-card"><span>Аниме</span><strong>3 402</strong><small>184 онгоинга</small></article><article class="metric-card"><span>Активные релизы</span><strong>18 429</strong><small>доступны в плеере</small></article><article class="metric-card"><span>Go process uptime</span><strong>3д 11ч</strong><small>данные runtime, не SLA</small></article></div><div class="control-layout"><section class="panel panel--flush decision-panel"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">01 · Очередь решений</span><h2 class="panel-title">Требуется оператор</h2><p class="panel-subtitle">Только события, которые нельзя безопасно завершить автоматически</p></div><span class="queue-total">20 открыто</span></header><div class="decision-list">${decisionRows}</div></section><aside class="active-operation"><div class="active-operation__head"><div><span class="section-kicker">02 · Активная операция</span><h2>Kodik full sync</h2><p>#J-8412 · ручной · sample response</p></div>${status("Выполняется", "info")}</div><div class="operation-clock"><strong>18:42</strong><span>прошло с запуска</span></div><div class="indeterminate-track" role="progressbar" aria-label="Задача выполняется без публикации точного прогресса"><span></span></div><div class="truth-note">${icon("info")}<p><strong>Полный sync не публикует промежуточный процент.</strong><br>Live-счётчики для full sync не публикуются. Частичные stats при cancel/timeout могут быть только в terminal ParserJobLog.details; checkpoint/resume API нет.</p></div><div class="operation-actions"><button class="button button--primary" data-action="view-job" data-id="#J-8412">${icon("panel-right-open")}Открыть задачу</button><button class="button button--danger" data-action="stop-job">${icon("square")}Остановить</button></div></aside></div><section class="health-ribbon" aria-label="Состояние сервисов"><button data-view="monitoring"><span>Go API</span><strong><i class="status-dot status-dot--ok"></i>online</strong><small>health snapshot</small></button><button data-view="monitoring"><span>PostgreSQL</span><strong><i class="status-dot status-dot--ok"></i>12 ms</strong><small>основная база</small></button><button data-view="monitoring"><span>Cache</span><strong><i class="status-dot status-dot--warning"></i>не проверен*</strong><small>backend возвращает online без probe</small></button><button data-view="parsers"><span>Workers</span><strong><i class="status-dot status-dot--ok"></i>2 active</strong><small>Inspector count · без denominator</small></button><button data-view="monitoring"><span>Storage</span><strong><i class="status-dot status-dot--warning"></i>68%</strong><small>root filesystem · disk_percent</small></button></section><section class="panel panel--flush"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">03 · Исполнение</span><h2 class="panel-title">Последние задачи</h2><p class="panel-subtitle">Статусы pending · running · completed · failed · cancelled</p></div><button class="panel-link" data-view="parsers">Задачи и логи ${icon("arrow-right")}</button></header><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Задача</th><th>Статус</th><th>Прогресс</th><th>Старт</th><th>Длительность</th><th></th></tr></thead><tbody>${jobRows}</tbody></table></div></section>`;
   }
 
   function renderParserCenterReal() {
@@ -1507,7 +1520,7 @@
   function navigate(view) {
     if (!renderers[view]) return;
     state.currentView = view;
-    history.replaceState(null, "", `#${view}`);
+    history.pushState(null, "", `#${view}`);
     appShell.classList.remove("is-mobile-open");
     syncMobileSidebar();
     closeTransient();
@@ -2458,12 +2471,14 @@
     const parserTab = event.target.closest("[data-parser-tab]");
     if (parserTab) {
       state.parserTab = parserTab.dataset.parserTab;
+      history.replaceState(null, "", `#parsers/${state.parserTab}`);
       renderCurrent();
       return;
     }
     const conflictTab = event.target.closest("[data-conflict-tab]");
     if (conflictTab) {
       state.conflictTab = conflictTab.dataset.conflictTab;
+      history.replaceState(null, "", `#conflicts/${state.conflictTab}`);
       renderCurrent();
       return;
     }
@@ -2502,6 +2517,7 @@
     const moderationTab = event.target.closest("[data-moderation-tab]");
     if (moderationTab) {
       state.moderationTab = moderationTab.dataset.moderationTab;
+      history.replaceState(null, "", `#moderation/${state.moderationTab}`);
       renderCurrent();
       return;
     }
@@ -2698,13 +2714,26 @@
       );
     }
   });
-  window.addEventListener("hashchange", () => {
-    const view = location.hash.slice(1);
-    if (renderers[view]) {
-      state.currentView = view;
-      renderCurrent();
+  function syncFromHash() {
+    const [view, tab] = location.hash.slice(1).split("/");
+    if (!renderers[view]) return;
+    state.currentView = view;
+    if (view === "parsers" && ["jobs", "logs", "sources"].includes(tab)) {
+      state.parserTab = tab;
     }
-  });
+    if (
+      view === "conflicts" &&
+      ["pending", "auto", "resolved"].includes(tab)
+    ) {
+      state.conflictTab = tab;
+    }
+    if (view === "moderation" && ["import", "comments"].includes(tab)) {
+      state.moderationTab = tab;
+    }
+    renderCurrent();
+  }
+  window.addEventListener("hashchange", syncFromHash);
+  window.addEventListener("popstate", syncFromHash);
   document.addEventListener("pointerover", (event) => {
     if (event.pointerType === "touch") return;
     const target = event.target.closest?.("[data-tooltip]");

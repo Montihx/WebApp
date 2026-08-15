@@ -12,6 +12,24 @@
       name="description"
       content="Адаптивный интерактивный макет административной панели Kitsu Enterprise"
     />
+    <script>
+      (() => {
+        try {
+          const saved = localStorage.getItem("kitsu-admin-theme");
+          if (saved === "light" || saved === "dark") {
+            document.documentElement.dataset.theme = saved;
+          } else if (
+            window.matchMedia("(prefers-color-scheme: dark)").matches
+          ) {
+            document.documentElement.dataset.theme = "dark";
+          } else if (
+            window.matchMedia("(prefers-color-scheme: light)").matches
+          ) {
+            document.documentElement.dataset.theme = "light";
+          }
+        } catch (_) {}
+      })();
+    </script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
