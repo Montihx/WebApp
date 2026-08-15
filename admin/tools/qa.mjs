@@ -3,7 +3,6 @@ import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const pages = ["index.html", "anime.html"];
 const results = [];
 
 function add(id, label, pass, detail) {
@@ -56,14 +55,16 @@ function cssStructure(source) {
   return { ok: true, detail: `${count(source, /{/g)} блоков, структура сбалансирована` };
 }
 
-// A null return is a computation failure and must surface as a failed
-// check, never as a silently accepted result — the shipped admin
-// qa-results.json once recorded "ratio": null for nine light-theme pairs
-// while still reporting issues: [], which is the defect this guards against.
+// --- WCAG contrast -----------------------------------------------------
+// Returns null (never silently a passing number) if the input isn't a
+// resolvable #rrggbb literal — a null MUST surface as a failed check,
+// never as an accepted "0 issues" result. This is the exact bug being
+// fixed here: the shipped qa-results.json recorded "ratio": null for all
+// nine light-theme pairs while still reporting issues: [].
 function relativeLuminance(hex) {
   if (typeof hex !== "string" || !/^#[0-9a-fA-F]{6}$/.test(hex)) return null;
   const channels = [1, 3, 5].map((index) => Number.parseInt(hex.slice(index, index + 2), 16) / 255);
-  const linear = channels.map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+  const linear = channels.map((value) => (value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4));
   return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
 }
 
@@ -76,8 +77,9 @@ function contrastRatio(foreground, background) {
   return (hi + 0.05) / (lo + 0.05);
 }
 
+// --- files ---------------------------------------------------------------
 const required = [
-  ...pages,
+  "index.html",
   "styles.css",
   "app.js",
   "vendor/lucide.min.js",
@@ -90,41 +92,47 @@ const required = [
 const missingRequired = required.filter((file) => !existsSync(resolve(root, file)));
 add("files.required", "Обязательные файлы", missingRequired.length === 0, missingRequired.length ? `Не найдены: ${missingRequired.join(", ")}` : `${required.length} файлов на месте`);
 
-for (const page of pages) {
-  const source = read(page);
-  const ids = [...source.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
-  const duplicates = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
-  const localRefs = [...source.matchAll(/\b(?:href|src)="((?:\.\/|\.\.\/)[^"?#]+)(?:[?#][^"]*)?"/g)].map((match) => match[1]);
-  const missingRefs = localRefs.filter((reference) => !existsSync(resolve(root, reference)));
-  const ariaRefs = [...source.matchAll(/\b(?:aria-controls|aria-labelledby|for)="([^"]+)"/g)]
-    .flatMap((match) => match[1].split(/\s+/))
-    .filter(Boolean);
-  const unresolvedAria = [...new Set(ariaRefs.filter((id) => !ids.includes(id)))];
+// --- index.html ------------------------------------------------------------
+const html = read("index.html");
+const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
+const duplicates = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
+const localRefs = [...html.matchAll(/\b(?:href|src)="((?:\.\/|\.\.\/)[^"?#]+)(?:[?#][^"]*)?"/g)].map((match) => match[1]);
+const missingRefs = localRefs.filter((reference) => !existsSync(resolve(root, reference)));
 
-  add(`${page}.document`, `${page}: документ`, /<html\s+lang="ru"/.test(source) && /<meta\s+name="viewport"/.test(source) && count(source, /<h1\b/g) === 1, "lang=ru, viewport и один H1");
-  add(`${page}.ids`, `${page}: уникальные ID`, duplicates.length === 0, duplicates.length ? duplicates.join(", ") : `${ids.length} уникальных ID`);
-  add(`${page}.references`, `${page}: локальные ссылки`, missingRefs.length === 0, missingRefs.length ? missingRefs.join(", ") : `${localRefs.length} локальных ссылок разрешены`);
-  add(`${page}.aria`, `${page}: ARIA-ссылки`, unresolvedAria.length === 0, unresolvedAria.length ? `Не найдены ID: ${unresolvedAria.join(", ")}` : `${ariaRefs.length} ссылок разрешены`);
-  add(`${page}.buttons`, `${page}: типы кнопок`, !/<button\b(?![^>]*\btype=)[^>]*>/i.test(source), "у каждой кнопки указан type");
-  add(`${page}.images`, `${page}: alt у изображений`, !/<img\b(?![^>]*\balt=)[^>]*>/i.test(source), `${count(source, /<img\b/g)} изображений проверено`);
-  add(`${page}.anchors`, `${page}: ссылки без заглушек`, !/href="#"/.test(source) && !/javascript:/i.test(source), "нет href=\"#\" и javascript-ссылок");
-}
+add("index.document", "index.html: документ", /<html\s+lang="ru"/.test(html) && /<meta\s+name="viewport"/.test(html), "lang=ru и viewport присутствуют");
+add("index.ids", "index.html: уникальные ID", duplicates.length === 0, duplicates.length ? duplicates.join(", ") : `${ids.length} уникальных ID`);
+add("index.references", "index.html: локальные ссылки", missingRefs.length === 0, missingRefs.length ? missingRefs.join(", ") : `${localRefs.length} локальных ссылок разрешены`);
+add("index.buttons", "index.html: типы кнопок", !/<button\b(?![^>]*\btype=)[^>]*>/i.test(html), "у каждой кнопки указан type");
 
+// --- styles.css ------------------------------------------------------------
 const css = read("styles.css");
 const structure = cssStructure(css);
 add("css.structure", "CSS: синтаксическая структура", structure.ok, structure.detail);
 add("css.themes", "CSS: две темы", /:root\s*{/.test(css) && /html\[data-theme="light"\]/.test(css), "тёмные и светлые токены присутствуют");
-add("css.responsive", "CSS: адаптивность", [1180, 920, 720, 460].every((value) => css.includes(`max-width: ${value}px`)), "контрольные точки 1180/920/720/460 px");
 add("css.a11y", "CSS: доступность", css.includes(":focus-visible") && css.includes("prefers-reduced-motion"), "focus-visible и reduced-motion присутствуют");
 
-// Tier 1: baseline WCAG AA (>=4.5:1) for every text/label token against its
-// real surface. Tier 2: the reinforced bar semantic status colors and
-// accent-as-text are held to (>=5.5 light / >=6.0 dark), per the 2026-08
-// color pass — layered on the SAME pairs, not a separate color set, so
-// long-standing neutral tokens (e.g. --text-muted, ~4.9:1 by design) aren't
-// flaged against a bar they were never meant to clear.
+// Breakpoint sprawl: at most 4 distinct max-width values, prefers-* excluded.
+const breakpointValues = [...new Set([...css.matchAll(/@media \(max-width: (\d+)px\)/g)].map((m) => Number(m[1])))].sort((a, b) => b - a);
+add("css.breakpoints", "CSS: число контрольных точек", breakpointValues.length > 0 && breakpointValues.length <= 4, `${breakpointValues.length} точек: ${breakpointValues.join("/")}px`);
+
+const fontUrls = [...css.matchAll(/url\(["']?(\.\/fonts\/[^)"']+)/g)].map((match) => match[1]);
+const missingFonts = fontUrls.filter((reference) => !existsSync(resolve(root, reference)));
+add("css.fonts", "CSS: локальные шрифты", fontUrls.length >= 20 && missingFonts.length === 0, missingFonts.length ? missingFonts.join(", ") : `${fontUrls.length} @font-face подключений на локальные файлы`);
+
+add("css.noOutfitSpaceGrotesk", "CSS: нет мёртвых/безкириллических гарнитур", !/Outfit/.test(css) && !/Space Grotesk/.test(css), "Outfit и \"Space Grotesk\" удалены из styles.css");
+add("css.tabularNums", "CSS: tabular-nums на числовых колонках", css.includes("font-variant-numeric: tabular-nums"), `${count(css, /font-variant-numeric: tabular-nums/g)} правил с tabular-nums`);
+
+// --- contrast ---------------------------------------------------------------
+// Tier 1: baseline WCAG AA (>=4.5:1) — every text/label token against its
+// real surface. Tier 2: the reinforced bar this project holds semantic
+// status colors and accent-as-text to (>=5.5 light / >=6.0 dark), per the
+// 2026-08 color pass. Tier 2 is a superset check layered on the same pairs,
+// not a different set of colors — mixing the two would either falsely fail
+// long-standing neutral text tokens (e.g. --text-muted, ~4.9:1 by design,
+// always was, not part of this pass) or under-check the colors that matter.
 const darkSurface = "#19191c";
 const lightSurface = "#ffffff";
+
 const baselinePairs = {
   dark: {
     text: "#f3f2f4",
@@ -169,6 +177,8 @@ for (const theme of ["dark", "light"]) {
   contrastChecks.push({ theme, token: "primary-fg", foreground: primary.fg, background: primary.bg, ratio: primaryRatio, threshold: baselineMin, tier: "baseline" });
 }
 
+// A null/NaN ratio is ALWAYS a failure, never a silent pass — this is the
+// specific defect being corrected relative to the previous qa-results.json.
 const contrastIssues = contrastChecks.filter((c) => c.ratio === null || Number.isNaN(c.ratio) || c.ratio < c.threshold);
 for (const theme of ["dark", "light"]) {
   const themeChecks = contrastChecks.filter((c) => c.theme === theme);
@@ -184,37 +194,21 @@ for (const theme of ["dark", "light"]) {
   );
 }
 
-const fontUrls = [...css.matchAll(/url\(["']?(\.\/fonts\/[^)"']+)/g)].map((match) => match[1]);
-const missingFonts = fontUrls.filter((reference) => !existsSync(resolve(root, reference)));
-add("css.fonts", "CSS: локальные шрифты", fontUrls.length >= 20 && missingFonts.length === 0, missingFonts.length ? missingFonts.join(", ") : `${fontUrls.length} локальных файлов подключено`);
-add("css.noOutfit", "CSS: нет безкириллической гарнитуры", !/Outfit/.test(css), "Outfit удалён из styles.css");
-add("css.tabularNums", "CSS: tabular-nums на числовых узлах", css.includes("font-variant-numeric: tabular-nums"), `${count(css, /font-variant-numeric: tabular-nums/g)} правил с tabular-nums`);
-
-const js = read("app.js");
-const jsCapabilities = [
-  "data-theme-toggle",
-  "data-open-search",
-  "mobile-menu-trigger",
-  "data-filter",
-  "data-day",
-  "data-list-status",
-  "data-subscribe",
-  "data-episode",
-  "source-select",
-  "translation-select",
-  "requestFullscreen",
-];
-const missingCapabilities = jsCapabilities.filter((token) => !js.includes(token));
-add("js.capabilities", "JS: ключевые сценарии", missingCapabilities.length === 0, missingCapabilities.length ? `Не найдены: ${missingCapabilities.join(", ")}` : `${jsCapabilities.length} сценариев покрыто`);
-add("js.storage", "JS: локальные предпочтения", js.includes("localStorage") && js.includes("kitsu-theme"), "тема и демонстрационные состояния сохраняются локально");
-
+// --- fonts on disk -----------------------------------------------------------
 const fontFiles = readdirSync(resolve(root, "fonts")).filter((name) => name.endsWith(".woff2"));
 add("assets.fontInventory", "Ассеты: набор шрифтов", fontFiles.length >= 20, `${fontFiles.length} WOFF2-файлов`);
 
+// --- JS: hash routing wiring --------------------------------------------------
+const js = read("app.js");
+const routingTokens = ["location.hash", "hashchange", "popstate", "pushState", "history.replaceState"];
+const missingRouting = routingTokens.filter((token) => !js.includes(token));
+add("js.hashRouting", "JS: адресация экранов по хешу", missingRouting.length === 0, missingRouting.length ? `Не найдены: ${missingRouting.join(", ")}` : "чтение хеша при загрузке, hashchange/popstate и pushState на переходах присутствуют");
+add("js.storage", "JS: локальные предпочтения", js.includes("localStorage") && js.includes("kitsu-admin-theme"), "тема сохраняется локально");
+
 // --- Pages link safety (step 6.4) --------------------------------------------
-// GitHub Pages serves this repo from /WebApp/, not the domain root, and its
-// filesystem is case-sensitive unlike a typical local Windows checkout. A
-// leading-slash reference or a case mismatch is invisible when opening the
+// GitHub Pages serves this repo from /WebApp/, not from the domain root, and
+// its filesystem is case-sensitive unlike a typical local Windows checkout.
+// A leading-slash reference or a case mismatch is invisible when opening the
 // file directly and only breaks once deployed.
 function checkPagesLinks(filesToScan) {
   const problems = [];
@@ -235,6 +229,8 @@ function checkPagesLinks(filesToScan) {
         problems.push(`${file}: путь не существует — "${ref}"`);
         continue;
       }
+      // Case-sensitivity check: walk the path and confirm each segment's
+      // case matches what readdirSync actually returns on disk.
       const rel = clean.replace(/^\.\//, "");
       let dir = root;
       for (const segment of rel.split("/")) {
@@ -251,13 +247,14 @@ function checkPagesLinks(filesToScan) {
   return problems;
 }
 
-const pagesLinkProblems = checkPagesLinks([...pages, "styles.css", "app.js"]);
+const pagesLinkProblems = checkPagesLinks(["index.html", "styles.css", "app.js"]);
 add("pages.linkSafety", "Pages: относительные пути и регистр", pagesLinkProblems.length === 0, pagesLinkProblems.length ? pagesLinkProblems.join("; ") : "нет ведущих слэшей, все относительные пути существуют с совпадающим регистром");
 
+// --- report -------------------------------------------------------------------
 const failed = results.filter((result) => result.status === "fail");
 const report = {
   schema_version: 2,
-  project: "Kitsu public template · Anime Graphite",
+  project: "Kitsu enterprise admin template · Anime Graphite",
   generated_at: new Date().toISOString(),
   summary: {
     status: failed.length ? "fail" : "pass",

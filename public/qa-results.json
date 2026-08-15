@@ -1,11 +1,11 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-14T01:26:35.003Z",
+  "generated_at": "2026-08-15T07:23:39.934Z",
   "summary": {
     "status": "pass",
-    "total": 24,
-    "passed": 24,
+    "total": 28,
+    "passed": 28,
     "failed": 0
   },
   "results": [
@@ -13,7 +13,7 @@
       "id": "files.required",
       "label": "Обязательные файлы",
       "status": "pass",
-      "detail": "8 файлов на месте"
+      "detail": "10 файлов на месте"
     },
     {
       "id": "index.html.document",
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "631 блоков, структура сбалансирована"
+      "detail": "643 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -124,16 +124,34 @@
       "detail": "focus-visible и reduced-motion присутствуют"
     },
     {
-      "id": "css.contrast",
-      "label": "CSS: контраст токенов",
+      "id": "css.contrast.dark",
+      "label": "CSS: контраст токенов — тёмная тема",
       "status": "pass",
-      "detail": "10 пар, минимум 4.97:1"
+      "detail": "9 пар посчитаны, минимум 4.98:1"
+    },
+    {
+      "id": "css.contrast.light",
+      "label": "CSS: контраст токенов — светлая тема",
+      "status": "pass",
+      "detail": "9 пар посчитаны, минимум 4.97:1"
     },
     {
       "id": "css.fonts",
       "label": "CSS: локальные шрифты",
       "status": "pass",
-      "detail": "12 локальных файлов подключено"
+      "detail": "24 локальных файлов подключено"
+    },
+    {
+      "id": "css.noOutfit",
+      "label": "CSS: нет безкириллической гарнитуры",
+      "status": "pass",
+      "detail": "Outfit удалён из styles.css"
+    },
+    {
+      "id": "css.tabularNums",
+      "label": "CSS: tabular-nums на числовых узлах",
+      "status": "pass",
+      "detail": "6 правил с tabular-nums"
     },
     {
       "id": "js.capabilities",
@@ -151,7 +169,177 @@
       "id": "assets.fontInventory",
       "label": "Ассеты: набор шрифтов",
       "status": "pass",
-      "detail": "16 WOFF2-файлов"
+      "detail": "24 WOFF2-файлов"
+    },
+    {
+      "id": "pages.linkSafety",
+      "label": "Pages: относительные пути и регистр",
+      "status": "pass",
+      "detail": "нет ведущих слэшей, все относительные пути существуют с совпадающим регистром"
+    }
+  ],
+  "contrastChecks": [
+    {
+      "theme": "dark",
+      "token": "text",
+      "foreground": "#f3f2f4",
+      "background": "#19191c",
+      "ratio": 15.719034253524521,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "dark",
+      "token": "text-secondary",
+      "foreground": "#b9b6bc",
+      "background": "#19191c",
+      "ratio": 8.754259132776602,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "dark",
+      "token": "text-muted",
+      "foreground": "#8b8790",
+      "background": "#19191c",
+      "ratio": 4.983570239030981,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "dark",
+      "token": "accent-text",
+      "foreground": "#a78bfa",
+      "background": "#19191c",
+      "ratio": 6.445757703151825,
+      "threshold": 6,
+      "tier": "reinforced"
+    },
+    {
+      "theme": "dark",
+      "token": "green",
+      "foreground": "#56ad91",
+      "background": "#19191c",
+      "ratio": 6.500396026830483,
+      "threshold": 6,
+      "tier": "reinforced"
+    },
+    {
+      "theme": "dark",
+      "token": "amber",
+      "foreground": "#d0a052",
+      "background": "#19191c",
+      "ratio": 7.377608551580531,
+      "threshold": 6,
+      "tier": "reinforced"
+    },
+    {
+      "theme": "dark",
+      "token": "red",
+      "foreground": "#ff7a7a",
+      "background": "#19191c",
+      "ratio": 6.947171969262089,
+      "threshold": 6,
+      "tier": "reinforced"
+    },
+    {
+      "theme": "dark",
+      "token": "info",
+      "foreground": "#7f9fbd",
+      "background": "#19191c",
+      "ratio": 6.345447907224739,
+      "threshold": 6,
+      "tier": "reinforced"
+    },
+    {
+      "theme": "dark",
+      "token": "primary-fg",
+      "foreground": "#171719",
+      "background": "#eceaec",
+      "ratio": 14.958665038324847,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "light",
+      "token": "text",
+      "foreground": "#252225",
+      "background": "#ffffff",
+      "ratio": 15.739907954858637,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "light",
+      "token": "text-secondary",
+      "foreground": "#5e5960",
+      "background": "#ffffff",
+      "ratio": 6.831948335480223,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "light",
+      "token": "text-muted",
+      "foreground": "#746e74",
+      "background": "#ffffff",
+      "ratio": 4.970221570571913,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "light",
+      "token": "accent-text",
+      "foreground": "#6d28d9",
+      "background": "#ffffff",
+      "ratio": 7.104892978519159,
+      "threshold": 5.5,
+      "tier": "reinforced"
+    },
+    {
+      "theme": "light",
+      "token": "green",
+      "foreground": "#166534",
+      "background": "#ffffff",
+      "ratio": 7.130310076434003,
+      "threshold": 5.5,
+      "tier": "reinforced"
+    },
+    {
+      "theme": "light",
+      "token": "amber",
+      "foreground": "#854d0e",
+      "background": "#ffffff",
+      "ratio": 6.8511000196797465,
+      "threshold": 5.5,
+      "tier": "reinforced"
+    },
+    {
+      "theme": "light",
+      "token": "red",
+      "foreground": "#b91c1c",
+      "background": "#ffffff",
+      "ratio": 6.4700447145121895,
+      "threshold": 5.5,
+      "tier": "reinforced"
+    },
+    {
+      "theme": "light",
+      "token": "info",
+      "foreground": "#1d4ed8",
+      "background": "#ffffff",
+      "ratio": 6.701618401398807,
+      "threshold": 5.5,
+      "tier": "reinforced"
+    },
+    {
+      "theme": "light",
+      "token": "primary-fg",
+      "foreground": "#ffffff",
+      "background": "#1f1d20",
+      "ratio": 16.734879940202784,
+      "threshold": 4.5,
+      "tier": "baseline"
     }
   ]
 }
