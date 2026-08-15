@@ -654,7 +654,6 @@ kbd {
 
 .icon-button,
 .quiet-icon,
-.bookmark-button,
 .view-toggle {
   display: inline-grid;
   place-items: center;
@@ -673,7 +672,6 @@ kbd {
 
 .icon-button:hover,
 .quiet-icon:hover,
-.bookmark-button:hover,
 .view-toggle:hover,
 .view-toggle.is-active {
   border-color: var(--line-strong);
@@ -860,6 +858,12 @@ html[data-theme="light"] .theme-icon--moon {
 
 .button--secondary:hover {
   background: var(--surface-hover);
+}
+
+.list-control .button.is-active {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
+  background: var(--accent-soft);
+  color: var(--accent-text);
 }
 
 .button--wide {
@@ -1406,7 +1410,111 @@ html[data-theme="light"] .hero-art img {
 }
 
 .episode-badge {
+  top: 41px;
+  right: auto;
+  left: 9px;
+}
+
+.poster-wrap {
+  position: relative;
+}
+
+.card-bookmark {
+  position: absolute;
+  z-index: 5;
+  top: 9px;
   right: 9px;
+}
+
+.card-bookmark-trigger {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(13, 13, 15, 0.78);
+  color: #fff;
+  backdrop-filter: blur(10px);
+  transition: background var(--ease), color var(--ease), border-color var(--ease), transform var(--ease);
+}
+
+.card-bookmark-trigger:hover {
+  background: rgba(13, 13, 15, 0.92);
+  transform: translateY(-1px);
+}
+
+.card-bookmark-trigger svg {
+  width: 14px;
+  height: 14px;
+}
+
+.card-bookmark-trigger.is-active svg {
+  fill: currentColor;
+}
+
+.card-bookmark-trigger[data-status="watching"] {
+  border-color: color-mix(in srgb, var(--green) 55%, transparent);
+  background: color-mix(in srgb, var(--green) 62%, rgba(13, 13, 15, 0.78));
+}
+
+.card-bookmark-trigger[data-status="completed"] {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 62%, rgba(13, 13, 15, 0.78));
+}
+
+.card-bookmark-trigger[data-status="planned"] {
+  border-color: color-mix(in srgb, var(--info) 55%, transparent);
+  background: color-mix(in srgb, var(--info) 62%, rgba(13, 13, 15, 0.78));
+}
+
+.card-bookmark-trigger[data-status="on_hold"] {
+  border-color: color-mix(in srgb, var(--amber) 55%, transparent);
+  background: color-mix(in srgb, var(--amber) 62%, rgba(13, 13, 15, 0.78));
+}
+
+.card-bookmark-trigger[data-status="dropped"] {
+  border-color: color-mix(in srgb, var(--red) 55%, transparent);
+  background: color-mix(in srgb, var(--red) 62%, rgba(13, 13, 15, 0.78));
+}
+
+.card-bookmark-menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 172px;
+  overflow: hidden;
+  padding: 5px;
+  border: 1px solid var(--line-strong);
+  border-radius: 13px;
+  background: var(--surface);
+  box-shadow: var(--shadow-menu);
+}
+
+.card-bookmark-menu button {
+  display: flex;
+  width: 100%;
+  min-height: 35px;
+  align-items: center;
+  gap: 9px;
+  padding: 0 9px;
+  border-radius: 9px;
+  color: var(--text-secondary);
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.card-bookmark-menu button:hover,
+.card-bookmark-menu button.is-active {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.card-bookmark-menu button svg {
+  width: 14px;
+  height: 14px;
 }
 
 .poster-action {
@@ -1445,14 +1553,11 @@ html[data-theme="light"] .hero-art img {
 }
 
 .card-title-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 30px;
-  gap: 5px;
-  align-items: start;
   margin-top: 10px;
 }
 
 .card-title-row a {
+  display: block;
   min-width: 0;
 }
 
@@ -1474,27 +1579,6 @@ html[data-theme="light"] .hero-art img {
   color: var(--text-muted);
   font-size: 10px;
   font-weight: 600;
-}
-
-.bookmark-button {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-}
-
-.bookmark-button svg {
-  width: 15px;
-  height: 15px;
-}
-
-.bookmark-button.is-active {
-  border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
-  background: var(--accent-soft);
-  color: var(--accent-text);
-}
-
-.bookmark-button.is-active svg {
-  fill: currentColor;
 }
 
 .wide-link {
@@ -2382,7 +2466,6 @@ html[data-theme="light"] .title-backdrop img {
   height: 15px;
 }
 
-.list-menu .list-remove,
 .subscribe-menu .subscribe-remove {
   margin-top: 4px;
   border-top: 1px solid var(--line);
@@ -4088,15 +4171,6 @@ img.is-image-error {
 
   .poster-action {
     display: none;
-  }
-
-  .card-title-row {
-    grid-template-columns: minmax(0, 1fr) 27px;
-  }
-
-  .bookmark-button {
-    width: 27px;
-    height: 27px;
   }
 
   .schedule-list {

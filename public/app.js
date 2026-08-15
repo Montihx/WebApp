@@ -126,6 +126,10 @@
     ].forEach(([trigger, menu]) => {
       if (menu && menu !== except) closeMenu(trigger, menu);
     });
+    $$('[data-card-bookmark-menu]').forEach((menu) => {
+      if (menu === except) return;
+      closeMenu($(`[data-card-bookmark-trigger]`, menu.parentElement), menu);
+    });
   }
 
   function toggleMenu(trigger, menu) {
@@ -315,7 +319,7 @@
     });
 
     document.addEventListener("click", (event) => {
-      if (!event.target.closest(".nav-menu-wrap, .popover-wrap, .list-control, .title-inline-actions")) closeAllMenus();
+      if (!event.target.closest(".nav-menu-wrap, .popover-wrap, .list-control, .title-inline-actions, .card-bookmark")) closeAllMenus();
     });
 
     document.addEventListener("keydown", (event) => {
@@ -340,17 +344,49 @@
       });
     });
 
-    $$('[data-bookmark]').forEach((control, index) => {
-      const key = `kitsu-demo-bookmark-${body.dataset.page}-${index}`;
-      const active = storage.get(key, "0") === "1";
-      control.classList.toggle("is-active", active);
-      control.setAttribute("aria-pressed", String(active));
-      control.addEventListener("click", () => {
-        const next = !control.classList.contains("is-active");
-        control.classList.toggle("is-active", next);
-        control.setAttribute("aria-pressed", String(next));
-        storage.set(key, next ? "1" : "0");
-        showToast(next ? "Добавлено в список" : "Удалено из списка", "Состояние сохранено на этом устройстве.");
+    const cardListLabels = {
+      watching: "Смотрю",
+      completed: "Просмотрено",
+      planned: "Запланировано",
+      on_hold: "Отложено",
+      dropped: "Брошено",
+    };
+
+    $$('[data-card-bookmark]').forEach((wrap, index) => {
+      const trigger = $("[data-card-bookmark-trigger]", wrap);
+      const menu = $("[data-card-bookmark-menu]", wrap);
+      if (!trigger || !menu) return;
+      const key = `kitsu-demo-card-list-${body.dataset.page}-${index}`;
+      let status = storage.get(key, "none");
+
+      const applyStatus = () => {
+        const active = status !== "none";
+        trigger.classList.toggle("is-active", active);
+        if (active) trigger.dataset.status = status;
+        else delete trigger.dataset.status;
+        trigger.setAttribute("aria-pressed", String(active));
+        trigger.setAttribute("aria-label", active ? `${cardListLabels[status]} · нажмите, чтобы изменить статус` : "Добавить в список");
+        $$('[data-card-list-status]', menu).forEach((item) => item.classList.toggle("is-active", item.dataset.cardListStatus === status));
+      };
+      applyStatus();
+
+      trigger.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleMenu(trigger, menu);
+      });
+
+      $$('[data-card-list-status]', menu).forEach((item) => {
+        item.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const clicked = item.dataset.cardListStatus;
+          status = status === clicked ? "none" : clicked;
+          storage.set(key, status);
+          applyStatus();
+          closeMenu(trigger, menu);
+          showToast(status === "none" ? "Удалено из списка" : "Список обновлён", cardListLabels[status] || "");
+        });
       });
     });
   }
@@ -422,11 +458,15 @@
   };
 
   function syncListState() {
+    const inList = state.listStatus !== "none";
     const label = $("#list-label");
     if (label) label.textContent = listLabels[state.listStatus] || listLabels.none;
     $$('[data-list-status]').forEach((item) => item.classList.toggle("is-active", item.dataset.listStatus === state.listStatus));
+    const trigger = $("#list-trigger");
+    if (trigger) trigger.classList.toggle("is-active", inList);
+    setIcon($("#list-trigger-icon"), inList ? "bookmark-check" : "bookmark-plus");
     const counter = $('[data-count-label="favorites"]');
-    if (counter) counter.textContent = state.listStatus === "none" ? "В списки" : "В вашем списке";
+    if (counter) counter.textContent = inList ? "В вашем списке" : "В списки";
   }
 
   function syncSubscriptionState() {
@@ -532,7 +572,8 @@
     });
     $$('[data-list-status]').forEach((control) => {
       control.addEventListener("click", () => {
-        state.listStatus = control.dataset.listStatus;
+        const clicked = control.dataset.listStatus;
+        state.listStatus = state.listStatus === clicked ? "none" : clicked;
         storage.set("kitsu-demo-list-status", state.listStatus);
         syncListState();
         closeMenu($("#list-trigger"), $("#list-menu"));

@@ -99,14 +99,13 @@
               <div class="title-poster-actions">
                 <button class="button button--primary button--wide" type="button" data-scroll-player><i data-lucide="play"></i>Смотреть</button>
                 <div class="list-control">
-                  <button class="button button--secondary button--wide" type="button" id="list-trigger" aria-expanded="false" aria-controls="list-menu"><i data-lucide="bookmark-plus"></i><span id="list-label">В мой список</span><i data-lucide="chevron-down"></i></button>
+                  <button class="button button--secondary button--wide" type="button" id="list-trigger" aria-expanded="false" aria-controls="list-menu"><span id="list-trigger-icon"><i data-lucide="bookmark-plus"></i></span><span id="list-label">В мой список</span><i data-lucide="chevron-down"></i></button>
                   <div class="list-menu" id="list-menu" hidden>
                     <button type="button" data-list-status="watching"><i data-lucide="play-circle"></i><span>Смотрю</span></button>
                     <button type="button" data-list-status="completed"><i data-lucide="circle-check"></i><span>Просмотрено</span></button>
                     <button type="button" data-list-status="planned"><i data-lucide="clock-3"></i><span>Запланировано</span></button>
                     <button type="button" data-list-status="on_hold"><i data-lucide="pause-circle"></i><span>Отложено</span></button>
                     <button type="button" data-list-status="dropped"><i data-lucide="circle-minus"></i><span>Брошено</span></button>
-                    <button class="list-remove" type="button" data-list-status="none"><i data-lucide="trash-2"></i><span>Удалить из списка</span></button>
                   </div>
                 </div>
               </div>
@@ -240,10 +239,62 @@
         <div class="page-container">
           <div class="section-heading"><div><p class="section-kicker">Каталог</p><h2 id="related-title">Высокая оценка</h2></div><a class="section-link" href="./index.html#catalog">В каталог <i data-lucide="arrow-right"></i></a></div>
           <div class="related-rail">
-            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="Постер аниме «Врата Штейна»" loading="lazy" referrerpolicy="no-referrer" /><span class="score-badge"><i data-lucide="star"></i>9.07</span><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a><div class="card-title-row"><a href="./anime.html"><h3>Врата Штейна</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p>TV · триллер</p></article>
-            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="Постер аниме «Ковбой Бибоп»" loading="lazy" referrerpolicy="no-referrer" /><span class="score-badge"><i data-lucide="star"></i>8.75</span><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a><div class="card-title-row"><a href="./anime.html"><h3>Ковбой Бибоп</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p>TV · драма</p></article>
-            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="Постер «Стального алхимика»" loading="lazy" referrerpolicy="no-referrer" /><span class="score-badge"><i data-lucide="star"></i>9.10</span><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a><div class="card-title-row"><a href="./anime.html"><h3>Стальной алхимик: Братство</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p>TV · приключения</p></article>
-            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/457.jpg" alt="Постер аниме «Мастер муси»" loading="lazy" referrerpolicy="no-referrer" /><span class="score-badge"><i data-lucide="star"></i>8.66</span><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a><div class="card-title-row"><a href="./anime.html"><h3>Мастер муси</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p>TV · сверхъестественное</p></article>
+            <article class="anime-card"><div class="poster-wrap">
+  <a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="Постер аниме «Врата Штейна»" loading="lazy" referrerpolicy="no-referrer" /><span class="score-badge"><i data-lucide="star"></i>9.07</span><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a>
+  <div class="card-bookmark" data-card-bookmark>
+                    <button type="button" class="card-bookmark-trigger" data-card-bookmark-trigger aria-haspopup="true" aria-expanded="false" aria-label="Добавить в список"><i data-lucide="bookmark"></i></button>
+                    <div class="card-bookmark-menu" data-card-bookmark-menu hidden>
+                      <button type="button" data-card-list-status="watching"><i data-lucide="play-circle"></i><span>Смотрю</span></button>
+                      <button type="button" data-card-list-status="completed"><i data-lucide="circle-check"></i><span>Просмотрено</span></button>
+                      <button type="button" data-card-list-status="planned"><i data-lucide="clock-3"></i><span>Запланировано</span></button>
+                      <button type="button" data-card-list-status="on_hold"><i data-lucide="pause-circle"></i><span>Отложено</span></button>
+                      <button type="button" data-card-list-status="dropped"><i data-lucide="circle-minus"></i><span>Брошено</span></button>
+                    </div>
+                  </div>
+</div>
+<div class="card-title-row"><a href="./anime.html"><h3>Врата Штейна</h3></a></div><p>TV · триллер</p></article>
+            <article class="anime-card"><div class="poster-wrap">
+  <a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="Постер аниме «Ковбой Бибоп»" loading="lazy" referrerpolicy="no-referrer" /><span class="score-badge"><i data-lucide="star"></i>8.75</span><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a>
+  <div class="card-bookmark" data-card-bookmark>
+                    <button type="button" class="card-bookmark-trigger" data-card-bookmark-trigger aria-haspopup="true" aria-expanded="false" aria-label="Добавить в список"><i data-lucide="bookmark"></i></button>
+                    <div class="card-bookmark-menu" data-card-bookmark-menu hidden>
+                      <button type="button" data-card-list-status="watching"><i data-lucide="play-circle"></i><span>Смотрю</span></button>
+                      <button type="button" data-card-list-status="completed"><i data-lucide="circle-check"></i><span>Просмотрено</span></button>
+                      <button type="button" data-card-list-status="planned"><i data-lucide="clock-3"></i><span>Запланировано</span></button>
+                      <button type="button" data-card-list-status="on_hold"><i data-lucide="pause-circle"></i><span>Отложено</span></button>
+                      <button type="button" data-card-list-status="dropped"><i data-lucide="circle-minus"></i><span>Брошено</span></button>
+                    </div>
+                  </div>
+</div>
+<div class="card-title-row"><a href="./anime.html"><h3>Ковбой Бибоп</h3></a></div><p>TV · драма</p></article>
+            <article class="anime-card"><div class="poster-wrap">
+  <a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="Постер «Стального алхимика»" loading="lazy" referrerpolicy="no-referrer" /><span class="score-badge"><i data-lucide="star"></i>9.10</span><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a>
+  <div class="card-bookmark" data-card-bookmark>
+                    <button type="button" class="card-bookmark-trigger" data-card-bookmark-trigger aria-haspopup="true" aria-expanded="false" aria-label="Добавить в список"><i data-lucide="bookmark"></i></button>
+                    <div class="card-bookmark-menu" data-card-bookmark-menu hidden>
+                      <button type="button" data-card-list-status="watching"><i data-lucide="play-circle"></i><span>Смотрю</span></button>
+                      <button type="button" data-card-list-status="completed"><i data-lucide="circle-check"></i><span>Просмотрено</span></button>
+                      <button type="button" data-card-list-status="planned"><i data-lucide="clock-3"></i><span>Запланировано</span></button>
+                      <button type="button" data-card-list-status="on_hold"><i data-lucide="pause-circle"></i><span>Отложено</span></button>
+                      <button type="button" data-card-list-status="dropped"><i data-lucide="circle-minus"></i><span>Брошено</span></button>
+                    </div>
+                  </div>
+</div>
+<div class="card-title-row"><a href="./anime.html"><h3>Стальной алхимик: Братство</h3></a></div><p>TV · приключения</p></article>
+            <article class="anime-card"><div class="poster-wrap">
+  <a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/457.jpg" alt="Постер аниме «Мастер муси»" loading="lazy" referrerpolicy="no-referrer" /><span class="score-badge"><i data-lucide="star"></i>8.66</span><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a>
+  <div class="card-bookmark" data-card-bookmark>
+                    <button type="button" class="card-bookmark-trigger" data-card-bookmark-trigger aria-haspopup="true" aria-expanded="false" aria-label="Добавить в список"><i data-lucide="bookmark"></i></button>
+                    <div class="card-bookmark-menu" data-card-bookmark-menu hidden>
+                      <button type="button" data-card-list-status="watching"><i data-lucide="play-circle"></i><span>Смотрю</span></button>
+                      <button type="button" data-card-list-status="completed"><i data-lucide="circle-check"></i><span>Просмотрено</span></button>
+                      <button type="button" data-card-list-status="planned"><i data-lucide="clock-3"></i><span>Запланировано</span></button>
+                      <button type="button" data-card-list-status="on_hold"><i data-lucide="pause-circle"></i><span>Отложено</span></button>
+                      <button type="button" data-card-list-status="dropped"><i data-lucide="circle-minus"></i><span>Брошено</span></button>
+                    </div>
+                  </div>
+</div>
+<div class="card-title-row"><a href="./anime.html"><h3>Мастер муси</h3></a></div><p>TV · сверхъестественное</p></article>
           </div>
         </div>
       </section>
