@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-15T08:55:57.630Z",
+  "generated_at": "2026-08-15T09:19:19.106Z",
   "summary": {
     "status": "pass",
     "total": 28,
@@ -209,9 +209,9 @@
     {
       "theme": "dark",
       "token": "accent-text",
-      "foreground": "#a78bfa",
+      "foreground": "#d2c3f6",
       "background": "#19191c",
-      "ratio": 6.445757703151825,
+      "ratio": 10.75644724733941,
       "threshold": 6,
       "tier": "reinforced"
     },
@@ -290,9 +290,9 @@
     {
       "theme": "light",
       "token": "accent-text",
-      "foreground": "#6d28d9",
+      "foreground": "#36255c",
       "background": "#ffffff",
-      "ratio": 7.104892978519159,
+      "ratio": 13.32468326602156,
       "threshold": 5.5,
       "tier": "reinforced"
     },

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu enterprise admin template · Anime Graphite",
-  "generated_at": "2026-08-15T08:12:34.073Z",
+  "generated_at": "2026-08-15T09:19:14.638Z",
   "summary": {
     "status": "pass",
     "total": 18,
@@ -149,9 +149,9 @@
     {
       "theme": "dark",
       "token": "accent-text",
-      "foreground": "#a78bfa",
+      "foreground": "#d2c3f6",
       "background": "#19191c",
-      "ratio": 6.445757703151825,
+      "ratio": 10.75644724733941,
       "threshold": 6,
       "tier": "reinforced"
     },
@@ -230,9 +230,9 @@
     {
       "theme": "light",
       "token": "accent-text",
-      "foreground": "#6d28d9",
+      "foreground": "#36255c",
       "background": "#ffffff",
-      "ratio": 7.104892978519159,
+      "ratio": 13.32468326602156,
       "threshold": 5.5,
       "tier": "reinforced"
     },
