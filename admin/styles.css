@@ -7715,33 +7715,21 @@ button:disabled {
 }
 
 .queue-legend {
-  position: relative;
-  height: 40px;
-  margin: 2px 0 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: -6px 20px 14px;
 }
 
 .queue-legend__item {
-  position: absolute;
-  top: 0;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transform: translateX(-50%);
-  white-space: nowrap;
   color: var(--text-muted);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-}
-
-.queue-legend__item--row2 {
-  top: 20px;
-}
-
-.queue-legend__item--start,
-.queue-legend__item--end {
-  transform: translateX(0);
 }
 
 .queue-legend__dot {
