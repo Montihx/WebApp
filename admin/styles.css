@@ -7749,17 +7749,9 @@ button:disabled {
 
 .status-strip {
   display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-top: 7px;
-}
-
-.status-strip__track {
-  display: flex;
   gap: 2px;
-  width: 76px;
   height: 6px;
-  border-radius: 4px;
+  margin: 0 0 14px;
   overflow: hidden;
 }
 
@@ -7767,6 +7759,7 @@ button:disabled {
   display: block;
   height: 100%;
   min-width: 3px;
+  cursor: help;
 }
 
 .status-strip__segment--accent {
@@ -7779,12 +7772,6 @@ button:disabled {
 
 .status-strip__segment--danger {
   background: var(--red);
-}
-
-.status-strip__legend {
-  color: var(--text-muted);
-  font-size: 9px;
-  font-variant-numeric: tabular-nums;
 }
 
 .control-aside {
