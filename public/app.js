@@ -278,6 +278,8 @@
     setTheme(root.dataset.theme || storage.get("kitsu-theme", "dark"), false);
     refreshIcons();
     initRovingTabs();
+    initTabIndicators();
+    initScrollReveal();
 
     $$('img').forEach((image) => {
       image.addEventListener("error", () => image.classList.add("is-image-error"), { once: true });
@@ -390,7 +392,93 @@
     });
   }
 
+  const seasonMeta = {
+    winter: { icon: "snowflake", label: "Аниме зимнего сезона" },
+    spring: { icon: "flower-2", label: "Аниме весеннего сезона" },
+    summer: { icon: "sun", label: "Аниме летнего сезона" },
+    fall: { icon: "leaf", label: "Аниме осеннего сезона" },
+  };
+
+  function currentSeasonKey(date = new Date()) {
+    const month = date.getMonth() + 1;
+    if (month === 12 || month <= 2) return "winter";
+    if (month <= 5) return "spring";
+    if (month <= 8) return "summer";
+    return "fall";
+  }
+
+  function initSeasonLabel() {
+    const kicker = $("#season-kicker");
+    const title = $("#season-title");
+    if (!kicker || !title) return;
+    const now = new Date();
+    const year = now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear();
+    const meta = seasonMeta[currentSeasonKey(now)];
+    kicker.innerHTML = `<i data-lucide="${meta.icon}"></i>Сезон`;
+    title.textContent = `${meta.label} ${year}`;
+    refreshIcons();
+  }
+
+  function initScrollReveal() {
+    const groups = $$("[data-reveal-group]");
+    if (!groups.length) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reveal = (group) => {
+      $$(":scope > *", group).forEach((item, index) => {
+        item.classList.add("reveal-item");
+        if (reduceMotion) {
+          item.classList.add("is-revealed");
+          return;
+        }
+        item.style.transitionDelay = `${Math.min(index, 7) * 45}ms`;
+      });
+    };
+    groups.forEach(reveal);
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+      $$(".reveal-item").forEach((item) => item.classList.add("is-revealed"));
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          $$(":scope > .reveal-item", entry.target).forEach((item) => item.classList.add("is-revealed"));
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.14, rootMargin: "0px 0px -60px 0px" },
+    );
+    groups.forEach((group) => observer.observe(group));
+  }
+
+  function initTabIndicators() {
+    $$('[data-tabs]').forEach((tablist) => {
+      const indicator = document.createElement("span");
+      indicator.className = "tab-indicator";
+      indicator.setAttribute("aria-hidden", "true");
+      tablist.prepend(indicator);
+
+      const place = () => {
+        const active = $('[aria-selected="true"]', tablist);
+        if (!active) {
+          indicator.style.opacity = "0";
+          return;
+        }
+        indicator.style.opacity = "1";
+        indicator.style.width = `${active.offsetWidth}px`;
+        indicator.style.transform = `translateX(${active.offsetLeft}px)`;
+      };
+
+      place();
+      window.addEventListener("resize", place);
+      tablist.addEventListener("click", (event) => {
+        if (event.target.closest('[role="tab"]')) requestAnimationFrame(place);
+      });
+    });
+  }
+
   function initHome() {
+    initSeasonLabel();
     const filters = $$('[data-filter]');
     const cards = $$('.anime-card[data-status]');
     filters.forEach((control) => {

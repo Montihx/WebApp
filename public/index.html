@@ -187,10 +187,10 @@
       <section class="content-section" id="continue" aria-labelledby="continue-title">
         <div class="page-container">
           <div class="section-heading">
-            <div><p class="section-kicker">История просмотра</p><h2 id="continue-title">Продолжить</h2></div>
+            <div><p class="section-kicker"><i data-lucide="history"></i>История просмотра</p><h2 id="continue-title">Продолжить</h2></div>
             <a class="section-link" href="#continue">Вся история <i data-lucide="arrow-right"></i></a>
           </div>
-          <div class="continue-grid">
+          <div class="continue-grid" data-reveal-group>
             <article class="continue-card">
               <a class="continue-poster" href="./anime.html" aria-label="Продолжить просмотр Атаки титанов">
                 <img src="https://shikimori.one/system/animes/original/16498.jpg" alt="Постер аниме «Атака титанов»" loading="lazy" referrerpolicy="no-referrer" />
@@ -223,7 +223,7 @@
         <div class="page-container">
           <div class="catalog-main">
             <div class="section-heading section-heading--tabs">
-              <div><p class="section-kicker">Каталог</p><h2 id="catalog-title">Что посмотреть</h2></div>
+              <div><p class="section-kicker"><i data-lucide="layout-grid"></i>Каталог</p><h2 id="catalog-title">Что посмотреть</h2></div>
               <div class="tabs" role="tablist" aria-label="Фильтр каталога" data-tabs="catalog">
                 <button class="tab is-active" type="button" role="tab" aria-selected="true" data-filter="all"><i data-lucide="sparkles"></i>Новые серии</button>
                 <button class="tab" type="button" role="tab" aria-selected="false" tabindex="-1" data-filter="ongoing"><i data-lucide="radio"></i>Онгоинги</button>
@@ -232,7 +232,7 @@
               </div>
             </div>
 
-            <div class="anime-grid" id="anime-grid">
+            <div class="anime-grid" id="anime-grid" data-reveal-group>
               <article class="anime-card" data-status="released top">
                 <a class="poster-frame" href="./anime.html">
                   <img src="https://shikimori.one/system/animes/original/19.jpg" alt="Постер аниме «Монстр»" loading="lazy" referrerpolicy="no-referrer" />
@@ -305,7 +305,7 @@
       <section class="content-section" id="schedule" aria-labelledby="schedule-title">
         <div class="page-container schedule-updates-grid">
           <aside class="schedule-card" aria-labelledby="schedule-title">
-            <div class="schedule-head"><div><p class="section-kicker">Календарь</p><h2 id="schedule-title">Расписание</h2></div><a href="#schedule" aria-label="Открыть полное расписание"><i data-lucide="arrow-up-right"></i></a></div>
+            <div class="schedule-head"><div><p class="section-kicker"><i data-lucide="calendar-days"></i>Календарь</p><h2 id="schedule-title">Расписание</h2></div><a href="#schedule" aria-label="Открыть полное расписание"><i data-lucide="arrow-up-right"></i></a></div>
             <div class="day-tabs" role="tablist" aria-label="Дни расписания" data-tabs="schedule">
               <button type="button" class="day-tab" role="tab" aria-selected="false" tabindex="-1" data-day="2026-08-12"><span class="day-tab__dow">Ср</span><span class="day-tab__num">12</span><span class="day-tab__mon">авг</span></button>
               <button type="button" class="day-tab" role="tab" aria-selected="false" tabindex="-1" data-day="2026-08-13"><span class="day-tab__dow">Чт</span><span class="day-tab__num">13</span><span class="day-tab__mon">авг</span><span class="day-tab__count">1</span></button>
@@ -342,7 +342,7 @@
           </aside>
 
           <aside class="schedule-card" aria-labelledby="updates-title">
-            <div class="schedule-head"><div><p class="section-kicker">Новые серии</p><h2 id="updates-title">Обновления аниме</h2></div><a href="#schedule" aria-label="Открыть все обновления"><i data-lucide="arrow-up-right"></i></a></div>
+            <div class="schedule-head"><div><p class="section-kicker"><i data-lucide="sparkles"></i>Новые серии</p><h2 id="updates-title">Обновления аниме</h2></div><a href="#schedule" aria-label="Открыть все обновления"><i data-lucide="arrow-up-right"></i></a></div>
             <div class="schedule-list">
               <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small><i data-lucide="play-circle"></i>Серия 74</small></span><time>сегодня · 14:20</time></a>
               <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small><i data-lucide="play-circle"></i>Серия 94</small></span><time>сегодня · 11:05</time></a>
@@ -357,8 +357,37 @@
 
       <section class="content-section" id="season" aria-labelledby="season-title">
         <div class="page-container">
-          <div class="section-heading"><div><p class="section-kicker">Сезон</p><h2 id="season-title">Сильные истории</h2></div><a class="section-link" href="#season">Показать все <i data-lucide="arrow-right"></i></a></div>
-          <div class="landscape-grid">
+          <div class="section-heading">
+            <div><p class="section-kicker" id="season-kicker"><i data-lucide="sun"></i>Сезон</p><h2 id="season-title">Аниме летнего сезона 2026</h2></div>
+            <a class="section-link" href="#catalog" data-filter-link="ongoing">Все онгоинги <i data-lucide="arrow-right"></i></a>
+          </div>
+          <p class="section-note"><i data-lucide="info"></i>GET /anime/?season=current&amp;status=ongoing · выборка по подтверждённому фильтру каталога</p>
+          <div class="anime-grid anime-grid--compact" id="season-grid" data-reveal-group>
+            <article class="anime-card" data-status="ongoing">
+              <a class="poster-frame" href="./anime.html">
+                <img src="https://shikimori.one/system/animes/original/21.jpg" alt="Постер аниме «Ван-Пис»" loading="lazy" referrerpolicy="no-referrer" />
+                <span class="score-badge"><i data-lucide="star"></i>8.73</span><span class="episode-badge">онгоинг</span>
+                <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
+              </a>
+              <div class="card-title-row"><a href="./anime.html"><h3>Ван-Пис</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
+              <p>TV · 1999 · онгоинг</p>
+            </article>
+            <article class="anime-card" data-status="announced">
+              <a class="poster-frame" href="./anime.html">
+                <img src="https://shikimori.one/system/animes/original/54857.jpg" alt="Постер аниме «Re:Zero 3»" loading="lazy" referrerpolicy="no-referrer" />
+                <span class="episode-badge">Анонс</span>
+              </a>
+              <div class="card-title-row"><a href="./anime.html"><h3>Re:Zero 3</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
+              <p>TV · 2026 · анонс</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section" id="stories" aria-labelledby="stories-title">
+        <div class="page-container">
+          <div class="section-heading"><div><p class="section-kicker"><i data-lucide="bookmark-check"></i>Подборка редакции</p><h2 id="stories-title">Сильные истории</h2></div><a class="section-link" href="#stories">Показать все <i data-lucide="arrow-right"></i></a></div>
+          <div class="landscape-grid" data-reveal-group>
             <a class="landscape-card" href="./anime.html"><img src="https://shikimori.one/system/animes/original/37521.jpg" alt="Постер «Саги о Винланде»" loading="lazy" referrerpolicy="no-referrer" /><span class="landscape-shade"></span><span class="landscape-copy"><small>Историческая драма</small><strong>Сага о Винланде</strong></span><span class="landscape-count"><i data-lucide="bookmark"></i>В списки</span></a>
             <a class="landscape-card" href="./anime.html"><img src="https://shikimori.one/system/animes/original/33352.jpg" alt="Постер «Вайолет Эвергарден»" loading="lazy" referrerpolicy="no-referrer" /><span class="landscape-shade"></span><span class="landscape-copy"><small>Драма</small><strong>Вайолет Эвергарден</strong></span><span class="landscape-count"><i data-lucide="bookmark"></i>В списки</span></a>
             <a class="landscape-card" href="./anime.html"><img src="https://shikimori.one/system/animes/original/457.jpg" alt="Постер «Мастер муси»" loading="lazy" referrerpolicy="no-referrer" /><span class="landscape-shade"></span><span class="landscape-copy"><small>Сверхъестественное</small><strong>Мастер муси</strong></span><span class="landscape-count"><i data-lucide="bookmark"></i>В списки</span></a>
@@ -368,8 +397,8 @@
 
       <section class="content-section content-section--last" id="collections" aria-labelledby="collections-title">
         <div class="page-container">
-          <div class="section-heading"><div><p class="section-kicker">Коллекции пользователей</p><h2 id="collections-title">Подборки недели</h2></div><a class="section-link" href="#collections">Все коллекции <i data-lucide="arrow-right"></i></a></div>
-          <div class="collection-grid">
+          <div class="section-heading"><div><p class="section-kicker"><i data-lucide="library"></i>Коллекции пользователей</p><h2 id="collections-title">Подборки недели</h2></div><a class="section-link" href="#collections">Все коллекции <i data-lucide="arrow-right"></i></a></div>
+          <div class="collection-grid" data-reveal-group>
             <a class="collection-card" href="#collections"><div class="collection-stack"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div><div><strong>Истории, которые остаются</strong><span><i data-lucide="layers"></i>12 тайтлов · открытая коллекция</span></div><i data-lucide="arrow-up-right"></i></a>
             <a class="collection-card" href="#collections"><div class="collection-stack"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/457.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/33352.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div><div><strong>Спокойное фэнтези</strong><span><i data-lucide="layers"></i>9 тайтлов · открытая коллекция</span></div><i data-lucide="arrow-up-right"></i></a>
           </div>
@@ -399,7 +428,7 @@
           <kbd>Esc</kbd>
         </div>
         <div class="search-body">
-          <div class="search-head"><div><p class="section-kicker">Быстрый поиск</p><h2 id="search-title">Найти тайтл</h2></div><button class="icon-button" type="button" data-close-search aria-label="Закрыть поиск"><i data-lucide="x"></i></button></div>
+          <div class="search-head"><div><p class="section-kicker"><i data-lucide="search"></i>Быстрый поиск</p><h2 id="search-title">Найти тайтл</h2></div><button class="icon-button" type="button" data-close-search aria-label="Закрыть поиск"><i data-lucide="x"></i></button></div>
           <div class="search-trending" id="search-trending">
             <p class="search-trending__label">Популярные запросы</p>
             <div class="search-trending__chips">
