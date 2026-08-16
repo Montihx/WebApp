@@ -4687,13 +4687,6 @@ svg {
   height: 16px;
 }
 
-.job-glyph--success {
-  color: var(--green);
-}
-.job-glyph--warning,
-.job-glyph--danger {
-  color: var(--amber);
-}
 
 .ops-task__copy {
   display: grid;
@@ -6637,6 +6630,11 @@ body::before {
   color: var(--accent-text);
 }
 
+.nav-item.is-active .nav-badge--warning {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+
 .nav-live,
 .notification-dot {
   background: var(--accent);
@@ -6873,9 +6871,13 @@ body::before {
 
 .job-glyph--running,
 .mini-icon--accent,
-.attention-icon--info,
-.event-icon--info {
+.attention-icon--info {
   color: var(--accent-text);
+}
+
+.event-icon--info {
+  background: var(--info-soft);
+  color: var(--info);
 }
 
 .mini-icon,
@@ -8134,6 +8136,12 @@ button:disabled {
   border-color: color-mix(in srgb, var(--red) 28%, var(--line));
   background: var(--red-soft);
   color: var(--red);
+}
+
+.job-glyph--success {
+  border-color: color-mix(in srgb, var(--green) 28%, var(--line));
+  background: var(--green-soft);
+  color: var(--green);
 }
 
 .episode-symbol {
@@ -9740,13 +9748,13 @@ button:disabled {
   color: var(--amber);
 }
 
-.service-state span,
+.service-state > div > span,
 .service-state strong,
 .service-state small {
   display: block;
 }
 
-.service-state span {
+.service-state > div > span {
   color: var(--text-secondary);
   font-size: 8px;
 }
@@ -10137,7 +10145,7 @@ button:disabled {
   margin: 0;
 }
 
-.backup-overview > article > span {
+.backup-overview > article > span:not(.status-badge) {
   color: var(--text-secondary);
   font-size: 8px;
   font-weight: 700;
