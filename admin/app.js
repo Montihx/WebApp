@@ -500,18 +500,29 @@
           `<button class="decision-row" data-view="${row[0]}"><span class="decision-code">${row[1]}</span><span class="decision-count">${row[2]}</span><span class="decision-copy"><strong>${row[3]}</strong><small>${row[4]}</small></span><span class="decision-icon decision-icon--${row[6]}">${icon(row[5])}</span>${icon("chevron-right")}</button>`,
       )
       .join("");
-    const queueBreakdown = `<div class="queue-breakdown" role="img" aria-label="Состав очереди: ${decisionQueue.map((row) => `${row[3]} — ${row[2]}`).join(", ")}">${decisionQueue
+    let queueCursor = 0;
+    const queueSegments = decisionQueue.map((row) => {
+      const width = (row[2] / decisionTotal) * 100;
+      const center = queueCursor + width / 2;
+      queueCursor += width;
+      return { row, width, center };
+    });
+    const queueBreakdown = `<div class="queue-breakdown" role="img" aria-label="Состав очереди: ${decisionQueue.map((row) => `${row[3]} — ${row[2]}`).join(", ")}">${queueSegments
       .map(
-        (row) =>
-          `<span class="queue-breakdown__segment queue-breakdown__segment--${row[6]}" style="width:${(row[2] / decisionTotal) * 100}%" data-tooltip="${row[3]} · ${row[2]} из ${decisionTotal}"></span>`,
+        ({ row, width }) =>
+          `<span class="queue-breakdown__segment queue-breakdown__segment--${row[6]}" style="width:${width}%" data-tooltip="${row[3]} · ${row[2]} из ${decisionTotal}"></span>`,
       )
       .join(
         "",
-      )}</div><div class="queue-legend">${decisionQueue
-      .map(
-        (row) =>
-          `<span class="queue-legend__item"><i class="queue-legend__dot queue-breakdown__segment--${row[6]}"></i>${row[1]}<b>${row[2]}</b></span>`,
-      )
+      )}</div><div class="queue-legend">${queueSegments
+      .map(({ row, center }, index) => {
+        const rowClass = index % 2 ? " queue-legend__item--row2" : "";
+        const isFirst = index === 0;
+        const isLast = index === queueSegments.length - 1;
+        const edgeClass = isFirst ? " queue-legend__item--start" : isLast ? " queue-legend__item--end" : "";
+        const position = isLast ? `right:${100 - center}%` : `left:${center}%`;
+        return `<span class="queue-legend__item${rowClass}${edgeClass}" style="${position}"><i class="queue-legend__dot queue-breakdown__segment--${row[6]}"></i>${row[1]}<b>${row[2]}</b></span>`;
+      })
       .join("")}</div>`;
     const jobsSample = jobs.slice(0, 5);
     const jobRows = jobsSample
