@@ -503,7 +503,14 @@
     const queueBreakdown = `<div class="queue-breakdown" role="img" aria-label="Состав очереди: ${decisionQueue.map((row) => `${row[3]} — ${row[2]}`).join(", ")}">${decisionQueue
       .map(
         (row) =>
-          `<span class="queue-breakdown__segment queue-breakdown__segment--${row[6]}" style="width:${(row[2] / decisionTotal) * 100}%"></span>`,
+          `<span class="queue-breakdown__segment queue-breakdown__segment--${row[6]}" style="width:${(row[2] / decisionTotal) * 100}%" data-tooltip="${row[3]} · ${row[2]} из ${decisionTotal}"></span>`,
+      )
+      .join(
+        "",
+      )}</div><div class="queue-legend">${decisionQueue
+      .map(
+        (row) =>
+          `<span class="queue-legend__item"><i class="queue-legend__dot queue-breakdown__segment--${row[6]}"></i>${row[1]}<b>${row[2]}</b></span>`,
       )
       .join("")}</div>`;
     const jobsSample = jobs.slice(0, 5);
