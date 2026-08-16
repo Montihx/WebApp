@@ -10145,7 +10145,7 @@ button:disabled {
   margin: 0;
 }
 
-.backup-overview > article > span:not(.status-badge) {
+.backup-overview > article > span:not([class]) {
   color: var(--text-secondary);
   font-size: 8px;
   font-weight: 700;
