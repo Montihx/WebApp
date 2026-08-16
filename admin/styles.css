@@ -4687,9 +4687,6 @@ svg {
   height: 16px;
 }
 
-.job-glyph--running {
-  color: var(--accent-strong);
-}
 .job-glyph--success {
   color: var(--green);
 }
@@ -8128,9 +8125,9 @@ button:disabled {
 }
 
 .job-glyph--running {
-  border-color: color-mix(in srgb, var(--info) 28%, var(--line));
-  background: var(--info-soft);
-  color: var(--info);
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+  background: var(--accent-soft);
+  color: var(--accent-text);
 }
 
 .job-glyph--failed {
