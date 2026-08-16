@@ -7717,8 +7717,9 @@ button:disabled {
 .queue-legend {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 8px 16px;
-  margin: -6px 20px 14px;
+  margin: -6px 0 14px;
 }
 
 .queue-legend__item {
