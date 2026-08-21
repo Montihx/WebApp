@@ -145,14 +145,15 @@ const bookmarkCssTokens = [
   ".bookmark-status-bar",
   ".has-bookmark-status",
   "[data-bookmark-tone=\"watching\"]",
-  "inset 0 -3px 0",
+  "justify-content: center",
+  "border-top: 1px solid color-mix",
 ];
 const missingBookmarkCss = bookmarkCssTokens.filter((token) => !css.includes(token));
 add(
   "css.bookmarks",
   "CSS: закладки на постере",
   missingBookmarkCss.length === 0,
-  missingBookmarkCss.length ? `Не найдены: ${missingBookmarkCss.join(", ")}` : "desktop popover, mobile sheet, явное удаление, статусный чип и нижний маркер оформлены токенами темы",
+  missingBookmarkCss.length ? `Не найдены: ${missingBookmarkCss.join(", ")}` : "desktop popover, mobile sheet, явное удаление и полноширинная статусная полоска оформлены токенами темы",
 );
 
 // Tier 1: baseline WCAG AA (>=4.5:1) for every text/label token against its

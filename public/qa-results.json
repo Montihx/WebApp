@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-21T04:39:10.019Z",
+  "generated_at": "2026-08-21T04:59:43.102Z",
   "summary": {
     "status": "pass",
     "total": 31,
@@ -133,7 +133,7 @@
       "id": "css.bookmarks",
       "label": "CSS: закладки на постере",
       "status": "pass",
-      "detail": "desktop popover, mobile sheet, явное удаление, статусный чип и нижний маркер оформлены токенами темы"
+      "detail": "desktop popover, mobile sheet, явное удаление и полноширинная статусная полоска оформлены токенами темы"
     },
     {
       "id": "css.contrast.dark",

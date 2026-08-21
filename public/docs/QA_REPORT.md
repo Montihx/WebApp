@@ -35,7 +35,7 @@ node tools/qa.mjs --write
 - global search, keyboard navigation и empty result;
 - menus/popovers, outside click и mobile drawer focus;
 - catalog/schedule roving tabs;
-- bookmark overlay на постере, desktop popover, mobile modal sheet, пять статусов на токенах темы, явное удаление, компактный статусный чип, тонкий нижний маркер, persistence и синхронизация одинаковых тайтлов;
+- bookmark overlay на постере, desktop popover, mobile modal sheet, пять статусов на токенах темы, явное удаление, полноширинная нижняя полоска с текстом статуса, persistence и синхронизация одинаковых тайтлов;
 - list/subscription local states;
 - dialogs, backdrop/Escape close и focus trap;
 - source/translation summary и player controls;
@@ -64,9 +64,9 @@ node tools/qa.mjs --write
 
 Изменения проверены в реальном Chrome for Testing: главная и title page, dark/light desktop и mobile sheet просмотрены по контрольным снимкам, все `58/58` interaction/layout checks прошли, JavaScript console/page errors — `0`.
 
-В изолированной среде внешние poster URL Shikimori возвращали transport errors. Это не скрыто как успешная загрузка: сработало штатное состояние «Изображение недоступно», а геометрия карточек, bookmark overlay, статусный чип и нижний маркер остались корректными. Сами production-постеры этим прогоном не подтверждаются.
+В изолированной среде внешние poster URL Shikimori возвращали transport errors. Это не скрыто как успешная загрузка: сработало штатное состояние «Изображение недоступно», а геометрия карточек, bookmark overlay и полноширинная статусная полоска остались корректными. Сами production-постеры этим прогоном не подтверждаются.
 
-Перед production merge остаётся обязательной браузерная matrix: `360×800`, `390×844`, `768×1024`, `1024×768`, `1440×900`; обе темы; bookmark popover/sheet/status chip/marker, search, drawer, tabs, list/subscription, player, episodes, dialogs, comments; horizontal overflow и console errors.
+Перед production merge остаётся обязательной браузерная matrix: `360×800`, `390×844`, `768×1024`, `1024×768`, `1440×900`; обе темы; bookmark popover/sheet/status strip, search, drawer, tabs, list/subscription, player, episodes, dialogs, comments; horizontal overflow и console errors.
 
 ## Граница результата
 

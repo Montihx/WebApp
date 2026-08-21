@@ -1576,15 +1576,11 @@ html[data-theme="light"] .hero-art img {
 }
 
 .anime-card.has-bookmark-status .poster-frame {
-  box-shadow:
-    inset 0 -3px 0 color-mix(in srgb, var(--bookmark-color) 82%, transparent),
-    0 8px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .anime-card.has-bookmark-status:hover .poster-frame {
-  box-shadow:
-    inset 0 -3px 0 color-mix(in srgb, var(--bookmark-color) 88%, transparent),
-    0 16px 34px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22);
 }
 
 .poster-frame::after {
@@ -1688,42 +1684,49 @@ html[data-theme="light"] .hero-art img {
 }
 
 .anime-card.has-bookmark-status .poster-action {
-  bottom: 44px;
+  bottom: 38px;
 }
 
 .bookmark-status-bar {
   position: absolute;
   z-index: 5;
-  bottom: 10px;
-  left: 9px;
-  display: inline-flex;
-  max-width: calc(100% - 18px);
-  min-height: 25px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  min-height: 28px;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   overflow: hidden;
-  padding: 4px 8px 4px 7px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 8px;
-  background: rgba(13, 13, 15, 0.76);
-  color: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  padding: 5px 9px;
+  border-top: 1px solid color-mix(in srgb, var(--bookmark-color) 72%, rgba(255, 255, 255, 0.18));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--bookmark-color) 54%, rgba(17, 16, 19, 0.92)),
+    color-mix(in srgb, var(--bookmark-color) 66%, rgba(10, 10, 12, 0.96))
+  );
+  color: #ffffff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 -8px 20px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(8px) saturate(110%);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.015em;
   line-height: 1.2;
-  text-overflow: ellipsis;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.48);
   white-space: nowrap;
 }
 
 .bookmark-status-bar::before {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   flex: 0 0 auto;
   border-radius: 50%;
-  background: var(--bookmark-color);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--bookmark-color) 14%, transparent);
+  background: color-mix(in srgb, var(--bookmark-color) 55%, #ffffff);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.09);
   content: "";
 }
 

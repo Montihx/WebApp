@@ -58,7 +58,7 @@ Anime Graphite строит иерархию контрастом нейтрал
 - На ширине `>720 px` кнопка открывает привязанный к карточке popover с `role="menu"`, arrow/Home/End navigation и возвратом focus по `Escape`.
 - На ширине `≤720 px` тот же сценарий открывается как modal bottom sheet: portal в `body`, scrim над bottom navigation, scroll lock, focus trap, safe-area offset и touch targets не меньше `44 px`.
 - Повторный выбор уже активного radio-статуса ничего не удаляет. Удаление — отдельное подписанное действие «Убрать из списка».
-- Статус остаётся видимым на закрытой карточке через компактный текстовый чип и тонкий нижний маркер; цвет не является единственным носителем смысла.
+- Статус всегда виден в полноширинной полоске вдоль нижнего края постера: текст «Смотрю», «Запланировано» и т. д. остаётся главным носителем смысла, а семантический цвет только усиливает различие.
 - Поведение desktop menu-button следует [WAI-ARIA APG](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/); мобильная композиция использует modal sheet pattern из [Material Design 3](https://m3.material.io/components/bottom-sheets) и [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/sheets), без копирования их визуального стиля.
 
 ## Responsive contract
