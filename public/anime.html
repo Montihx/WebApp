@@ -104,7 +104,7 @@
               <div class="title-poster-actions">
                 <button class="button button--primary button--wide" type="button" data-scroll-player><i data-lucide="play"></i>Смотреть</button>
                 <div class="list-control">
-                  <button class="button button--secondary button--wide" type="button" id="list-trigger" aria-expanded="false" aria-controls="list-menu"><i data-lucide="bookmark-plus"></i><span id="list-label">В мой список</span><i data-lucide="chevron-down"></i></button>
+                  <button class="button button--secondary button--wide" type="button" id="list-trigger" aria-expanded="false" aria-controls="list-menu"><i data-lucide="bookmark-plus"></i><span id="list-label">Не смотрю</span><i data-lucide="chevron-down"></i></button>
                   <div class="list-menu" id="list-menu" hidden>
                     <button type="button" data-list-status="watching"><i data-lucide="play-circle"></i><span>Смотрю</span></button>
                     <button type="button" data-list-status="completed"><i data-lucide="circle-check"></i><span>Просмотрено</span></button>
@@ -124,9 +124,9 @@
                 <button class="icon-button title-info-button" type="button" data-open-titles aria-label="Все названия"><i data-lucide="info"></i></button>
               </div>
               <div class="title-mobile-actions" aria-label="Основные действия">
-                <button class="title-mobile-list-trigger" type="button" id="mobile-list-trigger" data-open-mobile-list aria-haspopup="dialog" aria-controls="mobile-list-menu"><i data-lucide="bookmark-plus"></i><span id="mobile-list-label">В мой список</span><i data-lucide="chevron-down"></i></button>
+                <button class="title-mobile-list-trigger" type="button" id="mobile-list-trigger" data-open-mobile-list aria-haspopup="dialog" aria-controls="mobile-list-menu"><span id="mobile-list-label">Не смотрю</span><i data-lucide="chevron-down"></i></button>
                 <span class="title-mobile-count title-mobile-favorite" aria-label="В списках у 4 820 пользователей"><strong data-field="favorites_count">4 820</strong><i data-lucide="bookmark"></i></span>
-                <button class="title-mobile-count title-mobile-comment" type="button" data-scroll-comments aria-label="326 комментариев. Перейти к обсуждению"><strong data-field="comments_count">326</strong><i data-lucide="message-circle"></i></button>
+                <button class="title-mobile-count title-mobile-comment" type="button" data-scroll-comments aria-label="326 комментариев. Перейти к обсуждению"><span class="sr-only" data-field="comments_count">326</span><i data-lucide="message-circle"></i></button>
               </div>
               <button class="button button--primary title-mobile-watch" type="button" data-scroll-player><i data-lucide="play"></i><span>Смотреть серию 1</span></button>
               <div class="title-stats" aria-label="Статистика тайтла">
@@ -135,14 +135,13 @@
                 <div><span class="stat-icon"><i data-lucide="bookmark"></i></span><span><strong data-field="favorites_count">4 820</strong><small>в списках</small></span></div>
                 <button type="button" data-scroll-comments aria-label="326 комментариев. Перейти к обсуждению"><span class="stat-icon"><i data-lucide="message-circle"></i></span><span><strong data-field="comments_count">326</strong><small>комментариев</small></span></button>
               </div>
-              <div class="title-meta-list">
-                <div><i data-lucide="map-pin"></i><span><small>Страна</small><strong>Япония</strong></span></div>
-                <div><i data-lucide="list-video"></i><span><small>Эпизоды</small><strong>74 серии</strong></span></div>
-                <div><i data-lucide="clapperboard"></i><span><small>Формат</small><strong>TV-сериал</strong></span></div>
-                <div><i data-lucide="calendar-days"></i><span><small>Показ</small><strong>2004–2005</strong></span></div>
-                <div><i data-lucide="building-2"></i><span><small>Студия</small><strong>Madhouse</strong></span></div>
-                <div><i data-lucide="star"></i><span><small>Оценка</small><strong>8.88</strong></span></div>
-              </div>
+              <ul class="title-meta-list" aria-label="Основные сведения о тайтле">
+                <li><span class="title-meta-flag" aria-hidden="true">🇯🇵</span><span>Япония, 2004–2005 гг.</span></li>
+                <li><i data-lucide="monitor-play"></i><span>74 эп. по ~24 мин.</span></li>
+                <li><i data-lucide="calendar-days"></i><span>TV-сериал, завершён</span></li>
+                <li><i data-lucide="star"></i><span>Оценка 8.88</span></li>
+                <li><i data-lucide="users"></i><span>Студия <a href="./index.html#catalog">Madhouse</a></span></li>
+              </ul>
               <div class="genre-links" aria-label="Жанры"><a href="./index.html#catalog">Драма</a><a href="./index.html#catalog">Детектив</a><a href="./index.html#catalog">Триллер</a><a href="./index.html#catalog">Психологическое</a></div>
               <div class="title-description" id="title-description">
                 <p>
