@@ -4,7 +4,7 @@
 
 ## Итог
 
-- `37/37` автоматических статических проверок — pass (`node tools/qa.mjs`);
+- `40/40` автоматических статических проверок — pass (`node tools/qa.mjs`);
 - `95/95` браузерных проверок — pass: `58` regression + `37` целевых для hero/title/player (Chrome for Testing + Playwright);
 - `2/2` HTML documents разобраны без parser errors;
 - `0` duplicate IDs;
@@ -37,8 +37,8 @@ node tools/qa.mjs --write
 - catalog/schedule roving tabs;
 - hero: пять слайдов, 7-секундный progress, pause, arrows, dots, keyboard, swipe и исключение скрытых ссылок из tab-порядка;
 - bookmark overlay на постере, desktop popover, mobile modal sheet, пять статусов на токенах темы, явное удаление, полноширинная нижняя полоска с текстом статуса, persistence и синхронизация одинаковых тайтлов;
-- mobile title: скрытие общего header, контекстный toolbar, poster `2:3`, расположение info icon, touch targets и линейные metadata rows;
-- list/subscription local states; отдельный title list sheet синхронизирует mobile/desktop labels и возвращает focus;
+- mobile title: скрытие общего header, контекстный toolbar, poster `2:3`, расположение info icon, touch targets и двухколоночные metadata без сплошных разделителей;
+- list/subscription local states; уведомления находятся у серий, share и повторная details-секция отсутствуют, title list sheet синхронизирует mobile/desktop labels и возвращает focus;
 - dialogs, backdrop/Escape close и focus trap;
 - player settings: desktop dialog/mobile bottom sheet, три select и три синхронных switch без неподтверждённых mini-player/download controls;
 - source/translation summary и player controls;

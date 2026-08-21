@@ -42,8 +42,8 @@
 - SSR hero/details;
 - names dialog;
 - favorite categories;
-- anime notification preferences;
-- share and comments anchor.
+- anime notification preferences рядом с episode browser;
+- comments anchor без отдельного share-действия и без повторной details-секции.
 
 Выход: `/anime/{slug}` без player regression.
 

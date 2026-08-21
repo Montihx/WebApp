@@ -526,7 +526,7 @@ html[data-theme="light"] .brand-mark {
 .nav-menu-wrap,
 .popover-wrap,
 .list-control,
-.title-inline-actions {
+.episode-subscribe {
   position: relative;
 }
 
@@ -2876,8 +2876,7 @@ dialog::backdrop {
   box-shadow: var(--shadow-dialog);
 }
 
-.dialog-data-list,
-.details-list {
+.dialog-data-list {
   margin: 0;
 }
 
@@ -3684,44 +3683,10 @@ html[data-theme="light"] .title-backdrop img {
   transform: rotate(180deg);
 }
 
-.title-inline-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 20px;
-}
-
-.labeled-icon-button {
-  display: inline-flex;
-  min-height: 40px;
-  align-items: center;
-  gap: 8px;
-  padding: 0 12px;
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  background: var(--surface);
-  color: var(--text-secondary);
-  font-size: 10px;
-  font-weight: 750;
-  transition: border-color var(--ease), background var(--ease), color var(--ease);
-}
-
-.labeled-icon-button:hover,
-.labeled-icon-button[aria-expanded="true"] {
-  border-color: var(--line-strong);
-  background: var(--surface-hover);
-  color: var(--text);
-}
-
-.labeled-icon-button svg {
-  width: 14px;
-  height: 14px;
-}
-
 .subscribe-menu {
   top: calc(100% + 7px);
-  left: 0;
-  width: 230px;
+  right: 0;
+  width: 240px;
   padding: 5px;
 }
 
@@ -4233,6 +4198,49 @@ html[data-theme="light"] .title-backdrop img {
   gap: 5px;
 }
 
+.episode-subscribe__trigger {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 7px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 9px;
+  font-weight: 750;
+  transition: border-color var(--ease), background var(--ease), color var(--ease);
+}
+
+.episode-subscribe__trigger:hover,
+.episode-subscribe__trigger[aria-expanded="true"],
+.episode-subscribe__trigger.is-active {
+  border-color: var(--line-strong);
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+.episode-subscribe__trigger.is-active > svg:first-child {
+  color: var(--accent-text);
+}
+
+.episode-subscribe__trigger svg {
+  width: 14px;
+  height: 14px;
+}
+
+.episode-subscribe__trigger > svg:last-child {
+  width: 12px;
+  height: 12px;
+  color: var(--text-muted);
+  transition: transform var(--ease);
+}
+
+.episode-subscribe__trigger[aria-expanded="true"] > svg:last-child {
+  transform: rotate(180deg);
+}
+
 .episodes-controls label {
   width: 118px;
 }
@@ -4414,49 +4422,7 @@ html[data-theme="light"] .title-backdrop img {
   height: 14px;
 }
 
-/* Details and comments */
-.details-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
-  gap: 22px;
-  align-items: start;
-}
-
-.details-layout--single {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.details-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  background: var(--line);
-  gap: 1px;
-}
-
-.details-list div {
-  display: grid;
-  min-height: 58px;
-  grid-template-columns: minmax(130px, 0.8fr) minmax(0, 1fr);
-  gap: 14px;
-  align-items: center;
-  padding: 11px 14px;
-  background: var(--surface);
-}
-
-.details-list dt {
-  color: var(--text-muted);
-  font-size: 9px;
-}
-
-.details-list dd {
-  margin: 0;
-  font-size: 10px;
-  font-weight: 700;
-}
-
+/* Comments */
 .data-freshness-card {
   display: grid;
   gap: 13px;
@@ -5010,7 +4976,6 @@ img.is-image-error {
     align-self: start;
   }
 
-  .details-layout,
   .comments-layout {
     grid-template-columns: 1fr;
   }
@@ -5575,29 +5540,33 @@ img.is-image-error {
 
   .title-meta-list {
     order: 5;
-    grid-template-columns: 1fr;
-    gap: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px 12px;
     margin-top: 22px;
     padding-top: 0;
     border-top: 0;
   }
 
   .title-meta-list > div {
-    min-height: 52px;
-    grid-template-columns: 36px minmax(0, 1fr);
-    border-bottom: 1px solid var(--line);
+    min-height: 54px;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 9px;
+    border: 0;
   }
 
   .title-meta-list > div > svg {
-    width: 18px;
-    height: 18px;
+    box-sizing: content-box;
+    width: 16px;
+    height: 16px;
+    padding: 7px;
+    border-radius: 9px;
+    background: var(--surface-active);
+    color: var(--text-secondary);
   }
 
   .title-meta-list span {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 16px;
+    display: grid;
+    gap: 3px;
   }
 
   .title-meta-list small {
@@ -5606,7 +5575,7 @@ img.is-image-error {
   }
 
   .title-meta-list strong {
-    text-align: right;
+    text-align: left;
   }
 
   .title-main-copy > .genre-links {
@@ -5623,18 +5592,6 @@ img.is-image-error {
     background: var(--surface-raised);
     font-size: 12px;
     line-height: 1.65;
-  }
-
-  .title-inline-actions {
-    order: 8;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin-top: 12px;
-  }
-
-  .title-inline-actions .labeled-icon-button {
-    justify-content: center;
-    min-height: 46px;
   }
 
   .title-list-dialog,
@@ -5738,14 +5695,6 @@ img.is-image-error {
     grid-template-columns: 1fr;
   }
 
-  .details-list {
-    grid-template-columns: 1fr;
-  }
-
-  .details-list div {
-    grid-template-columns: minmax(120px, 0.8fr) minmax(0, 1fr);
-  }
-
   .related-rail {
     grid-template-columns: repeat(4, 150px);
   }
@@ -5823,7 +5772,35 @@ img.is-image-error {
   }
 
   .title-meta-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .episodes-toolbar {
+    gap: 8px;
+  }
+
+  .episodes-controls {
+    gap: 4px;
+  }
+
+  .episodes-controls label {
+    width: 100px;
+  }
+
+  .episodes-controls select {
+    min-height: 44px;
+  }
+
+  .episode-subscribe__trigger {
+    width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .episode-subscribe__trigger > span,
+  .episode-subscribe__trigger > svg:last-child {
+    display: none;
   }
 
   .feature-slider__count {
