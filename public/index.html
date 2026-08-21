@@ -144,43 +144,103 @@
     <div class="drawer-scrim" id="drawer-scrim" hidden></div>
 
     <main id="main-content">
-      <section class="hero-section" aria-labelledby="hero-title">
-        <div class="page-container">
-          <article class="feature-hero">
-            <div class="hero-copy">
-              <div class="hero-eyebrow">
-                <span class="status-marker status-marker--released"></span>
-                <span>TV-сериал · 28 серий · завершён</span>
-              </div>
-              <h1 id="hero-title">Провожающая в последний путь Фрирен</h1>
-              <p class="hero-subtitle">Sousou no Frieren</p>
-              <p class="hero-description">
-                После окончания великого путешествия эльфийка Фрирен пытается лучше понять людей и ценность коротких мгновений, которые раньше казались ей незначительными.
-              </p>
-              <div class="hero-tags" aria-label="Жанры">
-                <a href="#catalog">Фэнтези</a><a href="#catalog">Приключения</a><a href="#catalog">Драма</a>
-              </div>
-              <div class="hero-actions">
-                <a class="button button--primary" href="./anime.html"><i data-lucide="play"></i>Смотреть</a>
-                <a class="button button--secondary" href="./anime.html"><i data-lucide="info"></i>О тайтле</a>
-              </div>
-              <div class="hero-facts" aria-label="Основные данные">
-                <span><i data-lucide="star"></i><strong>9.31</strong></span>
-                <span><i data-lucide="calendar"></i>2023</span>
-                <span><i data-lucide="building-2"></i>Madhouse</span>
-              </div>
+      <section
+        class="hero-section"
+        aria-labelledby="hero-title"
+        aria-roledescription="карусель"
+      >
+        <h1 class="sr-only" id="hero-title">Подборка аниме Kitsu</h1>
+        <div class="page-container hero-slider-container">
+          <div class="feature-slider" role="region" aria-label="Рекомендуемые тайтлы" data-hero-slider>
+            <div class="feature-slider__viewport" aria-live="off">
+              <article class="feature-slide is-active" data-hero-slide data-hero-tone="lavender" role="group" aria-roledescription="слайд" aria-label="1 из 5" aria-hidden="false">
+                <img class="feature-slide__backdrop" src="https://shikimori.one/system/animes/original/52991.jpg" alt="" fetchpriority="high" referrerpolicy="no-referrer" />
+                <div class="feature-slide__veil" aria-hidden="true"></div>
+                <div class="feature-slide__art" aria-hidden="true"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" fetchpriority="high" referrerpolicy="no-referrer" /></div>
+                <div class="hero-copy">
+                  <div class="hero-eyebrow"><span class="status-marker status-marker--released"></span><span>TV-сериал · 28 серий · завершён</span></div>
+                  <h2>Провожающая в последний путь Фрирен</h2>
+                  <p class="hero-subtitle">Sousou no Frieren</p>
+                  <p class="hero-description">После великого путешествия эльфийка Фрирен пытается лучше понять людей и ценность коротких мгновений.</p>
+                  <div class="hero-tags" aria-label="Жанры"><a href="#catalog">Фэнтези</a><a href="#catalog">Приключения</a><a href="#catalog">Драма</a></div>
+                  <div class="hero-actions"><a class="button button--primary" href="./anime.html"><i data-lucide="play"></i>Смотреть</a><a class="button button--hero-quiet" href="./anime.html"><i data-lucide="info"></i>О тайтле</a></div>
+                  <div class="hero-facts" aria-label="Основные данные"><span><i data-lucide="star"></i><strong>9.31</strong></span><span><i data-lucide="calendar"></i>2023</span><span><i data-lucide="building-2"></i>Madhouse</span></div>
+                </div>
+              </article>
+
+              <article class="feature-slide" data-hero-slide data-hero-tone="amber" role="group" aria-roledescription="слайд" aria-label="2 из 5" aria-hidden="true">
+                <img class="feature-slide__backdrop" src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" />
+                <div class="feature-slide__veil" aria-hidden="true"></div>
+                <div class="feature-slide__art" aria-hidden="true"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div>
+                <div class="hero-copy">
+                  <div class="hero-eyebrow"><span class="status-marker status-marker--released"></span><span>TV-сериал · 74 серии · завершён</span></div>
+                  <h2>Монстр</h2><p class="hero-subtitle">Monster · モンスター</p>
+                  <p class="hero-description">Выбор нейрохирурга спасает ребёнка, но спустя годы превращает его спокойную жизнь в долгий поиск истины.</p>
+                  <div class="hero-tags" aria-label="Жанры"><a href="#catalog">Драма</a><a href="#catalog">Детектив</a><a href="#catalog">Триллер</a></div>
+                  <div class="hero-actions"><a class="button button--primary" href="./anime.html"><i data-lucide="play"></i>Смотреть</a><a class="button button--hero-quiet" href="./anime.html"><i data-lucide="info"></i>О тайтле</a></div>
+                  <div class="hero-facts" aria-label="Основные данные"><span><i data-lucide="star"></i><strong>8.88</strong></span><span><i data-lucide="calendar"></i>2004</span><span><i data-lucide="building-2"></i>Madhouse</span></div>
+                </div>
+              </article>
+
+              <article class="feature-slide" data-hero-slide data-hero-tone="rose" role="group" aria-roledescription="слайд" aria-label="3 из 5" aria-hidden="true">
+                <img class="feature-slide__backdrop" src="https://shikimori.one/system/animes/original/5114.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" />
+                <div class="feature-slide__veil" aria-hidden="true"></div>
+                <div class="feature-slide__art" aria-hidden="true"><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div>
+                <div class="hero-copy">
+                  <div class="hero-eyebrow"><span class="status-marker status-marker--released"></span><span>TV-сериал · 64 серии · завершён</span></div>
+                  <h2>Стальной алхимик: Братство</h2><p class="hero-subtitle">Fullmetal Alchemist: Brotherhood</p>
+                  <p class="hero-description">Братья Элрики отправляются за философским камнем, чтобы вернуть утраченное после запретного эксперимента.</p>
+                  <div class="hero-tags" aria-label="Жанры"><a href="#catalog">Экшен</a><a href="#catalog">Приключения</a><a href="#catalog">Фэнтези</a></div>
+                  <div class="hero-actions"><a class="button button--primary" href="./anime.html"><i data-lucide="play"></i>Смотреть</a><a class="button button--hero-quiet" href="./anime.html"><i data-lucide="info"></i>О тайтле</a></div>
+                  <div class="hero-facts" aria-label="Основные данные"><span><i data-lucide="star"></i><strong>9.10</strong></span><span><i data-lucide="calendar"></i>2009</span><span><i data-lucide="building-2"></i>Bones</span></div>
+                </div>
+              </article>
+
+              <article class="feature-slide" data-hero-slide data-hero-tone="sage" role="group" aria-roledescription="слайд" aria-label="4 из 5" aria-hidden="true">
+                <img class="feature-slide__backdrop" src="https://shikimori.one/system/animes/original/9253.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" />
+                <div class="feature-slide__veil" aria-hidden="true"></div>
+                <div class="feature-slide__art" aria-hidden="true"><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div>
+                <div class="hero-copy">
+                  <div class="hero-eyebrow"><span class="status-marker status-marker--released"></span><span>TV-сериал · 24 серии · завершён</span></div>
+                  <h2>Врата Штейна</h2><p class="hero-subtitle">Steins;Gate</p>
+                  <p class="hero-description">Безобидный эксперимент с сообщениями в прошлое меняет судьбы друзей и запускает борьбу со временем.</p>
+                  <div class="hero-tags" aria-label="Жанры"><a href="#catalog">Фантастика</a><a href="#catalog">Триллер</a><a href="#catalog">Драма</a></div>
+                  <div class="hero-actions"><a class="button button--primary" href="./anime.html"><i data-lucide="play"></i>Смотреть</a><a class="button button--hero-quiet" href="./anime.html"><i data-lucide="info"></i>О тайтле</a></div>
+                  <div class="hero-facts" aria-label="Основные данные"><span><i data-lucide="star"></i><strong>9.07</strong></span><span><i data-lucide="calendar"></i>2011</span><span><i data-lucide="building-2"></i>White Fox</span></div>
+                </div>
+              </article>
+
+              <article class="feature-slide" data-hero-slide data-hero-tone="mauve" role="group" aria-roledescription="слайд" aria-label="5 из 5" aria-hidden="true">
+                <img class="feature-slide__backdrop" src="https://shikimori.one/system/animes/original/1.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" />
+                <div class="feature-slide__veil" aria-hidden="true"></div>
+                <div class="feature-slide__art" aria-hidden="true"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div>
+                <div class="hero-copy">
+                  <div class="hero-eyebrow"><span class="status-marker status-marker--released"></span><span>TV-сериал · 26 серий · завершён</span></div>
+                  <h2>Ковбой Бибоп</h2><p class="hero-subtitle">Cowboy Bebop</p>
+                  <p class="hero-description">Команда охотников за головами путешествует по Солнечной системе, скрывая прошлое за новой погоней.</p>
+                  <div class="hero-tags" aria-label="Жанры"><a href="#catalog">Экшен</a><a href="#catalog">Фантастика</a><a href="#catalog">Драма</a></div>
+                  <div class="hero-actions"><a class="button button--primary" href="./anime.html"><i data-lucide="play"></i>Смотреть</a><a class="button button--hero-quiet" href="./anime.html"><i data-lucide="info"></i>О тайтле</a></div>
+                  <div class="hero-facts" aria-label="Основные данные"><span><i data-lucide="star"></i><strong>8.75</strong></span><span><i data-lucide="calendar"></i>1998</span><span><i data-lucide="building-2"></i>Sunrise</span></div>
+                </div>
+              </article>
             </div>
-            <div class="hero-art" aria-hidden="true">
-              <div class="hero-art-plane"></div>
-              <img
-                src="https://shikimori.one/system/animes/original/52991.jpg"
-                alt=""
-                fetchpriority="high"
-                referrerpolicy="no-referrer"
-              />
-              <div class="hero-poster-note"><span>9.31</span><small>оценка</small></div>
+
+            <div class="feature-slider__controls">
+              <button class="feature-slider__arrow" type="button" data-hero-prev aria-label="Предыдущий слайд"><i data-lucide="arrow-left"></i></button>
+              <div class="feature-slider__dots" role="group" aria-label="Выбор слайда">
+                <button class="is-active" type="button" data-hero-dot="0" aria-label="Слайд 1: Фрирен" aria-current="true"></button>
+                <button type="button" data-hero-dot="1" aria-label="Слайд 2: Монстр"></button>
+                <button type="button" data-hero-dot="2" aria-label="Слайд 3: Стальной алхимик"></button>
+                <button type="button" data-hero-dot="3" aria-label="Слайд 4: Врата Штейна"></button>
+                <button type="button" data-hero-dot="4" aria-label="Слайд 5: Ковбой Бибоп"></button>
+              </div>
+              <span class="feature-slider__count" aria-hidden="true"><strong data-hero-current>01</strong><span>/</span>05</span>
+              <button class="feature-slider__pause" type="button" data-hero-pause aria-label="Приостановить автопрокрутку" aria-pressed="false"><i data-lucide="pause"></i></button>
+              <button class="feature-slider__arrow" type="button" data-hero-next aria-label="Следующий слайд"><i data-lucide="arrow-right"></i></button>
             </div>
-          </article>
+            <div class="feature-slider__progress" aria-hidden="true"><span data-hero-progress></span></div>
+            <p class="sr-only" data-hero-live aria-live="polite">Слайд 1 из 5: Провожающая в последний путь Фрирен</p>
+          </div>
         </div>
       </section>
 

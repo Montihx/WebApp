@@ -156,6 +156,51 @@ add(
   missingBookmarkCss.length ? `Не найдены: ${missingBookmarkCss.join(", ")}` : "desktop popover, mobile sheet, явное удаление и полноширинная статусная полоска оформлены токенами темы",
 );
 
+const sliderCssTokens = [
+  ".feature-slider",
+  ".feature-slide.is-active",
+  ".feature-slider__controls",
+  ".feature-slider__progress",
+  "@keyframes hero-progress",
+  "touch-action: pan-y",
+];
+const missingSliderCss = sliderCssTokens.filter((token) => !css.includes(token));
+add(
+  "css.heroSlider",
+  "CSS: адаптивный hero-слайдер",
+  missingSliderCss.length === 0,
+  missingSliderCss.length ? `Не найдены: ${missingSliderCss.join(", ")}` : "полноширинный desktop hero, mobile composition, controls и progress оформлены",
+);
+
+const titleMobileCssTokens = [
+  ".title-mobile-toolbar",
+  ".title-mobile-actions",
+  ".title-mobile-watch",
+  ".title-list-dialog",
+  "@keyframes bottom-sheet-in",
+];
+const missingTitleMobileCss = titleMobileCssTokens.filter((token) => !css.includes(token));
+add(
+  "css.titleMobile",
+  "CSS: mobile title hierarchy",
+  missingTitleMobileCss.length === 0,
+  missingTitleMobileCss.length ? `Не найдены: ${missingTitleMobileCss.join(", ")}` : "контекстный toolbar, полный постер, быстрые действия и list sheet оформлены",
+);
+
+const playerSettingsCssTokens = [
+  ".player-settings-dialog",
+  ".player-setting-row",
+  ".player-setting-row--toggle",
+  ".player-switch",
+];
+const missingPlayerSettingsCss = playerSettingsCssTokens.filter((token) => !css.includes(token));
+add(
+  "css.playerSettings",
+  "CSS: настройки плеера",
+  missingPlayerSettingsCss.length === 0,
+  missingPlayerSettingsCss.length ? `Не найдены: ${missingPlayerSettingsCss.join(", ")}` : "desktop dialog и mobile bottom sheet используют общую структуру",
+);
+
 // Tier 1: baseline WCAG AA (>=4.5:1) for every text/label token against its
 // real surface. Tier 2: the reinforced bar semantic status colors and
 // accent-as-text are held to (>=5.5 light / >=6.0 dark), per the 2026-08
@@ -242,6 +287,10 @@ const jsCapabilities = [
   "source-select",
   "translation-select",
   "requestFullscreen",
+  "data-hero-slide",
+  "data-hero-pause",
+  "data-open-mobile-list",
+  "kitsu-demo-player-settings",
 ];
 const missingCapabilities = jsCapabilities.filter((token) => !js.includes(token));
 add("js.capabilities", "JS: ключевые сценарии", missingCapabilities.length === 0, missingCapabilities.length ? `Не найдены: ${missingCapabilities.join(", ")}` : `${jsCapabilities.length} сценариев покрыто`);
@@ -267,6 +316,31 @@ add(
   missingBookmarkStatuses.length || missingBookmarkBehavior.length || copiedStatusColors.length
     ? `Проблемы: ${[...missingBookmarkStatuses, ...missingBookmarkBehavior, ...copiedStatusColors].join(", ")}`
     : "5 статусов используют токены темы; desktop popover, mobile sheet, явное удаление, сохранение и синхронизация присутствуют",
+);
+
+const indexSource = read("index.html");
+const animeSource = read("anime.html");
+const heroSlideCount = count(indexSource, /data-hero-slide\b/g);
+add(
+  "html.heroSlider",
+  "HTML: hero-слайдер",
+  heroSlideCount === 5 && indexSource.includes("data-hero-pause") && indexSource.includes("data-hero-live"),
+  `${heroSlideCount} слайдов, pause control и live-status`,
+);
+const titleInteractionTokens = ["title-mobile-toolbar", "mobile-list-menu", "mobile-list-label", "title-mobile-watch"];
+const missingTitleInteractions = titleInteractionTokens.filter((token) => !animeSource.includes(token));
+add(
+  "html.titleMobile",
+  "HTML: мобильный тайтл и список",
+  missingTitleInteractions.length === 0 && count(animeSource, /data-list-status=/g) === 12,
+  missingTitleInteractions.length ? `Не найдены: ${missingTitleInteractions.join(", ")}` : "desktop/mobile triggers и 5 статусов с отдельным удалением синхронизированы",
+);
+const unsupportedPlayerControls = ["мини-плеер", "скачать серию"].filter((label) => animeSource.toLowerCase().includes(label));
+add(
+  "html.playerSettings",
+  "HTML: подтверждённые настройки плеера",
+  count(animeSource, /<label class="player-setting-row/g) === 6 && unsupportedPlayerControls.length === 0,
+  unsupportedPlayerControls.length ? `Неподтверждённые controls: ${unsupportedPlayerControls.join(", ")}` : "качество, скорость, режим, auto-next и skip opening/ending",
 );
 
 const fontFiles = readdirSync(resolve(root, "fonts")).filter((name) => name.endsWith(".woff2"));

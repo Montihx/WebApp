@@ -1,6 +1,6 @@
 # Соответствие текущему проекту
 
-Дата аудита: 14 августа 2026 года. Источник истины — фактический код переданного repository mirror, а не старые screenshots или документация.
+Дата повторного аудита: 21 августа 2026 года. Источник истины — фактический код ветки `main` переданного repository mirror, а не старые screenshots или документация.
 
 ## Проверенные frontend owners
 
@@ -26,17 +26,17 @@
 
 | Блок шаблона | Подтверждённый consumer/contract | Решение |
 | --- | --- | --- |
-| Главный hero | `Hero`, anime fields `title`, `description`, `poster_url`, score/year/studio | сохранён media-first hero |
+| Главный hero | `Hero`, anime fields `title`, `description`, `poster_url`, score/year/studio | сохранены пять API-слайдов, 7-секундный timer, background/focus image layers и controls; визуальная палитра адаптирована под Anime Graphite |
 | Продолжить | `ContinueWatching`, local + authenticated watch progress | локальное автономное состояние; production owner не меняется |
 | Каталог tabs | `/anime` с `sort_by`, `status`, `season`; `/recent-updates` | три понятных discovery состояния |
 | Расписание | `/schedule/history` + `/schedule/calendar` | время скрывается, если API его не вернул |
 | Публичные коллекции | `/interactions/collections/public` | только read-only cards |
-| Title hero | SSR `/anime/{slug}` + `AnimeInfo` | сохранены metadata/SEO boundaries |
-| Мой список | favorites categories и отдельный DELETE | ровно пять подтверждённых categories |
+| Title hero | SSR `/anime/{slug}` + `AnimeInfo` | сохранены metadata/SEO boundaries; mobile-композиция опирается на полный poster, быстрые actions и линейные metadata rows |
+| Мой список | favorites categories и отдельный DELETE | ровно пять подтверждённых categories; popover на desktop и modal sheet на mobile |
 | Уведомления тайтла | `users/me.preferences.anime_notifications` | episode/dubbing/all/none |
 | Плеер | Kodik playlist → HLS/iframe fallback → generic releases | макет оформляет shell, не заменяет runtime |
 | Источник/перевод | `release.source` и `translation_team`/Kodik translator | намеренно разделены |
-| Player preferences | local prefs + `/interactions/preferences/kodik/{slug}` | opening/ending/auto-next/quality/mode |
+| Player preferences | local prefs + `/interactions/preferences/kodik/{slug}` | bottom sheet показывает только opening/ending/auto-next/quality/speed/mode; mini-player/download не добавлены |
 | Серии | `/anime/{id}/episodes`, Kodik playlist episodes | season/episode selection без invented grouping |
 | Комментарии | public GET + authenticated create/reply/like/update/delete | показано честное пустое состояние |
 | Нижний rail | score-sorted catalog | не выдаётся за related без `anime.related` |

@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-21T04:59:43.102Z",
+  "generated_at": "2026-08-21T05:33:43.075Z",
   "summary": {
     "status": "pass",
-    "total": 31,
-    "passed": 31,
+    "total": 37,
+    "passed": 37,
     "failed": 0
   },
   "results": [
@@ -31,7 +31,7 @@
       "id": "index.html.references",
       "label": "index.html: локальные ссылки",
       "status": "pass",
-      "detail": "50 локальных ссылок разрешены"
+      "detail": "58 локальных ссылок разрешены"
     },
     {
       "id": "index.html.aria",
@@ -49,7 +49,7 @@
       "id": "index.html.images",
       "label": "index.html: alt у изображений",
       "status": "pass",
-      "detail": "35 изображений проверено"
+      "detail": "44 изображений проверено"
     },
     {
       "id": "index.html.anchors",
@@ -67,19 +67,19 @@
       "id": "anime.html.ids",
       "label": "anime.html: уникальные ID",
       "status": "pass",
-      "detail": "51 уникальных ID"
+      "detail": "55 уникальных ID"
     },
     {
       "id": "anime.html.references",
       "label": "anime.html: локальные ссылки",
       "status": "pass",
-      "detail": "34 локальных ссылок разрешены"
+      "detail": "35 локальных ссылок разрешены"
     },
     {
       "id": "anime.html.aria",
       "label": "anime.html: ARIA-ссылки",
       "status": "pass",
-      "detail": "17 ссылок разрешены"
+      "detail": "20 ссылок разрешены"
     },
     {
       "id": "anime.html.buttons",
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "744 блоков, структура сбалансирована"
+      "detail": "845 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -136,6 +136,24 @@
       "detail": "desktop popover, mobile sheet, явное удаление и полноширинная статусная полоска оформлены токенами темы"
     },
     {
+      "id": "css.heroSlider",
+      "label": "CSS: адаптивный hero-слайдер",
+      "status": "pass",
+      "detail": "полноширинный desktop hero, mobile composition, controls и progress оформлены"
+    },
+    {
+      "id": "css.titleMobile",
+      "label": "CSS: mobile title hierarchy",
+      "status": "pass",
+      "detail": "контекстный toolbar, полный постер, быстрые действия и list sheet оформлены"
+    },
+    {
+      "id": "css.playerSettings",
+      "label": "CSS: настройки плеера",
+      "status": "pass",
+      "detail": "desktop dialog и mobile bottom sheet используют общую структуру"
+    },
+    {
       "id": "css.contrast.dark",
       "label": "CSS: контраст токенов — тёмная тема",
       "status": "pass",
@@ -163,13 +181,13 @@
       "id": "css.tabularNums",
       "label": "CSS: tabular-nums на числовых узлах",
       "status": "pass",
-      "detail": "9 правил с tabular-nums"
+      "detail": "11 правил с tabular-nums"
     },
     {
       "id": "js.capabilities",
       "label": "JS: ключевые сценарии",
       "status": "pass",
-      "detail": "11 сценариев покрыто"
+      "detail": "15 сценариев покрыто"
     },
     {
       "id": "js.storage",
@@ -182,6 +200,24 @@
       "label": "JS: статусы закладок",
       "status": "pass",
       "detail": "5 статусов используют токены темы; desktop popover, mobile sheet, явное удаление, сохранение и синхронизация присутствуют"
+    },
+    {
+      "id": "html.heroSlider",
+      "label": "HTML: hero-слайдер",
+      "status": "pass",
+      "detail": "5 слайдов, pause control и live-status"
+    },
+    {
+      "id": "html.titleMobile",
+      "label": "HTML: мобильный тайтл и список",
+      "status": "pass",
+      "detail": "desktop/mobile triggers и 5 статусов с отдельным удалением синхронизированы"
+    },
+    {
+      "id": "html.playerSettings",
+      "label": "HTML: подтверждённые настройки плеера",
+      "status": "pass",
+      "detail": "качество, скорость, режим, auto-next и skip opening/ending"
     },
     {
       "id": "assets.fontInventory",

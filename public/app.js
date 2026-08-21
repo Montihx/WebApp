@@ -510,6 +510,7 @@
     if (!dialog || typeof dialog.showModal !== "function") return;
     closeAllMenus();
     closeDrawer({ restoreFocus: false });
+    dialog._returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     if (!dialog.open) dialog.showModal();
     body.classList.add("is-locked");
     requestAnimationFrame(() => visibleFocusable(dialog)[0]?.focus({ preventScroll: true }));
@@ -685,7 +686,13 @@
       dialog.addEventListener("click", (event) => {
         if (event.target === dialog) closeDialog(dialog);
       });
-      dialog.addEventListener("close", () => body.classList.remove("is-locked"));
+      dialog.addEventListener("close", () => {
+        body.classList.remove("is-locked");
+        if (dialog._returnFocus instanceof HTMLElement && dialog._returnFocus.isConnected) {
+          dialog._returnFocus.focus({ preventScroll: true });
+        }
+        dialog._returnFocus = null;
+      });
     });
 
     document.addEventListener("click", (event) => {
@@ -805,7 +812,109 @@
     });
   }
 
+  function initHeroSlider() {
+    const slider = $('[data-hero-slider]');
+    if (!slider) return;
+    const slides = $$('[data-hero-slide]', slider);
+    const dots = $$('[data-hero-dot]', slider);
+    const current = $('[data-hero-current]', slider);
+    const live = $('[data-hero-live]', slider);
+    const progress = $('[data-hero-progress]', slider);
+    const pauseButton = $('[data-hero-pause]', slider);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let index = Math.max(0, slides.findIndex((slide) => slide.classList.contains('is-active')));
+    let timer = 0;
+    let manuallyPaused = false;
+    let interactionPaused = false;
+    let pointerStart = null;
+
+    slider.tabIndex = 0;
+
+    const restart = () => {
+      window.clearTimeout(timer);
+      slider.classList.remove('is-running');
+      if (progress) void progress.offsetWidth;
+      if (manuallyPaused || interactionPaused || document.hidden || reducedMotion.matches) return;
+      requestAnimationFrame(() => slider.classList.add('is-running'));
+      timer = window.setTimeout(() => show(index + 1, { announce: false }), 7000);
+    };
+
+    const paintPause = () => {
+      if (!pauseButton) return;
+      pauseButton.setAttribute('aria-pressed', String(manuallyPaused));
+      pauseButton.setAttribute('aria-label', manuallyPaused ? 'Возобновить автопрокрутку' : 'Приостановить автопрокрутку');
+      setIcon(pauseButton, manuallyPaused ? 'play' : 'pause');
+    };
+
+    const show = (nextIndex, { announce = true } = {}) => {
+      index = (nextIndex + slides.length) % slides.length;
+      slides.forEach((slide, slideIndex) => {
+        const active = slideIndex === index;
+        slide.classList.toggle('is-active', active);
+        slide.setAttribute('aria-hidden', String(!active));
+        $$('a, button, input, select, textarea, [tabindex]', slide).forEach((item) => {
+          if (active) item.removeAttribute('tabindex');
+          else item.tabIndex = -1;
+        });
+      });
+      dots.forEach((dot, dotIndex) => {
+        const active = dotIndex === index;
+        dot.classList.toggle('is-active', active);
+        if (active) dot.setAttribute('aria-current', 'true');
+        else dot.removeAttribute('aria-current');
+      });
+      if (current) current.textContent = String(index + 1).padStart(2, '0');
+      const title = $('h2', slides[index])?.textContent?.trim() || `Слайд ${index + 1}`;
+      const accent = getComputedStyle(slides[index]).getPropertyValue('--hero-accent').trim();
+      if (accent) slider.style.setProperty('--hero-active-accent', accent);
+      if (live && announce) live.textContent = `Слайд ${index + 1} из ${slides.length}: ${title}`;
+      restart();
+    };
+
+    $('[data-hero-prev]', slider)?.addEventListener('click', () => show(index - 1));
+    $('[data-hero-next]', slider)?.addEventListener('click', () => show(index + 1));
+    dots.forEach((dot) => dot.addEventListener('click', () => show(Number(dot.dataset.heroDot))));
+    pauseButton?.addEventListener('click', () => {
+      manuallyPaused = !manuallyPaused;
+      paintPause();
+      restart();
+    });
+
+    slider.addEventListener('keydown', (event) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      event.preventDefault();
+      show(index + (event.key === 'ArrowRight' ? 1 : -1));
+    });
+    slider.addEventListener('mouseenter', () => { interactionPaused = true; restart(); });
+    slider.addEventListener('mouseleave', () => { interactionPaused = false; restart(); });
+    slider.addEventListener('focusin', () => { interactionPaused = true; restart(); });
+    slider.addEventListener('focusout', (event) => {
+      if (event.relatedTarget && slider.contains(event.relatedTarget)) return;
+      interactionPaused = false;
+      restart();
+    });
+    slider.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'mouse' || event.button !== 0) return;
+      pointerStart = { x: event.clientX, y: event.clientY };
+    });
+    slider.addEventListener('pointerup', (event) => {
+      if (!pointerStart) return;
+      const dx = event.clientX - pointerStart.x;
+      const dy = event.clientY - pointerStart.y;
+      pointerStart = null;
+      if (Math.abs(dx) < 54 || Math.abs(dx) <= Math.abs(dy)) return;
+      show(index + (dx < 0 ? 1 : -1));
+    });
+    slider.addEventListener('pointercancel', () => { pointerStart = null; });
+    document.addEventListener('visibilitychange', restart);
+    reducedMotion.addEventListener?.('change', restart);
+
+    paintPause();
+    show(index, { announce: false });
+  }
+
   function initHome() {
+    initHeroSlider();
     initSeasonLabel();
     const filters = $$('[data-filter]');
     const cards = $$('.anime-card[data-status]');
@@ -873,9 +982,17 @@
   };
 
   function syncListState() {
-    const label = $("#list-label");
-    if (label) label.textContent = listLabels[state.listStatus] || listLabels.none;
+    const nextLabel = listLabels[state.listStatus] || listLabels.none;
+    [$("#list-label"), $("#mobile-list-label")].forEach((label) => {
+      if (label) label.textContent = nextLabel;
+    });
     $$('[data-list-status]').forEach((item) => item.classList.toggle("is-active", item.dataset.listStatus === state.listStatus));
+    $$('[data-open-mobile-list]').forEach((control) => {
+      control.classList.toggle("is-active", state.listStatus !== "none");
+      control.setAttribute("aria-label", state.listStatus === "none" ? "Добавить в список" : `${nextLabel}. Изменить статус`);
+    });
+    const mobileShortcut = $('.title-mobile-toolbar__button[data-open-mobile-list]');
+    if (mobileShortcut) setIcon(mobileShortcut, state.listStatus === "none" ? "bookmark-plus" : "bookmark-check");
     const counter = $('[data-count-label="favorites"]');
     if (counter) counter.textContent = state.listStatus === "none" ? "В списки" : "В вашем списке";
   }
@@ -972,6 +1089,18 @@
   }
 
   function initAnime() {
+    const savedPlayerSettings = storage.get("kitsu-demo-player-settings");
+    if (savedPlayerSettings) {
+      try {
+        const parsed = JSON.parse(savedPlayerSettings);
+        if (parsed.mode && $("#player-mode")) $("#player-mode").value = parsed.mode;
+        if (parsed.speed && $("#player-speed")) $("#player-speed").value = parsed.speed;
+        if (parsed.quality && $("#player-quality")) {
+          $("#player-quality").value = parsed.quality;
+          if ($("#release-quality")) $("#release-quality").textContent = parsed.quality;
+        }
+      } catch (_) {}
+    }
     syncListState();
     syncSubscriptionState();
     syncPlayer();
@@ -981,12 +1110,17 @@
       event.stopPropagation();
       toggleMenu(event.currentTarget, $("#list-menu"));
     });
+    $$('[data-open-mobile-list]').forEach((control) => {
+      control.addEventListener("click", () => openDialog($("#mobile-list-menu")));
+    });
+    $('[data-close-mobile-list]')?.addEventListener("click", () => closeDialog($("#mobile-list-menu")));
     $$('[data-list-status]').forEach((control) => {
       control.addEventListener("click", () => {
         state.listStatus = control.dataset.listStatus;
         storage.set("kitsu-demo-list-status", state.listStatus);
         syncListState();
         closeMenu($("#list-trigger"), $("#list-menu"));
+        closeDialog($("#mobile-list-menu"));
         showToast(state.listStatus === "none" ? "Удалено из списка" : "Список обновлён", listLabels[state.listStatus]);
       });
     });
@@ -1032,9 +1166,9 @@
     });
 
     $$('[data-scroll-player]').forEach((control) => control.addEventListener("click", () => scrollToTarget("#player")));
-    $('[data-scroll-comments]')?.addEventListener("click", () => scrollToTarget("#comments"));
+    $$('[data-scroll-comments]').forEach((control) => control.addEventListener("click", () => scrollToTarget("#comments")));
 
-    $('[data-share]')?.addEventListener("click", async () => {
+    $$('[data-share]').forEach((control) => control.addEventListener("click", async () => {
       const url = window.location.href;
       try {
         if (navigator.share) {
@@ -1046,7 +1180,7 @@
       } catch (error) {
         if (error?.name !== "AbortError") showToast("Не удалось скопировать", "Скопируйте адрес из строки браузера.", "danger");
       }
-    });
+    }));
 
     $("#player-toggle")?.addEventListener("click", () => {
       state.playing = !state.playing;
@@ -1086,11 +1220,23 @@
       showToast("Источник выбран", event.currentTarget.value, "info");
     });
 
+    const playerOptionGroups = new Map();
     $$('[data-player-option]').forEach((input) => {
-      const key = `kitsu-demo-player-${input.dataset.playerOption}`;
+      const option = input.dataset.playerOption;
+      if (!playerOptionGroups.has(option)) playerOptionGroups.set(option, []);
+      playerOptionGroups.get(option).push(input);
+    });
+    playerOptionGroups.forEach((inputs, option) => {
+      const key = `kitsu-demo-player-${option}`;
       const saved = storage.get(key);
-      if (saved !== null) input.checked = saved === "1";
-      input.addEventListener("change", () => storage.set(key, input.checked ? "1" : "0"));
+      const checked = saved === null ? inputs[0].checked : saved === "1";
+      inputs.forEach((input) => {
+        input.checked = checked;
+        input.addEventListener("change", () => {
+          inputs.forEach((peer) => { peer.checked = input.checked; });
+          storage.set(key, input.checked ? "1" : "0");
+        });
+      });
     });
 
     $$('[data-episode]').forEach((control) => {
