@@ -25,6 +25,7 @@
 - Не показывать success до подтверждённого response.
 - Не объединять `release.source` и `translation_team`: источник потока и перевод остаются разными controls и разными полями.
 - Favorite category допускает только `watching`, `completed`, `planned`, `on_hold`, `dropped`; удаление выполняется отдельным DELETE.
+- Числа рядом со статусом списка подключать напрямую к `anime.favorites_count` и `anime.comments_count`; значения HTML являются только fixtures и не переносятся в production.
 - Настройки уведомлений тайтла сохраняются в `users/me.preferences.anime_notifications`, пока код ветки не докажет другой контракт.
 - Guest progress сначала сохраняется локально; authenticated progress синхронизируется через существующие Kodik progress routes.
 - Не удалять SSR metadata, canonical, JSON-LD, ISR/revalidation и существующую not-found semantics страницы тайтла.

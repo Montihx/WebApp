@@ -42,7 +42,8 @@
 - SSR hero/details;
 - names dialog;
 - favorite categories;
-- anime notification preferences рядом с episode browser;
+- `favorites_count` и `comments_count` из anime detail response;
+- anime notification preferences: desktop рядом с episode browser, mobile в верхнем context action с отдельным sheet;
 - comments anchor без отдельного share-действия и без повторной details-секции.
 
 Выход: `/anime/{slug}` без player regression.
