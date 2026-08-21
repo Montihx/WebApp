@@ -13,7 +13,7 @@
 - `0` buttons без явного `type`;
 - `0` images без `alt`;
 - `0` bare `href="#"`/`javascript:` links;
-- CSS: структура из `845` блоков сбалансирована, контрольные точки `1180`/`920`/`720`/`460 px`;
+- CSS: структура из `846` блоков сбалансирована, контрольные точки `1180`/`920`/`720`/`460 px`;
 - `node --check app.js` — pass;
 - `24` локальных WOFF2 font-файлов подключено;
 - `15` ключевых JS interaction families и отдельный пятистатусный bookmark-сценарий обнаружены QA-script;
@@ -37,7 +37,7 @@ node tools/qa.mjs --write
 - catalog/schedule roving tabs;
 - hero: пять слайдов, 7-секундный progress, pause, arrows, dots, keyboard, swipe и исключение скрытых ссылок из tab-порядка;
 - bookmark overlay на постере, desktop popover, mobile modal sheet, пять статусов на токенах темы, явное удаление, полноширинная нижняя полоска с текстом статуса, persistence и синхронизация одинаковых тайтлов;
-- mobile title: скрытие общего header, контекстный toolbar, poster `2:3`, расположение info icon, touch targets, подтверждённые счётчики и вертикальные metadata с короткими малоконтрастными разделителями;
+- mobile title: скрытие общего header, контекстный toolbar, poster `2:3`, расположение info icon, пропорции touch targets, видимый счётчик списков, доступная подпись комментариев и естественные вертикальные metadata-строки без карточек/колонок/разделителей;
 - list/subscription local states; desktop-уведомления находятся у серий, mobile-колокольчик — справа сверху и открывает отдельный sheet; share и повторная details-секция отсутствуют, оба sheet возвращают focus;
 - dialogs, backdrop/Escape close и focus trap;
 - player settings: desktop dialog/mobile bottom sheet, три select и три синхронных switch без неподтверждённых mini-player/download controls;
