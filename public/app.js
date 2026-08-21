@@ -34,11 +34,11 @@
   };
 
   const BOOKMARK_STATUSES = [
-    { key: "watching", label: "Смотрю", color: "#22c55e", icon: "play" },
-    { key: "planned", label: "Запланировано", color: "#3b82f6", icon: "clock" },
-    { key: "completed", label: "Просмотрено", color: "#a855f7", icon: "check-circle-2" },
-    { key: "dropped", label: "Брошено", color: "#ef4444", icon: "x-circle" },
-    { key: "on_hold", label: "Отложено", color: "#eab308", icon: "pause-circle" },
+    { key: "watching", label: "Смотрю", icon: "play" },
+    { key: "planned", label: "Запланировано", icon: "clock" },
+    { key: "completed", label: "Просмотрено", icon: "check-circle-2" },
+    { key: "dropped", label: "Брошено", icon: "x-circle" },
+    { key: "on_hold", label: "Отложено", icon: "pause-circle" },
   ];
 
   const BOOKMARK_STATUS_BY_KEY = Object.fromEntries(BOOKMARK_STATUSES.map((status) => [status.key, status]));
@@ -179,13 +179,18 @@
     menu.setAttribute("role", "menu");
     menu.setAttribute("aria-label", `Статус закладки: ${title}`);
 
+    const heading = document.createElement("div");
+    heading.className = "bookmark-menu__heading";
+    heading.innerHTML = "<strong>Мой список</strong><span>Выберите статус</span>";
+    menu.append(heading);
+
     BOOKMARK_STATUSES.forEach((status) => {
       const option = document.createElement("button");
       option.type = "button";
       option.dataset.bookmarkOption = status.key;
+      option.dataset.bookmarkTone = status.key;
       option.setAttribute("role", "menuitemradio");
       option.setAttribute("aria-checked", "false");
-      option.style.setProperty("--bookmark-color", status.color);
       option.innerHTML = `
         <span class="bookmark-menu__icon"><i data-lucide="${status.icon}"></i></span>
         <span class="bookmark-menu__label">${status.label}</span>
@@ -205,6 +210,8 @@
 
     card.dataset.bookmarkStatus = status?.key || "none";
     card.classList.toggle("has-bookmark-status", Boolean(status));
+    if (status) card.dataset.bookmarkTone = status.key;
+    else delete card.dataset.bookmarkTone;
 
     if (trigger) {
       trigger.classList.toggle("is-active", Boolean(status));
@@ -212,15 +219,11 @@
         "aria-label",
         status ? `Изменить статус «${title}»: ${status.label}` : `Добавить «${title}» в список`,
       );
-      if (status) trigger.style.setProperty("--bookmark-color", status.color);
-      else trigger.style.removeProperty("--bookmark-color");
     }
 
     if (bar) {
       bar.hidden = !status;
       bar.textContent = status?.label || "";
-      if (status) bar.style.setProperty("--bookmark-color", status.color);
-      else bar.style.removeProperty("--bookmark-color");
     }
 
     $$('[data-bookmark-option]', card).forEach((option) => {

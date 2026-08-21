@@ -1526,6 +1526,26 @@ html[data-theme="light"] .hero-art img {
   transition: opacity var(--ease), transform var(--ease);
 }
 
+[data-bookmark-tone="watching"] {
+  --bookmark-color: var(--green);
+}
+
+[data-bookmark-tone="planned"] {
+  --bookmark-color: var(--accent-strong);
+}
+
+[data-bookmark-tone="completed"] {
+  --bookmark-color: color-mix(in srgb, var(--accent-text) 42%, var(--text-secondary));
+}
+
+[data-bookmark-tone="dropped"] {
+  --bookmark-color: var(--red);
+}
+
+[data-bookmark-tone="on_hold"] {
+  --bookmark-color: var(--amber);
+}
+
 .anime-card:hover {
   transform: translateY(-4px);
 }
@@ -1549,6 +1569,18 @@ html[data-theme="light"] .hero-art img {
 .anime-card:hover .poster-frame {
   border-color: var(--line-strong);
   box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22);
+}
+
+.anime-card.has-bookmark-status .poster-frame {
+  box-shadow:
+    inset 0 -3px 0 color-mix(in srgb, var(--bookmark-color) 82%, transparent),
+    0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.anime-card.has-bookmark-status:hover .poster-frame {
+  box-shadow:
+    inset 0 -3px 0 color-mix(in srgb, var(--bookmark-color) 88%, transparent),
+    0 16px 34px rgba(0, 0, 0, 0.22);
 }
 
 .poster-frame::after {
@@ -1652,33 +1684,43 @@ html[data-theme="light"] .hero-art img {
 }
 
 .anime-card.has-bookmark-status .poster-action {
-  bottom: 34px;
+  bottom: 44px;
 }
 
 .bookmark-status-bar {
   position: absolute;
   z-index: 5;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  min-height: 24px;
+  bottom: 10px;
+  left: 9px;
+  display: inline-flex;
+  max-width: calc(100% - 18px);
+  min-height: 25px;
   align-items: center;
-  justify-content: center;
-  padding: 4px 8px;
-  border-top: 1px solid color-mix(in srgb, var(--bookmark-color) 78%, #ffffff 22%);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--bookmark-color) 72%, rgba(13, 13, 15, 0.4)),
-    color-mix(in srgb, var(--bookmark-color) 88%, rgba(13, 13, 15, 0.24))
-  );
-  color: #ffffff;
+  gap: 6px;
+  overflow: hidden;
+  padding: 4px 8px 4px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(13, 13, 15, 0.76);
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
   font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.045em;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   line-height: 1.2;
-  text-align: center;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.54);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bookmark-status-bar::before {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--bookmark-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--bookmark-color) 14%, transparent);
+  content: "";
 }
 
 .bookmark-status-bar[hidden] {
@@ -1768,40 +1810,65 @@ html[data-theme="light"] .hero-art img {
 }
 
 .bookmark-button.poster-bookmark-button.is-active {
-  border-color: color-mix(in srgb, var(--bookmark-color) 76%, #ffffff 24%);
-  background: color-mix(in srgb, var(--bookmark-color) 72%, rgba(13, 13, 15, 0.28));
-  color: #ffffff;
+  border-color: color-mix(in srgb, var(--bookmark-color) 46%, rgba(255, 255, 255, 0.18));
+  background: rgba(13, 13, 15, 0.82);
+  color: color-mix(in srgb, var(--bookmark-color) 82%, #ffffff);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--bookmark-color) 13%, transparent),
+    0 7px 20px rgba(0, 0, 0, 0.24);
 }
 
 .bookmark-menu {
   position: absolute;
   z-index: 10;
-  top: 48px;
+  top: 46px;
   right: 8px;
-  left: 8px;
+  width: 198px;
   display: grid;
-  gap: 3px;
-  padding: 6px;
+  gap: 2px;
+  padding: 7px;
   border: 1px solid var(--line-strong);
-  border-radius: 13px;
-  background: var(--surface);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
   box-shadow: var(--shadow-menu);
+  backdrop-filter: blur(18px) saturate(112%);
 }
 
 .bookmark-menu[hidden] {
   display: none;
 }
 
+.bookmark-menu__heading {
+  display: grid;
+  gap: 2px;
+  margin: 1px 2px 5px;
+  padding: 0 5px 7px;
+  border-bottom: 1px solid var(--line);
+}
+
+.bookmark-menu__heading strong {
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.bookmark-menu__heading span {
+  color: var(--text-muted);
+  font-size: 8px;
+  font-weight: 600;
+}
+
 .bookmark-menu button {
+  position: relative;
   display: grid;
   min-width: 0;
-  min-height: 34px;
-  grid-template-columns: 22px minmax(0, 1fr) 16px;
-  gap: 7px;
+  min-height: 35px;
+  grid-template-columns: 20px minmax(0, 1fr) 14px;
+  gap: 8px;
   align-items: center;
-  padding: 5px 7px;
+  padding: 5px 7px 5px 8px;
   border: 1px solid transparent;
-  border-radius: 9px;
+  border-radius: 8px;
   color: var(--text-secondary);
   text-align: left;
   transition: background var(--ease), border-color var(--ease), color var(--ease);
@@ -1815,19 +1882,29 @@ html[data-theme="light"] .hero-art img {
 }
 
 .bookmark-menu button[aria-checked="true"] {
-  border-color: color-mix(in srgb, var(--bookmark-color) 36%, var(--line));
-  background: color-mix(in srgb, var(--bookmark-color) 12%, var(--surface));
+  border-color: var(--line);
+  background: var(--surface-raised);
   color: var(--text);
+}
+
+.bookmark-menu button[aria-checked="true"]::before {
+  position: absolute;
+  top: 9px;
+  bottom: 9px;
+  left: -1px;
+  width: 2px;
+  border-radius: 0 2px 2px 0;
+  background: var(--bookmark-color);
+  content: "";
 }
 
 .bookmark-menu__icon {
   display: grid;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   place-items: center;
-  border-radius: 7px;
-  background: color-mix(in srgb, var(--bookmark-color) 13%, transparent);
-  color: var(--bookmark-color);
+  border-radius: 6px;
+  color: color-mix(in srgb, var(--bookmark-color) 84%, var(--text-secondary));
 }
 
 .bookmark-menu__icon svg,
@@ -1838,7 +1915,7 @@ html[data-theme="light"] .hero-art img {
 
 .bookmark-menu__label {
   overflow: hidden;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
