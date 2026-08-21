@@ -180,13 +180,15 @@ const titleMobileCssTokens = [
   ".title-list-dialog",
   ".mobile-subscribe-dialog",
   ".episode-subscribe__trigger",
-  "color-mix(in srgb, var(--line) 42%, transparent)",
+  ".title-meta-flag",
   "@keyframes bottom-sheet-in",
 ];
 const missingTitleMobileCss = titleMobileCssTokens.filter((token) => !css.includes(token));
 const titleMobileLayoutChecks = [
-  /\.title-meta-list\s*{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/s.test(mediaSource(720)),
-  /\.title-meta-list\s*{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/s.test(mediaSource(460)),
+  /\.title-meta-list\s*{[^}]*display:\s*flex[^}]*flex-direction:\s*column/s.test(css.slice(0, css.indexOf("@media"))),
+  /\.title-meta-list > li\s*{[^}]*display:\s*flex/s.test(css.slice(0, css.indexOf("@media"))),
+  /\.title-mobile-actions\s*{[^}]*width:\s*min\(100%, 520px\)[^}]*grid-template-columns:/s.test(mediaSource(720)),
+  !/\.title-meta-list[^,{]*::after/.test(css),
   /\.episode-subscribe\s*{[^}]*display:\s*none/s.test(mediaSource(720)),
 ];
 add(
@@ -196,7 +198,7 @@ add(
   missingTitleMobileCss.length
     ? `Не найдены: ${missingTitleMobileCss.join(", ")}`
     : titleMobileLayoutChecks.every(Boolean)
-      ? "верхний bell, счётчики, одноколоночные metadata с мягкими разделителями и оба mobile sheet оформлены"
+      ? "верхний bell, компактные действия, естественные metadata-строки без разделителей и оба mobile sheet оформлены"
       : "mobile metadata или скрытие дублирующего desktop subscription не соответствует контракту",
 );
 
@@ -342,11 +344,24 @@ add(
 );
 const titleInteractionTokens = ["title-mobile-toolbar", "mobile-list-menu", "mobile-list-label", "mobile-subscribe-menu", "title-mobile-watch"];
 const missingTitleInteractions = titleInteractionTokens.filter((token) => !animeSource.includes(token));
+const mobileListTriggerStart = animeSource.indexOf('id="mobile-list-trigger"');
+const mobileListTriggerSource = animeSource.slice(mobileListTriggerStart, animeSource.indexOf("</button>", mobileListTriggerStart));
+const titleMetaStart = animeSource.indexOf('class="title-meta-list"');
+const titleMetaSource = animeSource.slice(titleMetaStart, animeSource.indexOf("</ul>", titleMetaStart));
+const naturalTitleMetadata = titleMetaStart >= 0
+  && count(titleMetaSource, /<li>/g) === 5
+  && !/<small>|<strong>/.test(titleMetaSource)
+  && !/Страна|Эпизоды|Формат|Показ/.test(titleMetaSource);
 add(
   "html.titleMobile",
   "HTML: мобильный тайтл и список",
-  missingTitleInteractions.length === 0 && count(animeSource, /data-list-status=/g) === 12,
-  missingTitleInteractions.length ? `Не найдены: ${missingTitleInteractions.join(", ")}` : "desktop/mobile triggers и 5 статусов с отдельным удалением синхронизированы",
+  missingTitleInteractions.length === 0
+    && count(animeSource, /data-list-status=/g) === 12
+    && !mobileListTriggerSource.includes("bookmark-plus")
+    && naturalTitleMetadata,
+  missingTitleInteractions.length
+    ? `Не найдены: ${missingTitleInteractions.join(", ")}`
+    : "mobile status без лишней ведущей иконки, 5 естественных metadata-строк и 5 статусов с отдельным удалением синхронизированы",
 );
 const episodesSectionIndex = animeSource.indexOf('class="episodes-section"');
 const subscriptionIndex = animeSource.indexOf('id="subscribe-trigger"');
@@ -369,7 +384,7 @@ add(
   "html.titleCounters",
   "HTML: счётчики списков и комментариев",
   count(animeSource, /data-field="favorites_count"/g) === 2 && count(animeSource, /data-field="comments_count"/g) === 2,
-  "favorites_count и comments_count показаны в mobile actions и desktop statistics",
+  "favorites_count виден в mobile actions; comments_count доступен в подписи mobile action; оба числа показаны в desktop statistics",
 );
 add(
   "html.titleNoShare",

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-21T07:27:38.441Z",
+  "generated_at": "2026-08-21T07:50:19.537Z",
   "summary": {
     "status": "pass",
     "total": 41,
@@ -73,7 +73,7 @@
       "id": "anime.html.references",
       "label": "anime.html: локальные ссылки",
       "status": "pass",
-      "detail": "35 локальных ссылок разрешены"
+      "detail": "36 локальных ссылок разрешены"
     },
     {
       "id": "anime.html.aria",
@@ -145,7 +145,7 @@
       "id": "css.titleMobile",
       "label": "CSS: mobile title hierarchy",
       "status": "pass",
-      "detail": "верхний bell, счётчики, одноколоночные metadata с мягкими разделителями и оба mobile sheet оформлены"
+      "detail": "верхний bell, компактные действия, естественные metadata-строки без разделителей и оба mobile sheet оформлены"
     },
     {
       "id": "css.playerSettings",
@@ -211,7 +211,7 @@
       "id": "html.titleMobile",
       "label": "HTML: мобильный тайтл и список",
       "status": "pass",
-      "detail": "desktop/mobile triggers и 5 статусов с отдельным удалением синхронизированы"
+      "detail": "mobile status без лишней ведущей иконки, 5 естественных metadata-строк и 5 статусов с отдельным удалением синхронизированы"
     },
     {
       "id": "html.titleNotifications",
@@ -223,7 +223,7 @@
       "id": "html.titleCounters",
       "label": "HTML: счётчики списков и комментариев",
       "status": "pass",
-      "detail": "favorites_count и comments_count показаны в mobile actions и desktop statistics"
+      "detail": "favorites_count виден в mobile actions; comments_count доступен в подписи mobile action; оба числа показаны в desktop statistics"
     },
     {
       "id": "html.titleNoShare",
