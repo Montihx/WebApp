@@ -31,9 +31,9 @@
 | Каталог tabs | `/anime` с `sort_by`, `status`, `season`; `/recent-updates` | три понятных discovery состояния |
 | Расписание | `/schedule/history` + `/schedule/calendar` | время скрывается, если API его не вернул |
 | Публичные коллекции | `/interactions/collections/public` | только read-only cards |
-| Title hero | SSR `/anime/{slug}` + `AnimeInfo` | сохранены metadata/SEO boundaries; mobile-композиция опирается на полный poster, быстрые actions и прежний вертикальный список фактов с короткими малоконтрастными разделителями |
+| Title hero | SSR `/anime/{slug}` + `AnimeInfo` | сохранены metadata/SEO boundaries; mobile-композиция опирается на полный poster, быстрые actions и прежний вертикальный список фактов как цельных строк без карточек, колонок и разделителей |
 | Мой список | favorites categories и отдельный DELETE | ровно пять подтверждённых categories; popover на desktop и modal sheet на mobile |
-| Счётчики тайтла | `anime.favorites_count`, `anime.comments_count` | отображаются рядом со статусом списка на mobile и в statistics на desktop; автономные числа — fixtures, production значения берутся только из detail response |
+| Счётчики тайтла | `anime.favorites_count`, `anime.comments_count` | `favorites_count` виден рядом со статусом списка на mobile, комментарии открываются отдельной компактной кнопкой с доступной подписью; оба числа видны в statistics на desktop/tablet; автономные числа — fixtures, production значения берутся только из detail response |
 | Уведомления тайтла | `users/me.preferences.anime_notifications` | episode/dubbing/all/none; desktop trigger расположен у списка серий, mobile trigger заменяет повторную закладку справа сверху и открывает bottom sheet |
 | Плеер | Kodik playlist → HLS/iframe fallback → generic releases | макет оформляет shell, не заменяет runtime |
 | Источник/перевод | `release.source` и `translation_team`/Kodik translator | намеренно разделены |
