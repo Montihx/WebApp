@@ -1,10 +1,11 @@
 # QA report — Kitsu Public Anime Graphite
 
-Дата последней сверки документа с `qa-results.json`: 15 августа 2026 года.
+Дата последней сверки документа с `qa-results.json`: 21 августа 2026 года.
 
 ## Итог
 
-- `28/28` автоматических статических checks — pass (`node tools/qa.mjs`);
+- `31/31` автоматических статических проверок — pass (`node tools/qa.mjs`);
+- `29/29` браузерных проверок — pass (Chrome for Testing + Playwright);
 - `2/2` HTML documents разобраны без parser errors;
 - `0` duplicate IDs;
 - `0` unresolved `aria-controls`, `aria-labelledby` и label `for` references;
@@ -12,10 +13,13 @@
 - `0` buttons без явного `type`;
 - `0` images без `alt`;
 - `0` bare `href="#"`/`javascript:` links;
-- CSS: `673` сбалансированных block, контрольные точки `1180`/`920`/`720`/`460 px`;
+- CSS: `705` сбалансированных блоков, контрольные точки `1180`/`920`/`720`/`460 px`;
 - `node --check app.js` — pass;
 - `24` локальных WOFF2 font-файлов подключено;
-- `11` ключевых JS interaction families обнаружены QA-script;
+- `11` ключевых JS interaction families и отдельный пятистатусный bookmark-сценарий обнаружены QA-script;
+- сетка постеров подтверждена как `6/5/4/3/2` колонок на desktop/tablet/mobile gates;
+- отдельный runtime-harness: `12/12` — меню, выбор, повторное снятие, persistence, синхронизация дубликатов и keyboard focus;
+- browser runtime: карточка `213.9 px` при `1440 px`, меню полностью читается на `390 px`, horizontal overflow `0 px` на всех контрольных ширинах;
 - `18` contrast pairs (9 на тему), минимум `4.97:1`.
 
 Полный machine-readable результат: `qa-results.json`. Повторный запуск:
@@ -31,7 +35,8 @@ node tools/qa.mjs --write
 - global search, keyboard navigation и empty result;
 - menus/popovers, outside click и mobile drawer focus;
 - catalog/schedule roving tabs;
-- bookmark/list/subscription local states;
+- bookmark overlay на постере, пять статусов, нижняя цветная полоса, persistence и синхронизация одинаковых тайтлов;
+- list/subscription local states;
 - dialogs, backdrop/Escape close и focus trap;
 - source/translation summary и player controls;
 - episode selection, incremental load и grid/list view;
@@ -57,9 +62,11 @@ node tools/qa.mjs --write
 
 ## Ограничение среды
 
-Исходное ограничение (browser runtime без доступа к preview server) снято: последующие сессии подтвердили headless Chromium через `playwright-core` и добавили реальные screenshot/interaction прогоны — theme toggle, search dialog (trending → результаты), catalog filters (включая новую вкладку «Анонсы»), day-tabs расписания, hover-состояния карточек, мобильные/планшетные ширины `390`/`900`/`1440 px`. Console errors и duplicate ids проверены на каждом прогоне — не найдено.
+Изменения проверены в реальном Chrome for Testing: dark/light desktop и мобильное меню просмотрены по контрольным снимкам, все `29/29` interaction/layout checks прошли, JavaScript console/page errors — `0`.
 
-Не заменяет полноценный проектный Playwright/CI на реальном frontend перед production merge — минимальная matrix остаётся: `360×800`, `390×844`, `768×1024`, `1024×768`, `1440×900`; обе темы; search, drawer, tabs, list/subscription, player, episodes, dialogs, comments; horizontal overflow и console errors.
+В изолированной среде внешние poster URL Shikimori возвращали transport errors. Это не скрыто как успешная загрузка: сработало штатное состояние «Изображение недоступно», а геометрия карточек, bookmark overlay и status strip остались корректными. Сами production-постеры этим прогоном не подтверждаются.
+
+Перед production merge остаётся обязательной браузерная matrix: `360×800`, `390×844`, `768×1024`, `1024×768`, `1440×900`; обе темы; bookmark menu/status strip, search, drawer, tabs, list/subscription, player, episodes, dialogs, comments; horizontal overflow и console errors.
 
 ## Граница результата
 

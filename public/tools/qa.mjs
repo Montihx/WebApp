@@ -116,6 +116,38 @@ add("css.structure", "CSS: синтаксическая структура", str
 add("css.themes", "CSS: две темы", /:root\s*{/.test(css) && /html\[data-theme="light"\]/.test(css), "тёмные и светлые токены присутствуют");
 add("css.responsive", "CSS: адаптивность", [1180, 920, 720, 460].every((value) => css.includes(`max-width: ${value}px`)), "контрольные точки 1180/920/720/460 px");
 add("css.a11y", "CSS: доступность", css.includes(":focus-visible") && css.includes("prefers-reduced-motion"), "focus-visible и reduced-motion присутствуют");
+function mediaSource(maxWidth) {
+  const start = css.indexOf(`@media (max-width: ${maxWidth}px)`);
+  if (start === -1) return "";
+  const next = css.indexOf("@media", start + 1);
+  return css.slice(start, next === -1 ? css.length : next);
+}
+const posterDensityChecks = [
+  /\.anime-grid\s*{[^}]*repeat\(6,/s.test(css.slice(0, css.indexOf("@media"))),
+  /\.anime-grid\s*{[^}]*repeat\(5,/s.test(mediaSource(1180)),
+  /\.anime-grid\s*{[^}]*repeat\(4,/s.test(mediaSource(920)),
+  /\.anime-grid\s*{[^}]*repeat\(3,/s.test(mediaSource(720)),
+  /\.anime-grid\s*{[^}]*repeat\(2,/s.test(mediaSource(460)),
+];
+add(
+  "css.posterDensity",
+  "CSS: плотность постеров",
+  posterDensityChecks.every(Boolean),
+  posterDensityChecks.every(Boolean) ? "6/5/4/3/2 колонок на контрольных ширинах" : "сетка постеров не соответствует 6/5/4/3/2",
+);
+const bookmarkCssTokens = [
+  ".poster-bookmark-button",
+  ".bookmark-menu",
+  ".bookmark-status-bar",
+  ".has-bookmark-status",
+];
+const missingBookmarkCss = bookmarkCssTokens.filter((token) => !css.includes(token));
+add(
+  "css.bookmarks",
+  "CSS: закладки на постере",
+  missingBookmarkCss.length === 0,
+  missingBookmarkCss.length ? `Не найдены: ${missingBookmarkCss.join(", ")}` : "кнопка, меню и нижняя статусная полоса оформлены",
+);
 
 // Tier 1: baseline WCAG AA (>=4.5:1) for every text/label token against its
 // real surface. Tier 2: the reinforced bar semantic status colors and
@@ -207,6 +239,18 @@ const jsCapabilities = [
 const missingCapabilities = jsCapabilities.filter((token) => !js.includes(token));
 add("js.capabilities", "JS: ключевые сценарии", missingCapabilities.length === 0, missingCapabilities.length ? `Не найдены: ${missingCapabilities.join(", ")}` : `${jsCapabilities.length} сценариев покрыто`);
 add("js.storage", "JS: локальные предпочтения", js.includes("localStorage") && js.includes("kitsu-theme"), "тема и демонстрационные состояния сохраняются локально");
+const bookmarkStatuses = ["watching", "planned", "completed", "dropped", "on_hold"];
+const missingBookmarkStatuses = bookmarkStatuses.filter((status) => !js.includes(`key: "${status}"`));
+const bookmarkBehaviorTokens = ["data-bookmark-trigger", "data-bookmark-option", "kitsu-demo-bookmark-status", "data-bookmark-status-bar"];
+const missingBookmarkBehavior = bookmarkBehaviorTokens.filter((token) => !js.includes(token));
+add(
+  "js.bookmarks",
+  "JS: статусы закладок",
+  missingBookmarkStatuses.length === 0 && missingBookmarkBehavior.length === 0,
+  missingBookmarkStatuses.length || missingBookmarkBehavior.length
+    ? `Не найдены: ${[...missingBookmarkStatuses, ...missingBookmarkBehavior].join(", ")}`
+    : "5 статусов, локальное сохранение и синхронизация карточек присутствуют",
+);
 
 const fontFiles = readdirSync(resolve(root, "fonts")).filter((name) => name.endsWith(".woff2"));
 add("assets.fontInventory", "Ассеты: набор шрифтов", fontFiles.length >= 20, `${fontFiles.length} WOFF2-файлов`);

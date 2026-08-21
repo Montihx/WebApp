@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-16T05:09:15.419Z",
+  "generated_at": "2026-08-21T04:11:35.755Z",
   "summary": {
     "status": "pass",
-    "total": 28,
-    "passed": 28,
+    "total": 31,
+    "passed": 31,
     "failed": 0
   },
   "results": [
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "683 блоков, структура сбалансирована"
+      "detail": "705 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -122,6 +122,18 @@
       "label": "CSS: доступность",
       "status": "pass",
       "detail": "focus-visible и reduced-motion присутствуют"
+    },
+    {
+      "id": "css.posterDensity",
+      "label": "CSS: плотность постеров",
+      "status": "pass",
+      "detail": "6/5/4/3/2 колонок на контрольных ширинах"
+    },
+    {
+      "id": "css.bookmarks",
+      "label": "CSS: закладки на постере",
+      "status": "pass",
+      "detail": "кнопка, меню и нижняя статусная полоса оформлены"
     },
     {
       "id": "css.contrast.dark",
@@ -164,6 +176,12 @@
       "label": "JS: локальные предпочтения",
       "status": "pass",
       "detail": "тема и демонстрационные состояния сохраняются локально"
+    },
+    {
+      "id": "js.bookmarks",
+      "label": "JS: статусы закладок",
+      "status": "pass",
+      "detail": "5 статусов, локальное сохранение и синхронизация карточек присутствуют"
     },
     {
       "id": "assets.fontInventory",
@@ -220,7 +238,7 @@
       "token": "green",
       "foreground": "#56ad91",
       "background": "#19191c",
-      "ratio": 6.500396026830483,
+      "ratio": 6.500396026830482,
       "threshold": 6,
       "tier": "reinforced"
     },

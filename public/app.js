@@ -33,6 +33,20 @@
     muted: false,
   };
 
+  const BOOKMARK_STATUSES = [
+    { key: "watching", label: "Смотрю", color: "#22c55e", icon: "play" },
+    { key: "planned", label: "Запланировано", color: "#3b82f6", icon: "clock" },
+    { key: "completed", label: "Просмотрено", color: "#a855f7", icon: "check-circle-2" },
+    { key: "dropped", label: "Брошено", color: "#ef4444", icon: "x-circle" },
+    { key: "on_hold", label: "Отложено", color: "#eab308", icon: "pause-circle" },
+  ];
+
+  const BOOKMARK_STATUS_BY_KEY = Object.fromEntries(BOOKMARK_STATUSES.map((status) => [status.key, status]));
+  const DEFAULT_BOOKMARK_STATUSES = {
+    19: "watching",
+    52991: "planned",
+  };
+
   function refreshIcons() {
     if (!window.lucide) return;
     window.lucide.createIcons({
@@ -126,6 +140,7 @@
     ].forEach(([trigger, menu]) => {
       if (menu && menu !== except) closeMenu(trigger, menu);
     });
+    closeBookmarkMenus(except);
   }
 
   function toggleMenu(trigger, menu) {
@@ -138,6 +153,180 @@
       const first = visibleFocusable(menu)[0];
       if (first && trigger.matches(":focus-visible")) first.focus();
     }
+  }
+
+  function closeBookmarkMenus(except = null) {
+    $$('[data-bookmark-menu]').forEach((menu) => {
+      if (menu === except || menu.hidden) return;
+      menu.hidden = true;
+      $('[data-bookmark-trigger]', menu.closest('[data-bookmark-card]'))?.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function bookmarkCardId(card, index) {
+    const source = $(".poster-frame img", card)?.getAttribute("src") || "";
+    const shikimoriId = source.match(/\/original\/(\d+)\.(?:jpe?g|png|webp)(?:[?#]|$)/i)?.[1];
+    if (shikimoriId) return shikimoriId;
+    const title = $("h3", card)?.textContent.trim() || `card-${index + 1}`;
+    return encodeURIComponent(title.toLowerCase());
+  }
+
+  function createBookmarkMenu(title) {
+    const menu = document.createElement("div");
+    menu.className = "bookmark-menu";
+    menu.dataset.bookmarkMenu = "";
+    menu.hidden = true;
+    menu.setAttribute("role", "menu");
+    menu.setAttribute("aria-label", `Статус закладки: ${title}`);
+
+    BOOKMARK_STATUSES.forEach((status) => {
+      const option = document.createElement("button");
+      option.type = "button";
+      option.dataset.bookmarkOption = status.key;
+      option.setAttribute("role", "menuitemradio");
+      option.setAttribute("aria-checked", "false");
+      option.style.setProperty("--bookmark-color", status.color);
+      option.innerHTML = `
+        <span class="bookmark-menu__icon"><i data-lucide="${status.icon}"></i></span>
+        <span class="bookmark-menu__label">${status.label}</span>
+        <i class="bookmark-menu__check" data-lucide="check"></i>
+      `;
+      menu.append(option);
+    });
+
+    return menu;
+  }
+
+  function syncBookmarkCard(card, statusKey) {
+    const status = BOOKMARK_STATUS_BY_KEY[statusKey] || null;
+    const trigger = $('[data-bookmark-trigger]', card);
+    const bar = $('[data-bookmark-status-bar]', card);
+    const title = card.dataset.bookmarkTitle || "аниме";
+
+    card.dataset.bookmarkStatus = status?.key || "none";
+    card.classList.toggle("has-bookmark-status", Boolean(status));
+
+    if (trigger) {
+      trigger.classList.toggle("is-active", Boolean(status));
+      trigger.setAttribute(
+        "aria-label",
+        status ? `Изменить статус «${title}»: ${status.label}` : `Добавить «${title}» в список`,
+      );
+      if (status) trigger.style.setProperty("--bookmark-color", status.color);
+      else trigger.style.removeProperty("--bookmark-color");
+    }
+
+    if (bar) {
+      bar.hidden = !status;
+      bar.textContent = status?.label || "";
+      if (status) bar.style.setProperty("--bookmark-color", status.color);
+      else bar.style.removeProperty("--bookmark-color");
+    }
+
+    $$('[data-bookmark-option]', card).forEach((option) => {
+      const selected = option.dataset.bookmarkOption === status?.key;
+      option.setAttribute("aria-checked", String(selected));
+      option.setAttribute(
+        "aria-label",
+        selected
+          ? `${BOOKMARK_STATUS_BY_KEY[option.dataset.bookmarkOption].label}, выбрано. Нажмите, чтобы убрать из списка`
+          : BOOKMARK_STATUS_BY_KEY[option.dataset.bookmarkOption].label,
+      );
+    });
+  }
+
+  function setBookmarkStatus(cardId, statusKey) {
+    storage.set(`kitsu-demo-bookmark-status-${cardId}`, statusKey);
+    $$('[data-bookmark-card]').forEach((card) => {
+      if (card.dataset.bookmarkId === cardId) syncBookmarkCard(card, statusKey);
+    });
+  }
+
+  function initBookmarks() {
+    const cards = $$('.anime-card').filter((card) => $('[data-bookmark]', card));
+
+    cards.forEach((card, index) => {
+      const trigger = $('[data-bookmark]', card);
+      const poster = $(".poster-frame", card);
+      const title = $("h3", card)?.textContent.trim() || "Аниме";
+      if (!trigger || !poster) return;
+
+      const cardId = bookmarkCardId(card, index);
+      const statusBar = document.createElement("span");
+      const menu = createBookmarkMenu(title);
+
+      card.dataset.bookmarkCard = "";
+      card.dataset.bookmarkId = cardId;
+      card.dataset.bookmarkTitle = title;
+      card.classList.add("has-bookmark-control");
+
+      statusBar.className = "bookmark-status-bar";
+      statusBar.dataset.bookmarkStatusBar = "";
+      statusBar.hidden = true;
+      poster.append(statusBar);
+
+      trigger.classList.add("poster-bookmark-button");
+      trigger.dataset.bookmarkTrigger = "";
+      trigger.setAttribute("aria-haspopup", "menu");
+      trigger.setAttribute("aria-expanded", "false");
+      poster.insertAdjacentElement("afterend", trigger);
+      trigger.insertAdjacentElement("afterend", menu);
+
+      const storageKey = `kitsu-demo-bookmark-status-${cardId}`;
+      const storedStatus = storage.get(storageKey);
+      const initialStatus = storedStatus === "none" || BOOKMARK_STATUS_BY_KEY[storedStatus]
+        ? storedStatus
+        : DEFAULT_BOOKMARK_STATUSES[cardId] || "none";
+      syncBookmarkCard(card, initialStatus);
+
+      trigger.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const willOpen = menu.hidden;
+        closeAllMenus(willOpen ? menu : null);
+        menu.hidden = !willOpen;
+        trigger.setAttribute("aria-expanded", String(willOpen));
+        if (willOpen) {
+          const selected = $('[aria-checked="true"]', menu) || $('[data-bookmark-option]', menu);
+          requestAnimationFrame(() => selected?.focus({ preventScroll: true }));
+        }
+      });
+
+      menu.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const option = event.target.closest('[data-bookmark-option]');
+        if (!option) return;
+        const selectedKey = option.dataset.bookmarkOption;
+        const nextStatus = card.dataset.bookmarkStatus === selectedKey ? "none" : selectedKey;
+        setBookmarkStatus(cardId, nextStatus);
+        closeBookmarkMenus();
+        trigger.focus({ preventScroll: true });
+        showToast(
+          nextStatus === "none" ? "Удалено из закладок" : `${BOOKMARK_STATUS_BY_KEY[nextStatus].label} — добавлено`,
+          "Состояние сохранено на этом устройстве.",
+        );
+      });
+
+      menu.addEventListener("keydown", (event) => {
+        const options = $$('[data-bookmark-option]', menu);
+        const currentIndex = options.indexOf(document.activeElement);
+        let nextIndex = currentIndex;
+        if (event.key === "ArrowDown") nextIndex = (currentIndex + 1) % options.length;
+        else if (event.key === "ArrowUp") nextIndex = (currentIndex - 1 + options.length) % options.length;
+        else if (event.key === "Home") nextIndex = 0;
+        else if (event.key === "End") nextIndex = options.length - 1;
+        else if (event.key === "Escape") {
+          event.preventDefault();
+          closeBookmarkMenus();
+          trigger.focus({ preventScroll: true });
+          return;
+        } else return;
+        event.preventDefault();
+        options[nextIndex]?.focus({ preventScroll: true });
+      });
+    });
+
+    refreshIcons();
   }
 
   function openDrawer() {
@@ -377,19 +566,7 @@
       });
     });
 
-    $$('[data-bookmark]').forEach((control, index) => {
-      const key = `kitsu-demo-bookmark-${body.dataset.page}-${index}`;
-      const active = storage.get(key, "0") === "1";
-      control.classList.toggle("is-active", active);
-      control.setAttribute("aria-pressed", String(active));
-      control.addEventListener("click", () => {
-        const next = !control.classList.contains("is-active");
-        control.classList.toggle("is-active", next);
-        control.setAttribute("aria-pressed", String(next));
-        storage.set(key, next ? "1" : "0");
-        showToast(next ? "Добавлено в список" : "Удалено из списка", "Состояние сохранено на этом устройстве.");
-      });
-    });
+    initBookmarks();
   }
 
   const seasonMeta = {
