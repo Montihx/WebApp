@@ -138,15 +138,18 @@ add(
 const bookmarkCssTokens = [
   ".poster-bookmark-button",
   ".bookmark-menu",
+  ".bookmark-menu__heading",
   ".bookmark-status-bar",
   ".has-bookmark-status",
+  "[data-bookmark-tone=\"watching\"]",
+  "inset 0 -3px 0",
 ];
 const missingBookmarkCss = bookmarkCssTokens.filter((token) => !css.includes(token));
 add(
   "css.bookmarks",
   "CSS: закладки на постере",
   missingBookmarkCss.length === 0,
-  missingBookmarkCss.length ? `Не найдены: ${missingBookmarkCss.join(", ")}` : "кнопка, меню и нижняя статусная полоса оформлены",
+  missingBookmarkCss.length ? `Не найдены: ${missingBookmarkCss.join(", ")}` : "кнопка, компактное меню, статусный чип и нижний маркер оформлены токенами темы",
 );
 
 // Tier 1: baseline WCAG AA (>=4.5:1) for every text/label token against its
@@ -241,15 +244,16 @@ add("js.capabilities", "JS: ключевые сценарии", missingCapabilit
 add("js.storage", "JS: локальные предпочтения", js.includes("localStorage") && js.includes("kitsu-theme"), "тема и демонстрационные состояния сохраняются локально");
 const bookmarkStatuses = ["watching", "planned", "completed", "dropped", "on_hold"];
 const missingBookmarkStatuses = bookmarkStatuses.filter((status) => !js.includes(`key: "${status}"`));
-const bookmarkBehaviorTokens = ["data-bookmark-trigger", "data-bookmark-option", "kitsu-demo-bookmark-status", "data-bookmark-status-bar"];
+const bookmarkBehaviorTokens = ["data-bookmark-trigger", "data-bookmark-option", "bookmarkTone", "kitsu-demo-bookmark-status", "data-bookmark-status-bar"];
 const missingBookmarkBehavior = bookmarkBehaviorTokens.filter((token) => !js.includes(token));
+const copiedStatusColors = ["#22c55e", "#3b82f6", "#a855f7", "#ef4444", "#eab308"].filter((color) => js.includes(color));
 add(
   "js.bookmarks",
   "JS: статусы закладок",
-  missingBookmarkStatuses.length === 0 && missingBookmarkBehavior.length === 0,
-  missingBookmarkStatuses.length || missingBookmarkBehavior.length
-    ? `Не найдены: ${[...missingBookmarkStatuses, ...missingBookmarkBehavior].join(", ")}`
-    : "5 статусов, локальное сохранение и синхронизация карточек присутствуют",
+  missingBookmarkStatuses.length === 0 && missingBookmarkBehavior.length === 0 && copiedStatusColors.length === 0,
+  missingBookmarkStatuses.length || missingBookmarkBehavior.length || copiedStatusColors.length
+    ? `Проблемы: ${[...missingBookmarkStatuses, ...missingBookmarkBehavior, ...copiedStatusColors].join(", ")}`
+    : "5 статусов используют токены темы; локальное сохранение и синхронизация карточек присутствуют",
 );
 
 const fontFiles = readdirSync(resolve(root, "fonts")).filter((name) => name.endsWith(".woff2"));

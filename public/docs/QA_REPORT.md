@@ -13,7 +13,7 @@
 - `0` buttons без явного `type`;
 - `0` images без `alt`;
 - `0` bare `href="#"`/`javascript:` links;
-- CSS: `705` сбалансированных блоков, контрольные точки `1180`/`920`/`720`/`460 px`;
+- CSS: `717` сбалансированных блоков, контрольные точки `1180`/`920`/`720`/`460 px`;
 - `node --check app.js` — pass;
 - `24` локальных WOFF2 font-файлов подключено;
 - `11` ключевых JS interaction families и отдельный пятистатусный bookmark-сценарий обнаружены QA-script;
@@ -35,7 +35,7 @@ node tools/qa.mjs --write
 - global search, keyboard navigation и empty result;
 - menus/popovers, outside click и mobile drawer focus;
 - catalog/schedule roving tabs;
-- bookmark overlay на постере, пять статусов, нижняя цветная полоса, persistence и синхронизация одинаковых тайтлов;
+- bookmark overlay на постере, пять статусов на токенах темы, компактный статусный чип, тонкий нижний маркер, persistence и синхронизация одинаковых тайтлов;
 - list/subscription local states;
 - dialogs, backdrop/Escape close и focus trap;
 - source/translation summary и player controls;
@@ -64,9 +64,9 @@ node tools/qa.mjs --write
 
 Изменения проверены в реальном Chrome for Testing: dark/light desktop и мобильное меню просмотрены по контрольным снимкам, все `29/29` interaction/layout checks прошли, JavaScript console/page errors — `0`.
 
-В изолированной среде внешние poster URL Shikimori возвращали transport errors. Это не скрыто как успешная загрузка: сработало штатное состояние «Изображение недоступно», а геометрия карточек, bookmark overlay и status strip остались корректными. Сами production-постеры этим прогоном не подтверждаются.
+В изолированной среде внешние poster URL Shikimori возвращали transport errors. Это не скрыто как успешная загрузка: сработало штатное состояние «Изображение недоступно», а геометрия карточек, bookmark overlay, статусный чип и нижний маркер остались корректными. Сами production-постеры этим прогоном не подтверждаются.
 
-Перед production merge остаётся обязательной браузерная matrix: `360×800`, `390×844`, `768×1024`, `1024×768`, `1440×900`; обе темы; bookmark menu/status strip, search, drawer, tabs, list/subscription, player, episodes, dialogs, comments; horizontal overflow и console errors.
+Перед production merge остаётся обязательной браузерная matrix: `360×800`, `390×844`, `768×1024`, `1024×768`, `1440×900`; обе темы; bookmark menu/status chip/marker, search, drawer, tabs, list/subscription, player, episodes, dialogs, comments; horizontal overflow и console errors.
 
 ## Граница результата
 
