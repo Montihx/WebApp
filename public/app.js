@@ -46,6 +46,8 @@
     19: "watching",
     52991: "planned",
   };
+  const bookmarkSheetQuery = window.matchMedia("(max-width: 720px)");
+  let bookmarkScrim = null;
 
   function refreshIcons() {
     if (!window.lucide) return;
@@ -155,11 +157,104 @@
     }
   }
 
-  function closeBookmarkMenus(except = null) {
+  function bookmarkMenuCard(menu) {
+    return menu?._bookmarkCard || menu?.closest('[data-bookmark-card]') || null;
+  }
+
+  function bookmarkMenuTrigger(menu) {
+    return menu?._bookmarkTrigger || $('[data-bookmark-trigger]', bookmarkMenuCard(menu));
+  }
+
+  function ensureBookmarkScrim() {
+    if (bookmarkScrim) return bookmarkScrim;
+    bookmarkScrim = document.createElement("div");
+    bookmarkScrim.className = "bookmark-menu-scrim";
+    bookmarkScrim.dataset.bookmarkScrim = "";
+    bookmarkScrim.setAttribute("aria-hidden", "true");
+    bookmarkScrim.hidden = true;
+    bookmarkScrim.addEventListener("click", () => closeBookmarkMenus(null, { restoreFocus: true }));
+    body.append(bookmarkScrim);
+    return bookmarkScrim;
+  }
+
+  function setBookmarkMenuSemantics(menu, isSheet) {
+    const trigger = bookmarkMenuTrigger(menu);
+    const options = $(".bookmark-menu__options", menu);
+    const close = $('[data-bookmark-close]', menu);
+    const remove = $('[data-bookmark-remove]', menu);
+    const title = bookmarkMenuCard(menu)?.dataset.bookmarkTitle || "аниме";
+
+    trigger?.setAttribute("aria-haspopup", isSheet ? "dialog" : "menu");
+    menu.setAttribute("role", isSheet ? "dialog" : "menu");
+    if (isSheet) {
+      menu.setAttribute("aria-modal", "true");
+      menu.setAttribute("aria-labelledby", menu._bookmarkHeadingId);
+      menu.removeAttribute("aria-label");
+      options?.setAttribute("role", "menu");
+      options?.setAttribute("aria-label", "Выберите статус просмотра");
+      if (close) close.hidden = false;
+      remove?.setAttribute("role", "button");
+    } else {
+      menu.removeAttribute("aria-modal");
+      menu.removeAttribute("aria-labelledby");
+      menu.setAttribute("aria-label", `Статус закладки: ${title}`);
+      options?.setAttribute("role", "group");
+      options?.removeAttribute("aria-label");
+      if (close) close.hidden = true;
+      remove?.setAttribute("role", "menuitem");
+    }
+  }
+
+  function restoreBookmarkMenu(menu) {
+    const trigger = bookmarkMenuTrigger(menu);
+    menu.classList.remove("bookmark-menu--sheet");
+    if (trigger && menu.parentElement === body) trigger.insertAdjacentElement("afterend", menu);
+  }
+
+  function openBookmarkMenu(menu) {
+    const trigger = bookmarkMenuTrigger(menu);
+    const isSheet = bookmarkSheetQuery.matches;
+    setBookmarkMenuSemantics(menu, isSheet);
+
+    if (isSheet) {
+      const toastRegion = $("#toast-region");
+      if (toastRegion) $$(".toast", toastRegion).forEach((toast) => toast.remove());
+      const scrim = ensureBookmarkScrim();
+      scrim.hidden = false;
+      menu.classList.add("bookmark-menu--sheet");
+      body.append(menu);
+      body.classList.add("is-bookmark-sheet-open");
+    } else {
+      restoreBookmarkMenu(menu);
+    }
+
+    menu.hidden = false;
+    trigger?.setAttribute("aria-expanded", "true");
+    const selected = $('[aria-checked="true"]', menu) || $('[data-bookmark-option]', menu);
+    requestAnimationFrame(() => selected?.focus({ preventScroll: true }));
+  }
+
+  function closeBookmarkMenu(menu, { restoreFocus = false } = {}) {
+    if (!menu || menu.hidden) return;
+    const trigger = bookmarkMenuTrigger(menu);
+    const wasSheet = menu.classList.contains("bookmark-menu--sheet");
+    menu.hidden = true;
+    trigger?.setAttribute("aria-expanded", "false");
+
+    if (wasSheet) {
+      if (bookmarkScrim) bookmarkScrim.hidden = true;
+      body.classList.remove("is-bookmark-sheet-open");
+      restoreBookmarkMenu(menu);
+      setBookmarkMenuSemantics(menu, bookmarkSheetQuery.matches);
+    }
+
+    if (restoreFocus) trigger?.focus({ preventScroll: true });
+  }
+
+  function closeBookmarkMenus(except = null, options = {}) {
     $$('[data-bookmark-menu]').forEach((menu) => {
       if (menu === except || menu.hidden) return;
-      menu.hidden = true;
-      $('[data-bookmark-trigger]', menu.closest('[data-bookmark-card]'))?.setAttribute("aria-expanded", "false");
+      closeBookmarkMenu(menu, options);
     });
   }
 
@@ -171,18 +266,33 @@
     return encodeURIComponent(title.toLowerCase());
   }
 
-  function createBookmarkMenu(title) {
+  function createBookmarkMenu(title, index) {
     const menu = document.createElement("div");
     menu.className = "bookmark-menu";
     menu.dataset.bookmarkMenu = "";
     menu.hidden = true;
-    menu.setAttribute("role", "menu");
-    menu.setAttribute("aria-label", `Статус закладки: ${title}`);
 
     const heading = document.createElement("div");
     heading.className = "bookmark-menu__heading";
-    heading.innerHTML = "<strong>Мой список</strong><span>Выберите статус</span>";
-    menu.append(heading);
+    const headingCopy = document.createElement("div");
+    headingCopy.className = "bookmark-menu__heading-copy";
+    const headingTitle = document.createElement("strong");
+    headingTitle.id = `bookmark-menu-title-${index + 1}`;
+    headingTitle.textContent = "Статус просмотра";
+    const headingMeta = document.createElement("span");
+    headingMeta.textContent = title;
+    headingCopy.append(headingTitle, headingMeta);
+    const close = document.createElement("button");
+    close.type = "button";
+    close.className = "bookmark-menu__close";
+    close.dataset.bookmarkClose = "";
+    close.setAttribute("aria-label", "Закрыть выбор статуса");
+    close.innerHTML = '<i data-lucide="x"></i>';
+    close.hidden = true;
+    heading.append(headingCopy, close);
+
+    const options = document.createElement("div");
+    options.className = "bookmark-menu__options";
 
     BOOKMARK_STATUSES.forEach((status) => {
       const option = document.createElement("button");
@@ -196,8 +306,18 @@
         <span class="bookmark-menu__label">${status.label}</span>
         <i class="bookmark-menu__check" data-lucide="check"></i>
       `;
-      menu.append(option);
+      options.append(option);
     });
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "bookmark-menu__remove";
+    remove.dataset.bookmarkRemove = "";
+    remove.hidden = true;
+    remove.innerHTML = '<i data-lucide="bookmark-minus"></i><span>Убрать из списка</span>';
+
+    menu._bookmarkHeadingId = headingTitle.id;
+    menu.append(heading, options, remove);
 
     return menu;
   }
@@ -206,6 +326,8 @@
     const status = BOOKMARK_STATUS_BY_KEY[statusKey] || null;
     const trigger = $('[data-bookmark-trigger]', card);
     const bar = $('[data-bookmark-status-bar]', card);
+    const menu = card._bookmarkMenu || $('[data-bookmark-menu]', card);
+    const remove = $('[data-bookmark-remove]', menu);
     const title = card.dataset.bookmarkTitle || "аниме";
 
     card.dataset.bookmarkStatus = status?.key || "none";
@@ -226,16 +348,19 @@
       bar.textContent = status?.label || "";
     }
 
-    $$('[data-bookmark-option]', card).forEach((option) => {
+    $$('[data-bookmark-option]', menu).forEach((option) => {
       const selected = option.dataset.bookmarkOption === status?.key;
       option.setAttribute("aria-checked", String(selected));
       option.setAttribute(
         "aria-label",
-        selected
-          ? `${BOOKMARK_STATUS_BY_KEY[option.dataset.bookmarkOption].label}, выбрано. Нажмите, чтобы убрать из списка`
-          : BOOKMARK_STATUS_BY_KEY[option.dataset.bookmarkOption].label,
+        selected ? `${BOOKMARK_STATUS_BY_KEY[option.dataset.bookmarkOption].label}, выбрано` : BOOKMARK_STATUS_BY_KEY[option.dataset.bookmarkOption].label,
       );
     });
+
+    if (remove) {
+      remove.hidden = !status;
+      remove.setAttribute("aria-label", `Убрать «${title}» из списка`);
+    }
   }
 
   function setBookmarkStatus(cardId, statusKey) {
@@ -256,12 +381,16 @@
 
       const cardId = bookmarkCardId(card, index);
       const statusBar = document.createElement("span");
-      const menu = createBookmarkMenu(title);
+      const menu = createBookmarkMenu(title, index);
 
       card.dataset.bookmarkCard = "";
       card.dataset.bookmarkId = cardId;
       card.dataset.bookmarkTitle = title;
       card.classList.add("has-bookmark-control");
+      card._bookmarkMenu = menu;
+      menu._bookmarkCard = card;
+      menu._bookmarkTrigger = trigger;
+      menu.id = `bookmark-menu-${body.dataset.page || "page"}-${index + 1}`;
 
       statusBar.className = "bookmark-status-bar";
       statusBar.dataset.bookmarkStatusBar = "";
@@ -270,10 +399,11 @@
 
       trigger.classList.add("poster-bookmark-button");
       trigger.dataset.bookmarkTrigger = "";
-      trigger.setAttribute("aria-haspopup", "menu");
+      trigger.setAttribute("aria-controls", menu.id);
       trigger.setAttribute("aria-expanded", "false");
       poster.insertAdjacentElement("afterend", trigger);
       trigger.insertAdjacentElement("afterend", menu);
+      setBookmarkMenuSemantics(menu, bookmarkSheetQuery.matches);
 
       const storageKey = `kitsu-demo-bookmark-status-${cardId}`;
       const storedStatus = storage.get(storageKey);
@@ -287,46 +417,61 @@
         event.stopPropagation();
         const willOpen = menu.hidden;
         closeAllMenus(willOpen ? menu : null);
-        menu.hidden = !willOpen;
-        trigger.setAttribute("aria-expanded", String(willOpen));
-        if (willOpen) {
-          const selected = $('[aria-checked="true"]', menu) || $('[data-bookmark-option]', menu);
-          requestAnimationFrame(() => selected?.focus({ preventScroll: true }));
-        }
+        if (willOpen) openBookmarkMenu(menu);
+        else closeBookmarkMenu(menu, { restoreFocus: true });
       });
 
       menu.addEventListener("click", (event) => {
         event.stopPropagation();
+        if (event.target.closest('[data-bookmark-close]')) {
+          closeBookmarkMenu(menu, { restoreFocus: true });
+          return;
+        }
+        if (event.target.closest('[data-bookmark-remove]')) {
+          setBookmarkStatus(cardId, "none");
+          closeBookmarkMenu(menu, { restoreFocus: true });
+          showToast("Удалено из списка", "Состояние сохранено на этом устройстве.");
+          return;
+        }
         const option = event.target.closest('[data-bookmark-option]');
         if (!option) return;
         const selectedKey = option.dataset.bookmarkOption;
-        const nextStatus = card.dataset.bookmarkStatus === selectedKey ? "none" : selectedKey;
-        setBookmarkStatus(cardId, nextStatus);
-        closeBookmarkMenus();
-        trigger.focus({ preventScroll: true });
-        showToast(
-          nextStatus === "none" ? "Удалено из закладок" : `${BOOKMARK_STATUS_BY_KEY[nextStatus].label} — добавлено`,
-          "Состояние сохранено на этом устройстве.",
-        );
+        if (card.dataset.bookmarkStatus === selectedKey) {
+          closeBookmarkMenu(menu, { restoreFocus: true });
+          return;
+        }
+        setBookmarkStatus(cardId, selectedKey);
+        closeBookmarkMenu(menu, { restoreFocus: true });
+        showToast(`${BOOKMARK_STATUS_BY_KEY[selectedKey].label} — сохранено`, "Статус обновлён на этом устройстве.");
       });
 
       menu.addEventListener("keydown", (event) => {
         const options = $$('[data-bookmark-option]', menu);
-        const currentIndex = options.indexOf(document.activeElement);
+        const remove = $('[data-bookmark-remove]', menu);
+        const items = remove && !remove.hidden ? [...options, remove] : options;
+        const currentIndex = items.indexOf(document.activeElement);
         let nextIndex = currentIndex;
-        if (event.key === "ArrowDown") nextIndex = (currentIndex + 1) % options.length;
-        else if (event.key === "ArrowUp") nextIndex = (currentIndex - 1 + options.length) % options.length;
+        if (event.key === "ArrowDown") nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % items.length;
+        else if (event.key === "ArrowUp") nextIndex = currentIndex < 0 ? items.length - 1 : (currentIndex - 1 + items.length) % items.length;
         else if (event.key === "Home") nextIndex = 0;
-        else if (event.key === "End") nextIndex = options.length - 1;
+        else if (event.key === "End") nextIndex = items.length - 1;
         else if (event.key === "Escape") {
           event.preventDefault();
-          closeBookmarkMenus();
-          trigger.focus({ preventScroll: true });
+          event.stopPropagation();
+          closeBookmarkMenu(menu, { restoreFocus: true });
+          return;
+        } else if (event.key === "Tab" && !menu.classList.contains("bookmark-menu--sheet")) {
+          window.setTimeout(() => closeBookmarkMenu(menu), 0);
           return;
         } else return;
         event.preventDefault();
-        options[nextIndex]?.focus({ preventScroll: true });
+        items[nextIndex]?.focus({ preventScroll: true });
       });
+    });
+
+    bookmarkSheetQuery.addEventListener?.("change", () => {
+      closeBookmarkMenus();
+      $$('[data-bookmark-menu]').forEach((menu) => setBookmarkMenuSemantics(menu, bookmarkSheetQuery.matches));
     });
 
     refreshIcons();
@@ -544,20 +689,23 @@
     });
 
     document.addEventListener("click", (event) => {
-      if (!event.target.closest(".nav-menu-wrap, .popover-wrap, .list-control, .title-inline-actions")) closeAllMenus();
+      if (!event.target.closest(".nav-menu-wrap, .popover-wrap, .list-control, .title-inline-actions, .bookmark-menu")) closeAllMenus();
     });
 
     document.addEventListener("keydown", (event) => {
       const openDialogNode = $("dialog[open]");
       const openDrawerNode = $("#mobile-drawer.is-open");
-      trapFocus(event, openDialogNode || openDrawerNode);
+      const openBookmarkSheet = $$('.bookmark-menu--sheet').find((menu) => !menu.hidden);
+      trapFocus(event, openDialogNode || openDrawerNode || openBookmarkSheet);
 
       if (event.key === "/" && !event.metaKey && !event.ctrlKey && !event.altKey && !event.target.matches("input, textarea, select")) {
         event.preventDefault();
         openSearch();
       }
       if (event.key === "Escape") {
+        const openBookmarkNode = $$('[data-bookmark-menu]').find((menu) => !menu.hidden);
         closeAllMenus();
+        if (openBookmarkNode) bookmarkMenuTrigger(openBookmarkNode)?.focus({ preventScroll: true });
         closeDrawer();
       }
     });
