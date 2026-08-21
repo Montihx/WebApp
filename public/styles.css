@@ -322,6 +322,10 @@ body.is-locked {
   overflow: hidden;
 }
 
+body.is-bookmark-sheet-open {
+  overflow: hidden;
+}
+
 button,
 input,
 select,
@@ -1823,15 +1827,16 @@ html[data-theme="light"] .hero-art img {
   z-index: 10;
   top: 46px;
   right: 8px;
-  width: 198px;
+  width: 212px;
   display: grid;
-  gap: 2px;
+  gap: 0;
   padding: 7px;
   border: 1px solid var(--line-strong);
   border-radius: 12px;
   background: color-mix(in srgb, var(--surface) 94%, transparent);
   box-shadow: var(--shadow-menu);
   backdrop-filter: blur(18px) saturate(112%);
+  animation: bookmark-popover-in 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .bookmark-menu[hidden] {
@@ -1840,25 +1845,64 @@ html[data-theme="light"] .hero-art img {
 
 .bookmark-menu__heading {
   display: grid;
-  gap: 2px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
   margin: 1px 2px 5px;
   padding: 0 5px 7px;
   border-bottom: 1px solid var(--line);
 }
 
-.bookmark-menu__heading strong {
+.bookmark-menu__heading-copy {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.bookmark-menu__heading-copy strong {
   color: var(--text);
   font-size: 10px;
   font-weight: 750;
 }
 
-.bookmark-menu__heading span {
+.bookmark-menu__heading-copy span {
+  overflow: hidden;
   color: var(--text-muted);
   font-size: 8px;
   font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.bookmark-menu button {
+.bookmark-menu__close {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+}
+
+.bookmark-menu__close:hover,
+.bookmark-menu__close:focus-visible {
+  border-color: var(--line-strong);
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.bookmark-menu__close svg {
+  width: 15px;
+  height: 15px;
+}
+
+.bookmark-menu__options {
+  display: grid;
+  gap: 2px;
+}
+
+.bookmark-menu [data-bookmark-option] {
   position: relative;
   display: grid;
   min-width: 0;
@@ -1874,20 +1918,20 @@ html[data-theme="light"] .hero-art img {
   transition: background var(--ease), border-color var(--ease), color var(--ease);
 }
 
-.bookmark-menu button:hover,
-.bookmark-menu button:focus-visible {
+.bookmark-menu [data-bookmark-option]:hover,
+.bookmark-menu [data-bookmark-option]:focus-visible {
   border-color: var(--line);
   background: var(--surface-hover);
   color: var(--text);
 }
 
-.bookmark-menu button[aria-checked="true"] {
+.bookmark-menu [data-bookmark-option][aria-checked="true"] {
   border-color: var(--line);
   background: var(--surface-raised);
   color: var(--text);
 }
 
-.bookmark-menu button[aria-checked="true"]::before {
+.bookmark-menu [data-bookmark-option][aria-checked="true"]::before {
   position: absolute;
   top: 9px;
   bottom: 9px;
@@ -1926,8 +1970,72 @@ html[data-theme="light"] .hero-art img {
   opacity: 0;
 }
 
-.bookmark-menu button[aria-checked="true"] .bookmark-menu__check {
+.bookmark-menu [data-bookmark-option][aria-checked="true"] .bookmark-menu__check {
   opacity: 1;
+}
+
+.bookmark-menu__remove {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 8px;
+  margin: 5px 2px 0;
+  padding: 8px 7px 4px;
+  border-top: 1px solid var(--line);
+  color: var(--text-muted);
+  font-size: 9px;
+  font-weight: 700;
+  text-align: left;
+  transition: background var(--ease), color var(--ease);
+}
+
+.bookmark-menu__remove:hover,
+.bookmark-menu__remove:focus-visible {
+  border-radius: 0 0 8px 8px;
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.bookmark-menu__remove svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
+.bookmark-menu-scrim {
+  position: fixed;
+  z-index: 290;
+  inset: 0;
+  background: rgba(5, 5, 6, 0.62);
+  backdrop-filter: blur(3px);
+  animation: bookmark-scrim-in 160ms ease-out;
+}
+
+@keyframes bookmark-popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bookmark-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes bookmark-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .wide-link {
@@ -4489,6 +4597,78 @@ img.is-image-error {
     padding-bottom: 68px;
   }
 
+  .bookmark-menu.bookmark-menu--sheet {
+    position: fixed;
+    z-index: 300;
+    top: auto;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    left: 12px;
+    width: auto;
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 10px;
+    border-color: var(--line-strong);
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--surface) 97%, transparent);
+    box-shadow: var(--shadow-dialog);
+    animation: bookmark-sheet-in 190ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .bookmark-menu--sheet .bookmark-menu__heading {
+    margin: 0 0 7px;
+    padding: 2px 2px 10px 4px;
+  }
+
+  .bookmark-menu--sheet .bookmark-menu__heading-copy {
+    gap: 3px;
+  }
+
+  .bookmark-menu--sheet .bookmark-menu__heading-copy strong {
+    font-size: 14px;
+  }
+
+  .bookmark-menu--sheet .bookmark-menu__heading-copy span {
+    font-size: 10px;
+  }
+
+  .bookmark-menu--sheet .bookmark-menu__options {
+    gap: 3px;
+  }
+
+  .bookmark-menu--sheet [data-bookmark-option] {
+    min-height: 48px;
+    grid-template-columns: 26px minmax(0, 1fr) 18px;
+    gap: 10px;
+    padding: 7px 11px;
+    border-radius: 11px;
+    touch-action: manipulation;
+  }
+
+  .bookmark-menu--sheet .bookmark-menu__icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .bookmark-menu--sheet .bookmark-menu__icon svg,
+  .bookmark-menu--sheet .bookmark-menu__check {
+    width: 15px;
+    height: 15px;
+  }
+
+  .bookmark-menu--sheet .bookmark-menu__label {
+    font-size: 12px;
+  }
+
+  .bookmark-menu--sheet .bookmark-menu__remove {
+    min-height: 46px;
+    margin-top: 7px;
+    padding: 10px 11px 5px;
+    font-size: 11px;
+    touch-action: manipulation;
+  }
+
   .site-footer {
     display: none;
   }
@@ -4852,20 +5032,6 @@ img.is-image-error {
 
   .anime-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .bookmark-menu {
-    width: min(210px, calc(100vw - 32px));
-  }
-
-  .anime-card:nth-child(odd) .bookmark-menu {
-    right: auto;
-    left: 8px;
-  }
-
-  .anime-card:nth-child(even) .bookmark-menu {
-    right: 8px;
-    left: auto;
   }
 
   .collection-card {

@@ -29,7 +29,7 @@ Anime Graphite строит иерархию контрастом нейтрал
 
 ## Типографика
 
-- Display: Outfit 500–800 с локальным Manrope fallback для кириллицы.
+- Display: Onest 500–800 с локальными Latin/Cyrillic subsets.
 - Body: Manrope 400–700, отдельные Latin/Cyrillic subsets.
 - H1 public hero: fluid `clamp`, короткая строка и максимальная визуальная роль.
 - Section kicker: маленький uppercase/letter-spacing label; не заменяет настоящий heading.
@@ -52,17 +52,26 @@ Anime Graphite строит иерархию контрастом нейтрал
 - Empty state объясняет следующий шаг, но не утверждает, что network error равен пустому ответу.
 - Dialog закрывается `Esc`, кликом по backdrop и явной кнопкой; focus остаётся внутри и возвращается вызывающему control.
 
+### Закладки на постере
+
+- Сохраняется UX-идея пяти статусов, но внешний вид строится только на токенах Anime Graphite.
+- На ширине `>720 px` кнопка открывает привязанный к карточке popover с `role="menu"`, arrow/Home/End navigation и возвратом focus по `Escape`.
+- На ширине `≤720 px` тот же сценарий открывается как modal bottom sheet: portal в `body`, scrim над bottom navigation, scroll lock, focus trap, safe-area offset и touch targets не меньше `44 px`.
+- Повторный выбор уже активного radio-статуса ничего не удаляет. Удаление — отдельное подписанное действие «Убрать из списка».
+- Статус остаётся видимым на закрытой карточке через компактный текстовый чип и тонкий нижний маркер; цвет не является единственным носителем смысла.
+- Поведение desktop menu-button следует [WAI-ARIA APG](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/); мобильная композиция использует modal sheet pattern из [Material Design 3](https://m3.material.io/components/bottom-sheets) и [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/sheets), без копирования их визуального стиля.
+
 ## Responsive contract
 
 | Ширина | Поведение |
 | --- | --- |
-| `>1180` | полная desktop navigation, 5-column catalog grid, двухколоночный player |
-| `≤1180` | desktop nav скрыта, 4-column catalog grid |
-| `≤920` | mobile drawer, расписание/обновления в одну колонку (была 2), player panel под видео |
+| `>1180` | полная desktop navigation, 6-column catalog grid, двухколоночный player |
+| `≤1180` | desktop nav скрыта, 5-column catalog grid |
+| `≤920` | mobile drawer, 4-column catalog grid, расписание/обновления в одну колонку, player panel под видео |
 | `≤720` | fixed bottom navigation, media hero stacked, 3-column poster grid |
 | `≤460` | 2-column poster/episode grid, компактные title actions |
 
-Каталог: `.anime-grid` — 5/4/3/2 колонки по брейкпоинтам выше (не 4 фиксированные). Блок «Расписание + Обновления аниме» (`.schedule-updates-grid`) — отдельная 2-колоночная секция под каталогом, схлопывается в 1 колонку при `≤920`.
+Каталог: `.anime-grid` — 6/5/4/3/2 колонки по брейкпоинтам выше. Блок «Расписание + Обновления аниме» (`.schedule-updates-grid`) — отдельная 2-колоночная секция под каталогом, схлопывается в 1 колонку при `≤920`.
 
 Минимальная поддерживаемая ширина — `320 px`. Горизонтальный скролл допустим только в явно обозначенных rails/tabs.
 

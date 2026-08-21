@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-21T04:20:41.146Z",
+  "generated_at": "2026-08-21T04:39:10.019Z",
   "summary": {
     "status": "pass",
     "total": 31,
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "717 блоков, структура сбалансирована"
+      "detail": "744 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -133,7 +133,7 @@
       "id": "css.bookmarks",
       "label": "CSS: закладки на постере",
       "status": "pass",
-      "detail": "кнопка, компактное меню, статусный чип и нижний маркер оформлены токенами темы"
+      "detail": "desktop popover, mobile sheet, явное удаление, статусный чип и нижний маркер оформлены токенами темы"
     },
     {
       "id": "css.contrast.dark",
@@ -181,7 +181,7 @@
       "id": "js.bookmarks",
       "label": "JS: статусы закладок",
       "status": "pass",
-      "detail": "5 статусов используют токены темы; локальное сохранение и синхронизация карточек присутствуют"
+      "detail": "5 статусов используют токены темы; desktop popover, mobile sheet, явное удаление, сохранение и синхронизация присутствуют"
     },
     {
       "id": "assets.fontInventory",
