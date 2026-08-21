@@ -971,7 +971,7 @@
     planned: "Запланировано",
     on_hold: "Отложено",
     dropped: "Брошено",
-    none: "В мой список",
+    none: "Не смотрю",
   };
 
   const subscriptionLabels = {
