@@ -696,7 +696,7 @@
     });
 
     document.addEventListener("click", (event) => {
-      if (!event.target.closest(".nav-menu-wrap, .popover-wrap, .list-control, .title-inline-actions, .bookmark-menu")) closeAllMenus();
+      if (!event.target.closest(".nav-menu-wrap, .popover-wrap, .list-control, .episode-subscribe, .bookmark-menu")) closeAllMenus();
     });
 
     document.addEventListener("keydown", (event) => {
@@ -998,11 +998,19 @@
   }
 
   function syncSubscriptionState() {
-    $$('[data-subscribe]').forEach((item) => item.classList.toggle("is-active", item.dataset.subscribe === state.subscription));
+    $$('[data-subscribe]').forEach((item) => {
+      const active = item.dataset.subscribe === state.subscription;
+      item.classList.toggle("is-active", active);
+      item.setAttribute("aria-checked", String(active));
+    });
     const trigger = $("#subscribe-trigger");
     if (!trigger) return;
     const text = $("span", trigger);
     if (text) text.textContent = subscriptionLabels[state.subscription] || subscriptionLabels.none;
+    trigger.classList.toggle("is-active", state.subscription !== "none");
+    trigger.setAttribute("aria-label", state.subscription === "none"
+      ? "Настроить уведомления о тайтле"
+      : `${subscriptionLabels[state.subscription]}. Изменить уведомления`);
   }
 
   function syncPlayer() {
@@ -1129,12 +1137,35 @@
       event.stopPropagation();
       toggleMenu(event.currentTarget, $("#subscribe-menu"));
     });
+    $("#subscribe-menu")?.addEventListener("keydown", (event) => {
+      const menu = event.currentTarget;
+      const items = $$('[data-subscribe]', menu);
+      const currentIndex = items.indexOf(document.activeElement);
+      let nextIndex = currentIndex;
+      if (event.key === "ArrowDown") nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % items.length;
+      else if (event.key === "ArrowUp") nextIndex = currentIndex < 0 ? items.length - 1 : (currentIndex - 1 + items.length) % items.length;
+      else if (event.key === "Home") nextIndex = 0;
+      else if (event.key === "End") nextIndex = items.length - 1;
+      else if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        closeMenu($("#subscribe-trigger"), menu);
+        $("#subscribe-trigger")?.focus({ preventScroll: true });
+        return;
+      } else if (event.key === "Tab") {
+        window.setTimeout(() => closeMenu($("#subscribe-trigger"), menu), 0);
+        return;
+      } else return;
+      event.preventDefault();
+      items[nextIndex]?.focus({ preventScroll: true });
+    });
     $$('[data-subscribe]').forEach((control) => {
       control.addEventListener("click", () => {
         state.subscription = control.dataset.subscribe;
         storage.set("kitsu-demo-subscription", state.subscription);
         syncSubscriptionState();
         closeMenu($("#subscribe-trigger"), $("#subscribe-menu"));
+        $("#subscribe-trigger")?.focus({ preventScroll: true });
         showToast(state.subscription === "none" ? "Уведомления выключены" : "Настройка сохранена", subscriptionLabels[state.subscription]);
       });
     });
@@ -1167,20 +1198,6 @@
 
     $$('[data-scroll-player]').forEach((control) => control.addEventListener("click", () => scrollToTarget("#player")));
     $$('[data-scroll-comments]').forEach((control) => control.addEventListener("click", () => scrollToTarget("#comments")));
-
-    $$('[data-share]').forEach((control) => control.addEventListener("click", async () => {
-      const url = window.location.href;
-      try {
-        if (navigator.share) {
-          await navigator.share({ title: document.title, url });
-          return;
-        }
-        await navigator.clipboard.writeText(url);
-        showToast("Ссылка скопирована", "Её можно отправить в сообщении.");
-      } catch (error) {
-        if (error?.name !== "AbortError") showToast("Не удалось скопировать", "Скопируйте адрес из строки браузера.", "danger");
-      }
-    }));
 
     $("#player-toggle")?.addEventListener("click", () => {
       state.playing = !state.playing;

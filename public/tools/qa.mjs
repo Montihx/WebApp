@@ -177,6 +177,7 @@ const titleMobileCssTokens = [
   ".title-mobile-actions",
   ".title-mobile-watch",
   ".title-list-dialog",
+  ".episode-subscribe__trigger",
   "@keyframes bottom-sheet-in",
 ];
 const missingTitleMobileCss = titleMobileCssTokens.filter((token) => !css.includes(token));
@@ -184,7 +185,7 @@ add(
   "css.titleMobile",
   "CSS: mobile title hierarchy",
   missingTitleMobileCss.length === 0,
-  missingTitleMobileCss.length ? `Не найдены: ${missingTitleMobileCss.join(", ")}` : "контекстный toolbar, полный постер, быстрые действия и list sheet оформлены",
+  missingTitleMobileCss.length ? `Не найдены: ${missingTitleMobileCss.join(", ")}` : "контекстный toolbar, полный постер, компактные metadata, уведомления у серий и list sheet оформлены",
 );
 
 const playerSettingsCssTokens = [
@@ -334,6 +335,27 @@ add(
   "HTML: мобильный тайтл и список",
   missingTitleInteractions.length === 0 && count(animeSource, /data-list-status=/g) === 12,
   missingTitleInteractions.length ? `Не найдены: ${missingTitleInteractions.join(", ")}` : "desktop/mobile triggers и 5 статусов с отдельным удалением синхронизированы",
+);
+const episodesSectionIndex = animeSource.indexOf('class="episodes-section"');
+const subscriptionIndex = animeSource.indexOf('id="subscribe-trigger"');
+const relatedSectionIndex = animeSource.indexOf('aria-labelledby="related-title"');
+add(
+  "html.titleNotifications",
+  "HTML: уведомления рядом с сериями",
+  episodesSectionIndex >= 0 && subscriptionIndex > episodesSectionIndex && (relatedSectionIndex < 0 || subscriptionIndex < relatedSectionIndex),
+  "trigger подписки расположен в toolbar списка серий",
+);
+add(
+  "html.titleNoShare",
+  "HTML: share-действие удалено",
+  !animeSource.includes("data-share") && !animeSource.includes("Поделиться") && !js.includes("navigator.share"),
+  "в HTML и JS нет отдельного share-сценария",
+);
+add(
+  "html.titleNoDuplicateDetails",
+  "HTML: нет повторной карточки подробностей",
+  !animeSource.includes("details-title") && !animeSource.includes("Карточка тайтла") && !animeSource.includes('class="details-list"'),
+  "метаданные представлены один раз в title hero",
 );
 const unsupportedPlayerControls = ["мини-плеер", "скачать серию"].filter((label) => animeSource.toLowerCase().includes(label));
 add(
