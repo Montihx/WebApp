@@ -1499,12 +1499,12 @@ html[data-theme="light"] .hero-art img {
 
 .anime-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 20px 14px;
 }
 
-.anime-grid--compact {
-  grid-template-columns: repeat(auto-fill, minmax(168px, 200px));
+.anime-grid.anime-grid--compact {
+  grid-template-columns: repeat(auto-fill, minmax(152px, 184px));
 }
 
 .reveal-item {
@@ -1521,6 +1521,7 @@ html[data-theme="light"] .hero-art img {
 }
 
 .anime-card {
+  position: relative;
   min-width: 0;
   transition: opacity var(--ease), transform var(--ease);
 }
@@ -1608,6 +1609,11 @@ html[data-theme="light"] .hero-art img {
 
 .episode-badge {
   right: 9px;
+  transition: right var(--ease);
+}
+
+.anime-card.has-bookmark-control .episode-badge {
+  right: 50px;
 }
 
 .poster-action {
@@ -1645,9 +1651,43 @@ html[data-theme="light"] .hero-art img {
   transform: translateY(0);
 }
 
+.anime-card.has-bookmark-status .poster-action {
+  bottom: 34px;
+}
+
+.bookmark-status-bar {
+  position: absolute;
+  z-index: 5;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-top: 1px solid color-mix(in srgb, var(--bookmark-color) 78%, #ffffff 22%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--bookmark-color) 72%, rgba(13, 13, 15, 0.4)),
+    color-mix(in srgb, var(--bookmark-color) 88%, rgba(13, 13, 15, 0.24))
+  );
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.045em;
+  line-height: 1.2;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.54);
+}
+
+.bookmark-status-bar[hidden] {
+  display: none;
+}
+
 .card-title-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 30px;
+  grid-template-columns: minmax(0, 1fr);
   gap: 5px;
   align-items: start;
   margin-top: 10px;
@@ -1696,6 +1736,121 @@ html[data-theme="light"] .hero-art img {
 
 .bookmark-button.is-active svg {
   fill: currentColor;
+}
+
+.bookmark-button.poster-bookmark-button {
+  position: absolute;
+  z-index: 8;
+  top: 8px;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  border-color: rgba(255, 255, 255, 0.18);
+  border-radius: 9px;
+  background: rgba(13, 13, 15, 0.66);
+  color: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 7px 20px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(10px);
+  transition:
+    background var(--ease),
+    border-color var(--ease),
+    color var(--ease),
+    transform var(--ease);
+}
+
+.bookmark-button.poster-bookmark-button:hover,
+.bookmark-button.poster-bookmark-button:focus-visible,
+.bookmark-button.poster-bookmark-button[aria-expanded="true"] {
+  border-color: rgba(255, 255, 255, 0.32);
+  background: rgba(13, 13, 15, 0.82);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.bookmark-button.poster-bookmark-button.is-active {
+  border-color: color-mix(in srgb, var(--bookmark-color) 76%, #ffffff 24%);
+  background: color-mix(in srgb, var(--bookmark-color) 72%, rgba(13, 13, 15, 0.28));
+  color: #ffffff;
+}
+
+.bookmark-menu {
+  position: absolute;
+  z-index: 10;
+  top: 48px;
+  right: 8px;
+  left: 8px;
+  display: grid;
+  gap: 3px;
+  padding: 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 13px;
+  background: var(--surface);
+  box-shadow: var(--shadow-menu);
+}
+
+.bookmark-menu[hidden] {
+  display: none;
+}
+
+.bookmark-menu button {
+  display: grid;
+  min-width: 0;
+  min-height: 34px;
+  grid-template-columns: 22px minmax(0, 1fr) 16px;
+  gap: 7px;
+  align-items: center;
+  padding: 5px 7px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--text-secondary);
+  text-align: left;
+  transition: background var(--ease), border-color var(--ease), color var(--ease);
+}
+
+.bookmark-menu button:hover,
+.bookmark-menu button:focus-visible {
+  border-color: var(--line);
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.bookmark-menu button[aria-checked="true"] {
+  border-color: color-mix(in srgb, var(--bookmark-color) 36%, var(--line));
+  background: color-mix(in srgb, var(--bookmark-color) 12%, var(--surface));
+  color: var(--text);
+}
+
+.bookmark-menu__icon {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--bookmark-color) 13%, transparent);
+  color: var(--bookmark-color);
+}
+
+.bookmark-menu__icon svg,
+.bookmark-menu__check {
+  width: 13px;
+  height: 13px;
+}
+
+.bookmark-menu__label {
+  overflow: hidden;
+  font-size: 10px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bookmark-menu__check {
+  color: var(--bookmark-color);
+  opacity: 0;
+}
+
+.bookmark-menu button[aria-checked="true"] .bookmark-menu__check {
+  opacity: 1;
 }
 
 .wide-link {
@@ -3942,7 +4097,7 @@ img.is-image-error {
   }
 
   .anime-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .schedule-updates-grid {
@@ -3969,6 +4124,10 @@ img.is-image-error {
 @media (max-width: 920px) {
   :root {
     --header-height: 60px;
+  }
+
+  .anime-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .header-inner {
@@ -4396,12 +4555,16 @@ img.is-image-error {
   }
 
   .card-title-row {
-    grid-template-columns: minmax(0, 1fr) 27px;
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .bookmark-button {
-    width: 27px;
-    height: 27px;
+  .bookmark-button.poster-bookmark-button {
+    width: 31px;
+    height: 31px;
+  }
+
+  .anime-card.has-bookmark-control .episode-badge {
+    right: 46px;
   }
 
   .schedule-list {
@@ -4612,6 +4775,20 @@ img.is-image-error {
 
   .anime-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bookmark-menu {
+    width: min(210px, calc(100vw - 32px));
+  }
+
+  .anime-card:nth-child(odd) .bookmark-menu {
+    right: auto;
+    left: 8px;
+  }
+
+  .anime-card:nth-child(even) .bookmark-menu {
+    right: 8px;
+    left: auto;
   }
 
   .collection-card {
