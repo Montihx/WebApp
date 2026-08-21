@@ -34,9 +34,11 @@
 
 - Переиспользовать токены из `docs/DESIGN_SYSTEM.md`; public и dashboard должны выглядеть как один продукт.
 - Сохранить крупную медийную иерархию public hero, но избегать neon/glow, gradient text, glassmorphism и bento ради bento.
+- Сохранить API-driven пять слайдов, `7000 ms` timer и controls production `Hero`, добавив явную pause, keyboard и touch swipe из шаблона; fixture-разметку слайдов в компонент не переносить.
 - Фиолетовый accent занимает малую площадь. Green — только success, amber — warning, red — error/destructive, blue — info.
 - Все icon-only controls получают accessible name; keyboard focus и `prefers-reduced-motion` обязательны.
 - На `360/390 px` нижняя навигация не перекрывает контент, плеер не создаёт horizontal overflow, source/translation остаются читаемыми.
+- На `≤720 px` title list и player settings остаются modal bottom sheets с focus return; download и mini-player не добавлять, пока фактический runtime не подтвердит эти возможности.
 
 ## Рекомендуемый порядок
 

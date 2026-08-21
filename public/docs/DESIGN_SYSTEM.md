@@ -31,7 +31,7 @@ Anime Graphite строит иерархию контрастом нейтрал
 
 - Display: Onest 500–800 с локальными Latin/Cyrillic subsets.
 - Body: Manrope 400–700, отдельные Latin/Cyrillic subsets.
-- H1 public hero: fluid `clamp`, короткая строка и максимальная визуальная роль.
+- H1 на главной остаётся доступным названием страницы; видимые названия слайдов — H2 с fluid `clamp`, короткой строкой и максимальной визуальной ролью.
 - Section kicker: маленький uppercase/letter-spacing label; не заменяет настоящий heading.
 - Метаданные используют tabular hierarchy, но не имитируют dashboard-таблицу.
 
@@ -61,15 +61,29 @@ Anime Graphite строит иерархию контрастом нейтрал
 - Статус всегда виден в полноширинной полоске вдоль нижнего края постера: текст «Смотрю», «Запланировано» и т. д. остаётся главным носителем смысла, а семантический цвет только усиливает различие.
 - Поведение desktop menu-button следует [WAI-ARIA APG](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/); мобильная композиция использует modal sheet pattern из [Material Design 3](https://m3.material.io/components/bottom-sheets) и [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/sheets), без копирования их визуального стиля.
 
+### Hero-слайдер
+
+- На desktop hero занимает всю ширину viewport, как production `Hero.tsx`: размытый фон, более резкий фокусный слой и тёмные маски для текста. Синие production-акценты не копируются — каждый слайд получает приглушённый mauve/amber/rose/sage tone.
+- На mobile тот же контент перекомпонован в один ограниченный контейнер: изображение занимает верхнюю часть, текст и действия закреплены снизу, описание ограничено двумя строками.
+- Автопрокрутка — `7000 ms`; пользователь может поставить её на паузу. Hover/focus, hidden document и `prefers-reduced-motion` останавливают таймер.
+- Доступны предыдущий/следующий слайд, индикаторы, `ArrowLeft`/`ArrowRight` и горизонтальный touch swipe. Неактивные слайды исключаются из tab-порядка.
+
+### Мобильная страница тайтла
+
+- На `≤720 px` общий header заменяется контекстным toolbar: back слева, текущее состояние списка справа. Постер показывается целиком по пропорции `2:3` поверх спокойного размытого backdrop.
+- Под названием расположены только три быстрых элемента: статус списка, score и комментарии; следом — одно главное действие просмотра. Дублирующие карточки статистики скрыты, данные превращаются в читаемые строки.
+- Статус списка меняется в modal bottom sheet с пятью подтверждёнными категориями и отдельным destructive удалением. Desktop сохраняет компактный привязанный popover.
+- Player settings используют dialog на desktop и bottom sheet на mobile. Внутри только подтверждённые controls: quality, speed, mode, auto-next, skip opening и skip ending; download и mini-player не обещаются без runtime-контракта.
+
 ## Responsive contract
 
 | Ширина | Поведение |
 | --- | --- |
-| `>1180` | полная desktop navigation, 6-column catalog grid, двухколоночный player |
-| `≤1180` | desktop nav скрыта, 5-column catalog grid |
-| `≤920` | mobile drawer, 4-column catalog grid, расписание/обновления в одну колонку, player panel под видео |
-| `≤720` | fixed bottom navigation, media hero stacked, 3-column poster grid |
-| `≤460` | 2-column poster/episode grid, компактные title actions |
+| `>1180` | полная desktop navigation, полноширинный hero, 6-column catalog grid, двухколоночный player |
+| `≤1180` | desktop nav скрыта, 5-column catalog grid, hero сохраняет media-first композицию |
+| `≤920` | mobile drawer доступен, 4-column catalog grid, расписание/обновления в одну колонку, player panel под видео |
+| `≤720` | fixed bottom navigation, mobile hero со свайпом, immersive title hero и bottom sheets, 3-column poster grid |
+| `≤460` | 2-column poster/episode grid, компактные title actions без потери touch targets |
 
 Каталог: `.anime-grid` — 6/5/4/3/2 колонки по брейкпоинтам выше. Блок «Расписание + Обновления аниме» (`.schedule-updates-grid`) — отдельная 2-колоночная секция под каталогом, схлопывается в 1 колонку при `≤920`.
 

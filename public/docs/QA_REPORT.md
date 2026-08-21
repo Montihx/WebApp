@@ -4,8 +4,8 @@
 
 ## Итог
 
-- `31/31` автоматических статических проверок — pass (`node tools/qa.mjs`);
-- `58/58` браузерных проверок — pass (Chrome for Testing + Playwright);
+- `37/37` автоматических статических проверок — pass (`node tools/qa.mjs`);
+- `95/95` браузерных проверок — pass: `58` regression + `37` целевых для hero/title/player (Chrome for Testing + Playwright);
 - `2/2` HTML documents разобраны без parser errors;
 - `0` duplicate IDs;
 - `0` unresolved `aria-controls`, `aria-labelledby` и label `for` references;
@@ -13,13 +13,13 @@
 - `0` buttons без явного `type`;
 - `0` images без `alt`;
 - `0` bare `href="#"`/`javascript:` links;
-- CSS: структура из `744` блоков сбалансирована, контрольные точки `1180`/`920`/`720`/`460 px`;
+- CSS: структура из `845` блоков сбалансирована, контрольные точки `1180`/`920`/`720`/`460 px`;
 - `node --check app.js` — pass;
 - `24` локальных WOFF2 font-файлов подключено;
-- `11` ключевых JS interaction families и отдельный пятистатусный bookmark-сценарий обнаружены QA-script;
+- `15` ключевых JS interaction families и отдельный пятистатусный bookmark-сценарий обнаружены QA-script;
 - сетка постеров подтверждена как `6/5/4/3/2` колонок на desktop/tablet/mobile gates;
 - отдельный runtime-harness: `18/18` — адаптивная структура, выбор, явное удаление, защита от случайного toggle-off, persistence, синхронизация дубликатов и keyboard focus;
-- browser runtime: карточка `213.9 px` при `1440 px`; desktop popover не выходит за viewport; mobile sheet имеет отступ `12 px`, 48-px touch targets и правильный слой над bottom navigation; horizontal overflow `0 px`;
+- browser runtime: hero `1440×590 px` на desktop и `358×590 px` на mobile; карточка каталога `213.9 px` при `1440 px`; desktop popover не выходит за viewport; poster bookmark sheet имеет отступ `12 px`, а title list/player sheets прижаты к нижней границе; horizontal overflow `0 px`;
 - `18` contrast pairs (9 на тему), минимум `4.97:1`.
 
 Полный machine-readable результат: `qa-results.json`. Повторный запуск:
@@ -35,9 +35,12 @@ node tools/qa.mjs --write
 - global search, keyboard navigation и empty result;
 - menus/popovers, outside click и mobile drawer focus;
 - catalog/schedule roving tabs;
+- hero: пять слайдов, 7-секундный progress, pause, arrows, dots, keyboard, swipe и исключение скрытых ссылок из tab-порядка;
 - bookmark overlay на постере, desktop popover, mobile modal sheet, пять статусов на токенах темы, явное удаление, полноширинная нижняя полоска с текстом статуса, persistence и синхронизация одинаковых тайтлов;
-- list/subscription local states;
+- mobile title: скрытие общего header, контекстный toolbar, poster `2:3`, расположение info icon, touch targets и линейные metadata rows;
+- list/subscription local states; отдельный title list sheet синхронизирует mobile/desktop labels и возвращает focus;
 - dialogs, backdrop/Escape close и focus trap;
+- player settings: desktop dialog/mobile bottom sheet, три select и три синхронных switch без неподтверждённых mini-player/download controls;
 - source/translation summary и player controls;
 - episode selection, incremental load и grid/list view;
 - remote image failure state;
@@ -62,9 +65,9 @@ node tools/qa.mjs --write
 
 ## Ограничение среды
 
-Изменения проверены в реальном Chrome for Testing: главная и title page, dark/light desktop и mobile sheet просмотрены по контрольным снимкам, все `58/58` interaction/layout checks прошли, JavaScript console/page errors — `0`.
+Изменения проверены в реальном Chrome for Testing: главная и title page, dark/light, desktop/tablet/mobile, list/player sheets просмотрены по контрольным снимкам. Все `95/95` interaction/layout checks прошли, JavaScript console/page errors — `0`.
 
-В изолированной среде внешние poster URL Shikimori возвращали transport errors. Это не скрыто как успешная загрузка: сработало штатное состояние «Изображение недоступно», а геометрия карточек, bookmark overlay и полноширинная статусная полоска остались корректными. Сами production-постеры этим прогоном не подтверждаются.
+В изолированной среде внешние poster URL Shikimori возвращали transport errors. Regression-прогон подтвердил штатное состояние «Изображение недоступно». Целевой visual harness подставлял детерминированные локальные SVG-fixtures только для проверки crop/mask/геометрии hero и постера; сами production-постеры этим прогоном не подтверждаются.
 
 Перед production merge остаётся обязательной браузерная matrix: `360×800`, `390×844`, `768×1024`, `1024×768`, `1440×900`; обе темы; bookmark popover/sheet/status strip, search, drawer, tabs, list/subscription, player, episodes, dialogs, comments; horizontal overflow и console errors.
 

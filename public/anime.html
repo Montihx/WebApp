@@ -83,6 +83,10 @@
 
     <main id="main-content">
       <section class="title-hero" id="title-info" aria-labelledby="title-name">
+        <div class="title-mobile-toolbar" aria-label="Действия страницы">
+          <a class="title-mobile-toolbar__button" href="./index.html" aria-label="Вернуться на главную"><i data-lucide="arrow-left"></i></a>
+          <button class="title-mobile-toolbar__button" type="button" data-open-mobile-list aria-label="Изменить статус в списке" aria-haspopup="dialog" aria-controls="mobile-list-menu"><i data-lucide="bookmark-plus"></i></button>
+        </div>
         <div class="title-backdrop" aria-hidden="true">
           <div class="title-backdrop-plane"></div>
           <img src="https://shikimori.one/system/animes/original/19.jpg" alt="" fetchpriority="high" referrerpolicy="no-referrer" />
@@ -116,9 +120,15 @@
             <div class="title-main-copy">
               <div class="title-status-line"><span class="status-pill status-pill--released"><span></span>Завершён</span><span>TV-сериал</span><span>2004</span></div>
               <div class="title-heading-row">
-                <div><h1 id="title-name">Монстр</h1><p>Monster · モンスター</p></div>
+                <div><h1 id="title-name">Монстр</h1><p>Monster <span class="mobile-age-badge">R-17</span></p></div>
                 <button class="icon-button title-info-button" type="button" data-open-titles aria-label="Все названия"><i data-lucide="info"></i></button>
               </div>
+              <div class="title-mobile-actions" aria-label="Основные действия">
+                <button class="title-mobile-list-trigger" type="button" id="mobile-list-trigger" data-open-mobile-list aria-haspopup="dialog" aria-controls="mobile-list-menu"><i data-lucide="bookmark-plus"></i><span id="mobile-list-label">В мой список</span><i data-lucide="chevron-down"></i></button>
+                <span class="title-mobile-score" aria-label="Оценка 8.88"><i data-lucide="star"></i><strong>8.88</strong></span>
+                <button class="title-mobile-comment" type="button" data-scroll-comments aria-label="Перейти к комментариям"><i data-lucide="message-circle"></i></button>
+              </div>
+              <button class="button button--primary title-mobile-watch" type="button" data-scroll-player><i data-lucide="play"></i><span>Смотреть серию 1</span></button>
               <div class="title-stats" aria-label="Статистика тайтла">
                 <div><span class="stat-icon stat-icon--score"><i data-lucide="star"></i></span><span><strong>8.88</strong><small>оценка</small></span></div>
                 <div><span class="stat-icon"><i data-lucide="list-video"></i></span><span><strong>74</strong><small>серии</small></span></div>
@@ -127,9 +137,11 @@
               </div>
               <div class="title-meta-list">
                 <div><i data-lucide="map-pin"></i><span><small>Страна</small><strong>Япония</strong></span></div>
+                <div><i data-lucide="list-video"></i><span><small>Эпизоды</small><strong>74 серии</strong></span></div>
+                <div><i data-lucide="clapperboard"></i><span><small>Формат</small><strong>TV-сериал</strong></span></div>
                 <div><i data-lucide="calendar-days"></i><span><small>Показ</small><strong>2004–2005</strong></span></div>
                 <div><i data-lucide="building-2"></i><span><small>Студия</small><strong>Madhouse</strong></span></div>
-                <div><i data-lucide="badge-check"></i><span><small>Статус</small><strong>Вышел</strong></span></div>
+                <div><i data-lucide="star"></i><span><small>Оценка</small><strong>8.88</strong></span></div>
               </div>
               <div class="genre-links" aria-label="Жанры"><a href="./index.html#catalog">Драма</a><a href="./index.html#catalog">Детектив</a><a href="./index.html#catalog">Триллер</a><a href="./index.html#catalog">Психологическое</a></div>
               <div class="title-description" id="title-description">
@@ -298,14 +310,56 @@
       <button class="button button--secondary button--wide" type="button" data-close-dialog>Закрыть</button>
     </dialog>
 
-    <dialog class="content-dialog" id="player-settings-dialog" aria-labelledby="player-settings-title">
-      <div class="content-dialog-head"><div><p class="section-kicker"><i data-lucide="sliders-horizontal"></i>Плеер</p><h2 id="player-settings-title">Настройки просмотра</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Закрыть"><i data-lucide="x"></i></button></div>
-      <div class="settings-fields">
-        <label class="field-label" for="player-mode">Режим воспроизведения</label><div class="select-wrap"><select id="player-mode"><option>Автоматически</option><option>HLS</option><option>Kodik embed</option></select><i data-lucide="chevron-down"></i></div>
-        <label class="field-label" for="player-speed">Скорость</label><div class="select-wrap"><select id="player-speed"><option>1×</option><option>1.25×</option><option>1.5×</option><option>2×</option></select><i data-lucide="chevron-down"></i></div>
-        <label class="field-label" for="player-quality">Качество</label><div class="select-wrap"><select id="player-quality"><option>Автоматически</option><option>1080p</option><option>720p</option><option>480p</option></select><i data-lucide="chevron-down"></i></div>
+    <dialog class="title-list-dialog" id="mobile-list-menu" aria-labelledby="mobile-list-title" aria-modal="true">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="title-list-dialog__head">
+        <div><span>Мой список</span><h2 id="mobile-list-title">Монстр</h2></div>
+        <button type="button" data-close-mobile-list>Готово</button>
       </div>
-      <button class="button button--primary button--wide" type="button" data-save-player-settings><i data-lucide="check"></i>Сохранить</button>
+      <div class="title-list-dialog__options">
+        <button type="button" data-list-status="watching"><span><i data-lucide="play-circle"></i></span><strong>Смотрю</strong><i data-lucide="check"></i></button>
+        <button type="button" data-list-status="completed"><span><i data-lucide="circle-check"></i></span><strong>Просмотрено</strong><i data-lucide="check"></i></button>
+        <button type="button" data-list-status="planned"><span><i data-lucide="clock-3"></i></span><strong>Запланировано</strong><i data-lucide="check"></i></button>
+        <button type="button" data-list-status="on_hold"><span><i data-lucide="pause-circle"></i></span><strong>Отложено</strong><i data-lucide="check"></i></button>
+        <button type="button" data-list-status="dropped"><span><i data-lucide="circle-minus"></i></span><strong>Брошено</strong><i data-lucide="check"></i></button>
+      </div>
+      <button class="title-list-dialog__remove" type="button" data-list-status="none"><i data-lucide="trash-2"></i><span>Удалить из списка</span></button>
+    </dialog>
+
+    <dialog class="content-dialog player-settings-dialog" id="player-settings-dialog" aria-labelledby="player-settings-title">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="player-settings-dialog__head"><h2 id="player-settings-title">Настройки плеера</h2><button type="button" data-save-player-settings>Готово</button></div>
+      <div class="player-settings-list">
+        <label class="player-setting-row" for="player-quality">
+          <span class="player-setting-row__icon"><i data-lucide="settings-2"></i></span>
+          <span class="player-setting-row__copy"><strong>Качество</strong><small>Выбирать автоматически или вручную</small></span>
+          <span class="player-setting-row__select"><select id="player-quality"><option>Автоматически</option><option>1080p</option><option>720p</option><option>480p</option></select><i data-lucide="chevron-right"></i></span>
+        </label>
+        <label class="player-setting-row" for="player-speed">
+          <span class="player-setting-row__icon"><i data-lucide="gauge"></i></span>
+          <span class="player-setting-row__copy"><strong>Скорость</strong><small>Обычная</small></span>
+          <span class="player-setting-row__select"><select id="player-speed"><option>1×</option><option>1.25×</option><option>1.5×</option><option>2×</option></select><i data-lucide="chevron-right"></i></span>
+        </label>
+        <label class="player-setting-row" for="player-mode">
+          <span class="player-setting-row__icon"><i data-lucide="monitor-play"></i></span>
+          <span class="player-setting-row__copy"><strong>Режим</strong><small>Источник воспроизведения</small></span>
+          <span class="player-setting-row__select"><select id="player-mode"><option>Автоматически</option><option>HLS</option><option>Kodik embed</option></select><i data-lucide="chevron-right"></i></span>
+        </label>
+      </div>
+      <div class="player-settings-list player-settings-list--toggles">
+        <label class="player-setting-row player-setting-row--toggle">
+          <span class="player-setting-row__icon"><i data-lucide="skip-forward"></i></span><span class="player-setting-row__copy"><strong>Авто-переключение</strong><small>Следующая серия после завершения</small></span>
+          <input type="checkbox" data-player-option="autonext" /><span class="player-switch" aria-hidden="true"><span></span></span>
+        </label>
+        <label class="player-setting-row player-setting-row--toggle">
+          <span class="player-setting-row__icon"><i data-lucide="list-end"></i></span><span class="player-setting-row__copy"><strong>Пропуск опенинга</strong><small>Если источник передал skip times</small></span>
+          <input type="checkbox" checked data-player-option="opening" /><span class="player-switch" aria-hidden="true"><span></span></span>
+        </label>
+        <label class="player-setting-row player-setting-row--toggle">
+          <span class="player-setting-row__icon"><i data-lucide="list-start"></i></span><span class="player-setting-row__copy"><strong>Пропуск эндинга</strong><small>Если источник передал skip times</small></span>
+          <input type="checkbox" checked data-player-option="ending" /><span class="player-switch" aria-hidden="true"><span></span></span>
+        </label>
+      </div>
     </dialog>
 
     <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
