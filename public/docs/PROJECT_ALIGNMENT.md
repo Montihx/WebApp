@@ -31,9 +31,10 @@
 | Каталог tabs | `/anime` с `sort_by`, `status`, `season`; `/recent-updates` | три понятных discovery состояния |
 | Расписание | `/schedule/history` + `/schedule/calendar` | время скрывается, если API его не вернул |
 | Публичные коллекции | `/interactions/collections/public` | только read-only cards |
-| Title hero | SSR `/anime/{slug}` + `AnimeInfo` | сохранены metadata/SEO boundaries; mobile-композиция опирается на полный poster, быстрые actions и компактную сетку фактов без повторной details-секции |
+| Title hero | SSR `/anime/{slug}` + `AnimeInfo` | сохранены metadata/SEO boundaries; mobile-композиция опирается на полный poster, быстрые actions и прежний вертикальный список фактов с короткими малоконтрастными разделителями |
 | Мой список | favorites categories и отдельный DELETE | ровно пять подтверждённых categories; popover на desktop и modal sheet на mobile |
-| Уведомления тайтла | `users/me.preferences.anime_notifications` | episode/dubbing/all/none; trigger расположен у списка серий, где понятен объект подписки |
+| Счётчики тайтла | `anime.favorites_count`, `anime.comments_count` | отображаются рядом со статусом списка на mobile и в statistics на desktop; автономные числа — fixtures, production значения берутся только из detail response |
+| Уведомления тайтла | `users/me.preferences.anime_notifications` | episode/dubbing/all/none; desktop trigger расположен у списка серий, mobile trigger заменяет повторную закладку справа сверху и открывает bottom sheet |
 | Плеер | Kodik playlist → HLS/iframe fallback → generic releases | макет оформляет shell, не заменяет runtime |
 | Источник/перевод | `release.source` и `translation_team`/Kodik translator | намеренно разделены |
 | Player preferences | local prefs + `/interactions/preferences/kodik/{slug}` | bottom sheet показывает только opening/ending/auto-next/quality/speed/mode; mini-player/download не добавлены |
@@ -43,7 +44,7 @@
 
 ## Что намеренно не добавлено
 
-- вымышленные social counters, live viewers, critic reviews и recommendations service;
+- вымышленные social counters, live viewers, critic reviews и recommendations service; исключение — подтверждённые поля `favorites_count` и `comments_count`;
 - stream health/probe, download/offline, party watch и chat;
 - фиктивные related titles для конкретного тайтла;
 - success для auth/API mutations внутри автономного HTML;

@@ -991,10 +991,6 @@
       control.classList.toggle("is-active", state.listStatus !== "none");
       control.setAttribute("aria-label", state.listStatus === "none" ? "Добавить в список" : `${nextLabel}. Изменить статус`);
     });
-    const mobileShortcut = $('.title-mobile-toolbar__button[data-open-mobile-list]');
-    if (mobileShortcut) setIcon(mobileShortcut, state.listStatus === "none" ? "bookmark-plus" : "bookmark-check");
-    const counter = $('[data-count-label="favorites"]');
-    if (counter) counter.textContent = state.listStatus === "none" ? "В списки" : "В вашем списке";
   }
 
   function syncSubscriptionState() {
@@ -1004,13 +1000,24 @@
       item.setAttribute("aria-checked", String(active));
     });
     const trigger = $("#subscribe-trigger");
-    if (!trigger) return;
-    const text = $("span", trigger);
-    if (text) text.textContent = subscriptionLabels[state.subscription] || subscriptionLabels.none;
-    trigger.classList.toggle("is-active", state.subscription !== "none");
-    trigger.setAttribute("aria-label", state.subscription === "none"
-      ? "Настроить уведомления о тайтле"
-      : `${subscriptionLabels[state.subscription]}. Изменить уведомления`);
+    if (trigger) {
+      const text = $("span", trigger);
+      if (text) text.textContent = subscriptionLabels[state.subscription] || subscriptionLabels.none;
+      trigger.classList.toggle("is-active", state.subscription !== "none");
+      trigger.setAttribute("aria-label", state.subscription === "none"
+        ? "Настроить уведомления о тайтле"
+        : `${subscriptionLabels[state.subscription]}. Изменить уведомления`);
+    }
+    const mobileTrigger = $('[data-open-mobile-notifications]');
+    if (mobileTrigger) {
+      const active = state.subscription !== "none";
+      mobileTrigger.classList.toggle("is-active", active);
+      mobileTrigger.setAttribute("aria-label", active
+        ? `${subscriptionLabels[state.subscription]}. Изменить уведомления`
+        : "Настроить уведомления о тайтле");
+      const icon = $(".title-mobile-toolbar__icon", mobileTrigger);
+      if (icon) setIcon(icon, active ? "bell-ring" : "bell");
+    }
   }
 
   function syncPlayer() {
@@ -1137,6 +1144,24 @@
       event.stopPropagation();
       toggleMenu(event.currentTarget, $("#subscribe-menu"));
     });
+    $('[data-open-mobile-notifications]')?.addEventListener("click", () => {
+      const dialog = $("#mobile-subscribe-menu");
+      openDialog(dialog);
+      requestAnimationFrame(() => ($('[data-subscribe].is-active', dialog) || $('[data-subscribe]', dialog))?.focus({ preventScroll: true }));
+    });
+    $('[data-close-mobile-notifications]')?.addEventListener("click", () => closeDialog($("#mobile-subscribe-menu")));
+    $("#mobile-subscribe-menu")?.addEventListener("keydown", (event) => {
+      if (!["ArrowDown", "ArrowRight", "ArrowUp", "ArrowLeft", "Home", "End"].includes(event.key)) return;
+      const items = $$('[data-subscribe]', event.currentTarget);
+      const currentIndex = items.indexOf(document.activeElement);
+      let nextIndex = currentIndex < 0 ? 0 : currentIndex;
+      if (event.key === "ArrowDown" || event.key === "ArrowRight") nextIndex = (nextIndex + 1) % items.length;
+      else if (event.key === "ArrowUp" || event.key === "ArrowLeft") nextIndex = (nextIndex - 1 + items.length) % items.length;
+      else if (event.key === "Home") nextIndex = 0;
+      else if (event.key === "End") nextIndex = items.length - 1;
+      event.preventDefault();
+      items[nextIndex]?.focus({ preventScroll: true });
+    });
     $("#subscribe-menu")?.addEventListener("keydown", (event) => {
       const menu = event.currentTarget;
       const items = $$('[data-subscribe]', menu);
@@ -1164,8 +1189,11 @@
         state.subscription = control.dataset.subscribe;
         storage.set("kitsu-demo-subscription", state.subscription);
         syncSubscriptionState();
+        const mobileDialog = $("#mobile-subscribe-menu");
+        const usedMobileDialog = Boolean(mobileDialog?.open);
         closeMenu($("#subscribe-trigger"), $("#subscribe-menu"));
-        $("#subscribe-trigger")?.focus({ preventScroll: true });
+        if (usedMobileDialog) closeDialog(mobileDialog);
+        else $("#subscribe-trigger")?.focus({ preventScroll: true });
         showToast(state.subscription === "none" ? "Уведомления выключены" : "Настройка сохранена", subscriptionLabels[state.subscription]);
       });
     });

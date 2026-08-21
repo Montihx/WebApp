@@ -4,8 +4,8 @@
 
 ## Итог
 
-- `40/40` автоматических статических проверок — pass (`node tools/qa.mjs`);
-- `95/95` браузерных проверок — pass: `58` regression + `37` целевых для hero/title/player (Chrome for Testing + Playwright);
+- `41/41` автоматических статических проверок — pass (`node tools/qa.mjs`);
+- `95/95` браузерных проверок предыдущей визуальной ревизии — baseline: `58` regression + `37` целевых для hero/title/player; после текущей правки mobile toolbar/counters/metadata требуется повторный browser gate;
 - `2/2` HTML documents разобраны без parser errors;
 - `0` duplicate IDs;
 - `0` unresolved `aria-controls`, `aria-labelledby` и label `for` references;
@@ -37,8 +37,8 @@ node tools/qa.mjs --write
 - catalog/schedule roving tabs;
 - hero: пять слайдов, 7-секундный progress, pause, arrows, dots, keyboard, swipe и исключение скрытых ссылок из tab-порядка;
 - bookmark overlay на постере, desktop popover, mobile modal sheet, пять статусов на токенах темы, явное удаление, полноширинная нижняя полоска с текстом статуса, persistence и синхронизация одинаковых тайтлов;
-- mobile title: скрытие общего header, контекстный toolbar, poster `2:3`, расположение info icon, touch targets и двухколоночные metadata без сплошных разделителей;
-- list/subscription local states; уведомления находятся у серий, share и повторная details-секция отсутствуют, title list sheet синхронизирует mobile/desktop labels и возвращает focus;
+- mobile title: скрытие общего header, контекстный toolbar, poster `2:3`, расположение info icon, touch targets, подтверждённые счётчики и вертикальные metadata с короткими малоконтрастными разделителями;
+- list/subscription local states; desktop-уведомления находятся у серий, mobile-колокольчик — справа сверху и открывает отдельный sheet; share и повторная details-секция отсутствуют, оба sheet возвращают focus;
 - dialogs, backdrop/Escape close и focus trap;
 - player settings: desktop dialog/mobile bottom sheet, три select и три синхронных switch без неподтверждённых mini-player/download controls;
 - source/translation summary и player controls;
@@ -65,7 +65,7 @@ node tools/qa.mjs --write
 
 ## Ограничение среды
 
-Изменения проверены в реальном Chrome for Testing: главная и title page, dark/light, desktop/tablet/mobile, list/player sheets просмотрены по контрольным снимкам. Все `95/95` interaction/layout checks прошли, JavaScript console/page errors — `0`.
+Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия дополнительно проходит `41/41` статических проверок и `node --check`; до production merge необходимо заново проверить mobile toolbar, notification sheet, оба счётчика и metadata rows в реальном browser viewport. Неповторённый baseline не считается pass для этих изменённых узлов.
 
 В изолированной среде внешние poster URL Shikimori возвращали transport errors. Regression-прогон подтвердил штатное состояние «Изображение недоступно». Целевой visual harness подставлял детерминированные локальные SVG-fixtures только для проверки crop/mask/геометрии hero и постера; сами production-постеры этим прогоном не подтверждаются.
 

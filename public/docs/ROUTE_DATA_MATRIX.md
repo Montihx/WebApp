@@ -40,7 +40,7 @@
 
 ## Response fields used by the template
 
-Anime: `id`, `slug`, `title`, `title_en`, `title_jp`, `description`, `kind`, `status`, `score`, `rating`, `year`/`aired_on`, `poster_url`, `cover_url`, `episodes_total`, `episodes_aired`, `genres`, `studios`, `next_episode_at`, `related`.
+Anime: `id`, `slug`, `title`, `title_en`, `title_jp`, `description`, `kind`, `status`, `score`, `rating`, `year`/`aired_on`, `poster_url`, `cover_url`, `episodes_total`, `episodes_aired`, `genres`, `studios`, `next_episode_at`, `related`, `favorites_count`, `comments_count`.
 
 Episode: `id`, `season`, `episode`, `thumbnail`, `aired_at`, `duration`, `is_filler`, `is_recap`, opening/ending skip ranges.
 

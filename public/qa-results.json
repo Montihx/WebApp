@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-21T06:59:40.425Z",
+  "generated_at": "2026-08-21T07:27:38.441Z",
   "summary": {
     "status": "pass",
-    "total": 40,
-    "passed": 40,
+    "total": 41,
+    "passed": 41,
     "failed": 0
   },
   "results": [
@@ -67,7 +67,7 @@
       "id": "anime.html.ids",
       "label": "anime.html: уникальные ID",
       "status": "pass",
-      "detail": "54 уникальных ID"
+      "detail": "56 уникальных ID"
     },
     {
       "id": "anime.html.references",
@@ -79,7 +79,7 @@
       "id": "anime.html.aria",
       "label": "anime.html: ARIA-ссылки",
       "status": "pass",
-      "detail": "19 ссылок разрешены"
+      "detail": "20 ссылок разрешены"
     },
     {
       "id": "anime.html.buttons",
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "843 блоков, структура сбалансирована"
+      "detail": "846 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -145,7 +145,7 @@
       "id": "css.titleMobile",
       "label": "CSS: mobile title hierarchy",
       "status": "pass",
-      "detail": "контекстный toolbar, полный постер, компактные metadata, уведомления у серий и list sheet оформлены"
+      "detail": "верхний bell, счётчики, одноколоночные metadata с мягкими разделителями и оба mobile sheet оформлены"
     },
     {
       "id": "css.playerSettings",
@@ -215,9 +215,15 @@
     },
     {
       "id": "html.titleNotifications",
-      "label": "HTML: уведомления рядом с сериями",
+      "label": "HTML: уведомления без мобильного дубля закладки",
       "status": "pass",
-      "detail": "trigger подписки расположен в toolbar списка серий"
+      "detail": "desktop trigger расположен у серий; mobile trigger — справа сверху и открывает отдельный sheet"
+    },
+    {
+      "id": "html.titleCounters",
+      "label": "HTML: счётчики списков и комментариев",
+      "status": "pass",
+      "detail": "favorites_count и comments_count показаны в mobile actions и desktop statistics"
     },
     {
       "id": "html.titleNoShare",

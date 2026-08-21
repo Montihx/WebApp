@@ -175,17 +175,29 @@ add(
 const titleMobileCssTokens = [
   ".title-mobile-toolbar",
   ".title-mobile-actions",
+  ".title-mobile-count",
   ".title-mobile-watch",
   ".title-list-dialog",
+  ".mobile-subscribe-dialog",
   ".episode-subscribe__trigger",
+  "color-mix(in srgb, var(--line) 42%, transparent)",
   "@keyframes bottom-sheet-in",
 ];
 const missingTitleMobileCss = titleMobileCssTokens.filter((token) => !css.includes(token));
+const titleMobileLayoutChecks = [
+  /\.title-meta-list\s*{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/s.test(mediaSource(720)),
+  /\.title-meta-list\s*{[^}]*grid-template-columns:\s*minmax\(0, 1fr\)/s.test(mediaSource(460)),
+  /\.episode-subscribe\s*{[^}]*display:\s*none/s.test(mediaSource(720)),
+];
 add(
   "css.titleMobile",
   "CSS: mobile title hierarchy",
-  missingTitleMobileCss.length === 0,
-  missingTitleMobileCss.length ? `Не найдены: ${missingTitleMobileCss.join(", ")}` : "контекстный toolbar, полный постер, компактные metadata, уведомления у серий и list sheet оформлены",
+  missingTitleMobileCss.length === 0 && titleMobileLayoutChecks.every(Boolean),
+  missingTitleMobileCss.length
+    ? `Не найдены: ${missingTitleMobileCss.join(", ")}`
+    : titleMobileLayoutChecks.every(Boolean)
+      ? "верхний bell, счётчики, одноколоночные metadata с мягкими разделителями и оба mobile sheet оформлены"
+      : "mobile metadata или скрытие дублирующего desktop subscription не соответствует контракту",
 );
 
 const playerSettingsCssTokens = [
@@ -328,7 +340,7 @@ add(
   heroSlideCount === 5 && indexSource.includes("data-hero-pause") && indexSource.includes("data-hero-live"),
   `${heroSlideCount} слайдов, pause control и live-status`,
 );
-const titleInteractionTokens = ["title-mobile-toolbar", "mobile-list-menu", "mobile-list-label", "title-mobile-watch"];
+const titleInteractionTokens = ["title-mobile-toolbar", "mobile-list-menu", "mobile-list-label", "mobile-subscribe-menu", "title-mobile-watch"];
 const missingTitleInteractions = titleInteractionTokens.filter((token) => !animeSource.includes(token));
 add(
   "html.titleMobile",
@@ -339,11 +351,25 @@ add(
 const episodesSectionIndex = animeSource.indexOf('class="episodes-section"');
 const subscriptionIndex = animeSource.indexOf('id="subscribe-trigger"');
 const relatedSectionIndex = animeSource.indexOf('aria-labelledby="related-title"');
+const mobileToolbarStart = animeSource.indexOf('class="title-mobile-toolbar"');
+const mobileToolbarEnd = animeSource.indexOf('</div>', mobileToolbarStart);
+const mobileToolbarSource = animeSource.slice(mobileToolbarStart, mobileToolbarEnd);
 add(
   "html.titleNotifications",
-  "HTML: уведомления рядом с сериями",
-  episodesSectionIndex >= 0 && subscriptionIndex > episodesSectionIndex && (relatedSectionIndex < 0 || subscriptionIndex < relatedSectionIndex),
-  "trigger подписки расположен в toolbar списка серий",
+  "HTML: уведомления без мобильного дубля закладки",
+  episodesSectionIndex >= 0
+    && subscriptionIndex > episodesSectionIndex
+    && (relatedSectionIndex < 0 || subscriptionIndex < relatedSectionIndex)
+    && mobileToolbarSource.includes("data-open-mobile-notifications")
+    && !mobileToolbarSource.includes("data-open-mobile-list")
+    && count(animeSource, /id="mobile-subscribe-menu"/g) === 1,
+  "desktop trigger расположен у серий; mobile trigger — справа сверху и открывает отдельный sheet",
+);
+add(
+  "html.titleCounters",
+  "HTML: счётчики списков и комментариев",
+  count(animeSource, /data-field="favorites_count"/g) === 2 && count(animeSource, /data-field="comments_count"/g) === 2,
+  "favorites_count и comments_count показаны в mobile actions и desktop statistics",
 );
 add(
   "html.titleNoShare",
