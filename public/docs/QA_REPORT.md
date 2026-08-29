@@ -1,11 +1,11 @@
 # QA report — Kitsu Public Anime Graphite
 
-Дата последней сверки документа с `qa-results.json`: 21 августа 2026 года.
+Дата последней сверки документа с `qa-results.json`: 29 августа 2026 года.
 
 ## Итог
 
-- `41/41` автоматических статических проверок — pass (`node tools/qa.mjs`);
-- `95/95` браузерных проверок предыдущей визуальной ревизии — baseline: `58` regression + `37` целевых для hero/title/player; после текущей правки mobile toolbar/counters/metadata требуется повторный browser gate;
+- `43/43` автоматические статические проверки — pass (`node tools/qa.mjs`);
+- `95/95` браузерных проверок предыдущей визуальной ревизии — только baseline: `58` regression + `37` целевых для hero/title/player; после текущей переработки hero, continue rail и title требуется повторный browser gate;
 - `2/2` HTML documents разобраны без parser errors;
 - `0` duplicate IDs;
 - `0` unresolved `aria-controls`, `aria-labelledby` и label `for` references;
@@ -13,10 +13,10 @@
 - `0` buttons без явного `type`;
 - `0` images без `alt`;
 - `0` bare `href="#"`/`javascript:` links;
-- CSS: структура из `846` блоков сбалансирована, контрольные точки `1180`/`920`/`720`/`460 px`;
+- CSS: структура из `860` блоков сбалансирована, контрольные точки `1180`/`920`/`720`/`460 px`;
 - `node --check app.js` — pass;
 - `24` локальных WOFF2 font-файлов подключено;
-- `15` ключевых JS interaction families и отдельный пятистатусный bookmark-сценарий обнаружены QA-script;
+- `18` ключевых JS interaction families, включая hero, continue rail и отдельный пятистатусный bookmark-сценарий, обнаружены QA-script;
 - сетка постеров подтверждена как `6/5/4/3/2` колонок на desktop/tablet/mobile gates;
 - отдельный runtime-harness: `18/18` — адаптивная структура, выбор, явное удаление, защита от случайного toggle-off, persistence, синхронизация дубликатов и keyboard focus;
 - browser runtime: hero `1440×590 px` на desktop и `358×590 px` на mobile; карточка каталога `213.9 px` при `1440 px`; desktop popover не выходит за viewport; poster bookmark sheet имеет отступ `12 px`, а title list/player sheets прижаты к нижней границе; horizontal overflow `0 px`;
@@ -35,10 +35,11 @@ node tools/qa.mjs --write
 - global search, keyboard navigation и empty result;
 - menus/popovers, outside click и mobile drawer focus;
 - catalog/schedule roving tabs;
-- hero: пять слайдов, 7-секундный progress, pause, arrows, dots, keyboard, swipe и исключение скрытых ссылок из tab-порядка;
+- hero: пять слайдов, 7-секундный progress, разнесённые pagination/navigation controls, pause, keyboard, swipe и исключение скрытых ссылок из tab-порядка;
+- continue rail: пять `16:9` карточек, оставшееся время, процент, progress overlay, отдельное удаление, scroll-snap и стрелки;
 - bookmark overlay на постере, desktop popover, mobile modal sheet, пять статусов на токенах темы, явное удаление, полноширинная нижняя полоска с текстом статуса, persistence и синхронизация одинаковых тайтлов;
-- mobile title: скрытие общего header, контекстный toolbar, poster `2:3`, расположение info icon, пропорции touch targets, видимый счётчик списков, доступная подпись комментариев и естественные вертикальные metadata-строки без карточек/колонок/разделителей;
-- list/subscription local states; desktop-уведомления находятся у серий, mobile-колокольчик — справа сверху и открывает отдельный sheet; share и повторная details-секция отсутствуют, оба sheet возвращают focus;
+- title: desktop community-строка под постером, mobile poster-first hero и контекстный toolbar; оба счётчика видимы, metadata оформлены естественными вертикальными строками без карточек/колонок/разделителей;
+- list/subscription local states; desktop-уведомления находятся под постером, mobile-колокольчик — справа сверху; оба открывают единый адаптивный dialog/sheet, share и повторная details-секция отсутствуют, focus возвращается инициатору;
 - dialogs, backdrop/Escape close и focus trap;
 - player settings: desktop dialog/mobile bottom sheet, три select и три синхронных switch без неподтверждённых mini-player/download controls;
 - source/translation summary и player controls;
@@ -65,7 +66,7 @@ node tools/qa.mjs --write
 
 ## Ограничение среды
 
-Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия дополнительно проходит `41/41` статических проверок и `node --check`; до production merge необходимо заново проверить mobile toolbar, notification sheet, оба счётчика и metadata rows в реальном browser viewport. Неповторённый baseline не считается pass для этих изменённых узлов.
+Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `43/43` статические проверки и `node --check`; до production merge необходимо заново проверить hero, continue rail, mobile toolbar, notification sheet, оба счётчика и metadata rows в реальном browser viewport. Неповторённый baseline не считается pass для изменённых узлов.
 
 В изолированной среде внешние poster URL Shikimori возвращали transport errors. Regression-прогон подтвердил штатное состояние «Изображение недоступно». Целевой visual harness подставлял детерминированные локальные SVG-fixtures только для проверки crop/mask/геометрии hero и постера; сами production-постеры этим прогоном не подтверждаются.
 

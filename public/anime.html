@@ -85,7 +85,7 @@
       <section class="title-hero" id="title-info" aria-labelledby="title-name">
         <div class="title-mobile-toolbar" aria-label="Действия страницы">
           <a class="title-mobile-toolbar__button" href="./index.html" aria-label="Вернуться на главную"><i data-lucide="arrow-left"></i></a>
-          <button class="title-mobile-toolbar__button" type="button" data-open-mobile-notifications aria-label="Настроить уведомления о тайтле" aria-haspopup="dialog" aria-controls="mobile-subscribe-menu"><span class="title-mobile-toolbar__icon"><i data-lucide="bell"></i></span></button>
+          <button class="title-mobile-toolbar__button" type="button" data-open-title-notifications aria-label="Настроить уведомления о тайтле" aria-haspopup="dialog" aria-controls="mobile-subscribe-menu"><span class="title-subscription-icon"><i data-lucide="bell"></i></span></button>
         </div>
         <div class="title-backdrop" aria-hidden="true">
           <div class="title-backdrop-plane"></div>
@@ -114,6 +114,11 @@
                     <button class="list-remove" type="button" data-list-status="none"><i data-lucide="trash-2"></i><span>Удалить из списка</span></button>
                   </div>
                 </div>
+                <div class="title-community-actions" aria-label="Активность пользователей">
+                  <span class="title-community-action" aria-label="В списках у 4 820 пользователей"><i data-lucide="bookmark"></i><strong data-field="favorites_count">4 820</strong></span>
+                  <button class="title-community-action" type="button" data-scroll-comments aria-label="326 комментариев. Перейти к обсуждению"><i data-lucide="message-circle"></i><strong data-field="comments_count">326</strong></button>
+                  <button class="title-community-action title-community-action--notify" type="button" data-open-title-notifications aria-label="Настроить уведомления о тайтле" aria-haspopup="dialog" aria-controls="mobile-subscribe-menu"><span class="title-subscription-icon"><i data-lucide="bell"></i></span></button>
+                </div>
               </div>
             </div>
 
@@ -125,16 +130,10 @@
               </div>
               <div class="title-mobile-actions" aria-label="Основные действия">
                 <button class="title-mobile-list-trigger" type="button" id="mobile-list-trigger" data-open-mobile-list aria-haspopup="dialog" aria-controls="mobile-list-menu"><span id="mobile-list-label">Не смотрю</span><i data-lucide="chevron-down"></i></button>
-                <span class="title-mobile-count title-mobile-favorite" aria-label="В списках у 4 820 пользователей"><strong data-field="favorites_count">4 820</strong><i data-lucide="bookmark"></i></span>
-                <button class="title-mobile-count title-mobile-comment" type="button" data-scroll-comments aria-label="326 комментариев. Перейти к обсуждению"><span class="sr-only" data-field="comments_count">326</span><i data-lucide="message-circle"></i></button>
+                <span class="title-mobile-count title-mobile-favorite" aria-label="В списках у 4 820 пользователей"><i data-lucide="bookmark"></i><strong data-field="favorites_count">4 820</strong></span>
+                <button class="title-mobile-count title-mobile-comment" type="button" data-scroll-comments aria-label="326 комментариев. Перейти к обсуждению"><i data-lucide="message-circle"></i><strong data-field="comments_count">326</strong></button>
               </div>
               <button class="button button--primary title-mobile-watch" type="button" data-scroll-player><i data-lucide="play"></i><span>Смотреть серию 1</span></button>
-              <div class="title-stats" aria-label="Статистика тайтла">
-                <div><span class="stat-icon stat-icon--score"><i data-lucide="star"></i></span><span><strong>8.88</strong><small>оценка</small></span></div>
-                <div><span class="stat-icon"><i data-lucide="list-video"></i></span><span><strong>74</strong><small>серии</small></span></div>
-                <div><span class="stat-icon"><i data-lucide="bookmark"></i></span><span><strong data-field="favorites_count">4 820</strong><small>в списках</small></span></div>
-                <button type="button" data-scroll-comments aria-label="326 комментариев. Перейти к обсуждению"><span class="stat-icon"><i data-lucide="message-circle"></i></span><span><strong data-field="comments_count">326</strong><small>комментариев</small></span></button>
-              </div>
               <ul class="title-meta-list" aria-label="Основные сведения о тайтле">
                 <li><span class="title-meta-flag" aria-hidden="true">🇯🇵</span><span>Япония, 2004–2005 гг.</span></li>
                 <li><i data-lucide="monitor-play"></i><span>74 эп. по ~24 мин.</span></li>
@@ -201,16 +200,6 @@
             <div class="episodes-toolbar">
               <div class="episodes-title"><h3>Серии</h3><span>74 эпизода</span></div>
               <div class="episodes-controls">
-                <div class="episode-subscribe">
-                  <button class="episode-subscribe__trigger" type="button" id="subscribe-trigger" aria-expanded="false" aria-haspopup="menu" aria-controls="subscribe-menu" aria-label="Настроить уведомления о тайтле"><i data-lucide="bell"></i><span>Уведомления</span><i data-lucide="chevron-down"></i></button>
-                  <div class="subscribe-menu" id="subscribe-menu" role="menu" aria-label="Уведомления о тайтле" hidden>
-                    <p>Уведомлять о</p>
-                    <button type="button" role="menuitemradio" aria-checked="false" data-subscribe="episode"><i data-lucide="tv"></i><span>Новых сериях</span><i data-lucide="check"></i></button>
-                    <button type="button" role="menuitemradio" aria-checked="false" data-subscribe="dubbing"><i data-lucide="mic-2"></i><span>Новых озвучках</span><i data-lucide="check"></i></button>
-                    <button type="button" role="menuitemradio" aria-checked="false" data-subscribe="all"><i data-lucide="bell-ring"></i><span>Обо всех обновлениях</span><i data-lucide="check"></i></button>
-                    <button class="subscribe-remove" type="button" role="menuitemradio" aria-checked="false" data-subscribe="none"><i data-lucide="bell-off"></i><span>Выключить</span><i data-lucide="check"></i></button>
-                  </div>
-                </div>
                 <label><span class="sr-only">Сезон</span><select id="season-select"><option value="1">Сезон 1</option></select><i data-lucide="chevron-down"></i></label>
                 <button class="view-toggle is-active" type="button" data-episode-view="grid" aria-label="Плитка"><i data-lucide="grid-2x2"></i></button>
                 <button class="view-toggle" type="button" data-episode-view="list" aria-label="Список"><i data-lucide="list"></i></button>

@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-21T07:50:19.537Z",
+  "generated_at": "2026-08-29T04:31:44.435Z",
   "summary": {
     "status": "pass",
-    "total": 41,
-    "passed": 41,
+    "total": 43,
+    "passed": 43,
     "failed": 0
   },
   "results": [
@@ -31,7 +31,7 @@
       "id": "index.html.references",
       "label": "index.html: локальные ссылки",
       "status": "pass",
-      "detail": "58 локальных ссылок разрешены"
+      "detail": "64 локальных ссылок разрешены"
     },
     {
       "id": "index.html.aria",
@@ -49,7 +49,7 @@
       "id": "index.html.images",
       "label": "index.html: alt у изображений",
       "status": "pass",
-      "detail": "44 изображений проверено"
+      "detail": "47 изображений проверено"
     },
     {
       "id": "index.html.anchors",
@@ -67,7 +67,7 @@
       "id": "anime.html.ids",
       "label": "anime.html: уникальные ID",
       "status": "pass",
-      "detail": "56 уникальных ID"
+      "detail": "54 уникальных ID"
     },
     {
       "id": "anime.html.references",
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "846 блоков, структура сбалансирована"
+      "detail": "860 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -140,6 +140,12 @@
       "label": "CSS: адаптивный hero-слайдер",
       "status": "pass",
       "detail": "полноширинный desktop hero, mobile composition, controls и progress оформлены"
+    },
+    {
+      "id": "css.continueRail",
+      "label": "CSS: горизонтальная история просмотра",
+      "status": "pass",
+      "detail": "16:9 rail, progress overlay, remove action, snap и навигация оформлены"
     },
     {
       "id": "css.titleMobile",
@@ -181,13 +187,13 @@
       "id": "css.tabularNums",
       "label": "CSS: tabular-nums на числовых узлах",
       "status": "pass",
-      "detail": "11 правил с tabular-nums"
+      "detail": "12 правил с tabular-nums"
     },
     {
       "id": "js.capabilities",
       "label": "JS: ключевые сценарии",
       "status": "pass",
-      "detail": "15 сценариев покрыто"
+      "detail": "18 сценариев покрыто"
     },
     {
       "id": "js.storage",
@@ -205,7 +211,13 @@
       "id": "html.heroSlider",
       "label": "HTML: hero-слайдер",
       "status": "pass",
-      "detail": "5 слайдов, pause control и live-status"
+      "detail": "5 слайдов, разнесённые controls, pause и live-status"
+    },
+    {
+      "id": "html.continueRail",
+      "label": "HTML: история просмотра как 16:9 rail",
+      "status": "pass",
+      "detail": "5 карточек с оставшимся временем, процентом, удалением и стрелками"
     },
     {
       "id": "html.titleMobile",
@@ -215,15 +227,15 @@
     },
     {
       "id": "html.titleNotifications",
-      "label": "HTML: уведомления без мобильного дубля закладки",
+      "label": "HTML: адаптивные уведомления без дублей",
       "status": "pass",
-      "detail": "desktop trigger расположен у серий; mobile trigger — справа сверху и открывает отдельный sheet"
+      "detail": "desktop trigger расположен под постером; mobile trigger — справа сверху; оба открывают один dialog/sheet"
     },
     {
       "id": "html.titleCounters",
       "label": "HTML: счётчики списков и комментариев",
       "status": "pass",
-      "detail": "favorites_count виден в mobile actions; comments_count доступен в подписи mobile action; оба числа показаны в desktop statistics"
+      "detail": "favorites_count и comments_count визуально показаны в mobile actions и desktop community strip"
     },
     {
       "id": "html.titleNoShare",
@@ -235,7 +247,7 @@
       "id": "html.titleNoDuplicateDetails",
       "label": "HTML: нет повторной карточки подробностей",
       "status": "pass",
-      "detail": "метаданные представлены один раз в title hero"
+      "detail": "метаданные представлены один раз в title hero; отдельные статистические плитки отсутствуют"
     },
     {
       "id": "html.playerSettings",
