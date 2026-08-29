@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-29T17:00:06.478Z",
+  "generated_at": "2026-08-29T18:31:18.657Z",
   "summary": {
     "status": "pass",
     "total": 46,
@@ -127,7 +127,7 @@
       "id": "css.posterDensity",
       "label": "CSS: плотность постеров",
       "status": "pass",
-      "detail": "10/8/5/4/3 колонок как в production HomeGrid"
+      "detail": "9/8/7/5/4/3 колонок: увеличенные desktop-постеры и стабильный tablet/mobile"
     },
     {
       "id": "css.bookmarks",

@@ -123,8 +123,9 @@ function mediaSource(maxWidth) {
   return css.slice(start, next === -1 ? css.length : next);
 }
 const posterDensityChecks = [
-  /\.anime-grid\s*{[^}]*repeat\(10,/s.test(css.slice(0, css.indexOf("@media"))),
+  /\.anime-grid\s*{[^}]*repeat\(9,/s.test(css.slice(0, css.indexOf("@media"))),
   /\.anime-grid\s*{[^}]*repeat\(8,/s.test(mediaSource(1279)),
+  /\.anime-grid\s*{[^}]*repeat\(7,/s.test(mediaSource(1180)),
   /\.anime-grid\s*{[^}]*repeat\(5,/s.test(mediaSource(920)),
   /\.anime-grid\s*{[^}]*repeat\(4,/s.test(mediaSource(720)),
   /\.anime-grid\s*{[^}]*repeat\(3,/s.test(mediaSource(639)),
@@ -133,7 +134,7 @@ add(
   "css.posterDensity",
   "CSS: плотность постеров",
   posterDensityChecks.every(Boolean),
-  posterDensityChecks.every(Boolean) ? "10/8/5/4/3 колонок как в production HomeGrid" : "сетка постеров не соответствует production 10/8/5/4/3",
+  posterDensityChecks.every(Boolean) ? "9/8/7/5/4/3 колонок: увеличенные desktop-постеры и стабильный tablet/mobile" : "сетка постеров не соответствует адаптивному контракту 9/8/7/5/4/3",
 );
 const bookmarkCssTokens = [
   ".poster-bookmark-button",

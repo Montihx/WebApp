@@ -1796,7 +1796,7 @@ html[data-theme="light"] .theme-icon--moon {
 
 .anime-grid {
   display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
+  grid-template-columns: repeat(9, minmax(0, 1fr));
   gap: 18px 12px;
 }
 
@@ -5166,7 +5166,7 @@ img.is-image-error {
   }
 
   .anime-grid {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-columns: repeat(7, minmax(0, 1fr));
   }
 
   .schedule-updates-grid {
