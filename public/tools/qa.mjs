@@ -124,18 +124,19 @@ function mediaSource(maxWidth) {
 }
 const baseCss = css.slice(0, css.indexOf("@media (max-width"));
 const posterDensityChecks = [
-  /\.anime-grid\s*{[^}]*repeat\(9,/s.test(baseCss),
-  /\.anime-grid\s*{[^}]*repeat\(8,/s.test(mediaSource(1279)),
-  /\.anime-grid\s*{[^}]*repeat\(7,/s.test(mediaSource(1180)),
+  /\.anime-grid\s*{[^}]*repeat\(7,/s.test(baseCss),
+  /\.anime-grid\s*{[^}]*repeat\(6,/s.test(mediaSource(1279)),
+  /\.anime-grid\s*{[^}]*repeat\(6,/s.test(mediaSource(1180)),
   /\.anime-grid\s*{[^}]*repeat\(5,/s.test(mediaSource(920)),
   /\.anime-grid\s*{[^}]*repeat\(4,/s.test(mediaSource(720)),
   /\.anime-grid\s*{[^}]*repeat\(3,/s.test(mediaSource(639)),
+  /\.anime-grid\.anime-grid--compact\s*{[^}]*minmax\(168px, 200px\)/s.test(baseCss),
 ];
 add(
   "css.posterDensity",
   "CSS: плотность постеров",
   posterDensityChecks.every(Boolean),
-  posterDensityChecks.every(Boolean) ? "9/8/7/5/4/3 колонок: увеличенные desktop-постеры и стабильный tablet/mobile" : "сетка постеров не соответствует адаптивному контракту 9/8/7/5/4/3",
+  posterDensityChecks.every(Boolean) ? "7/6/5/4/3 колонок: крупные desktop-постеры и стабильный tablet/mobile" : "сетка постеров не соответствует адаптивному контракту 7/6/5/4/3",
 );
 const bookmarkCssTokens = [
   ".poster-bookmark-button",
@@ -422,6 +423,22 @@ add(
 
 const indexSource = read("index.html");
 const animeSource = read("anime.html");
+const posterFactsChecks = [
+  !indexSource.includes('class="score-badge"'),
+  !indexSource.includes('class="episode-badge"'),
+  !animeSource.includes('class="score-badge"'),
+  count(indexSource, /class="card-facts"/g) >= 9,
+  count(animeSource, /class="card-facts"/g) >= 4,
+  /class="card-facts"><span>\d+ \/ (?:\d+|\?) эп\.<\/span><b/.test(indexSource),
+];
+add(
+  "html.posterFacts",
+  "HTML: серии и рейтинг под названием",
+  posterFactsChecks.every(Boolean),
+  posterFactsChecks.every(Boolean)
+    ? "рейтинг и количество серий убраны с изображения; под названием показаны вышедшие/всего серии и компактная оценка"
+    : "на постере остались лишние badges или карточки потеряли строку серий/рейтинга",
+);
 const heroSlideCount = count(indexSource, /data-hero-slide\b/g);
 add(
   "html.heroSlider",
