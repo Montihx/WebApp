@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-29T18:43:22.795Z",
+  "generated_at": "2026-08-29T19:06:36.163Z",
   "summary": {
     "status": "pass",
     "total": 46,
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "946 блоков, структура сбалансирована"
+      "detail": "948 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -133,7 +133,7 @@
       "id": "css.bookmarks",
       "label": "CSS: закладки на постере",
       "status": "pass",
-      "detail": "desktop overlay заполняет границы постера; mobile sheet, явное удаление и полноширинная статусная полоска оформлены токенами темы"
+      "detail": "desktop overlay изолирован границами постера, сохраняет полные названия и отдельное закрытие; mobile sheet и статусная полоска оформлены токенами темы"
     },
     {
       "id": "css.headerSearch",

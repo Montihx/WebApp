@@ -201,7 +201,7 @@
       menu.setAttribute("aria-label", `Статус закладки: ${title}`);
       options?.setAttribute("role", "group");
       options?.removeAttribute("aria-label");
-      if (close) close.hidden = true;
+      if (close) close.hidden = false;
       remove?.setAttribute("role", "menuitem");
     }
   }
@@ -283,7 +283,7 @@
     headingCopy.className = "bookmark-menu__heading-copy";
     const headingTitle = document.createElement("strong");
     headingTitle.id = `bookmark-menu-title-${index + 1}`;
-    headingTitle.textContent = "Статус просмотра";
+    headingTitle.textContent = "В мой список";
     const headingMeta = document.createElement("span");
     headingMeta.textContent = title;
     headingCopy.append(headingTitle, headingMeta);
@@ -426,6 +426,7 @@
       });
 
       menu.addEventListener("click", (event) => {
+        event.preventDefault();
         event.stopPropagation();
         if (event.target.closest('[data-bookmark-close]')) {
           closeBookmarkMenu(menu, { restoreFocus: true });
