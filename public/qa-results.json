@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-29T21:53:23.863Z",
+  "generated_at": "2026-08-29T22:22:42.262Z",
   "summary": {
     "status": "pass",
-    "total": 47,
-    "passed": 47,
+    "total": 92,
+    "passed": 92,
     "failed": 0
   },
   "results": [
@@ -13,7 +13,7 @@
       "id": "files.required",
       "label": "Обязательные файлы",
       "status": "pass",
-      "detail": "10 файлов на месте"
+      "detail": "16 файлов на месте"
     },
     {
       "id": "index.html.document",
@@ -31,7 +31,7 @@
       "id": "index.html.references",
       "label": "index.html: локальные ссылки",
       "status": "pass",
-      "detail": "64 локальных ссылок разрешены"
+      "detail": "84 локальных ссылок разрешены"
     },
     {
       "id": "index.html.aria",
@@ -73,7 +73,7 @@
       "id": "anime.html.references",
       "label": "anime.html: локальные ссылки",
       "status": "pass",
-      "detail": "37 локальных ссылок разрешены"
+      "detail": "38 локальных ссылок разрешены"
     },
     {
       "id": "anime.html.aria",
@@ -100,10 +100,262 @@
       "detail": "нет href=\"#\" и javascript-ссылок"
     },
     {
+      "id": "profile.html.document",
+      "label": "profile.html: документ",
+      "status": "pass",
+      "detail": "lang=ru, viewport и один H1"
+    },
+    {
+      "id": "profile.html.ids",
+      "label": "profile.html: уникальные ID",
+      "status": "pass",
+      "detail": "19 уникальных ID"
+    },
+    {
+      "id": "profile.html.references",
+      "label": "profile.html: локальные ссылки",
+      "status": "pass",
+      "detail": "47 локальных ссылок разрешены"
+    },
+    {
+      "id": "profile.html.aria",
+      "label": "profile.html: ARIA-ссылки",
+      "status": "pass",
+      "detail": "6 ссылок разрешены"
+    },
+    {
+      "id": "profile.html.buttons",
+      "label": "profile.html: типы кнопок",
+      "status": "pass",
+      "detail": "у каждой кнопки указан type"
+    },
+    {
+      "id": "profile.html.images",
+      "label": "profile.html: alt у изображений",
+      "status": "pass",
+      "detail": "14 изображений проверено"
+    },
+    {
+      "id": "profile.html.anchors",
+      "label": "profile.html: ссылки без заглушек",
+      "status": "pass",
+      "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "schedule.html.document",
+      "label": "schedule.html: документ",
+      "status": "pass",
+      "detail": "lang=ru, viewport и один H1"
+    },
+    {
+      "id": "schedule.html.ids",
+      "label": "schedule.html: уникальные ID",
+      "status": "pass",
+      "detail": "18 уникальных ID"
+    },
+    {
+      "id": "schedule.html.references",
+      "label": "schedule.html: локальные ссылки",
+      "status": "pass",
+      "detail": "41 локальных ссылок разрешены"
+    },
+    {
+      "id": "schedule.html.aria",
+      "label": "schedule.html: ARIA-ссылки",
+      "status": "pass",
+      "detail": "5 ссылок разрешены"
+    },
+    {
+      "id": "schedule.html.buttons",
+      "label": "schedule.html: типы кнопок",
+      "status": "pass",
+      "detail": "у каждой кнопки указан type"
+    },
+    {
+      "id": "schedule.html.images",
+      "label": "schedule.html: alt у изображений",
+      "status": "pass",
+      "detail": "7 изображений проверено"
+    },
+    {
+      "id": "schedule.html.anchors",
+      "label": "schedule.html: ссылки без заглушек",
+      "status": "pass",
+      "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "updates.html.document",
+      "label": "updates.html: документ",
+      "status": "pass",
+      "detail": "lang=ru, viewport и один H1"
+    },
+    {
+      "id": "updates.html.ids",
+      "label": "updates.html: уникальные ID",
+      "status": "pass",
+      "detail": "18 уникальных ID"
+    },
+    {
+      "id": "updates.html.references",
+      "label": "updates.html: локальные ссылки",
+      "status": "pass",
+      "detail": "50 локальных ссылок разрешены"
+    },
+    {
+      "id": "updates.html.aria",
+      "label": "updates.html: ARIA-ссылки",
+      "status": "pass",
+      "detail": "5 ссылок разрешены"
+    },
+    {
+      "id": "updates.html.buttons",
+      "label": "updates.html: типы кнопок",
+      "status": "pass",
+      "detail": "у каждой кнопки указан type"
+    },
+    {
+      "id": "updates.html.images",
+      "label": "updates.html: alt у изображений",
+      "status": "pass",
+      "detail": "7 изображений проверено"
+    },
+    {
+      "id": "updates.html.anchors",
+      "label": "updates.html: ссылки без заглушек",
+      "status": "pass",
+      "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "season.html.document",
+      "label": "season.html: документ",
+      "status": "pass",
+      "detail": "lang=ru, viewport и один H1"
+    },
+    {
+      "id": "season.html.ids",
+      "label": "season.html: уникальные ID",
+      "status": "pass",
+      "detail": "18 уникальных ID"
+    },
+    {
+      "id": "season.html.references",
+      "label": "season.html: локальные ссылки",
+      "status": "pass",
+      "detail": "49 локальных ссылок разрешены"
+    },
+    {
+      "id": "season.html.aria",
+      "label": "season.html: ARIA-ссылки",
+      "status": "pass",
+      "detail": "5 ссылок разрешены"
+    },
+    {
+      "id": "season.html.buttons",
+      "label": "season.html: типы кнопок",
+      "status": "pass",
+      "detail": "у каждой кнопки указан type"
+    },
+    {
+      "id": "season.html.images",
+      "label": "season.html: alt у изображений",
+      "status": "pass",
+      "detail": "10 изображений проверено"
+    },
+    {
+      "id": "season.html.anchors",
+      "label": "season.html: ссылки без заглушек",
+      "status": "pass",
+      "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "collections.html.document",
+      "label": "collections.html: документ",
+      "status": "pass",
+      "detail": "lang=ru, viewport и один H1"
+    },
+    {
+      "id": "collections.html.ids",
+      "label": "collections.html: уникальные ID",
+      "status": "pass",
+      "detail": "18 уникальных ID"
+    },
+    {
+      "id": "collections.html.references",
+      "label": "collections.html: локальные ссылки",
+      "status": "pass",
+      "detail": "45 локальных ссылок разрешены"
+    },
+    {
+      "id": "collections.html.aria",
+      "label": "collections.html: ARIA-ссылки",
+      "status": "pass",
+      "detail": "5 ссылок разрешены"
+    },
+    {
+      "id": "collections.html.buttons",
+      "label": "collections.html: типы кнопок",
+      "status": "pass",
+      "detail": "у каждой кнопки указан type"
+    },
+    {
+      "id": "collections.html.images",
+      "label": "collections.html: alt у изображений",
+      "status": "pass",
+      "detail": "17 изображений проверено"
+    },
+    {
+      "id": "collections.html.anchors",
+      "label": "collections.html: ссылки без заглушек",
+      "status": "pass",
+      "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "bookmarks.html.document",
+      "label": "bookmarks.html: документ",
+      "status": "pass",
+      "detail": "lang=ru, viewport и один H1"
+    },
+    {
+      "id": "bookmarks.html.ids",
+      "label": "bookmarks.html: уникальные ID",
+      "status": "pass",
+      "detail": "18 уникальных ID"
+    },
+    {
+      "id": "bookmarks.html.references",
+      "label": "bookmarks.html: локальные ссылки",
+      "status": "pass",
+      "detail": "49 локальных ссылок разрешены"
+    },
+    {
+      "id": "bookmarks.html.aria",
+      "label": "bookmarks.html: ARIA-ссылки",
+      "status": "pass",
+      "detail": "5 ссылок разрешены"
+    },
+    {
+      "id": "bookmarks.html.buttons",
+      "label": "bookmarks.html: типы кнопок",
+      "status": "pass",
+      "detail": "у каждой кнопки указан type"
+    },
+    {
+      "id": "bookmarks.html.images",
+      "label": "bookmarks.html: alt у изображений",
+      "status": "pass",
+      "detail": "9 изображений проверено"
+    },
+    {
+      "id": "bookmarks.html.anchors",
+      "label": "bookmarks.html: ссылки без заглушек",
+      "status": "pass",
+      "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "953 блоков, структура сбалансирована"
+      "detail": "1269 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -145,7 +397,19 @@
       "id": "html.headerSearch",
       "label": "HTML: поиск по структуре основного проекта",
       "status": "pass",
-      "detail": "обе страницы используют одну структуру: поле, 5 фильтров, недавние, результаты и очистку"
+      "detail": "все публичные страницы используют одну структуру: поле, 5 фильтров, недавние, результаты и очистку"
+    },
+    {
+      "id": "html.directoryPages",
+      "label": "HTML: шесть новых публичных разделов",
+      "status": "pass",
+      "detail": "профиль, расписание, обновления, сезон, коллекции и закладки имеют самостоятельную структуру"
+    },
+    {
+      "id": "css.directoryPages",
+      "label": "CSS: адаптивные стили новых разделов",
+      "status": "pass",
+      "detail": "все шесть разделов используют общий responsive-контракт и токены тем"
     },
     {
       "id": "css.heroSlider",
@@ -199,7 +463,13 @@
       "id": "css.tabularNums",
       "label": "CSS: tabular-nums на числовых узлах",
       "status": "pass",
-      "detail": "13 правил с tabular-nums"
+      "detail": "16 правил с tabular-nums"
+    },
+    {
+      "id": "js.directoryPages",
+      "label": "JS: навигация и фильтры новых разделов",
+      "status": "pass",
+      "detail": "табы, статусные фильтры, локальный поиск и синхронизация закладок подключены"
     },
     {
       "id": "js.headerSearch",

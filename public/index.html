@@ -38,8 +38,8 @@
 
         <nav class="desktop-nav" aria-label="Основная навигация">
           <a class="nav-link is-active" href="#catalog">Каталог</a>
-          <a class="nav-link" href="#schedule">Расписание</a>
-          <a class="nav-link" href="#collections">Коллекции</a>
+          <a class="nav-link" href="./schedule.html">Расписание</a>
+          <a class="nav-link" href="./collections.html">Коллекции</a>
           <div class="nav-menu-wrap">
             <button
               class="nav-link nav-link--button"
@@ -69,8 +69,8 @@
                 <p class="menu-caption">Подборки</p>
                 <a href="#catalog" data-filter-link="top"><i data-lucide="star"></i>Топ рейтинга</a>
                 <a href="#catalog" data-filter-link="ongoing"><i data-lucide="radio"></i>Онгоинги</a>
-                <a href="#season"><i data-lucide="calendar-days"></i>Сезон</a>
-                <a href="#collections"><i data-lucide="library"></i>Коллекции</a>
+                <a href="./season.html"><i data-lucide="calendar-days"></i>Летний сезон</a>
+                <a href="./collections.html"><i data-lucide="library"></i>Коллекции</a>
               </div>
             </div>
           </div>
@@ -108,14 +108,14 @@
                 <span><strong>Вышла новая серия</strong><small>Продолжите просмотр со страницы тайтла</small></span>
                 <time>12 мин</time>
               </a>
-              <a class="notification-item" href="#schedule">
+              <a class="notification-item" href="./schedule.html">
                 <span class="notification-icon"><i data-lucide="calendar-clock"></i></span>
                 <span><strong>Расписание изменилось</strong><small>Откройте календарь и историю переносов</small></span>
                 <time>1 ч</time>
               </a>
             </div>
           </div>
-          <a class="header-login" href="#login" data-prototype-action="Авторизация станет доступна после подключения шаблона к приложению.">Войти</a>
+          <a class="header-login" href="./profile.html"><i data-lucide="circle-user-round"></i><span>Профиль</span></a>
         </div>
 
         <button class="mobile-menu-button" type="button" id="mobile-menu-trigger" aria-label="Открыть меню">
@@ -132,9 +132,11 @@
       <button class="drawer-search" type="button" data-open-search><i data-lucide="search"></i><span>Найти аниме</span></button>
       <nav class="mobile-drawer-nav">
         <a href="#catalog"><i data-lucide="layout-grid"></i><span>Каталог</span></a>
-        <a href="#schedule"><i data-lucide="calendar-days"></i><span>Расписание</span></a>
-        <a href="#collections"><i data-lucide="library"></i><span>Коллекции</span></a>
-        <a href="#continue"><i data-lucide="history"></i><span>История просмотра</span></a>
+        <a href="./schedule.html"><i data-lucide="calendar-days"></i><span>Расписание</span></a>
+        <a href="./updates.html"><i data-lucide="sparkles"></i><span>Обновления</span></a>
+        <a href="./collections.html"><i data-lucide="library"></i><span>Коллекции</span></a>
+        <a href="./bookmarks.html"><i data-lucide="bookmark"></i><span>Закладки</span></a>
+        <a href="./profile.html"><i data-lucide="circle-user-round"></i><span>Профиль</span></a>
       </nav>
       <div class="drawer-theme-row">
         <span><i data-lucide="palette"></i>Оформление</span>
@@ -391,7 +393,7 @@
       <section class="content-section" id="schedule" aria-labelledby="schedule-title">
         <div class="page-container schedule-updates-grid">
           <aside class="schedule-card" aria-labelledby="schedule-title">
-            <div class="schedule-head"><div><p class="section-kicker"><i data-lucide="calendar-days"></i>Календарь</p><h2 id="schedule-title">Расписание</h2></div><a href="#schedule" aria-label="Открыть полное расписание"><i data-lucide="arrow-up-right"></i></a></div>
+            <div class="schedule-head"><div><p class="section-kicker"><i data-lucide="calendar-days"></i>Календарь</p><h2 id="schedule-title">Расписание</h2></div><a href="./schedule.html" aria-label="Открыть полное расписание"><i data-lucide="arrow-up-right"></i></a></div>
             <div class="day-tabs" role="tablist" aria-label="Дни расписания" data-tabs="schedule">
               <button type="button" class="day-tab" role="tab" aria-selected="false" tabindex="-1" data-day="2026-08-12"><span class="day-tab__dow">Ср</span><span class="day-tab__num">12</span><span class="day-tab__mon">авг</span></button>
               <button type="button" class="day-tab" role="tab" aria-selected="false" tabindex="-1" data-day="2026-08-13"><span class="day-tab__dow">Чт</span><span class="day-tab__num">13</span><span class="day-tab__mon">авг</span><span class="day-tab__count">1</span></button>
@@ -428,7 +430,7 @@
           </aside>
 
           <aside class="schedule-card" aria-labelledby="updates-title">
-            <div class="schedule-head"><div><p class="section-kicker"><i data-lucide="sparkles"></i>Новые серии</p><h2 id="updates-title">Обновления аниме</h2></div><a href="#schedule" aria-label="Открыть все обновления"><i data-lucide="arrow-up-right"></i></a></div>
+            <div class="schedule-head"><div><p class="section-kicker"><i data-lucide="sparkles"></i>Новые серии</p><h2 id="updates-title">Обновления аниме</h2></div><a href="./updates.html" aria-label="Открыть все обновления"><i data-lucide="arrow-up-right"></i></a></div>
             <div class="schedule-list">
               <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small><i data-lucide="play-circle"></i>Серия 74</small></span><time>сегодня · 14:20</time></a>
               <a class="schedule-item" href="./anime.html"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small><i data-lucide="play-circle"></i>Серия 94</small></span><time>сегодня · 11:05</time></a>
@@ -481,10 +483,10 @@
 
       <section class="content-section content-section--last" id="collections" aria-labelledby="collections-title">
         <div class="page-container">
-          <div class="section-heading"><div><p class="section-kicker"><i data-lucide="library"></i>Коллекции пользователей</p><h2 id="collections-title">Подборки недели</h2></div><a class="section-link" href="#collections">Все коллекции <i data-lucide="arrow-right"></i></a></div>
+          <div class="section-heading"><div><p class="section-kicker"><i data-lucide="library"></i>Коллекции пользователей</p><h2 id="collections-title">Подборки недели</h2></div><a class="section-link" href="./collections.html">Все коллекции <i data-lucide="arrow-right"></i></a></div>
           <div class="collection-grid" data-reveal-group>
-            <a class="collection-card" href="#collections"><div class="collection-stack"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div><div><strong>Истории, которые остаются</strong><span><i data-lucide="layers"></i>12 тайтлов · открытая коллекция</span></div><i data-lucide="arrow-up-right"></i></a>
-            <a class="collection-card" href="#collections"><div class="collection-stack"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/457.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/33352.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div><div><strong>Спокойное фэнтези</strong><span><i data-lucide="layers"></i>9 тайтлов · открытая коллекция</span></div><i data-lucide="arrow-up-right"></i></a>
+            <a class="collection-card" href="./collections.html"><div class="collection-stack"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div><div><strong>Истории, которые остаются</strong><span><i data-lucide="layers"></i>12 тайтлов · открытая коллекция</span></div><i data-lucide="arrow-up-right"></i></a>
+            <a class="collection-card" href="./collections.html"><div class="collection-stack"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/457.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/33352.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div><div><strong>Спокойное фэнтези</strong><span><i data-lucide="layers"></i>9 тайтлов · открытая коллекция</span></div><i data-lucide="arrow-up-right"></i></a>
           </div>
         </div>
       </section>
@@ -493,15 +495,15 @@
     <footer class="site-footer">
       <div class="page-container footer-inner">
         <div><a class="brand brand--footer" href="./index.html"><span class="brand-mark"><span>K</span></span><span class="brand-word">KITSU<span>.</span></span></a><p>Каталог, просмотр и личные списки — без визуального шума.</p></div>
-        <nav aria-label="Ссылки в подвале"><a href="#catalog">Каталог</a><a href="#schedule">Расписание</a><a href="#collections">Коллекции</a></nav>
+        <nav aria-label="Ссылки в подвале"><a href="#catalog">Каталог</a><a href="./schedule.html">Расписание</a><a href="./collections.html">Коллекции</a></nav>
       </div>
     </footer>
 
     <nav class="mobile-bottom-nav" aria-label="Мобильная навигация">
       <a class="is-active" href="./index.html"><i data-lucide="house"></i><span>Главная</span></a>
       <a href="#catalog"><i data-lucide="compass"></i><span>Обзор</span></a>
-      <a href="#continue"><i data-lucide="bookmark"></i><span>Закладки</span></a>
-      <a href="#login" data-prototype-action="Профиль станет доступен после подключения авторизации."><i data-lucide="circle-user-round"></i><span>Профиль</span></a>
+      <a href="./bookmarks.html"><i data-lucide="bookmark"></i><span>Закладки</span></a>
+      <a href="./profile.html"><i data-lucide="circle-user-round"></i><span>Профиль</span></a>
     </nav>
 
     <dialog class="search-dialog" id="search-dialog" aria-labelledby="search-title">
