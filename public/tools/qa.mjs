@@ -442,8 +442,11 @@ add(
     && !mobileToolbarSource.includes("data-open-mobile-list")
     && count(animeSource, /data-open-title-notifications/g) === 2
     && !animeSource.includes('id="subscribe-trigger"')
-    && count(animeSource, /id="mobile-subscribe-menu"/g) === 1,
-  "desktop trigger расположен под постером; mobile trigger — справа сверху; оба открывают один dialog/sheet",
+    && count(animeSource, /id="mobile-subscribe-menu"/g) === 1
+    && css.includes(".title-subscription-popover")
+    && js.includes("titleSubscriptionSheetQuery")
+    && js.includes("dialog.show()"),
+  "desktop trigger открывает non-modal dropdown под постером; mobile trigger использует тот же компонент как bottom sheet",
 );
 const mobileActionsStart = animeSource.indexOf('class="title-mobile-actions"');
 const mobileActionsEnd = animeSource.indexOf('</div>', mobileActionsStart);

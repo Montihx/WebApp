@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-29T10:20:35.080Z",
+  "generated_at": "2026-08-29T10:28:08.632Z",
   "summary": {
     "status": "pass",
     "total": 45,
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "899 блоков, структура сбалансирована"
+      "detail": "916 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -241,7 +241,7 @@
       "id": "html.titleNotifications",
       "label": "HTML: адаптивные уведомления без дублей",
       "status": "pass",
-      "detail": "desktop trigger расположен под постером; mobile trigger — справа сверху; оба открывают один dialog/sheet"
+      "detail": "desktop trigger открывает non-modal dropdown под постером; mobile trigger использует тот же компонент как bottom sheet"
     },
     {
       "id": "html.titleCounters",

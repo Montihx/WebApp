@@ -47,6 +47,7 @@
     52991: "planned",
   };
   const bookmarkSheetQuery = window.matchMedia("(max-width: 720px)");
+  const titleSubscriptionSheetQuery = window.matchMedia("(max-width: 720px)");
   let bookmarkScrim = null;
 
   function refreshIcons() {
@@ -717,10 +718,11 @@
     document.addEventListener("click", (event) => {
       if (!event.target.closest(".nav-menu-wrap, .popover-wrap, .list-control, .bookmark-menu")) closeAllMenus();
       if (!event.target.closest("#search-dialog, [data-open-search]")) closeSearch();
+      if (!event.target.closest("#mobile-subscribe-menu, [data-open-title-notifications]")) closeTitleSubscription();
     });
 
     document.addEventListener("keydown", (event) => {
-      const openDialogNode = $("dialog[open]");
+      const openDialogNode = $("dialog[open]:not(#search-dialog):not(.title-subscription-popover)");
       const openDrawerNode = $("#mobile-drawer.is-open");
       const openBookmarkSheet = $$('.bookmark-menu--sheet').find((menu) => !menu.hidden);
       trapFocus(event, openDialogNode || openDrawerNode || openBookmarkSheet);
@@ -1066,6 +1068,42 @@
     });
   }
 
+  function placeTitleSubscriptionDialog() {
+    const dialog = $("#mobile-subscribe-menu");
+    const desktopTrigger = $(".title-community-action--notify[data-open-title-notifications]");
+    if (!dialog) return;
+    if (titleSubscriptionSheetQuery.matches || !desktopTrigger) {
+      dialog.classList.remove("title-subscription-popover");
+      dialog.setAttribute("aria-modal", "true");
+      if (dialog.parentElement !== body) body.append(dialog);
+      return;
+    }
+    dialog.classList.add("title-subscription-popover");
+    dialog.removeAttribute("aria-modal");
+    if (dialog.previousElementSibling !== desktopTrigger) desktopTrigger.insertAdjacentElement("afterend", dialog);
+  }
+
+  function closeTitleSubscription({ restoreFocus = false } = {}) {
+    const dialog = $("#mobile-subscribe-menu");
+    if (!dialog?.open) return;
+    const returnFocus = dialog._returnFocus;
+    dialog.close();
+    $$('[data-open-title-notifications]').forEach((control) => control.setAttribute("aria-expanded", "false"));
+    if (restoreFocus && returnFocus instanceof HTMLElement && returnFocus.isConnected) returnFocus.focus({ preventScroll: true });
+    dialog._returnFocus = null;
+  }
+
+  function openTitleSubscription(control) {
+    const dialog = $("#mobile-subscribe-menu");
+    if (!dialog) return;
+    placeTitleSubscriptionDialog();
+    dialog._returnFocus = control;
+    if (titleSubscriptionSheetQuery.matches) openDialog(dialog);
+    else if (!dialog.open) dialog.show();
+    control.setAttribute("aria-expanded", "true");
+    requestAnimationFrame(() => ($('[data-subscribe].is-active', dialog) || $('[data-subscribe]', dialog))?.focus({ preventScroll: true }));
+  }
+
   function syncPlayer() {
     const stage = $("#player-stage");
     const toggle = $("#player-toggle");
@@ -1187,14 +1225,20 @@
     });
 
     $$('[data-open-title-notifications]').forEach((control) => {
-      control.addEventListener("click", () => {
+      control.addEventListener("click", (event) => {
+        event.stopPropagation();
         const dialog = $("#mobile-subscribe-menu");
-        openDialog(dialog);
-        requestAnimationFrame(() => ($('[data-subscribe].is-active', dialog) || $('[data-subscribe]', dialog))?.focus({ preventScroll: true }));
+        if (dialog?.open && dialog._returnFocus === control) closeTitleSubscription({ restoreFocus: true });
+        else openTitleSubscription(control);
       });
     });
-    $('[data-close-mobile-notifications]')?.addEventListener("click", () => closeDialog($("#mobile-subscribe-menu")));
+    $('[data-close-mobile-notifications]')?.addEventListener("click", () => closeTitleSubscription({ restoreFocus: true }));
     $("#mobile-subscribe-menu")?.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeTitleSubscription({ restoreFocus: true });
+        return;
+      }
       if (!["ArrowDown", "ArrowRight", "ArrowUp", "ArrowLeft", "Home", "End"].includes(event.key)) return;
       const items = $$('[data-subscribe]', event.currentTarget);
       const currentIndex = items.indexOf(document.activeElement);
@@ -1212,10 +1256,16 @@
         storage.set("kitsu-demo-subscription", state.subscription);
         syncSubscriptionState();
         const mobileDialog = $("#mobile-subscribe-menu");
-        if (mobileDialog?.open) closeDialog(mobileDialog);
+        if (mobileDialog?.open) closeTitleSubscription({ restoreFocus: true });
         showToast(state.subscription === "none" ? "Уведомления выключены" : "Настройка сохранена", subscriptionLabels[state.subscription]);
       });
     });
+
+    titleSubscriptionSheetQuery.addEventListener?.("change", () => {
+      closeTitleSubscription();
+      placeTitleSubscriptionDialog();
+    });
+    placeTitleSubscriptionDialog();
 
     $('[data-open-titles]')?.addEventListener("click", () => openDialog($("#titles-dialog")));
     $('[data-open-player-settings]')?.addEventListener("click", () => openDialog($("#player-settings-dialog")));
