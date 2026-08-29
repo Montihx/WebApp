@@ -22,6 +22,7 @@
 - предыдущий browser runtime подтвердил базовую геометрию hero, poster grid и sheets; новый встроенный search и внутренний poster overlay требуют повторной browser-matrix перед merge;
 - шесть новых разделов имеют отдельные structural contracts: profile tabs, недельное расписание, update filters, сезонную сетку, collection search и bookmark filters;
 - `18` contrast pairs (9 на тему), минимум `4.97:1`.
+- опубликованный preview ветки проверен при `1363×936`: шесть новых маршрутов открываются без horizontal overflow, профильные/календарные табы, collection search, bookmark filter и внутренний poster menu работают; dark и light темы просмотрены, ошибок JavaScript страницы нет.
 
 Полный machine-readable результат: `qa-results.json`. Повторный запуск:
 
@@ -72,7 +73,7 @@ node tools/qa.mjs --write
 
 ## Ограничение среды
 
-Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `92/92` статические проверки и `node --check`; до production merge необходимо заново проверить восемь страниц, сетки `7/6/5/4/3`, mobile sheets, header search, tab panels, filters и local collection search в реальном browser viewport. Неповторённый baseline не считается pass для изменённых узлов.
+Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `92/92` статические проверки и `node --check`; опубликованный desktop preview проверен отдельно при `1363×936`. До production merge необходимо заново проверить mobile/tablet ширины, сетки `5/4/3`, mobile sheets, drawer и горизонтальные rails в реальном browser viewport. Неповторённый baseline не считается pass для изменённых узлов.
 
 В изолированной среде внешние poster URL Shikimori возвращали transport errors. Regression-прогон подтвердил штатное состояние «Изображение недоступно». Целевой visual harness подставлял детерминированные локальные SVG-fixtures только для проверки crop/mask/геометрии hero и постера; сами production-постеры этим прогоном не подтверждаются.
 
