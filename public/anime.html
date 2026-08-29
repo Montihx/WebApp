@@ -42,7 +42,7 @@
           <a class="nav-link is-active" href="#title-info">Тайтл</a>
         </nav>
         <div class="header-actions">
-          <button class="search-trigger" type="button" data-open-search aria-label="Открыть поиск">
+          <button class="search-trigger" type="button" data-open-search aria-label="Открыть поиск" aria-expanded="false" aria-controls="search-dialog">
             <i data-lucide="search"></i><span>Найти аниме</span><kbd>/</kbd>
           </button>
           <button class="icon-button" type="button" data-theme-toggle aria-label="Включить светлую тему">
@@ -85,6 +85,7 @@
       <section class="title-hero" id="title-info" aria-labelledby="title-name">
         <div class="title-mobile-toolbar" aria-label="Действия страницы">
           <a class="title-mobile-toolbar__button" href="./index.html" aria-label="Вернуться на главную"><i data-lucide="arrow-left"></i></a>
+          <button class="title-mobile-toolbar__button" type="button" data-open-search aria-label="Открыть поиск" aria-expanded="false" aria-controls="search-dialog"><i data-lucide="search"></i></button>
           <button class="title-mobile-toolbar__button" type="button" data-open-title-notifications aria-label="Настроить уведомления о тайтле" aria-haspopup="dialog" aria-controls="mobile-subscribe-menu"><span class="title-subscription-icon"><i data-lucide="bell"></i></span></button>
         </div>
         <div class="title-backdrop" aria-hidden="true">

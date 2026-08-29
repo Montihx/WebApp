@@ -212,6 +212,7 @@
 
   function openBookmarkMenu(menu) {
     const trigger = bookmarkMenuTrigger(menu);
+    const card = bookmarkMenuCard(menu);
     const isSheet = bookmarkSheetQuery.matches;
     setBookmarkMenuSemantics(menu, isSheet);
 
@@ -228,6 +229,7 @@
     }
 
     menu.hidden = false;
+    card?.classList.add("is-bookmark-menu-open");
     trigger?.setAttribute("aria-expanded", "true");
     const selected = $('[aria-checked="true"]', menu) || $('[data-bookmark-option]', menu);
     requestAnimationFrame(() => selected?.focus({ preventScroll: true }));
@@ -236,8 +238,10 @@
   function closeBookmarkMenu(menu, { restoreFocus = false } = {}) {
     if (!menu || menu.hidden) return;
     const trigger = bookmarkMenuTrigger(menu);
+    const card = bookmarkMenuCard(menu);
     const wasSheet = menu.classList.contains("bookmark-menu--sheet");
     menu.hidden = true;
+    card?.classList.remove("is-bookmark-menu-open");
     trigger?.setAttribute("aria-expanded", "false");
 
     if (wasSheet) {
@@ -400,8 +404,7 @@
       trigger.dataset.bookmarkTrigger = "";
       trigger.setAttribute("aria-controls", menu.id);
       trigger.setAttribute("aria-expanded", "false");
-      poster.insertAdjacentElement("afterend", trigger);
-      trigger.insertAdjacentElement("afterend", menu);
+      poster.append(trigger, menu);
       setBookmarkMenuSemantics(menu, bookmarkSheetQuery.matches);
 
       const storageKey = `kitsu-demo-bookmark-status-${cardId}`;
@@ -523,13 +526,30 @@
 
   function openSearch() {
     const dialog = $("#search-dialog");
-    openDialog(dialog);
+    if (!dialog) return;
+    closeAllMenus();
+    closeDrawer({ restoreFocus: false });
+    dialog._returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if (!dialog.open) dialog.show();
+    $$('[data-open-search]').forEach((control) => control.setAttribute("aria-expanded", "true"));
     const input = $("#global-search", dialog);
     if (input) {
       input.value = "";
       filterSearch("");
       input.focus();
     }
+  }
+
+  function closeSearch({ restoreFocus = false } = {}) {
+    const dialog = $("#search-dialog");
+    if (!dialog?.open) return;
+    const returnFocus = dialog._returnFocus;
+    dialog.close();
+    $$('[data-open-search]').forEach((control) => control.setAttribute("aria-expanded", "false"));
+    if (restoreFocus && returnFocus instanceof HTMLElement && returnFocus.isConnected) {
+      returnFocus.focus({ preventScroll: true });
+    }
+    dialog._returnFocus = null;
   }
 
   function searchItems() {
@@ -651,7 +671,7 @@
     $$(".mobile-drawer a").forEach((link) => link.addEventListener("click", () => closeDrawer({ restoreFocus: false })));
 
     $$('[data-open-search]').forEach((control) => control.addEventListener("click", openSearch));
-    $$('[data-close-search]').forEach((control) => control.addEventListener("click", () => closeDialog($("#search-dialog"))));
+    $$('[data-close-search]').forEach((control) => control.addEventListener("click", () => closeSearch({ restoreFocus: true })));
 
     $$('[data-search-suggest]').forEach((control) => {
       control.addEventListener("click", () => {
@@ -696,6 +716,7 @@
 
     document.addEventListener("click", (event) => {
       if (!event.target.closest(".nav-menu-wrap, .popover-wrap, .list-control, .bookmark-menu")) closeAllMenus();
+      if (!event.target.closest("#search-dialog, [data-open-search]")) closeSearch();
     });
 
     document.addEventListener("keydown", (event) => {
@@ -713,6 +734,7 @@
         closeAllMenus();
         if (openBookmarkNode) bookmarkMenuTrigger(openBookmarkNode)?.focus({ preventScroll: true });
         closeDrawer();
+        closeSearch({ restoreFocus: true });
       }
     });
 

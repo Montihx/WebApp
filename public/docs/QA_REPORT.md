@@ -4,7 +4,7 @@
 
 ## Итог
 
-- `43/43` автоматические статические проверки — pass (`node tools/qa.mjs`);
+- `45/45` автоматических статических проверок — pass (`node tools/qa.mjs`);
 - `95/95` браузерных проверок предыдущей визуальной ревизии — только baseline: `58` regression + `37` целевых для hero/title/player; после текущей переработки hero, continue rail и title требуется повторный browser gate;
 - `2/2` HTML documents разобраны без parser errors;
 - `0` duplicate IDs;
@@ -19,7 +19,7 @@
 - `18` ключевых JS interaction families, включая hero, continue rail и отдельный пятистатусный bookmark-сценарий, обнаружены QA-script;
 - сетка постеров подтверждена как production `10/8/5/4/3` колонок на desktop/tablet/mobile gates;
 - отдельный runtime-harness: `18/18` — адаптивная структура, выбор, явное удаление, защита от случайного toggle-off, persistence, синхронизация дубликатов и keyboard focus;
-- browser runtime: hero `1440×590 px` на desktop и `358×590 px` на mobile; карточка каталога `213.9 px` при `1440 px`; desktop popover не выходит за viewport; poster bookmark sheet имеет отступ `12 px`, а title list/player sheets прижаты к нижней границе; horizontal overflow `0 px`;
+- предыдущий browser runtime подтвердил базовую геометрию hero, poster grid и sheets; новый встроенный search и внутренний poster overlay требуют повторной browser-matrix перед merge;
 - `18` contrast pairs (9 на тему), минимум `4.97:1`.
 
 Полный machine-readable результат: `qa-results.json`. Повторный запуск:
@@ -37,7 +37,8 @@ node tools/qa.mjs --write
 - catalog/schedule roving tabs;
 - hero: пять слайдов, 7-секундный progress, разнесённые pagination/navigation controls, pause, keyboard, swipe и исключение скрытых ссылок из tab-порядка;
 - continue rail: пять `16:9` карточек, оставшееся время, процент, progress overlay, отдельное удаление, scroll-snap и стрелки;
-- bookmark overlay на постере, desktop popover, mobile modal sheet, пять статусов на токенах темы, явное удаление, полноширинная нижняя полоска с текстом статуса, persistence и синхронизация одинаковых тайтлов;
+- bookmark overlay строго внутри постера на desktop, mobile modal sheet, пять статусов на токенах темы, явное удаление, полноширинная нижняя полоска с текстом статуса, persistence и синхронизация одинаковых тайтлов;
+- встроенный header search без modal backdrop, outside click, `Escape`, клавиатурная навигация и отдельный mobile-trigger на странице тайтла;
 - title: desktop poster `340/280 px`, community-строка под ним и не обрезаемое пятистатусное меню; mobile poster-first hero `3:4` и контекстный toolbar; оба счётчика видимы, metadata оформлены естественными вертикальными строками без карточек/колонок/разделителей;
 - list/subscription local states; desktop-уведомления находятся под постером, mobile-колокольчик — справа сверху; оба открывают единый адаптивный dialog/sheet, share и повторная details-секция отсутствуют, focus возвращается инициатору;
 - dialogs, backdrop/Escape close и focus trap;
@@ -66,7 +67,7 @@ node tools/qa.mjs --write
 
 ## Ограничение среды
 
-Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `43/43` статические проверки и `node --check`; до production merge необходимо заново проверить hero, continue rail, mobile toolbar, notification sheet, оба счётчика и metadata rows в реальном browser viewport. Неповторённый baseline не считается pass для изменённых узлов.
+Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `45/45` статических проверок и `node --check`; до production merge необходимо заново проверить header search, внутренний bookmark overlay на сетках `10/8/5/4/3`, mobile sheet, hero, continue rail и mobile toolbar в реальном browser viewport. Неповторённый baseline не считается pass для изменённых узлов.
 
 В изолированной среде внешние poster URL Shikimori возвращали transport errors. Regression-прогон подтвердил штатное состояние «Изображение недоступно». Целевой visual harness подставлял детерминированные локальные SVG-fixtures только для проверки crop/mask/геометрии hero и постера; сами production-постеры этим прогоном не подтверждаются.
 

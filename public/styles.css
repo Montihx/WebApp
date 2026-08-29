@@ -1853,6 +1853,7 @@ html[data-theme="light"] .theme-icon--moon {
 
 .poster-frame {
   position: relative;
+  container-type: inline-size;
   display: block;
   overflow: hidden;
   aspect-ratio: 2 / 3;
@@ -2121,18 +2122,25 @@ html[data-theme="light"] .theme-icon--moon {
 .bookmark-menu {
   position: absolute;
   z-index: 10;
-  top: 46px;
-  right: 8px;
-  width: 212px;
+  inset: 0;
+  width: auto;
+  min-width: 0;
   display: grid;
-  gap: 0;
-  padding: 7px;
-  border: 1px solid var(--line-strong);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--surface) 94%, transparent);
-  box-shadow: var(--shadow-menu);
-  backdrop-filter: blur(18px) saturate(112%);
-  animation: bookmark-popover-in 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 4px;
+  overflow: hidden;
+  padding: 8px;
+  border: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(180deg, rgba(12, 12, 14, 0.84), rgba(12, 12, 14, 0.95)),
+    color-mix(in srgb, var(--surface) 62%, transparent);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.13);
+  color: #ffffff;
+  backdrop-filter: blur(13px) saturate(82%);
+  transform-origin: 82% 12%;
+  animation: bookmark-poster-menu-in 260ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .bookmark-menu[hidden] {
@@ -2144,9 +2152,10 @@ html[data-theme="light"] .theme-icon--moon {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
-  margin: 1px 2px 5px;
-  padding: 0 5px 7px;
-  border-bottom: 1px solid var(--line);
+  min-height: 30px;
+  margin: 0;
+  padding: 0 36px 5px 3px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .bookmark-menu__heading-copy {
@@ -2156,14 +2165,14 @@ html[data-theme="light"] .theme-icon--moon {
 }
 
 .bookmark-menu__heading-copy strong {
-  color: var(--text);
+  color: #ffffff;
   font-size: 10px;
   font-weight: 750;
 }
 
 .bookmark-menu__heading-copy span {
   overflow: hidden;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.58);
   font-size: 8px;
   font-weight: 600;
   text-overflow: ellipsis;
@@ -2195,6 +2204,8 @@ html[data-theme="light"] .theme-icon--moon {
 
 .bookmark-menu__options {
   display: grid;
+  min-height: 0;
+  grid-template-rows: repeat(5, minmax(0, 1fr));
   gap: 2px;
 }
 
@@ -2202,29 +2213,39 @@ html[data-theme="light"] .theme-icon--moon {
   position: relative;
   display: grid;
   min-width: 0;
-  min-height: 35px;
+  min-height: 0;
   grid-template-columns: 20px minmax(0, 1fr) 14px;
   gap: 8px;
   align-items: center;
   padding: 5px 7px 5px 8px;
   border: 1px solid transparent;
   border-radius: 8px;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.72);
   text-align: left;
-  transition: background var(--ease), border-color var(--ease), color var(--ease);
+  opacity: 0;
+  transform: translateX(8px);
+  animation: bookmark-option-in 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: background var(--ease), border-color var(--ease), color var(--ease), transform var(--ease);
 }
+
+.bookmark-menu [data-bookmark-option]:nth-child(1) { animation-delay: 45ms; }
+.bookmark-menu [data-bookmark-option]:nth-child(2) { animation-delay: 70ms; }
+.bookmark-menu [data-bookmark-option]:nth-child(3) { animation-delay: 95ms; }
+.bookmark-menu [data-bookmark-option]:nth-child(4) { animation-delay: 120ms; }
+.bookmark-menu [data-bookmark-option]:nth-child(5) { animation-delay: 145ms; }
 
 .bookmark-menu [data-bookmark-option]:hover,
 .bookmark-menu [data-bookmark-option]:focus-visible {
-  border-color: var(--line);
-  background: var(--surface-hover);
-  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  transform: translateX(2px);
 }
 
 .bookmark-menu [data-bookmark-option][aria-checked="true"] {
-  border-color: var(--line);
-  background: var(--surface-raised);
-  color: var(--text);
+  border-color: color-mix(in srgb, var(--bookmark-color) 48%, rgba(255, 255, 255, 0.14));
+  background: color-mix(in srgb, var(--bookmark-color) 22%, rgba(255, 255, 255, 0.07));
+  color: #ffffff;
 }
 
 .bookmark-menu [data-bookmark-option][aria-checked="true"]::before {
@@ -2272,13 +2293,13 @@ html[data-theme="light"] .theme-icon--moon {
 
 .bookmark-menu__remove {
   display: flex;
-  min-height: 36px;
+  min-height: 26px;
   align-items: center;
   gap: 8px;
-  margin: 5px 2px 0;
-  padding: 8px 7px 4px;
-  border-top: 1px solid var(--line);
-  color: var(--text-muted);
+  margin: 0;
+  padding: 4px 7px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.58);
   font-size: 9px;
   font-weight: 700;
   text-align: left;
@@ -2315,6 +2336,94 @@ html[data-theme="light"] .theme-icon--moon {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes bookmark-poster-menu-in {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 78% 62% round var(--radius-md));
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 round var(--radius-md));
+    transform: scale(1);
+  }
+}
+
+@keyframes bookmark-option-in {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.anime-card.is-bookmark-menu-open {
+  z-index: 20;
+  transform: translateY(-4px);
+}
+
+.anime-card.is-bookmark-menu-open .poster-frame img {
+  filter: saturate(0.5) brightness(0.54);
+  transform: scale(1.075);
+}
+
+.anime-card.is-bookmark-menu-open .poster-frame::after,
+.anime-card.is-bookmark-menu-open .score-badge,
+.anime-card.is-bookmark-menu-open .episode-badge,
+.anime-card.is-bookmark-menu-open .poster-action,
+.anime-card.is-bookmark-menu-open .bookmark-status-bar {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.anime-card.is-bookmark-menu-open .poster-bookmark-button {
+  z-index: 12;
+  transform: rotate(7deg) scale(1.04);
+}
+
+@container (max-width: 135px) {
+  .bookmark-menu {
+    gap: 2px;
+    padding: 6px;
+  }
+
+  .bookmark-menu__heading {
+    min-height: 26px;
+    padding-right: 32px;
+  }
+
+  .bookmark-menu__heading-copy span {
+    display: none;
+  }
+
+  .bookmark-menu [data-bookmark-option] {
+    grid-template-columns: 17px minmax(0, 1fr) 11px;
+    gap: 4px;
+    padding: 2px 4px;
+    border-radius: 6px;
+  }
+
+  .bookmark-menu__icon {
+    width: 17px;
+    height: 17px;
+  }
+
+  .bookmark-menu__icon svg,
+  .bookmark-menu__check {
+    width: 11px;
+    height: 11px;
+  }
+
+  .bookmark-menu__label,
+  .bookmark-menu__remove {
+    font-size: 8px;
+  }
+
+  .bookmark-menu__remove {
+    min-height: 22px;
+    padding-inline: 4px;
   }
 }
 
@@ -2757,13 +2866,32 @@ dialog::backdrop {
 }
 
 .search-dialog {
-  width: min(720px, calc(100vw - 28px));
+  position: fixed;
+  z-index: 190;
+  top: calc(var(--header-height) + 8px);
+  right: max(var(--page-gutter), calc((100vw - var(--page-max)) / 2 + var(--page-gutter)));
+  left: auto;
+  width: min(520px, calc(100vw - (var(--page-gutter) * 2)));
   max-width: none;
+  max-height: calc(100dvh - var(--header-height) - 20px);
+  margin: 0;
+  overflow: auto;
   padding: 0;
   border: 1px solid var(--line-strong);
-  border-radius: 20px;
-  background: var(--surface);
-  box-shadow: var(--shadow-dialog);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: var(--shadow-menu);
+  backdrop-filter: blur(20px) saturate(112%);
+  animation: header-search-in 190ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.search-dialog::backdrop {
+  display: none;
+}
+
+@keyframes header-search-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .search-panel {
@@ -2773,11 +2901,11 @@ dialog::backdrop {
 
 .search-field-row {
   display: grid;
-  min-height: 64px;
+  min-height: 52px;
   grid-template-columns: 22px minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
-  padding: 0 18px;
+  padding: 0 14px;
   border-bottom: 1px solid var(--line);
   background: var(--surface-raised);
 }
@@ -2790,7 +2918,7 @@ dialog::backdrop {
 
 .search-field-row input {
   width: 100%;
-  height: 62px;
+  height: 50px;
   border: 0;
   outline: 0;
   background: transparent;
@@ -2803,7 +2931,11 @@ dialog::backdrop {
 }
 
 .search-body {
-  padding: 18px;
+  padding: 14px;
+}
+
+.search-dialog .search-head {
+  display: none;
 }
 
 .search-head,
@@ -5104,6 +5236,24 @@ img.is-image-error {
     animation: bookmark-sheet-in 190ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
+  .bookmark-menu--sheet .bookmark-menu__heading-copy strong,
+  .bookmark-menu--sheet [data-bookmark-option][aria-checked="true"] {
+    color: var(--text);
+  }
+
+  .bookmark-menu--sheet .bookmark-menu__heading-copy span,
+  .bookmark-menu--sheet [data-bookmark-option],
+  .bookmark-menu--sheet .bookmark-menu__remove {
+    color: var(--text-secondary);
+  }
+
+  .bookmark-menu--sheet [data-bookmark-option]:hover,
+  .bookmark-menu--sheet [data-bookmark-option]:focus-visible {
+    border-color: var(--line);
+    background: var(--surface-hover);
+    color: var(--text);
+  }
+
   .bookmark-menu--sheet .bookmark-menu__heading {
     margin: 0 0 7px;
     padding: 2px 2px 10px 4px;
@@ -5155,6 +5305,20 @@ img.is-image-error {
     padding: 10px 11px 5px;
     font-size: 11px;
     touch-action: manipulation;
+  }
+
+  .search-dialog,
+  body[data-page="anime"] .search-dialog {
+    top: calc(var(--header-height) + 8px);
+    right: 8px;
+    left: 8px;
+    width: auto;
+    max-height: calc(100dvh - var(--header-height) - 16px);
+  }
+
+  body[data-page="anime"] .search-dialog {
+    top: calc(66px + env(safe-area-inset-top, 0px));
+    max-height: calc(100dvh - 78px - env(safe-area-inset-top, 0px));
   }
 
   .site-footer {
