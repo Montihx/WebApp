@@ -17,7 +17,7 @@
 - `node --check app.js` — pass;
 - `24` локальных WOFF2 font-файлов подключено;
 - `18` ключевых JS interaction families, включая hero, continue rail и отдельный пятистатусный bookmark-сценарий, обнаружены QA-script;
-- сетка постеров подтверждена как production `10/8/5/4/3` колонок на desktop/tablet/mobile gates;
+- сетка постеров подтверждена как `9/8/7/5/4/3` колонок: карточки увеличены на desktop и ноутбуках, tablet/mobile gates сохранены;
 - отдельный runtime-harness: `18/18` — адаптивная структура, выбор, явное удаление, защита от случайного toggle-off, persistence, синхронизация дубликатов и keyboard focus;
 - предыдущий browser runtime подтвердил базовую геометрию hero, poster grid и sheets; новый встроенный search и внутренний poster overlay требуют повторной browser-matrix перед merge;
 - `18` contrast pairs (9 на тему), минимум `4.97:1`.
@@ -68,7 +68,7 @@ node tools/qa.mjs --write
 
 ## Ограничение среды
 
-Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `46/46` статических проверок и `node --check`; до production merge необходимо заново проверить header search, внутренний bookmark overlay на сетках `10/8/5/4/3`, mobile sheet, hero, continue rail и mobile toolbar в реальном browser viewport. Неповторённый baseline не считается pass для изменённых узлов.
+Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `46/46` статических проверок и `node --check`; до production merge необходимо заново проверить header search, внутренний bookmark overlay на сетках `9/8/7/5/4/3`, mobile sheet, hero, continue rail и mobile toolbar в реальном browser viewport. Неповторённый baseline не считается pass для изменённых узлов.
 
 В изолированной среде внешние poster URL Shikimori возвращали transport errors. Regression-прогон подтвердил штатное состояние «Изображение недоступно». Целевой visual harness подставлял детерминированные локальные SVG-fixtures только для проверки crop/mask/геометрии hero и постера; сами production-постеры этим прогоном не подтверждаются.
 
