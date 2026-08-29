@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-29T04:42:59.610Z",
+  "generated_at": "2026-08-29T10:20:35.080Z",
   "summary": {
     "status": "pass",
-    "total": 43,
-    "passed": 43,
+    "total": 45,
+    "passed": 45,
     "failed": 0
   },
   "results": [
@@ -37,7 +37,7 @@
       "id": "index.html.aria",
       "label": "index.html: ARIA-ссылки",
       "status": "pass",
-      "detail": "13 ссылок разрешены"
+      "detail": "14 ссылок разрешены"
     },
     {
       "id": "index.html.buttons",
@@ -79,7 +79,7 @@
       "id": "anime.html.aria",
       "label": "anime.html: ARIA-ссылки",
       "status": "pass",
-      "detail": "20 ссылок разрешены"
+      "detail": "22 ссылок разрешены"
     },
     {
       "id": "anime.html.buttons",
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "866 блоков, структура сбалансирована"
+      "detail": "899 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -133,7 +133,13 @@
       "id": "css.bookmarks",
       "label": "CSS: закладки на постере",
       "status": "pass",
-      "detail": "desktop popover, mobile sheet, явное удаление и полноширинная статусная полоска оформлены токенами темы"
+      "detail": "desktop overlay заполняет границы постера; mobile sheet, явное удаление и полноширинная статусная полоска оформлены токенами темы"
+    },
+    {
+      "id": "css.headerSearch",
+      "label": "Header: встроенный поиск",
+      "status": "pass",
+      "detail": "popover закреплён под header, полноэкранный backdrop отключён"
     },
     {
       "id": "css.heroSlider",
@@ -190,6 +196,12 @@
       "detail": "12 правил с tabular-nums"
     },
     {
+      "id": "js.headerSearch",
+      "label": "JS: non-modal поиск",
+      "status": "pass",
+      "detail": "поиск раскрывается без showModal и закрывается отдельным сценарием"
+    },
+    {
       "id": "js.capabilities",
       "label": "JS: ключевые сценарии",
       "status": "pass",
@@ -205,7 +217,7 @@
       "id": "js.bookmarks",
       "label": "JS: статусы закладок",
       "status": "pass",
-      "detail": "5 статусов используют токены темы; desktop popover, mobile sheet, явное удаление, сохранение и синхронизация присутствуют"
+      "detail": "5 статусов используют токены темы; desktop overlay остаётся внутри постера, mobile sheet, явное удаление, сохранение и синхронизация присутствуют"
     },
     {
       "id": "html.heroSlider",

@@ -144,6 +144,8 @@ const bookmarkCssTokens = [
   ".bookmark-menu__remove",
   ".bookmark-status-bar",
   ".has-bookmark-status",
+  ".is-bookmark-menu-open",
+  "@container (max-width: 135px)",
   "[data-bookmark-tone=\"watching\"]",
   "justify-content: center",
   "border-top: 1px solid color-mix",
@@ -153,7 +155,18 @@ add(
   "css.bookmarks",
   "CSS: закладки на постере",
   missingBookmarkCss.length === 0,
-  missingBookmarkCss.length ? `Не найдены: ${missingBookmarkCss.join(", ")}` : "desktop popover, mobile sheet, явное удаление и полноширинная статусная полоска оформлены токенами темы",
+  missingBookmarkCss.length ? `Не найдены: ${missingBookmarkCss.join(", ")}` : "desktop overlay заполняет границы постера; mobile sheet, явное удаление и полноширинная статусная полоска оформлены токенами темы",
+);
+
+const headerSearchChecks = [
+  css.includes("@keyframes header-search-in"),
+  css.includes(".search-dialog::backdrop"),
+];
+add(
+  "css.headerSearch",
+  "Header: встроенный поиск",
+  headerSearchChecks.every(Boolean),
+  headerSearchChecks.every(Boolean) ? "popover закреплён под header, полноэкранный backdrop отключён" : "не найден контракт встроенного поиска",
 );
 
 const sliderCssTokens = [
@@ -316,6 +329,12 @@ add("css.noOutfit", "CSS: нет безкириллической гарниту
 add("css.tabularNums", "CSS: tabular-nums на числовых узлах", css.includes("font-variant-numeric: tabular-nums"), `${count(css, /font-variant-numeric: tabular-nums/g)} правил с tabular-nums`);
 
 const js = read("app.js");
+add(
+  "js.headerSearch",
+  "JS: non-modal поиск",
+  js.includes("dialog.show()") && js.includes("function closeSearch"),
+  js.includes("dialog.show()") && js.includes("function closeSearch") ? "поиск раскрывается без showModal и закрывается отдельным сценарием" : "поиск снова использует modal-сценарий",
+);
 const jsCapabilities = [
   "data-theme-toggle",
   "data-open-search",
@@ -359,7 +378,7 @@ add(
   missingBookmarkStatuses.length === 0 && missingBookmarkBehavior.length === 0 && copiedStatusColors.length === 0,
   missingBookmarkStatuses.length || missingBookmarkBehavior.length || copiedStatusColors.length
     ? `Проблемы: ${[...missingBookmarkStatuses, ...missingBookmarkBehavior, ...copiedStatusColors].join(", ")}`
-    : "5 статусов используют токены темы; desktop popover, mobile sheet, явное удаление, сохранение и синхронизация присутствуют",
+    : "5 статусов используют токены темы; desktop overlay остаётся внутри постера, mobile sheet, явное удаление, сохранение и синхронизация присутствуют",
 );
 
 const indexSource = read("index.html");
