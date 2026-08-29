@@ -59,6 +59,8 @@ Anime Graphite строит иерархию контрастом нейтрал
 - На ширине `≤720 px` тот же сценарий открывается как modal bottom sheet: portal в `body`, scrim над bottom navigation, scroll lock, focus trap, safe-area offset и touch targets не меньше `44 px`.
 - Повторный выбор уже активного radio-статуса ничего не удаляет. Удаление — отдельное подписанное действие «Убрать из списка».
 - Статус всегда виден в полноширинной полоске вдоль нижнего края постера: текст «Смотрю», «Запланировано» и т. д. остаётся главным носителем смысла, а семантический цвет только усиливает различие.
+- На desktop меню занимает ровно внутренние границы постера и изолируется через paint containment. Все пять названий показываются полностью; после открытия исходная bookmark-кнопка скрывается и заменяется отдельным компактным закрытием внутри панели.
+- Любое действие меню отменяет default-навигацию родительской ссылки постера: закрытие, выбор и удаление не должны одновременно открывать страницу тайтла.
 - Поведение desktop menu-button следует [WAI-ARIA APG](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/); мобильная композиция использует modal sheet pattern из [Material Design 3](https://m3.material.io/components/bottom-sheets) и [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/sheets), без копирования их визуального стиля.
 
 ### Поиск в шапке
@@ -94,13 +96,14 @@ Anime Graphite строит иерархию контрастом нейтрал
 
 | Ширина | Поведение |
 | --- | --- |
-| `≥1280` | полная desktop navigation, полноширинный hero, 10-column catalog grid, poster тайтла `340 px` |
-| `1024–1279` | 8-column catalog grid, poster тайтла `280 px`, двухколоночный player |
+| `≥1280` | полная desktop navigation, полноширинный hero, 9-column catalog grid, poster тайтла `340 px` |
+| `1181–1279` | 8-column catalog grid, poster тайтла `280 px`, двухколоночный player |
+| `921–1180` | 7-column catalog grid, poster тайтла `280 px`, двухколоночный player |
 | `768–1023` | 5-column catalog grid, mobile drawer, player panel под видео |
 | `640–767` | 4-column catalog grid, fixed bottom navigation, mobile hero и bottom sheets |
 | `<640` | 3-column poster grid, Continue Watching `44vw`, компактные title actions без потери touch targets |
 
-Каталог: `.anime-grid` — `10/8/5/4/3` колонки, как в production `HomeGrid`. Горизонтальные подборки используют карточки шириной `160 px`, как production `HorizontalSection`. Блок «Расписание + Обновления аниме» (`.schedule-updates-grid`) — отдельная 2-колоночная секция под каталогом, схлопывается в 1 колонку при `≤920`.
+Каталог: `.anime-grid` — `9/8/7/5/4/3` колонки: размеры постеров близки к production `HomeGrid`, но между соседними breakpoint нет резкого скачка плотности. Горизонтальные подборки используют карточки шириной `160 px`, как production `HorizontalSection`. Блок «Расписание + Обновления аниме» (`.schedule-updates-grid`) — отдельная 2-колоночная секция под каталогом, схлопывается в 1 колонку при `≤920`.
 
 Минимальная поддерживаемая ширина — `320 px`. Горизонтальный скролл допустим только в явно обозначенных rails/tabs.
 

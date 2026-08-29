@@ -153,11 +153,21 @@ const bookmarkCssTokens = [
   "border-top: 1px solid color-mix",
 ];
 const missingBookmarkCss = bookmarkCssTokens.filter((token) => !css.includes(token));
+const bookmarkPosterLayoutChecks = [
+  /\.poster-frame\s*{[^}]*isolation:\s*isolate[^}]*contain:\s*paint/s.test(baseCss),
+  /\.bookmark-menu__label\s*{[^}]*overflow:\s*visible[^}]*white-space:\s*nowrap/s.test(baseCss),
+  /\.bookmark-menu \[data-bookmark-option\]\s*{[^}]*grid-template-columns:\s*20px minmax\(0, 1fr\)/s.test(baseCss),
+  /\.anime-card\.is-bookmark-menu-open \.poster-bookmark-button\s*{[^}]*opacity:\s*0[^}]*pointer-events:\s*none/s.test(baseCss),
+];
 add(
   "css.bookmarks",
   "CSS: закладки на постере",
-  missingBookmarkCss.length === 0,
-  missingBookmarkCss.length ? `Не найдены: ${missingBookmarkCss.join(", ")}` : "desktop overlay заполняет границы постера; mobile sheet, явное удаление и полноширинная статусная полоска оформлены токенами темы",
+  missingBookmarkCss.length === 0 && bookmarkPosterLayoutChecks.every(Boolean),
+  missingBookmarkCss.length
+    ? `Не найдены: ${missingBookmarkCss.join(", ")}`
+    : bookmarkPosterLayoutChecks.every(Boolean)
+      ? "desktop overlay изолирован границами постера, сохраняет полные названия и отдельное закрытие; mobile sheet и статусная полоска оформлены токенами темы"
+      : "внутренний poster overlay снова допускает выход слоя, обрезание названий или дублирующую trigger-кнопку",
 );
 
 const headerSearchChecks = [
@@ -396,6 +406,8 @@ const bookmarkBehaviorTokens = [
   "bookmarkTone",
   "kitsu-demo-bookmark-status",
   "data-bookmark-status-bar",
+  'headingTitle.textContent = "В мой список"',
+  'menu.addEventListener("click", (event) => {\n        event.preventDefault();',
 ];
 const missingBookmarkBehavior = bookmarkBehaviorTokens.filter((token) => !js.includes(token));
 const copiedStatusColors = ["#22c55e", "#3b82f6", "#a855f7", "#ef4444", "#eab308"].filter((color) => js.includes(color));
