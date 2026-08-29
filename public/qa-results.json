@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-29T18:31:18.657Z",
+  "generated_at": "2026-08-29T18:43:22.795Z",
   "summary": {
     "status": "pass",
     "total": 46,
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "942 блоков, структура сбалансирована"
+      "detail": "946 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -139,7 +139,7 @@
       "id": "css.headerSearch",
       "label": "Header: встроенный поиск",
       "status": "pass",
-      "detail": "единый popover под header: почти непрозрачная поверхность, фильтры, недавние и результаты без fullscreen backdrop"
+      "detail": "popover совпадает с шириной header-поля, использует непрозрачную surface, фильтры, недавние и результаты без fullscreen backdrop"
     },
     {
       "id": "html.headerSearch",
@@ -151,7 +151,7 @@
       "id": "css.heroSlider",
       "label": "CSS: адаптивный hero-слайдер",
       "status": "pass",
-      "detail": "полноширинный desktop hero, mobile composition, controls и progress оформлены"
+      "detail": "desktop hero использует центральный sharp-art 1600 px, симметричное растворение краёв и safe-area; mobile composition, controls и progress оформлены"
     },
     {
       "id": "css.continueRail",

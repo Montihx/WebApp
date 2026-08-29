@@ -122,8 +122,9 @@ function mediaSource(maxWidth) {
   const next = css.indexOf("@media", start + 1);
   return css.slice(start, next === -1 ? css.length : next);
 }
+const baseCss = css.slice(0, css.indexOf("@media (max-width"));
 const posterDensityChecks = [
-  /\.anime-grid\s*{[^}]*repeat\(9,/s.test(css.slice(0, css.indexOf("@media"))),
+  /\.anime-grid\s*{[^}]*repeat\(9,/s.test(baseCss),
   /\.anime-grid\s*{[^}]*repeat\(8,/s.test(mediaSource(1279)),
   /\.anime-grid\s*{[^}]*repeat\(7,/s.test(mediaSource(1180)),
   /\.anime-grid\s*{[^}]*repeat\(5,/s.test(mediaSource(920)),
@@ -164,13 +165,14 @@ const headerSearchChecks = [
   css.includes(".search-dialog::backdrop"),
   css.includes(".search-filters"),
   css.includes(".search-recent"),
-  css.includes("var(--surface) 98.5%"),
+  css.includes("width: var(--search-width, 320px)"),
+  css.includes("background: var(--surface)"),
 ];
 add(
   "css.headerSearch",
   "Header: встроенный поиск",
   headerSearchChecks.every(Boolean),
-  headerSearchChecks.every(Boolean) ? "единый popover под header: почти непрозрачная поверхность, фильтры, недавние и результаты без fullscreen backdrop" : "не найден контракт встроенного поиска",
+  headerSearchChecks.every(Boolean) ? "popover совпадает с шириной header-поля, использует непрозрачную surface, фильтры, недавние и результаты без fullscreen backdrop" : "не найден контракт встроенного поиска",
 );
 
 const searchMarkupTokens = [
@@ -200,13 +202,16 @@ const sliderCssTokens = [
   ".feature-slider__progress",
   "@keyframes hero-progress",
   "touch-action: pan-y",
+  "width: min(100%, 1600px)",
+  "#000 15%, #000 85%",
+  "height: 580px",
 ];
 const missingSliderCss = sliderCssTokens.filter((token) => !css.includes(token));
 add(
   "css.heroSlider",
   "CSS: адаптивный hero-слайдер",
   missingSliderCss.length === 0,
-  missingSliderCss.length ? `Не найдены: ${missingSliderCss.join(", ")}` : "полноширинный desktop hero, mobile composition, controls и progress оформлены",
+  missingSliderCss.length ? `Не найдены: ${missingSliderCss.join(", ")}` : "desktop hero использует центральный sharp-art 1600 px, симметричное растворение краёв и safe-area; mobile composition, controls и progress оформлены",
 );
 
 const continueCssTokens = [
@@ -242,15 +247,15 @@ const titleMobileCssTokens = [
 ];
 const missingTitleMobileCss = titleMobileCssTokens.filter((token) => !css.includes(token));
 const titleMobileLayoutChecks = [
-  /\.title-meta-list\s*{[^}]*display:\s*flex[^}]*flex-direction:\s*column/s.test(css.slice(0, css.indexOf("@media"))),
-  /\.title-meta-list > li\s*{[^}]*display:\s*flex/s.test(css.slice(0, css.indexOf("@media"))),
+  /\.title-meta-list\s*{[^}]*display:\s*flex[^}]*flex-direction:\s*column/s.test(baseCss),
+  /\.title-meta-list > li\s*{[^}]*display:\s*flex/s.test(baseCss),
   /\.title-mobile-actions\s*{[^}]*width:\s*min\(100%, 520px\)[^}]*grid-template-columns:/s.test(mediaSource(720)),
   !/\.title-meta-list[^,{]*::after/.test(css),
   /\.title-poster\s*{[^}]*width:\s*100%[^}]*aspect-ratio:/s.test(mediaSource(720)),
   /\.title-description\s*{[^}]*background:\s*transparent/s.test(mediaSource(720)),
-  /\.title-hero\s*{[^}]*overflow:\s*visible/s.test(css.slice(0, css.indexOf("@media"))),
+  /\.title-hero\s*{[^}]*overflow:\s*visible/s.test(baseCss),
   /\.title-hero\s*{[^}]*overflow:\s*hidden/s.test(mediaSource(720)),
-  /\.title-layout\s*{[^}]*grid-template-columns:\s*340px/s.test(css.slice(0, css.indexOf("@media"))),
+  /\.title-layout\s*{[^}]*grid-template-columns:\s*340px/s.test(baseCss),
 ];
 add(
   "css.titleMobile",

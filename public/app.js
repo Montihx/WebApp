@@ -526,18 +526,35 @@
     body.classList.remove("is-locked");
   }
 
-  function openSearch() {
+  function positionSearch(dialog, trigger) {
+    if (!dialog) return;
+    if (window.matchMedia("(max-width: 920px)").matches) {
+      dialog.style.removeProperty("--search-top");
+      dialog.style.removeProperty("--search-left");
+      dialog.style.removeProperty("--search-width");
+      return;
+    }
+    const source = trigger || $$('.site-header [data-open-search]').find((control) => control.offsetParent !== null);
+    if (!source) return;
+    const rect = source.getBoundingClientRect();
+    dialog.style.setProperty("--search-top", `${Math.round(rect.top)}px`);
+    dialog.style.setProperty("--search-left", `${Math.round(rect.left)}px`);
+    dialog.style.setProperty("--search-width", `${Math.round(rect.width)}px`);
+  }
+
+  function openSearch(event) {
     const dialog = $("#search-dialog");
     if (!dialog) return;
     closeAllMenus();
     closeDrawer({ restoreFocus: false });
-    dialog._returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const trigger = event?.currentTarget instanceof HTMLElement ? event.currentTarget : null;
+    dialog._returnFocus = trigger || (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    positionSearch(dialog, trigger);
     if (!dialog.open) dialog.show();
     $$('[data-open-search]').forEach((control) => control.setAttribute("aria-expanded", "true"));
     const input = $("#global-search", dialog);
     if (input) {
-      input.value = "";
-      filterSearch("");
+      filterSearch(input.value);
       input.focus();
     }
   }
