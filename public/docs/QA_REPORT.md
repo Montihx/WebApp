@@ -39,6 +39,7 @@ node tools/qa.mjs --write
 - continue rail: пять `16:9` карточек, оставшееся время, процент, progress overlay, отдельное удаление, scroll-snap и стрелки;
 - bookmark overlay строго внутри постера на desktop, mobile modal sheet, пять статусов на токенах темы, явное удаление, полноширинная нижняя полоска с текстом статуса, persistence и синхронизация одинаковых тайтлов;
 - встроенный header search без modal backdrop, outside click, `Escape`, клавиатурная навигация и отдельный mobile-trigger на странице тайтла;
+- уведомления тайтла: desktop non-modal dropdown под постером, mobile bottom sheet, общий radio-state и возврат focus;
 - title: desktop poster `340/280 px`, community-строка под ним и не обрезаемое пятистатусное меню; mobile poster-first hero `3:4` и контекстный toolbar; оба счётчика видимы, metadata оформлены естественными вертикальными строками без карточек/колонок/разделителей;
 - list/subscription local states; desktop-уведомления находятся под постером, mobile-колокольчик — справа сверху; оба открывают единый адаптивный dialog/sheet, share и повторная details-секция отсутствуют, focus возвращается инициатору;
 - dialogs, backdrop/Escape close и focus trap;
