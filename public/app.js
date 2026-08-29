@@ -184,6 +184,7 @@
     const close = $('[data-bookmark-close]', menu);
     const remove = $('[data-bookmark-remove]', menu);
     const title = bookmarkMenuCard(menu)?.dataset.bookmarkTitle || "аниме";
+    const hasStatus = Boolean(BOOKMARK_STATUS_BY_KEY[bookmarkMenuCard(menu)?.dataset.bookmarkStatus]);
 
     trigger?.setAttribute("aria-haspopup", isSheet ? "dialog" : "menu");
     menu.setAttribute("role", isSheet ? "dialog" : "menu");
@@ -194,6 +195,7 @@
       options?.setAttribute("role", "menu");
       options?.setAttribute("aria-label", "Выберите статус просмотра");
       if (close) close.hidden = false;
+      if (remove) remove.hidden = !hasStatus;
       remove?.setAttribute("role", "button");
     } else {
       menu.removeAttribute("aria-modal");
@@ -202,7 +204,8 @@
       options?.setAttribute("role", "group");
       options?.removeAttribute("aria-label");
       if (close) close.hidden = false;
-      remove?.setAttribute("role", "menuitem");
+      if (remove) remove.hidden = true;
+      remove?.removeAttribute("role");
     }
   }
 
@@ -363,7 +366,7 @@
     });
 
     if (remove) {
-      remove.hidden = !status;
+      remove.hidden = !status || !bookmarkSheetQuery.matches;
       remove.setAttribute("aria-label", `Убрать «${title}» из списка`);
     }
   }

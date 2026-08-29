@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-29T19:06:36.163Z",
+  "generated_at": "2026-08-29T21:53:23.863Z",
   "summary": {
     "status": "pass",
-    "total": 46,
-    "passed": 46,
+    "total": 47,
+    "passed": 47,
     "failed": 0
   },
   "results": [
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "948 блоков, структура сбалансирована"
+      "detail": "953 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -127,7 +127,7 @@
       "id": "css.posterDensity",
       "label": "CSS: плотность постеров",
       "status": "pass",
-      "detail": "9/8/7/5/4/3 колонок: увеличенные desktop-постеры и стабильный tablet/mobile"
+      "detail": "7/6/5/4/3 колонок: крупные desktop-постеры и стабильный tablet/mobile"
     },
     {
       "id": "css.bookmarks",
@@ -199,7 +199,7 @@
       "id": "css.tabularNums",
       "label": "CSS: tabular-nums на числовых узлах",
       "status": "pass",
-      "detail": "12 правил с tabular-nums"
+      "detail": "13 правил с tabular-nums"
     },
     {
       "id": "js.headerSearch",
@@ -224,6 +224,12 @@
       "label": "JS: статусы закладок",
       "status": "pass",
       "detail": "5 статусов используют токены темы; desktop overlay остаётся внутри постера, mobile sheet, явное удаление, сохранение и синхронизация присутствуют"
+    },
+    {
+      "id": "html.posterFacts",
+      "label": "HTML: серии и рейтинг под названием",
+      "status": "pass",
+      "detail": "рейтинг и количество серий убраны с изображения; под названием показаны вышедшие/всего серии и компактная оценка"
     },
     {
       "id": "html.heroSlider",
