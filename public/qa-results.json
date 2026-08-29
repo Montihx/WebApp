@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-29T22:22:42.262Z",
+  "generated_at": "2026-08-29T22:41:06.681Z",
   "summary": {
     "status": "pass",
-    "total": 92,
-    "passed": 92,
+    "total": 94,
+    "passed": 94,
     "failed": 0
   },
   "results": [
@@ -115,7 +115,7 @@
       "id": "profile.html.references",
       "label": "profile.html: локальные ссылки",
       "status": "pass",
-      "detail": "47 локальных ссылок разрешены"
+      "detail": "48 локальных ссылок разрешены"
     },
     {
       "id": "profile.html.aria",
@@ -355,7 +355,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "1269 блоков, структура сбалансирована"
+      "detail": "1376 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -386,6 +386,12 @@
       "label": "CSS: закладки на постере",
       "status": "pass",
       "detail": "desktop overlay изолирован границами постера, сохраняет полные названия и отдельное закрытие; mobile sheet и статусная полоска оформлены токенами темы"
+    },
+    {
+      "id": "css.statusSemantics",
+      "label": "CSS: единые цвета статусов и круглые аватары",
+      "status": "pass",
+      "detail": "5 статусов окрашивают кнопки, фильтры, полоски и статистику; profile/owner avatars круглые"
     },
     {
       "id": "css.headerSearch",
@@ -470,6 +476,12 @@
       "label": "JS: навигация и фильтры новых разделов",
       "status": "pass",
       "detail": "табы, статусные фильтры, локальный поиск и синхронизация закладок подключены"
+    },
+    {
+      "id": "js.titleStatusTone",
+      "label": "JS: выбранный статус окрашивает кнопку тайтла",
+      "status": "pass",
+      "detail": "desktop и mobile list triggers получают общий data-bookmark-tone"
     },
     {
       "id": "js.headerSearch",
