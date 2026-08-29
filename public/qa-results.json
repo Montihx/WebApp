@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-29T10:28:08.632Z",
+  "generated_at": "2026-08-29T17:00:06.478Z",
   "summary": {
     "status": "pass",
-    "total": 45,
-    "passed": 45,
+    "total": 46,
+    "passed": 46,
     "failed": 0
   },
   "results": [
@@ -25,7 +25,7 @@
       "id": "index.html.ids",
       "label": "index.html: уникальные ID",
       "status": "pass",
-      "detail": "36 уникальных ID"
+      "detail": "37 уникальных ID"
     },
     {
       "id": "index.html.references",
@@ -37,7 +37,7 @@
       "id": "index.html.aria",
       "label": "index.html: ARIA-ссылки",
       "status": "pass",
-      "detail": "14 ссылок разрешены"
+      "detail": "15 ссылок разрешены"
     },
     {
       "id": "index.html.buttons",
@@ -67,19 +67,19 @@
       "id": "anime.html.ids",
       "label": "anime.html: уникальные ID",
       "status": "pass",
-      "detail": "54 уникальных ID"
+      "detail": "58 уникальных ID"
     },
     {
       "id": "anime.html.references",
       "label": "anime.html: локальные ссылки",
       "status": "pass",
-      "detail": "36 локальных ссылок разрешены"
+      "detail": "37 локальных ссылок разрешены"
     },
     {
       "id": "anime.html.aria",
       "label": "anime.html: ARIA-ссылки",
       "status": "pass",
-      "detail": "22 ссылок разрешены"
+      "detail": "23 ссылок разрешены"
     },
     {
       "id": "anime.html.buttons",
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "916 блоков, структура сбалансирована"
+      "detail": "942 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -139,7 +139,13 @@
       "id": "css.headerSearch",
       "label": "Header: встроенный поиск",
       "status": "pass",
-      "detail": "popover закреплён под header, полноэкранный backdrop отключён"
+      "detail": "единый popover под header: почти непрозрачная поверхность, фильтры, недавние и результаты без fullscreen backdrop"
+    },
+    {
+      "id": "html.headerSearch",
+      "label": "HTML: поиск по структуре основного проекта",
+      "status": "pass",
+      "detail": "обе страницы используют одну структуру: поле, 5 фильтров, недавние, результаты и очистку"
     },
     {
       "id": "css.heroSlider",
@@ -199,7 +205,7 @@
       "id": "js.headerSearch",
       "label": "JS: non-modal поиск",
       "status": "pass",
-      "detail": "поиск раскрывается без showModal и закрывается отдельным сценарием"
+      "detail": "поиск раскрывается без showModal; очистка, фильтры и недавние управляются отдельными сценариями"
     },
     {
       "id": "js.capabilities",

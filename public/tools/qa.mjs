@@ -161,12 +161,33 @@ add(
 const headerSearchChecks = [
   css.includes("@keyframes header-search-in"),
   css.includes(".search-dialog::backdrop"),
+  css.includes(".search-filters"),
+  css.includes(".search-recent"),
+  css.includes("var(--surface) 98.5%"),
 ];
 add(
   "css.headerSearch",
   "Header: встроенный поиск",
   headerSearchChecks.every(Boolean),
-  headerSearchChecks.every(Boolean) ? "popover закреплён под header, полноэкранный backdrop отключён" : "не найден контракт встроенного поиска",
+  headerSearchChecks.every(Boolean) ? "единый popover под header: почти непрозрачная поверхность, фильтры, недавние и результаты без fullscreen backdrop" : "не найден контракт встроенного поиска",
+);
+
+const searchMarkupTokens = [
+  "data-search-filter-toggle",
+  "data-search-filter=\"genre\"",
+  "data-search-filter=\"status\"",
+  "data-search-filter=\"type\"",
+  "data-search-filter=\"year\"",
+  "data-search-filter=\"rating\"",
+  "data-search-clear-recent",
+  "search-results__label",
+];
+const searchMarkupChecks = pages.flatMap((page) => searchMarkupTokens.map((token) => read(page).includes(token)));
+add(
+  "html.headerSearch",
+  "HTML: поиск по структуре основного проекта",
+  searchMarkupChecks.every(Boolean),
+  searchMarkupChecks.every(Boolean) ? "обе страницы используют одну структуру: поле, 5 фильтров, недавние, результаты и очистку" : "структура поиска расходится между страницами",
 );
 
 const sliderCssTokens = [
@@ -332,8 +353,8 @@ const js = read("app.js");
 add(
   "js.headerSearch",
   "JS: non-modal поиск",
-  js.includes("dialog.show()") && js.includes("function closeSearch"),
-  js.includes("dialog.show()") && js.includes("function closeSearch") ? "поиск раскрывается без showModal и закрывается отдельным сценарием" : "поиск снова использует modal-сценарий",
+  js.includes("dialog.show()") && js.includes("function closeSearch") && js.includes("data-search-filter-toggle") && js.includes("data-search-clear-recent"),
+  js.includes("dialog.show()") && js.includes("function closeSearch") && js.includes("data-search-filter-toggle") && js.includes("data-search-clear-recent") ? "поиск раскрывается без showModal; очистка, фильтры и недавние управляются отдельными сценариями" : "поиск снова использует modal-сценарий или потерял интерактивные состояния",
 );
 const jsCapabilities = [
   "data-theme-toggle",

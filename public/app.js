@@ -24,6 +24,7 @@
 
   const state = {
     searchIndex: 0,
+    searchRecentCleared: false,
     lastDrawerFocus: null,
     listStatus: storage.get("kitsu-demo-list-status", "none"),
     subscription: storage.get("kitsu-demo-subscription", "none"),
@@ -570,15 +571,24 @@
     const dialog = $("#search-dialog");
     if (!dialog) return;
     const query = value.trim().toLocaleLowerCase("ru");
-    const trending = $("#search-trending", dialog);
+    const recent = $("#search-recent", dialog);
     const results = $("#search-results", dialog);
     const more = $("#search-more", dialog);
     const count = $("#search-count", dialog);
+    const clear = $("[data-search-clear]", dialog);
+    const reset = $("[data-search-reset]", dialog);
+    const filters = $$('[data-search-filter]', dialog);
+    const activeFilters = filters.filter((filter) => filter.value);
     const items = $$('[data-search-item]', dialog);
-    if (!query) {
+    const hasCriteria = Boolean(query || activeFilters.length);
+
+    if (clear) clear.hidden = !query;
+    if (reset) reset.hidden = activeFilters.length === 0;
+
+    if (!hasCriteria) {
       items.forEach((item) => { item.hidden = true; });
       $("#search-empty", dialog).hidden = true;
-      if (trending) trending.hidden = false;
+      if (recent) recent.hidden = state.searchRecentCleared;
       if (results) results.hidden = true;
       if (more) more.hidden = true;
       if (count) count.textContent = "Введите запрос";
@@ -586,16 +596,26 @@
       paintSearchIndex();
       return;
     }
-    if (trending) trending.hidden = true;
+    if (recent) recent.hidden = true;
     if (results) results.hidden = false;
     let visible = 0;
     items.forEach((item) => {
-      const matches = item.dataset.searchItem.toLocaleLowerCase("ru").includes(query);
+      const matchesQuery = !query || item.dataset.searchItem.toLocaleLowerCase("ru").includes(query);
+      const matchesFilters = activeFilters.every((filter) => {
+        const key = `search${filter.dataset.searchFilter[0].toUpperCase()}${filter.dataset.searchFilter.slice(1)}`;
+        if (filter.dataset.searchFilter === "rating") {
+          return Number(item.dataset[key] || 0) >= Number(filter.value);
+        }
+        return (item.dataset[key] || "").split(" ").includes(filter.value);
+      });
+      const matches = matchesQuery && matchesFilters;
       item.hidden = !matches;
       if (matches) visible += 1;
     });
     $("#search-empty", dialog).hidden = visible > 0;
     if (more) more.hidden = visible === 0;
+    const moreLabel = $("span", more);
+    if (moreLabel) moreLabel.textContent = query ? `Найти «${value.trim()}»` : "Показать в каталоге";
     if (count) {
       count.textContent =
         visible > 0
@@ -686,6 +706,43 @@
 
     const searchInput = $("#global-search");
     searchInput?.addEventListener("input", (event) => filterSearch(event.currentTarget.value));
+    $("[data-search-clear]")?.addEventListener("click", () => {
+      if (!searchInput) return;
+      searchInput.value = "";
+      filterSearch("");
+      searchInput.focus();
+    });
+    $("[data-search-filter-toggle]")?.addEventListener("click", (event) => {
+      const button = event.currentTarget;
+      const panel = $("#search-filters");
+      if (!panel) return;
+      const willOpen = panel.hidden;
+      panel.hidden = !willOpen;
+      button.setAttribute("aria-expanded", String(willOpen));
+    });
+    $$('[data-search-filter]').forEach((filter) => {
+      const label = filter.closest(".search-filter")?.querySelector("span");
+      if (label) label.dataset.defaultLabel = label.textContent;
+      filter.addEventListener("change", () => {
+        if (label) label.textContent = filter.value ? filter.selectedOptions[0].textContent : label.dataset.defaultLabel;
+        filterSearch(searchInput?.value || "");
+      });
+    });
+    $("[data-search-reset]")?.addEventListener("click", () => {
+      $$('[data-search-filter]').forEach((filter) => {
+        filter.value = "";
+        const label = filter.closest(".search-filter")?.querySelector("span");
+        if (label?.dataset.defaultLabel) label.textContent = label.dataset.defaultLabel;
+      });
+      filterSearch(searchInput?.value || "");
+      searchInput?.focus();
+    });
+    $("[data-search-clear-recent]")?.addEventListener("click", () => {
+      state.searchRecentCleared = true;
+      const recent = $("#search-recent");
+      if (recent) recent.hidden = true;
+      searchInput?.focus();
+    });
     searchInput?.addEventListener("keydown", (event) => {
       const items = searchItems();
       if (event.key === "ArrowDown") {

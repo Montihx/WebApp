@@ -518,28 +518,33 @@
       <div class="search-panel">
         <div class="search-field-row">
           <i data-lucide="search"></i>
-          <input id="global-search" type="search" placeholder="Название на русском, английском или японском" autocomplete="off" aria-labelledby="search-title" />
-          <kbd>Esc</kbd>
+          <input id="global-search" type="search" placeholder="Поиск аниме" autocomplete="off" aria-labelledby="search-title" />
+          <button class="search-clear" type="button" data-search-clear aria-label="Очистить поиск" hidden><i data-lucide="x"></i></button>
+          <button class="search-filter-toggle" type="button" data-search-filter-toggle aria-label="Показать фильтры" aria-expanded="false" aria-controls="search-filters"><i data-lucide="sliders-horizontal"></i></button>
         </div>
         <div class="search-body">
-          <div class="search-head"><div><p class="section-kicker"><i data-lucide="search"></i>Быстрый поиск</p><h2 id="search-title">Найти тайтл</h2></div><button class="icon-button" type="button" data-close-search aria-label="Закрыть поиск"><i data-lucide="x"></i></button></div>
-          <div class="search-trending" id="search-trending">
-            <p class="search-trending__label">Популярные запросы</p>
-            <div class="search-trending__chips">
-              <button type="button" class="filter-chip" data-search-suggest="фрирен"><i data-lucide="trending-up"></i>Фрирен</button>
-              <button type="button" class="filter-chip" data-search-suggest="монстр"><i data-lucide="trending-up"></i>Монстр</button>
-              <button type="button" class="filter-chip" data-search-suggest="атака титанов"><i data-lucide="trending-up"></i>Атака титанов</button>
-              <button type="button" class="filter-chip" data-search-suggest="ковбой бибоп"><i data-lucide="trending-up"></i>Ковбой Бибоп</button>
-            </div>
+          <h2 class="sr-only" id="search-title">Поиск аниме</h2>
+          <div class="search-filters" id="search-filters" hidden>
+            <label class="search-filter"><span>Жанр</span><select data-search-filter="genre"><option value="">Все жанры</option><option value="fantasy">Фэнтези</option><option value="adventure">Приключения</option><option value="drama">Драма</option><option value="thriller">Триллер</option></select><i data-lucide="chevron-down"></i></label>
+            <label class="search-filter"><span>Статус</span><select data-search-filter="status"><option value="">Любой статус</option><option value="released">Вышло</option><option value="ongoing">Онгоинг</option></select><i data-lucide="chevron-down"></i></label>
+            <label class="search-filter"><span>Тип</span><select data-search-filter="type"><option value="">Все типы</option><option value="tv">TV</option><option value="ona">ONA</option><option value="movie">Фильм</option></select><i data-lucide="chevron-down"></i></label>
+            <label class="search-filter"><span>Год</span><select data-search-filter="year"><option value="">Любой год</option><option value="2023">2023</option><option value="2013">2013</option><option value="2004">2004</option><option value="1998">1998</option></select><i data-lucide="chevron-down"></i></label>
+            <label class="search-filter"><span>Рейтинг</span><select data-search-filter="rating"><option value="">Любой рейтинг</option><option value="9">От 9</option><option value="8">От 8</option></select><i data-lucide="chevron-down"></i></label>
+            <button class="search-reset" type="button" data-search-reset hidden><i data-lucide="rotate-ccw"></i>Сбросить всё</button>
+          </div>
+          <div class="search-recent" id="search-recent">
+            <div class="search-section-head"><strong>Недавние</strong><button type="button" data-search-clear-recent>Очистить</button></div>
+            <button class="search-recent__item" type="button" data-search-suggest="синий экзорцист"><i data-lucide="clock-3"></i><span>Синий экзорцист [ТВ-4, часть 2]</span><i data-lucide="chevron-right"></i></button>
           </div>
           <div class="search-results" id="search-results">
-            <a class="search-result" href="./anime.html" data-search-item="монстр monster"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small>Monster · TV · 2004</small><span class="search-result__tags"><span class="search-result__score"><i data-lucide="star"></i>8.88</span><span class="search-result__genre">Триллер</span><span class="search-result__genre">Детектив</span></span></span><i data-lucide="arrow-right"></i></a>
-            <a class="search-result" href="./anime.html" data-search-item="провожающая фрирен sousou frieren"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Провожающая в последний путь Фрирен</strong><small>Sousou no Frieren · TV · 2023</small><span class="search-result__tags"><span class="search-result__score"><i data-lucide="star"></i>9.31</span><span class="search-result__genre">Фэнтези</span><span class="search-result__genre">Приключения</span></span></span><i data-lucide="arrow-right"></i></a>
-            <a class="search-result" href="./anime.html" data-search-item="ковбой бибоп cowboy bebop"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>Cowboy Bebop · TV · 1998</small><span class="search-result__tags"><span class="search-result__score"><i data-lucide="star"></i>8.90</span><span class="search-result__genre">Приключения</span><span class="search-result__genre">Фантастика</span></span></span><i data-lucide="arrow-right"></i></a>
-            <a class="search-result" href="./anime.html" data-search-item="атака титанов shingeki kyojin"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>Shingeki no Kyojin · TV · 2013</small><span class="search-result__tags"><span class="search-result__score"><i data-lucide="star"></i>8.55</span><span class="search-result__genre">Экшен</span><span class="search-result__genre">Драма</span></span></span><i data-lucide="arrow-right"></i></a>
+            <p class="search-results__label">Результаты</p>
+            <a class="search-result" href="./anime.html" data-search-item="монстр monster" data-search-genre="thriller" data-search-status="released" data-search-type="tv" data-search-year="2004" data-search-rating="8.88"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small>TV · 2004 <b class="search-result__score"><i data-lucide="star"></i>8.88</b></small></span><i data-lucide="chevron-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="провожающая в последний путь фрирен sousou frieren" data-search-genre="fantasy adventure" data-search-status="released" data-search-type="tv" data-search-year="2023" data-search-rating="9.31"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Провожающая в последний путь Фрирен</strong><small>TV · 2023 <b class="search-result__score"><i data-lucide="star"></i>9.31</b></small></span><i data-lucide="chevron-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="ковбой бибоп cowboy bebop" data-search-genre="adventure" data-search-status="released" data-search-type="tv" data-search-year="1998" data-search-rating="8.90"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>TV · 1998 <b class="search-result__score"><i data-lucide="star"></i>8.90</b></small></span><i data-lucide="chevron-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="атака титанов shingeki kyojin" data-search-genre="drama" data-search-status="released" data-search-type="tv" data-search-year="2013" data-search-rating="8.55"><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>TV · 2013 <b class="search-result__score"><i data-lucide="star"></i>8.55</b></small></span><i data-lucide="chevron-right"></i></a>
             <div class="search-empty" id="search-empty" hidden><i data-lucide="search-x"></i><strong>Ничего не найдено</strong><span>Проверьте написание или измените запрос.</span></div>
           </div>
-          <a class="search-more" id="search-more" href="#catalog" data-close-search hidden><i data-lucide="arrow-right"></i>Показать все результаты в каталоге</a>
+          <a class="search-more" id="search-more" href="#catalog" data-close-search hidden><i data-lucide="arrow-right"></i><span>Найти в каталоге</span></a>
           <p class="search-hint"><span class="search-hint__keys"><span><kbd>↑</kbd><kbd>↓</kbd> перемещение</span><span><kbd>Enter</kbd> открыть</span></span><span id="search-count" class="search-hint__count">Введите запрос</span></p>
         </div>
       </div>
