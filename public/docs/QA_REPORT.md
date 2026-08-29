@@ -4,7 +4,7 @@
 
 ## Итог
 
-- `45/45` автоматических статических проверок — pass (`node tools/qa.mjs`);
+- `46/46` автоматических статических проверок — pass (`node tools/qa.mjs`);
 - `95/95` браузерных проверок предыдущей визуальной ревизии — только baseline: `58` regression + `37` целевых для hero/title/player; после текущей переработки hero, continue rail и title требуется повторный browser gate;
 - `2/2` HTML documents разобраны без parser errors;
 - `0` duplicate IDs;
@@ -13,7 +13,7 @@
 - `0` buttons без явного `type`;
 - `0` images без `alt`;
 - `0` bare `href="#"`/`javascript:` links;
-- CSS: структура из `860` блоков сбалансирована, контрольные точки `1180`/`920`/`720`/`460 px`;
+- CSS: структура из `942` блоков сбалансирована, контрольные точки `1279`/`1180`/`920`/`720`/`639`/`460 px`;
 - `node --check app.js` — pass;
 - `24` локальных WOFF2 font-файлов подключено;
 - `18` ключевых JS interaction families, включая hero, continue rail и отдельный пятистатусный bookmark-сценарий, обнаружены QA-script;
@@ -38,7 +38,7 @@ node tools/qa.mjs --write
 - hero: пять слайдов, 7-секундный progress, разнесённые pagination/navigation controls, pause, keyboard, swipe и исключение скрытых ссылок из tab-порядка;
 - continue rail: пять `16:9` карточек, оставшееся время, процент, progress overlay, отдельное удаление, scroll-snap и стрелки;
 - bookmark overlay строго внутри постера на desktop, mobile modal sheet, пять статусов на токенах темы, явное удаление, полноширинная нижняя полоска с текстом статуса, persistence и синхронизация одинаковых тайтлов;
-- встроенный header search без modal backdrop, outside click, `Escape`, клавиатурная навигация и отдельный mobile-trigger на странице тайтла;
+- встроенный header search без modal backdrop: одинаковая структура на обеих страницах, поле с очисткой, 5 фильтров, недавние, компактные результаты, outside click, `Escape`, клавиатурная навигация и отдельный mobile-trigger на странице тайтла; поверхность почти непрозрачна и не смешивает текст с фоном страницы;
 - уведомления тайтла: desktop non-modal dropdown под постером, mobile bottom sheet, общий radio-state и возврат focus;
 - title: desktop poster `340/280 px`, community-строка под ним и не обрезаемое пятистатусное меню; mobile poster-first hero `3:4` и контекстный toolbar; оба счётчика видимы, metadata оформлены естественными вертикальными строками без карточек/колонок/разделителей;
 - list/subscription local states; desktop-уведомления находятся под постером, mobile-колокольчик — справа сверху; оба открывают единый адаптивный dialog/sheet, share и повторная details-секция отсутствуют, focus возвращается инициатору;
@@ -68,7 +68,7 @@ node tools/qa.mjs --write
 
 ## Ограничение среды
 
-Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `45/45` статических проверок и `node --check`; до production merge необходимо заново проверить header search, внутренний bookmark overlay на сетках `10/8/5/4/3`, mobile sheet, hero, continue rail и mobile toolbar в реальном browser viewport. Неповторённый baseline не считается pass для изменённых узлов.
+Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `46/46` статических проверок и `node --check`; до production merge необходимо заново проверить header search, внутренний bookmark overlay на сетках `10/8/5/4/3`, mobile sheet, hero, continue rail и mobile toolbar в реальном browser viewport. Неповторённый baseline не считается pass для изменённых узлов.
 
 В изолированной среде внешние poster URL Shikimori возвращали transport errors. Regression-прогон подтвердил штатное состояние «Изображение недоступно». Целевой visual harness подставлял детерминированные локальные SVG-fixtures только для проверки crop/mask/геометрии hero и постера; сами production-постеры этим прогоном не подтверждаются.
 
