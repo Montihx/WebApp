@@ -160,6 +160,8 @@ const sliderCssTokens = [
   ".feature-slider",
   ".feature-slide.is-active",
   ".feature-slider__controls",
+  ".feature-slider__pagination",
+  ".feature-slider__nav",
   ".feature-slider__progress",
   "@keyframes hero-progress",
   "touch-action: pan-y",
@@ -172,6 +174,23 @@ add(
   missingSliderCss.length ? `Не найдены: ${missingSliderCss.join(", ")}` : "полноширинный desktop hero, mobile composition, controls и progress оформлены",
 );
 
+const continueCssTokens = [
+  ".continue-grid",
+  "grid-auto-flow: column",
+  "scroll-snap-type: x mandatory",
+  ".continue-progress-copy",
+  ".continue-progress",
+  ".continue-remove",
+  ".continue-nav",
+];
+const missingContinueCss = continueCssTokens.filter((token) => !css.includes(token));
+add(
+  "css.continueRail",
+  "CSS: горизонтальная история просмотра",
+  missingContinueCss.length === 0,
+  missingContinueCss.length ? `Не найдены: ${missingContinueCss.join(", ")}` : "16:9 rail, progress overlay, remove action, snap и навигация оформлены",
+);
+
 const titleMobileCssTokens = [
   ".title-mobile-toolbar",
   ".title-mobile-actions",
@@ -179,7 +198,8 @@ const titleMobileCssTokens = [
   ".title-mobile-watch",
   ".title-list-dialog",
   ".mobile-subscribe-dialog",
-  ".episode-subscribe__trigger",
+  ".title-community-actions",
+  ".title-subscription-icon",
   ".title-meta-flag",
   "@keyframes bottom-sheet-in",
 ];
@@ -189,7 +209,8 @@ const titleMobileLayoutChecks = [
   /\.title-meta-list > li\s*{[^}]*display:\s*flex/s.test(css.slice(0, css.indexOf("@media"))),
   /\.title-mobile-actions\s*{[^}]*width:\s*min\(100%, 520px\)[^}]*grid-template-columns:/s.test(mediaSource(720)),
   !/\.title-meta-list[^,{]*::after/.test(css),
-  /\.episode-subscribe\s*{[^}]*display:\s*none/s.test(mediaSource(720)),
+  /\.title-poster\s*{[^}]*width:\s*100%[^}]*aspect-ratio:/s.test(mediaSource(720)),
+  /\.title-description\s*{[^}]*background:\s*transparent/s.test(mediaSource(720)),
 ];
 add(
   "css.titleMobile",
@@ -304,7 +325,10 @@ const jsCapabilities = [
   "requestFullscreen",
   "data-hero-slide",
   "data-hero-pause",
+  "data-continue-rail",
+  "data-continue-next",
   "data-open-mobile-list",
+  "data-open-title-notifications",
   "kitsu-demo-player-settings",
 ];
 const missingCapabilities = jsCapabilities.filter((token) => !js.includes(token));
@@ -339,8 +363,24 @@ const heroSlideCount = count(indexSource, /data-hero-slide\b/g);
 add(
   "html.heroSlider",
   "HTML: hero-слайдер",
-  heroSlideCount === 5 && indexSource.includes("data-hero-pause") && indexSource.includes("data-hero-live"),
-  `${heroSlideCount} слайдов, pause control и live-status`,
+  heroSlideCount === 5
+    && indexSource.includes("data-hero-pause")
+    && indexSource.includes("data-hero-live")
+    && indexSource.includes("feature-slider__pagination")
+    && indexSource.includes("feature-slider__nav"),
+  `${heroSlideCount} слайдов, разнесённые controls, pause и live-status`,
+);
+const continueCardCount = count(indexSource, /class="continue-card"/g);
+add(
+  "html.continueRail",
+  "HTML: история просмотра как 16:9 rail",
+  continueCardCount === 5
+    && count(indexSource, /class="continue-progress-copy"/g) === 5
+    && count(indexSource, /class="continue-progress"/g) === 5
+    && count(indexSource, /data-remove-card/g) === 5
+    && indexSource.includes("data-continue-prev")
+    && indexSource.includes("data-continue-next"),
+  `${continueCardCount} карточек с оставшимся временем, процентом, удалением и стрелками`,
 );
 const titleInteractionTokens = ["title-mobile-toolbar", "mobile-list-menu", "mobile-list-label", "mobile-subscribe-menu", "title-mobile-watch"];
 const missingTitleInteractions = titleInteractionTokens.filter((token) => !animeSource.includes(token));
@@ -363,28 +403,35 @@ add(
     ? `Не найдены: ${missingTitleInteractions.join(", ")}`
     : "mobile status без лишней ведущей иконки, 5 естественных metadata-строк и 5 статусов с отдельным удалением синхронизированы",
 );
-const episodesSectionIndex = animeSource.indexOf('class="episodes-section"');
-const subscriptionIndex = animeSource.indexOf('id="subscribe-trigger"');
-const relatedSectionIndex = animeSource.indexOf('aria-labelledby="related-title"');
 const mobileToolbarStart = animeSource.indexOf('class="title-mobile-toolbar"');
 const mobileToolbarEnd = animeSource.indexOf('</div>', mobileToolbarStart);
 const mobileToolbarSource = animeSource.slice(mobileToolbarStart, mobileToolbarEnd);
+const communityStart = animeSource.indexOf('class="title-community-actions"');
+const communityEnd = animeSource.indexOf('</div>', communityStart);
+const communitySource = animeSource.slice(communityStart, communityEnd);
 add(
   "html.titleNotifications",
-  "HTML: уведомления без мобильного дубля закладки",
-  episodesSectionIndex >= 0
-    && subscriptionIndex > episodesSectionIndex
-    && (relatedSectionIndex < 0 || subscriptionIndex < relatedSectionIndex)
-    && mobileToolbarSource.includes("data-open-mobile-notifications")
+  "HTML: адаптивные уведомления без дублей",
+  communityStart >= 0
+    && communitySource.includes("data-open-title-notifications")
+    && mobileToolbarSource.includes("data-open-title-notifications")
     && !mobileToolbarSource.includes("data-open-mobile-list")
+    && count(animeSource, /data-open-title-notifications/g) === 2
+    && !animeSource.includes('id="subscribe-trigger"')
     && count(animeSource, /id="mobile-subscribe-menu"/g) === 1,
-  "desktop trigger расположен у серий; mobile trigger — справа сверху и открывает отдельный sheet",
+  "desktop trigger расположен под постером; mobile trigger — справа сверху; оба открывают один dialog/sheet",
 );
+const mobileActionsStart = animeSource.indexOf('class="title-mobile-actions"');
+const mobileActionsEnd = animeSource.indexOf('</div>', mobileActionsStart);
+const mobileActionsSource = animeSource.slice(mobileActionsStart, mobileActionsEnd);
 add(
   "html.titleCounters",
   "HTML: счётчики списков и комментариев",
-  count(animeSource, /data-field="favorites_count"/g) === 2 && count(animeSource, /data-field="comments_count"/g) === 2,
-  "favorites_count виден в mobile actions; comments_count доступен в подписи mobile action; оба числа показаны в desktop statistics",
+  count(animeSource, /data-field="favorites_count"/g) === 2
+    && count(animeSource, /data-field="comments_count"/g) === 2
+    && count(mobileActionsSource, /<strong data-field="(?:favorites|comments)_count">/g) === 2
+    && count(communitySource, /<strong data-field="(?:favorites|comments)_count">/g) === 2,
+  "favorites_count и comments_count визуально показаны в mobile actions и desktop community strip",
 );
 add(
   "html.titleNoShare",
@@ -395,8 +442,11 @@ add(
 add(
   "html.titleNoDuplicateDetails",
   "HTML: нет повторной карточки подробностей",
-  !animeSource.includes("details-title") && !animeSource.includes("Карточка тайтла") && !animeSource.includes('class="details-list"'),
-  "метаданные представлены один раз в title hero",
+  !animeSource.includes("details-title")
+    && !animeSource.includes("Карточка тайтла")
+    && !animeSource.includes('class="details-list"')
+    && !animeSource.includes('class="title-stats"'),
+  "метаданные представлены один раз в title hero; отдельные статистические плитки отсутствуют",
 );
 const unsupportedPlayerControls = ["мини-плеер", "скачать серию"].filter((label) => animeSource.toLowerCase().includes(label));
 add(

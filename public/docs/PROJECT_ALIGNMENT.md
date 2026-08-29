@@ -1,6 +1,6 @@
 # Соответствие текущему проекту
 
-Дата повторного аудита: 21 августа 2026 года. Источник истины — фактический код ветки `main` переданного repository mirror, а не старые screenshots или документация.
+Дата повторного аудита: 29 августа 2026 года. Источник истины — фактический код переданного repository mirror и предоставленные пользователем screenshots, а не старые описания архива.
 
 ## Проверенные frontend owners
 
@@ -26,15 +26,15 @@
 
 | Блок шаблона | Подтверждённый consumer/contract | Решение |
 | --- | --- | --- |
-| Главный hero | `Hero`, anime fields `title`, `description`, `poster_url`, score/year/studio | сохранены пять API-слайдов, 7-секундный timer, background/focus image layers и controls; визуальная палитра адаптирована под Anime Graphite |
-| Продолжить | `ContinueWatching`, local + authenticated watch progress | локальное автономное состояние; production owner не меняется |
+| Главный hero | `Hero`, anime fields `title`, `description`, `poster_url`, score/year/studio | сохранены пять API-слайдов, 7-секундный timer, полноширинный background, отдельный focus-art, короткая строка type/score/year и разнесённые controls; визуальная палитра адаптирована под Anime Graphite |
+| Продолжить | `ContinueWatching`, local + authenticated watch progress | восстановлена production-иерархия `16:9`: оставшееся время, процент и progress поверх кадра, название и серия ниже; автономное удаление не меняет production owner |
 | Каталог tabs | `/anime` с `sort_by`, `status`, `season`; `/recent-updates` | три понятных discovery состояния |
 | Расписание | `/schedule/history` + `/schedule/calendar` | время скрывается, если API его не вернул |
 | Публичные коллекции | `/interactions/collections/public` | только read-only cards |
-| Title hero | SSR `/anime/{slug}` + `AnimeInfo` | сохранены metadata/SEO boundaries; mobile-композиция опирается на полный poster, быстрые actions и прежний вертикальный список фактов как цельных строк без карточек, колонок и разделителей |
+| Title hero | SSR `/anime/{slug}` + `AnimeInfo` | сохранены metadata/SEO boundaries; desktop группирует просмотр/список/community под постером, mobile использует полноширинный poster-first hero; факты остаются цельными строками без карточек, колонок и разделителей |
 | Мой список | favorites categories и отдельный DELETE | ровно пять подтверждённых categories; popover на desktop и modal sheet на mobile |
-| Счётчики тайтла | `anime.favorites_count`, `anime.comments_count` | `favorites_count` виден рядом со статусом списка на mobile, комментарии открываются отдельной компактной кнопкой с доступной подписью; оба числа видны в statistics на desktop/tablet; автономные числа — fixtures, production значения берутся только из detail response |
-| Уведомления тайтла | `users/me.preferences.anime_notifications` | episode/dubbing/all/none; desktop trigger расположен у списка серий, mobile trigger заменяет повторную закладку справа сверху и открывает bottom sheet |
+| Счётчики тайтла | `anime.favorites_count`, `anime.comments_count` | оба числа видны рядом со статусом на mobile и в компактной community-строке под постером на desktop/tablet; автономные числа — fixtures, production значения берутся только из detail response |
+| Уведомления тайтла | `users/me.preferences.anime_notifications` | episode/dubbing/all/none; desktop trigger находится в community-строке под постером, mobile trigger заменяет повторную закладку справа сверху; оба открывают один адаптивный dialog/sheet |
 | Плеер | Kodik playlist → HLS/iframe fallback → generic releases | макет оформляет shell, не заменяет runtime |
 | Источник/перевод | `release.source` и `translation_team`/Kodik translator | намеренно разделены |
 | Player preferences | local prefs + `/interactions/preferences/kodik/{slug}` | bottom sheet показывает только opening/ending/auto-next/quality/speed/mode; mini-player/download не добавлены |

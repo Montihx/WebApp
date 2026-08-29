@@ -138,7 +138,6 @@
       [$("#category-trigger"), $("#category-menu")],
       [$("#notification-trigger"), $("#notification-popover")],
       [$("#list-trigger"), $("#list-menu")],
-      [$("#subscribe-trigger"), $("#subscribe-menu")],
     ].forEach(([trigger, menu]) => {
       if (menu && menu !== except) closeMenu(trigger, menu);
     });
@@ -696,7 +695,7 @@
     });
 
     document.addEventListener("click", (event) => {
-      if (!event.target.closest(".nav-menu-wrap, .popover-wrap, .list-control, .episode-subscribe, .bookmark-menu")) closeAllMenus();
+      if (!event.target.closest(".nav-menu-wrap, .popover-wrap, .list-control, .bookmark-menu")) closeAllMenus();
     });
 
     document.addEventListener("keydown", (event) => {
@@ -913,8 +912,42 @@
     show(index, { announce: false });
   }
 
+  function initContinueRail() {
+    const rail = $('[data-continue-rail]');
+    if (!rail) return;
+    const previous = $('[data-continue-prev]');
+    const next = $('[data-continue-next]');
+
+    const update = () => {
+      const maxScroll = Math.max(0, rail.scrollWidth - rail.clientWidth);
+      if (previous) previous.disabled = rail.scrollLeft <= 4;
+      if (next) next.disabled = rail.scrollLeft >= maxScroll - 4 || maxScroll <= 4;
+    };
+
+    const move = (direction) => {
+      const card = $('.continue-card:not([hidden])', rail);
+      const cardWidth = card?.getBoundingClientRect().width || 280;
+      const gap = Number.parseFloat(getComputedStyle(rail).columnGap || getComputedStyle(rail).gap) || 12;
+      const visibleStep = Math.max(cardWidth + gap, rail.clientWidth * 0.78);
+      rail.scrollBy({ left: direction * visibleStep, behavior: 'smooth' });
+    };
+
+    previous?.addEventListener('click', () => move(-1));
+    next?.addEventListener('click', () => move(1));
+    rail.addEventListener('scroll', update, { passive: true });
+    rail.addEventListener('keydown', (event) => {
+      if (event.target !== rail || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+      event.preventDefault();
+      move(event.key === 'ArrowRight' ? 1 : -1);
+    });
+    rail.addEventListener('continuechange', () => requestAnimationFrame(update));
+    window.addEventListener('resize', update, { passive: true });
+    requestAnimationFrame(update);
+  }
+
   function initHome() {
     initHeroSlider();
+    initContinueRail();
     initSeasonLabel();
     const filters = $$('[data-filter]');
     const cards = $$('.anime-card[data-status]');
@@ -960,6 +993,7 @@
         const card = control.closest(".continue-card");
         if (!card) return;
         card.hidden = true;
+        card.closest('[data-continue-rail]')?.dispatchEvent(new CustomEvent('continuechange'));
         showToast("Удалено из истории", "Запись скрыта до обновления страницы.");
       });
     });
@@ -999,25 +1033,15 @@
       item.classList.toggle("is-active", active);
       item.setAttribute("aria-checked", String(active));
     });
-    const trigger = $("#subscribe-trigger");
-    if (trigger) {
-      const text = $("span", trigger);
-      if (text) text.textContent = subscriptionLabels[state.subscription] || subscriptionLabels.none;
-      trigger.classList.toggle("is-active", state.subscription !== "none");
-      trigger.setAttribute("aria-label", state.subscription === "none"
-        ? "Настроить уведомления о тайтле"
-        : `${subscriptionLabels[state.subscription]}. Изменить уведомления`);
-    }
-    const mobileTrigger = $('[data-open-mobile-notifications]');
-    if (mobileTrigger) {
+    $$('[data-open-title-notifications]').forEach((mobileTrigger) => {
       const active = state.subscription !== "none";
       mobileTrigger.classList.toggle("is-active", active);
       mobileTrigger.setAttribute("aria-label", active
         ? `${subscriptionLabels[state.subscription]}. Изменить уведомления`
         : "Настроить уведомления о тайтле");
-      const icon = $(".title-mobile-toolbar__icon", mobileTrigger);
+      const icon = $(".title-subscription-icon", mobileTrigger);
       if (icon) setIcon(icon, active ? "bell-ring" : "bell");
-    }
+    });
   }
 
   function syncPlayer() {
@@ -1140,14 +1164,12 @@
       });
     });
 
-    $("#subscribe-trigger")?.addEventListener("click", (event) => {
-      event.stopPropagation();
-      toggleMenu(event.currentTarget, $("#subscribe-menu"));
-    });
-    $('[data-open-mobile-notifications]')?.addEventListener("click", () => {
-      const dialog = $("#mobile-subscribe-menu");
-      openDialog(dialog);
-      requestAnimationFrame(() => ($('[data-subscribe].is-active', dialog) || $('[data-subscribe]', dialog))?.focus({ preventScroll: true }));
+    $$('[data-open-title-notifications]').forEach((control) => {
+      control.addEventListener("click", () => {
+        const dialog = $("#mobile-subscribe-menu");
+        openDialog(dialog);
+        requestAnimationFrame(() => ($('[data-subscribe].is-active', dialog) || $('[data-subscribe]', dialog))?.focus({ preventScroll: true }));
+      });
     });
     $('[data-close-mobile-notifications]')?.addEventListener("click", () => closeDialog($("#mobile-subscribe-menu")));
     $("#mobile-subscribe-menu")?.addEventListener("keydown", (event) => {
@@ -1162,38 +1184,13 @@
       event.preventDefault();
       items[nextIndex]?.focus({ preventScroll: true });
     });
-    $("#subscribe-menu")?.addEventListener("keydown", (event) => {
-      const menu = event.currentTarget;
-      const items = $$('[data-subscribe]', menu);
-      const currentIndex = items.indexOf(document.activeElement);
-      let nextIndex = currentIndex;
-      if (event.key === "ArrowDown") nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % items.length;
-      else if (event.key === "ArrowUp") nextIndex = currentIndex < 0 ? items.length - 1 : (currentIndex - 1 + items.length) % items.length;
-      else if (event.key === "Home") nextIndex = 0;
-      else if (event.key === "End") nextIndex = items.length - 1;
-      else if (event.key === "Escape") {
-        event.preventDefault();
-        event.stopPropagation();
-        closeMenu($("#subscribe-trigger"), menu);
-        $("#subscribe-trigger")?.focus({ preventScroll: true });
-        return;
-      } else if (event.key === "Tab") {
-        window.setTimeout(() => closeMenu($("#subscribe-trigger"), menu), 0);
-        return;
-      } else return;
-      event.preventDefault();
-      items[nextIndex]?.focus({ preventScroll: true });
-    });
     $$('[data-subscribe]').forEach((control) => {
       control.addEventListener("click", () => {
         state.subscription = control.dataset.subscribe;
         storage.set("kitsu-demo-subscription", state.subscription);
         syncSubscriptionState();
         const mobileDialog = $("#mobile-subscribe-menu");
-        const usedMobileDialog = Boolean(mobileDialog?.open);
-        closeMenu($("#subscribe-trigger"), $("#subscribe-menu"));
-        if (usedMobileDialog) closeDialog(mobileDialog);
-        else $("#subscribe-trigger")?.focus({ preventScroll: true });
+        if (mobileDialog?.open) closeDialog(mobileDialog);
         showToast(state.subscription === "none" ? "Уведомления выключены" : "Настройка сохранена", subscriptionLabels[state.subscription]);
       });
     });

@@ -36,6 +36,8 @@
 - Переиспользовать токены из `docs/DESIGN_SYSTEM.md`; public и dashboard должны выглядеть как один продукт.
 - Сохранить крупную медийную иерархию public hero, но избегать neon/glow, gradient text, glassmorphism и bento ради bento.
 - Сохранить API-driven пять слайдов, `7000 ms` timer и controls production `Hero`, добавив явную pause, keyboard и touch swipe из шаблона; fixture-разметку слайдов в компонент не переносить.
+- Сохранить production-иерархию `ContinueWatching`: горизонтальные `16:9` кадры, оставшееся время и progress поверх изображения, название и серия ниже; не заменять её обычной poster-grid.
+- Подключить `favorites_count` и `comments_count` напрямую к detail DTO: на desktop оба счётчика и уведомления находятся под постером, на mobile оба числа находятся рядом со статусом, а колокольчик заменяет повторную закладку справа сверху.
 - Фиолетовый accent занимает малую площадь. Green — только success, amber — warning, red — error/destructive, blue — info.
 - Все icon-only controls получают accessible name; keyboard focus и `prefers-reduced-motion` обязательны.
 - На `360/390 px` нижняя навигация не перекрывает контент, плеер не создаёт horizontal overflow, source/translation остаются читаемыми.
