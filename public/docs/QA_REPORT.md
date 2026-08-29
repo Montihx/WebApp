@@ -17,7 +17,7 @@
 - `node --check app.js` — pass;
 - `24` локальных WOFF2 font-файлов подключено;
 - `18` ключевых JS interaction families, включая hero, continue rail и отдельный пятистатусный bookmark-сценарий, обнаружены QA-script;
-- сетка постеров подтверждена как `6/5/4/3/2` колонок на desktop/tablet/mobile gates;
+- сетка постеров подтверждена как production `10/8/5/4/3` колонок на desktop/tablet/mobile gates;
 - отдельный runtime-harness: `18/18` — адаптивная структура, выбор, явное удаление, защита от случайного toggle-off, persistence, синхронизация дубликатов и keyboard focus;
 - browser runtime: hero `1440×590 px` на desktop и `358×590 px` на mobile; карточка каталога `213.9 px` при `1440 px`; desktop popover не выходит за viewport; poster bookmark sheet имеет отступ `12 px`, а title list/player sheets прижаты к нижней границе; horizontal overflow `0 px`;
 - `18` contrast pairs (9 на тему), минимум `4.97:1`.
@@ -38,7 +38,7 @@ node tools/qa.mjs --write
 - hero: пять слайдов, 7-секундный progress, разнесённые pagination/navigation controls, pause, keyboard, swipe и исключение скрытых ссылок из tab-порядка;
 - continue rail: пять `16:9` карточек, оставшееся время, процент, progress overlay, отдельное удаление, scroll-snap и стрелки;
 - bookmark overlay на постере, desktop popover, mobile modal sheet, пять статусов на токенах темы, явное удаление, полноширинная нижняя полоска с текстом статуса, persistence и синхронизация одинаковых тайтлов;
-- title: desktop community-строка под постером, mobile poster-first hero и контекстный toolbar; оба счётчика видимы, metadata оформлены естественными вертикальными строками без карточек/колонок/разделителей;
+- title: desktop poster `340/280 px`, community-строка под ним и не обрезаемое пятистатусное меню; mobile poster-first hero `3:4` и контекстный toolbar; оба счётчика видимы, metadata оформлены естественными вертикальными строками без карточек/колонок/разделителей;
 - list/subscription local states; desktop-уведомления находятся под постером, mobile-колокольчик — справа сверху; оба открывают единый адаптивный dialog/sheet, share и повторная details-секция отсутствуют, focus возвращается инициатору;
 - dialogs, backdrop/Escape close и focus trap;
 - player settings: desktop dialog/mobile bottom sheet, три select и три синхронных switch без неподтверждённых mini-player/download controls;
