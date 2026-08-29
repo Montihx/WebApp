@@ -3,7 +3,16 @@ import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const pages = ["index.html", "anime.html"];
+const pages = [
+  "index.html",
+  "anime.html",
+  "profile.html",
+  "schedule.html",
+  "updates.html",
+  "season.html",
+  "collections.html",
+  "bookmarks.html",
+];
 const results = [];
 
 function add(id, label, pass, detail) {
@@ -201,7 +210,46 @@ add(
   "html.headerSearch",
   "HTML: поиск по структуре основного проекта",
   searchMarkupChecks.every(Boolean),
-  searchMarkupChecks.every(Boolean) ? "обе страницы используют одну структуру: поле, 5 фильтров, недавние, результаты и очистку" : "структура поиска расходится между страницами",
+  searchMarkupChecks.every(Boolean) ? "все публичные страницы используют одну структуру: поле, 5 фильтров, недавние, результаты и очистку" : "структура поиска расходится между страницами",
+);
+
+const directoryPageContracts = {
+  "profile.html": ["data-page=\"profile\"", "profile-identity", "profile-metrics", "data-page-tabs=\"profile-content\""],
+  "schedule.html": ["data-page=\"schedule\"", "calendar-tabs", "data-page-tabs=\"schedule-days\"", "schedule-release"],
+  "updates.html": ["data-page=\"updates\"", "updates-feed", "data-list-filter=\"updates\"", "update-release"],
+  "season.html": ["data-page=\"season\"", "season-hero", "data-list-filter=\"season\"", "season-page-grid"],
+  "collections.html": ["data-page=\"collections\"", "collection-page-grid", "data-list-filter=\"collections\"", "data-local-search=\"collections\""],
+  "bookmarks.html": ["data-page=\"bookmarks\"", "bookmark-summary", "data-list-filter=\"bookmarks\"", "data-bookmark-default"],
+};
+const missingDirectoryContracts = Object.entries(directoryPageContracts).flatMap(([page, tokens]) => {
+  const source = read(page);
+  return tokens.filter((token) => !source.includes(token)).map((token) => `${page}:${token}`);
+});
+add(
+  "html.directoryPages",
+  "HTML: шесть новых публичных разделов",
+  missingDirectoryContracts.length === 0,
+  missingDirectoryContracts.length ? `Не найдены: ${missingDirectoryContracts.join(", ")}` : "профиль, расписание, обновления, сезон, коллекции и закладки имеют самостоятельную структуру",
+);
+
+const directoryCssTokens = [
+  ".directory-hero",
+  ".schedule-page-layout",
+  ".calendar-tabs",
+  ".updates-feed",
+  ".season-hero",
+  ".collection-page-grid",
+  ".bookmark-summary",
+  ".profile-identity",
+  ".profile-metrics",
+  ".profile-layout",
+];
+const missingDirectoryCss = directoryCssTokens.filter((token) => !css.includes(token));
+add(
+  "css.directoryPages",
+  "CSS: адаптивные стили новых разделов",
+  missingDirectoryCss.length === 0,
+  missingDirectoryCss.length ? `Не найдены: ${missingDirectoryCss.join(", ")}` : "все шесть разделов используют общий responsive-контракт и токены тем",
 );
 
 const sliderCssTokens = [
@@ -367,6 +415,21 @@ add("css.noOutfit", "CSS: нет безкириллической гарниту
 add("css.tabularNums", "CSS: tabular-nums на числовых узлах", css.includes("font-variant-numeric: tabular-nums"), `${count(css, /font-variant-numeric: tabular-nums/g)} правил с tabular-nums`);
 
 const js = read("app.js");
+const directoryJsTokens = [
+  "function initDirectoryPages",
+  "function applyListFilter",
+  "data-page-tabs",
+  "data-list-filter",
+  "data-local-search",
+  "dataset.filterTags",
+];
+const missingDirectoryJs = directoryJsTokens.filter((token) => !js.includes(token));
+add(
+  "js.directoryPages",
+  "JS: навигация и фильтры новых разделов",
+  missingDirectoryJs.length === 0,
+  missingDirectoryJs.length ? `Не найдены: ${missingDirectoryJs.join(", ")}` : "табы, статусные фильтры, локальный поиск и синхронизация закладок подключены",
+);
 add(
   "js.headerSearch",
   "JS: non-modal поиск",
