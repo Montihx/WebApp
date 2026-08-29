@@ -114,7 +114,7 @@ const css = read("styles.css");
 const structure = cssStructure(css);
 add("css.structure", "CSS: синтаксическая структура", structure.ok, structure.detail);
 add("css.themes", "CSS: две темы", /:root\s*{/.test(css) && /html\[data-theme="light"\]/.test(css), "тёмные и светлые токены присутствуют");
-add("css.responsive", "CSS: адаптивность", [1180, 920, 720, 460].every((value) => css.includes(`max-width: ${value}px`)), "контрольные точки 1180/920/720/460 px");
+add("css.responsive", "CSS: адаптивность", [1279, 1180, 920, 720, 639, 460].every((value) => css.includes(`max-width: ${value}px`)), "контрольные точки 1279/1180/920/720/639/460 px");
 add("css.a11y", "CSS: доступность", css.includes(":focus-visible") && css.includes("prefers-reduced-motion"), "focus-visible и reduced-motion присутствуют");
 function mediaSource(maxWidth) {
   const start = css.indexOf(`@media (max-width: ${maxWidth}px)`);
@@ -123,17 +123,17 @@ function mediaSource(maxWidth) {
   return css.slice(start, next === -1 ? css.length : next);
 }
 const posterDensityChecks = [
-  /\.anime-grid\s*{[^}]*repeat\(6,/s.test(css.slice(0, css.indexOf("@media"))),
-  /\.anime-grid\s*{[^}]*repeat\(5,/s.test(mediaSource(1180)),
-  /\.anime-grid\s*{[^}]*repeat\(4,/s.test(mediaSource(920)),
-  /\.anime-grid\s*{[^}]*repeat\(3,/s.test(mediaSource(720)),
-  /\.anime-grid\s*{[^}]*repeat\(2,/s.test(mediaSource(460)),
+  /\.anime-grid\s*{[^}]*repeat\(10,/s.test(css.slice(0, css.indexOf("@media"))),
+  /\.anime-grid\s*{[^}]*repeat\(8,/s.test(mediaSource(1279)),
+  /\.anime-grid\s*{[^}]*repeat\(5,/s.test(mediaSource(920)),
+  /\.anime-grid\s*{[^}]*repeat\(4,/s.test(mediaSource(720)),
+  /\.anime-grid\s*{[^}]*repeat\(3,/s.test(mediaSource(639)),
 ];
 add(
   "css.posterDensity",
   "CSS: плотность постеров",
   posterDensityChecks.every(Boolean),
-  posterDensityChecks.every(Boolean) ? "6/5/4/3/2 колонок на контрольных ширинах" : "сетка постеров не соответствует 6/5/4/3/2",
+  posterDensityChecks.every(Boolean) ? "10/8/5/4/3 колонок как в production HomeGrid" : "сетка постеров не соответствует production 10/8/5/4/3",
 );
 const bookmarkCssTokens = [
   ".poster-bookmark-button",
@@ -182,6 +182,8 @@ const continueCssTokens = [
   ".continue-progress",
   ".continue-remove",
   ".continue-nav",
+  "grid-auto-columns: 320px",
+  "grid-auto-columns: 44vw",
 ];
 const missingContinueCss = continueCssTokens.filter((token) => !css.includes(token));
 add(
@@ -211,6 +213,9 @@ const titleMobileLayoutChecks = [
   !/\.title-meta-list[^,{]*::after/.test(css),
   /\.title-poster\s*{[^}]*width:\s*100%[^}]*aspect-ratio:/s.test(mediaSource(720)),
   /\.title-description\s*{[^}]*background:\s*transparent/s.test(mediaSource(720)),
+  /\.title-hero\s*{[^}]*overflow:\s*visible/s.test(css.slice(0, css.indexOf("@media"))),
+  /\.title-hero\s*{[^}]*overflow:\s*hidden/s.test(mediaSource(720)),
+  /\.title-layout\s*{[^}]*grid-template-columns:\s*340px/s.test(css.slice(0, css.indexOf("@media"))),
 ];
 add(
   "css.titleMobile",

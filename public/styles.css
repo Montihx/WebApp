@@ -1409,7 +1409,7 @@ html[data-theme="light"] .theme-icon--moon {
 
 .continue-grid {
   display: grid;
-  grid-auto-columns: clamp(260px, 24vw, 320px);
+  grid-auto-columns: 320px;
   grid-auto-flow: column;
   grid-template-columns: none;
   gap: 14px;
@@ -1796,8 +1796,8 @@ html[data-theme="light"] .theme-icon--moon {
 
 .anime-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 20px 14px;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 18px 12px;
 }
 
 .anime-grid.anime-grid--compact {
@@ -3313,7 +3313,7 @@ dialog::backdrop {
 .title-hero {
   position: relative;
   min-height: 600px;
-  overflow: hidden;
+  overflow: visible;
   border-bottom: 1px solid var(--line);
   background: var(--canvas);
 }
@@ -3388,7 +3388,7 @@ html[data-theme="light"] .title-backdrop img {
 
 .title-layout {
   display: grid;
-  grid-template-columns: 214px minmax(0, 760px);
+  grid-template-columns: 340px minmax(0, 760px);
   gap: clamp(28px, 4vw, 54px);
   align-items: start;
 }
@@ -4575,8 +4575,18 @@ button.title-community-action:hover {
 
 .related-rail {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  grid-auto-columns: 160px;
+  grid-auto-flow: column;
+  grid-template-columns: none;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+
+.related-rail > * {
+  scroll-snap-align: start;
 }
 
 .comments-layout {
@@ -4744,6 +4754,12 @@ img.is-image-error {
 }
 
 /* Responsive */
+@media (max-width: 1279px) {
+  .anime-grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 1180px) {
   .desktop-nav {
     display: none;
@@ -4758,7 +4774,7 @@ img.is-image-error {
   }
 
   .anime-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 
   .schedule-updates-grid {
@@ -4766,7 +4782,7 @@ img.is-image-error {
   }
 
   .title-layout {
-    grid-template-columns: 210px minmax(0, 1fr);
+    grid-template-columns: 280px minmax(0, 1fr);
   }
 
   .watch-layout {
@@ -4784,7 +4800,7 @@ img.is-image-error {
   }
 
   .anime-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .header-inner {
@@ -5000,7 +5016,7 @@ img.is-image-error {
   }
 
   .continue-grid {
-    grid-auto-columns: clamp(250px, 37vw, 310px);
+    grid-auto-columns: 300px;
     grid-template-columns: none;
   }
 
@@ -5017,7 +5033,7 @@ img.is-image-error {
   }
 
   .title-layout {
-    grid-template-columns: 190px minmax(0, 1fr);
+    grid-template-columns: 230px minmax(0, 1fr);
     gap: 28px;
   }
 
@@ -5305,7 +5321,7 @@ img.is-image-error {
   }
 
   .continue-grid {
-    grid-auto-columns: min(78vw, 300px);
+    grid-auto-columns: 280px;
     grid-template-columns: none;
     gap: 12px;
   }
@@ -5333,7 +5349,7 @@ img.is-image-error {
   }
 
   .anime-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 18px 9px;
   }
 
@@ -5457,9 +5473,9 @@ img.is-image-error {
 
   .title-poster {
     width: 100%;
-    max-height: min(72dvh, 650px);
+    max-height: min(70dvh, 650px);
     margin: 0;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 3 / 4;
     border: 0;
     border-radius: 0 0 22px 22px;
     box-shadow: none;
@@ -5760,9 +5776,7 @@ img.is-image-error {
     grid-template-columns: 1fr;
   }
 
-  .related-rail {
-    grid-template-columns: repeat(4, 150px);
-  }
+  .related-rail { grid-auto-columns: 160px; }
 
   .login-comment-box {
     grid-template-columns: 38px minmax(0, 1fr);
@@ -5776,6 +5790,16 @@ img.is-image-error {
     right: 12px;
     bottom: 76px;
     width: calc(100vw - 24px);
+  }
+}
+
+@media (max-width: 639px) {
+  .continue-grid {
+    grid-auto-columns: 44vw;
+  }
+
+  .anime-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -5795,7 +5819,7 @@ img.is-image-error {
   }
 
   .continue-grid {
-    grid-auto-columns: min(82vw, 292px);
+    grid-auto-columns: 44vw;
   }
 
   .continue-heading {
@@ -5822,7 +5846,7 @@ img.is-image-error {
   }
 
   .anime-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .collection-card {

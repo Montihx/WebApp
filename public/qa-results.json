@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-29T04:31:44.435Z",
+  "generated_at": "2026-08-29T04:42:59.610Z",
   "summary": {
     "status": "pass",
     "total": 43,
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "860 блоков, структура сбалансирована"
+      "detail": "866 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -115,7 +115,7 @@
       "id": "css.responsive",
       "label": "CSS: адаптивность",
       "status": "pass",
-      "detail": "контрольные точки 1180/920/720/460 px"
+      "detail": "контрольные точки 1279/1180/920/720/639/460 px"
     },
     {
       "id": "css.a11y",
@@ -127,7 +127,7 @@
       "id": "css.posterDensity",
       "label": "CSS: плотность постеров",
       "status": "pass",
-      "detail": "6/5/4/3/2 колонок на контрольных ширинах"
+      "detail": "10/8/5/4/3 колонок как в production HomeGrid"
     },
     {
       "id": "css.bookmarks",
