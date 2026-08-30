@@ -1486,7 +1486,7 @@ body[data-page="updates"] .directory-hero::before {
 .update-release::before {
   position: absolute;
   top: 31px;
-  right: 0;
+  left: -34px;
   color: var(--ad-ink-3);
   font: 700 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
   letter-spacing: .08em;
@@ -1604,7 +1604,12 @@ body[data-page="bookmarks"] .directory-hero {
 
 body[data-page="bookmarks"] .directory-hero__inner {
   min-height: 318px;
-  grid-template-columns: minmax(0, .72fr) minmax(520px, 1fr);
+  grid-template-columns: minmax(430px, .86fr) minmax(520px, 1fr);
+}
+
+body[data-page="bookmarks"] .directory-hero h1 {
+  max-width: none;
+  font-size: clamp(50px, 4.8vw, 68px);
 }
 
 .bookmark-summary {
