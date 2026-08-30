@@ -270,6 +270,48 @@ add(
   missingDirectoryCss.length ? `Не найдены: ${missingDirectoryCss.join(", ")}` : "все шесть разделов используют общий responsive-контракт и токены тем",
 );
 
+const profileSource = read("profile.html");
+const profileViewingTokens = [
+  "Статистика просмотра",
+  "тайтлов в списке",
+  "серий просмотрено",
+  "время просмотра",
+  "серии за 7 дней",
+  "profile-dynamics__summary",
+  "watch-chart__scale",
+  "watch-chart__bar is-today",
+  "серии за неделю",
+  "4,9 серии в день",
+];
+const missingProfileViewingTokens = profileViewingTokens.filter((token) => !profileSource.includes(token));
+add(
+  "html.profileViewingStats",
+  "HTML: профиль показывает измеримую статистику просмотра",
+  missingProfileViewingTokens.length === 0,
+  missingProfileViewingTokens.length
+    ? `Не найдены: ${missingProfileViewingTokens.join(", ")}`
+    : "четыре профильные метрики и недельный график содержат числа серий, даты, итог и среднее",
+);
+
+const profileChartCssTokens = [
+  ".profile-metrics div > svg",
+  ".profile-dynamics__head",
+  ".watch-chart__scale",
+  ".watch-chart__line--middle",
+  ".watch-chart__bar > b",
+  ".watch-chart__bar.is-today > span",
+  ".profile-dynamics__footer",
+];
+const missingProfileChartCss = profileChartCssTokens.filter((token) => !css.includes(token));
+add(
+  "css.profileViewingChart",
+  "CSS: читаемый график просмотра серий",
+  missingProfileChartCss.length === 0,
+  missingProfileChartCss.length
+    ? `Не найдены: ${missingProfileChartCss.join(", ")}`
+    : "график имеет шкалу, сетку, точные значения, даты и выделение текущего дня",
+);
+
 const sliderCssTokens = [
   ".feature-slider",
   ".feature-slide.is-active",

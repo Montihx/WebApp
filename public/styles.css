@@ -8864,6 +8864,228 @@ img.is-image-error {
   background: linear-gradient(180deg, var(--green), color-mix(in srgb, var(--green) 38%, transparent));
 }
 
+/* Profile viewing metrics and an explicit, readable weekly series chart. */
+.profile-metrics div {
+  position: relative;
+  grid-template-columns: 30px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  align-content: center;
+  text-align: left;
+}
+
+.profile-metrics div > svg {
+  width: 30px;
+  height: 30px;
+  grid-row: 1 / 3;
+  padding: 7px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  color: var(--accent-text);
+  stroke-width: 1.8;
+}
+
+.profile-metrics b,
+.profile-metrics span {
+  min-width: 0;
+}
+
+.profile-metrics span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-dynamics {
+  overflow: hidden;
+}
+
+.profile-dynamics__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.profile-dynamics__head h2 {
+  margin-top: 5px;
+  color: var(--text);
+  font-size: 17px;
+  letter-spacing: -0.03em;
+}
+
+.profile-dynamics__head p {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 8px;
+}
+
+.profile-dynamics__summary {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: auto auto;
+  column-gap: 7px;
+  align-items: baseline;
+  text-align: right;
+}
+
+.profile-dynamics__summary b {
+  color: var(--text);
+  font-size: 27px;
+  line-height: 1;
+}
+
+.profile-dynamics__summary span {
+  color: var(--text-secondary);
+  font-size: 8px;
+}
+
+.profile-dynamics__summary em {
+  display: inline-flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  margin-top: 5px;
+  color: var(--green);
+  font-size: 8px;
+  font-style: normal;
+}
+
+.profile-dynamics__summary em svg {
+  width: 11px;
+  height: 11px;
+}
+
+.watch-chart {
+  display: grid;
+  height: 200px;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.watch-chart__scale {
+  display: flex;
+  height: 154px;
+  flex-direction: column;
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  text-align: right;
+}
+
+.watch-chart__plot {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  height: 200px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: clamp(5px, 1.6vw, 12px);
+  align-items: start;
+}
+
+.watch-chart__line {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--line) 80%, transparent);
+}
+
+.watch-chart__line--top { top: 0; }
+.watch-chart__line--middle { top: 77px; }
+.watch-chart__line--base { top: 154px; }
+
+.watch-chart__bar {
+  position: relative;
+  display: grid;
+  height: 190px;
+  grid-template-rows: 154px auto;
+  justify-items: center;
+  z-index: 1;
+}
+
+.watch-chart__bar > b {
+  position: absolute;
+  bottom: calc(36px + (var(--episodes) * 17px));
+  display: grid;
+  min-width: 20px;
+  height: 18px;
+  place-items: center;
+  padding: 0 5px;
+  border: 1px solid color-mix(in srgb, var(--green) 30%, var(--line));
+  border-radius: 6px;
+  background: var(--surface-raised);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  line-height: 1;
+}
+
+.watch-chart__bar > span {
+  width: min(24px, 66%);
+  height: calc(var(--episodes) * 17px);
+  max-height: 136px;
+  align-self: end;
+  border-radius: 7px 7px 3px 3px;
+  background: linear-gradient(180deg, var(--green), color-mix(in srgb, var(--green) 52%, var(--canvas)));
+  box-shadow: 0 7px 20px color-mix(in srgb, var(--green) 14%, transparent);
+}
+
+.watch-chart__bar.is-today > span {
+  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 50%, var(--canvas)));
+  box-shadow: 0 7px 20px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.watch-chart__bar.is-today > b {
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--line));
+  color: var(--accent-text);
+}
+
+.watch-chart__bar small {
+  display: grid;
+  gap: 2px;
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 8px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.watch-chart__bar small em {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 6.5px;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.profile-dynamics__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 6px;
+  padding-top: 13px;
+  border-top: 1px solid var(--line);
+}
+
+.profile-dynamics__footer span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 8px;
+}
+
+.profile-dynamics__footer svg {
+  width: 13px;
+  height: 13px;
+  color: var(--green);
+}
+
 .profile-tabs {
   justify-content: center;
 }
@@ -8973,14 +9195,23 @@ img.is-image-error {
 
   .profile-metrics div {
     min-height: 66px;
+    grid-template-columns: 24px minmax(0, 1fr);
+    column-gap: 7px;
   }
 
   .profile-metrics b {
-    font-size: 17px;
+    font-size: 15px;
   }
 
   .profile-metrics span {
     font-size: 6.5px;
+  }
+
+  .profile-metrics div > svg {
+    width: 24px;
+    height: 24px;
+    padding: 6px;
+    border-radius: 7px;
   }
 
   .profile-layout {
@@ -9014,6 +9245,14 @@ img.is-image-error {
 
   .profile-tabs {
     justify-content: flex-start;
+  }
+
+  .watch-chart__plot {
+    gap: 5px;
+  }
+
+  .watch-chart__bar > span {
+    width: min(20px, 72%);
   }
 
   .season-hero,
