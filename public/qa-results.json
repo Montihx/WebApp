@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-30T12:45:48.899Z",
+  "generated_at": "2026-08-30T13:53:18.499Z",
   "summary": {
     "status": "pass",
-    "total": 101,
-    "passed": 101,
+    "total": 111,
+    "passed": 111,
     "failed": 0
   },
   "results": [
@@ -58,6 +58,12 @@
       "detail": "нет href=\"#\" и javascript-ссылок"
     },
     {
+      "id": "index.html.headStyles",
+      "label": "index.html: стили подключены в head",
+      "status": "pass",
+      "detail": "оба слоя CSS загружаются до body без невалидной разметки"
+    },
+    {
       "id": "anime.html.document",
       "label": "anime.html: документ",
       "status": "pass",
@@ -98,6 +104,12 @@
       "label": "anime.html: ссылки без заглушек",
       "status": "pass",
       "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "anime.html.headStyles",
+      "label": "anime.html: стили подключены в head",
+      "status": "pass",
+      "detail": "оба слоя CSS загружаются до body без невалидной разметки"
     },
     {
       "id": "profile.html.document",
@@ -142,6 +154,12 @@
       "detail": "нет href=\"#\" и javascript-ссылок"
     },
     {
+      "id": "profile.html.headStyles",
+      "label": "profile.html: стили подключены в head",
+      "status": "pass",
+      "detail": "оба слоя CSS загружаются до body без невалидной разметки"
+    },
+    {
       "id": "schedule.html.document",
       "label": "schedule.html: документ",
       "status": "pass",
@@ -182,6 +200,12 @@
       "label": "schedule.html: ссылки без заглушек",
       "status": "pass",
       "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "schedule.html.headStyles",
+      "label": "schedule.html: стили подключены в head",
+      "status": "pass",
+      "detail": "оба слоя CSS загружаются до body без невалидной разметки"
     },
     {
       "id": "updates.html.document",
@@ -226,6 +250,12 @@
       "detail": "нет href=\"#\" и javascript-ссылок"
     },
     {
+      "id": "updates.html.headStyles",
+      "label": "updates.html: стили подключены в head",
+      "status": "pass",
+      "detail": "оба слоя CSS загружаются до body без невалидной разметки"
+    },
+    {
       "id": "season.html.document",
       "label": "season.html: документ",
       "status": "pass",
@@ -268,6 +298,12 @@
       "detail": "нет href=\"#\" и javascript-ссылок"
     },
     {
+      "id": "season.html.headStyles",
+      "label": "season.html: стили подключены в head",
+      "status": "pass",
+      "detail": "оба слоя CSS загружаются до body без невалидной разметки"
+    },
+    {
       "id": "collections.html.document",
       "label": "collections.html: документ",
       "status": "pass",
@@ -277,7 +313,7 @@
       "id": "collections.html.ids",
       "label": "collections.html: уникальные ID",
       "status": "pass",
-      "detail": "18 уникальных ID"
+      "detail": "19 уникальных ID"
     },
     {
       "id": "collections.html.references",
@@ -301,13 +337,19 @@
       "id": "collections.html.images",
       "label": "collections.html: alt у изображений",
       "status": "pass",
-      "detail": "17 изображений проверено"
+      "detail": "20 изображений проверено"
     },
     {
       "id": "collections.html.anchors",
       "label": "collections.html: ссылки без заглушек",
       "status": "pass",
       "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "collections.html.headStyles",
+      "label": "collections.html: стили подключены в head",
+      "status": "pass",
+      "detail": "оба слоя CSS загружаются до body без невалидной разметки"
     },
     {
       "id": "bookmarks.html.document",
@@ -350,6 +392,12 @@
       "label": "bookmarks.html: ссылки без заглушек",
       "status": "pass",
       "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "bookmarks.html.headStyles",
+      "label": "bookmarks.html: стили подключены в head",
+      "status": "pass",
+      "detail": "оба слоя CSS загружаются до body без невалидной разметки"
     },
     {
       "id": "css.structure",
@@ -434,6 +482,18 @@
       "label": "CSS: адаптивные стили новых разделов",
       "status": "pass",
       "detail": "все шесть разделов используют общий responsive-контракт и токены тем"
+    },
+    {
+      "id": "html.craftedRouteRhythm",
+      "label": "HTML: страницы имеют разные информационные композиции",
+      "status": "pass",
+      "detail": "расписание, хронология, редакционные коллекции, пять статусов, профильная аналитика и медиастраница не сведены к одному карточному шаблону"
+    },
+    {
+      "id": "css.craftedRouteRhythm",
+      "label": "CSS: индивидуальный ритм и motion страниц",
+      "status": "pass",
+      "detail": "маршруты различаются композицией; поиск, меню и медиа используют короткое осмысленное движение"
     },
     {
       "id": "html.directoryControlPanels",
