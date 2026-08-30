@@ -7,7 +7,6 @@
 | GET | `/anime/` | Go | каталог, high-score rail | URL state: q/status/kind/genre/year/min_score/sort/season |
 | GET | `/anime/genres` | Go | categories/filter options | не хардкодить production genre inventory |
 | GET | `/anime/recent-updates` | Go | новые серии/обновления | не смешивать transport error и пустой массив |
-| GET | `/anime/?season=summer_2026&sort_by=popular` | Go | страница летнего сезона | season формируется из выбранного сезона и года; не хардкодить после переноса |
 | GET | `/anime/{slug}` | Go | title SSR/hero/details | сохранять `{data}` envelope и not-found semantics |
 | GET | `/anime/{id}/episodes` | Go | generic episode browser | season/episode/duration/thumbnail/skip fields |
 | GET | `/episodes/{id}/releases` | Go | fallback release selector | `source` отдельно от `translation_team` |
@@ -38,8 +37,6 @@
 | POST | `/notifications/mark-all-read` | Python/hybrid, auth | «Прочитать все» | Go route в audited registration отсутствует |
 | PATCH | `/notifications/{id}/read` | Python/hybrid, auth | read single item | owner повторно проверить после migration waves |
 | GET/PUT | `/users/me` | Go, auth | preferences/profile | merge `preferences`, не затирать соседние keys |
-
-Маршруты новых HTML-прототипов соответствуют существующим consumer-сценариям основного frontend: `schedule.html` объединяет calendar/history, `updates.html` использует recent updates, `season.html` — параметризованный anime list, `collections.html` — public collections, `bookmarks.html` — favorites, `profile.html` — auth user вместе с favorites, continue watching и watch statistics. Статические числа в прототипе являются демонстрацией композиции и при переносе заменяются только реальными response fields.
 
 ## Response fields used by the template
 

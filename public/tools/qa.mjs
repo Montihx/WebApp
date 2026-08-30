@@ -3,16 +3,7 @@ import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const pages = [
-  "index.html",
-  "anime.html",
-  "profile.html",
-  "schedule.html",
-  "updates.html",
-  "season.html",
-  "collections.html",
-  "bookmarks.html",
-];
+const pages = ["index.html", "anime.html"];
 const results = [];
 
 function add(id, label, pass, detail) {
@@ -88,7 +79,6 @@ function contrastRatio(foreground, background) {
 const required = [
   ...pages,
   "styles.css",
-  "art-direction.css",
   "app.js",
   "vendor/lucide.min.js",
   "vendor/LUCIDE-LICENSE.txt",
@@ -102,7 +92,6 @@ add("files.required", "Обязательные файлы", missingRequired.len
 
 for (const page of pages) {
   const source = read(page);
-  const headSource = source.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1] || "";
   const ids = [...source.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
   const duplicates = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
   const localRefs = [...source.matchAll(/\b(?:href|src)="((?:\.\/|\.\.\/)[^"?#]+)(?:[?#][^"]*)?"/g)].map((match) => match[1]);
@@ -119,24 +108,11 @@ for (const page of pages) {
   add(`${page}.buttons`, `${page}: типы кнопок`, !/<button\b(?![^>]*\btype=)[^>]*>/i.test(source), "у каждой кнопки указан type");
   add(`${page}.images`, `${page}: alt у изображений`, !/<img\b(?![^>]*\balt=)[^>]*>/i.test(source), `${count(source, /<img\b/g)} изображений проверено`);
   add(`${page}.anchors`, `${page}: ссылки без заглушек`, !/href="#"/.test(source) && !/javascript:/i.test(source), "нет href=\"#\" и javascript-ссылок");
-  add(`${page}.headStyles`, `${page}: стили подключены в head`, headSource.includes("styles.css") && headSource.includes("art-direction.css"), "оба слоя CSS загружаются до body без невалидной разметки");
 }
 
 const css = read("styles.css");
-const artCss = read("art-direction.css");
 const structure = cssStructure(css);
 add("css.structure", "CSS: синтаксическая структура", structure.ok, structure.detail);
-const artStructure = cssStructure(artCss);
-add("css.artDirection", "CSS: единый слой арт-дирекции", artStructure.ok && pages.every((page) => read(page).includes("art-direction.css")), artStructure.ok ? "все восемь страниц используют общий визуальный слой" : artStructure.detail);
-add("css.artDirectionResponsive", "CSS: адаптивная арт-дирекция", [1180, 920, 720, 639].every((value) => artCss.includes(`max-width: ${value}px`)) && artCss.includes("prefers-reduced-motion"), "desktop/tablet/mobile и reduced-motion определены без конфликта с базовой сеткой");
-const artPosterGridChecks = [
-  /\.anime-grid\s*{[^}]*repeat\(7,/s.test(artCss),
-  /@media \(min-width: 1280px\) and \(max-width: 1599px\)[\s\S]*?\.anime-grid,[\s\S]*?repeat\(6,/s.test(artCss),
-  /@media \(max-width: 920px\)[\s\S]*?repeat\(5,/s.test(artCss),
-  /@media \(max-width: 720px\)[\s\S]*?repeat\(4,/s.test(artCss),
-  /@media \(max-width: 639px\)[\s\S]*?repeat\(3,/s.test(artCss),
-];
-add("css.artPosterGrid", "CSS: стабильный размер постеров", artPosterGridChecks.every(Boolean), artPosterGridChecks.every(Boolean) ? "7/6/5/4/3 колонки без скачка к двум чрезмерно крупным постерам" : "арт-дирекция нарушает согласованную плотность постеров");
 add("css.themes", "CSS: две темы", /:root\s*{/.test(css) && /html\[data-theme="light"\]/.test(css), "тёмные и светлые токены присутствуют");
 add("css.responsive", "CSS: адаптивность", [1279, 1180, 920, 720, 639, 460].every((value) => css.includes(`max-width: ${value}px`)), "контрольные точки 1279/1180/920/720/639/460 px");
 add("css.a11y", "CSS: доступность", css.includes(":focus-visible") && css.includes("prefers-reduced-motion"), "focus-visible и reduced-motion присутствуют");
@@ -195,24 +171,6 @@ add(
       : "внутренний poster overlay снова допускает выход слоя, обрезание названий или дублирующую trigger-кнопку",
 );
 
-const statusSemanticChecks = [
-  /\[data-bookmark-tone="watching"\]\s*{[^}]*--bookmark-color:\s*var\(--green\)[^}]*--bookmark-status-color:\s*var\(--green\)/s.test(css),
-  /\[data-bookmark-tone="planned"\]\s*{[^}]*--bookmark-color:\s*var\(--info\)[^}]*--bookmark-status-color:\s*var\(--info\)/s.test(css),
-  /\[data-bookmark-tone="completed"\]\s*{[^}]*--bookmark-color:\s*var\(--accent-strong\)[^}]*--bookmark-status-color:\s*var\(--accent-strong\)/s.test(css),
-  /\[data-bookmark-tone="on_hold"\]\s*{[^}]*--bookmark-color:\s*var\(--amber\)[^}]*--bookmark-status-color:\s*var\(--amber\)/s.test(css),
-  /\[data-bookmark-tone="dropped"\]\s*{[^}]*--bookmark-color:\s*var\(--red\)[^}]*--bookmark-status-color:\s*var\(--red\)/s.test(css),
-  css.includes('[data-list-filter="bookmarks"] [data-filter-value].is-active'),
-  css.includes('#list-trigger[data-bookmark-tone]'),
-  /\.profile-avatar\s*{[^}]*border-radius:\s*50%/s.test(css),
-  /\.owner-avatar\s*{[^}]*border-radius:\s*50%/s.test(css),
-];
-add(
-  "css.statusSemantics",
-  "CSS: единые цвета статусов и круглые аватары",
-  statusSemanticChecks.every(Boolean),
-  statusSemanticChecks.every(Boolean) ? "5 статусов окрашивают кнопки, фильтры, полоски и статистику; profile/owner avatars круглые" : "семантика статусов или геометрия аватаров расходится между разделами",
-);
-
 const headerSearchChecks = [
   css.includes("@keyframes header-search-in"),
   css.includes(".search-dialog::backdrop"),
@@ -243,163 +201,7 @@ add(
   "html.headerSearch",
   "HTML: поиск по структуре основного проекта",
   searchMarkupChecks.every(Boolean),
-  searchMarkupChecks.every(Boolean) ? "все публичные страницы используют одну структуру: поле, 5 фильтров, недавние, результаты и очистку" : "структура поиска расходится между страницами",
-);
-
-const directoryPageContracts = {
-  "profile.html": ["data-page=\"profile\"", "profile-identity", "profile-metrics", "data-page-tabs=\"profile-content\""],
-  "schedule.html": ["data-page=\"schedule\"", "calendar-tabs", "data-page-tabs=\"schedule-days\"", "schedule-release"],
-  "updates.html": ["data-page=\"updates\"", "updates-feed", "data-list-filter=\"updates\"", "update-release"],
-  "season.html": ["data-page=\"season\"", "season-hero", "data-list-filter=\"season\"", "season-page-grid"],
-  "collections.html": ["data-page=\"collections\"", "collection-page-grid", "data-list-filter=\"collections\"", "data-local-search=\"collections\""],
-  "bookmarks.html": ["data-page=\"bookmarks\"", "bookmark-summary", "data-list-filter=\"bookmarks\"", "data-bookmark-default"],
-};
-const missingDirectoryContracts = Object.entries(directoryPageContracts).flatMap(([page, tokens]) => {
-  const source = read(page);
-  return tokens.filter((token) => !source.includes(token)).map((token) => `${page}:${token}`);
-});
-add(
-  "html.directoryPages",
-  "HTML: шесть новых публичных разделов",
-  missingDirectoryContracts.length === 0,
-  missingDirectoryContracts.length ? `Не найдены: ${missingDirectoryContracts.join(", ")}` : "профиль, расписание, обновления, сезон, коллекции и закладки имеют самостоятельную структуру",
-);
-
-const directoryCssTokens = [
-  ".directory-hero",
-  ".schedule-page-layout",
-  ".calendar-tabs",
-  ".updates-feed",
-  ".season-hero",
-  ".collection-page-grid",
-  ".bookmark-summary",
-  ".profile-identity",
-  ".profile-metrics",
-  ".profile-layout",
-];
-const missingDirectoryCss = directoryCssTokens.filter((token) => !css.includes(token));
-add(
-  "css.directoryPages",
-  "CSS: адаптивные стили новых разделов",
-  missingDirectoryCss.length === 0,
-  missingDirectoryCss.length ? `Не найдены: ${missingDirectoryCss.join(", ")}` : "все шесть разделов используют общий responsive-контракт и токены тем",
-);
-
-const craftedRouteMarkupChecks = [
-  read("schedule.html").includes("calendar-panel") && read("schedule.html").includes("schedule-changes"),
-  read("updates.html").includes("updates-feed") && read("updates.html").includes("update-release"),
-  read("collections.html").includes("collections-hero-preview") && read("collections.html").includes("editorial-collection"),
-  read("bookmarks.html").includes("bookmark-summary") && ["watching", "planned", "completed", "on_hold", "dropped"].every((tone) => read("bookmarks.html").includes(`data-bookmark-tone=\"${tone}\"`)),
-  read("profile.html").includes("profile-dynamics__summary") && read("profile.html").includes("watch-chart__scale"),
-  read("anime.html").includes("player-stage") && read("anime.html").includes("comments-layout"),
-];
-add(
-  "html.craftedRouteRhythm",
-  "HTML: страницы имеют разные информационные композиции",
-  craftedRouteMarkupChecks.every(Boolean),
-  craftedRouteMarkupChecks.every(Boolean)
-    ? "расписание, хронология, редакционные коллекции, пять статусов, профильная аналитика и медиастраница не сведены к одному карточному шаблону"
-    : "одна или несколько страниц потеряли свой композиционный контракт",
-);
-
-const craftedRouteCssTokens = [
-  'body[data-page="schedule"] .directory-hero::before',
-  ".updates-feed",
-  ".update-release::before",
-  ".collections-hero-preview",
-  ".bookmark-summary > div::after",
-  ".activity-list::before",
-  ".watch-chart__bar.is-today span",
-  ".player-section::before",
-  "@keyframes ad-search-in",
-];
-const missingCraftedRouteCss = craftedRouteCssTokens.filter((token) => !artCss.includes(token));
-add(
-  "css.craftedRouteRhythm",
-  "CSS: индивидуальный ритм и motion страниц",
-  missingCraftedRouteCss.length === 0,
-  missingCraftedRouteCss.length
-    ? `Не найдены: ${missingCraftedRouteCss.join(", ")}`
-    : "маршруты различаются композицией; поиск, меню и медиа используют короткое осмысленное движение",
-);
-
-const directoryControlContracts = {
-  "updates.html": ["toolbar-group", "toolbar-field", "Тип обновления", "Период"],
-  "season.html": ["toolbar-group", "toolbar-field", "Сезон", "Статус", "Год"],
-  "collections.html": ["toolbar-group", "toolbar-field--search", "Автор", "Поиск"],
-  "bookmarks.html": ["toolbar-group--grow", "toolbar-field", "Статус списка", "Сортировка"],
-};
-const missingDirectoryControlContracts = Object.entries(directoryControlContracts).flatMap(([page, tokens]) => {
-  const source = read(page);
-  return tokens.filter((token) => !source.includes(token)).map((token) => `${page}:${token}`);
-});
-add(
-  "html.directoryControlPanels",
-  "HTML: подписанные панели управления разделами",
-  missingDirectoryControlContracts.length === 0,
-  missingDirectoryControlContracts.length
-    ? `Не найдены: ${missingDirectoryControlContracts.join(", ")}`
-    : "фильтры, поиск, сезон, период и сортировка сгруппированы и имеют постоянные подписи",
-);
-
-const wideDirectoryLayoutChecks = [
-  /@media \(min-width: 1181px\)[\s\S]*?\.profile-identity\s*{[^}]*grid-template-areas:[^}]*avatar actions[^}]*copy actions/s.test(css),
-  /@media \(min-width: 1181px\)[\s\S]*?\.profile-layout\s*{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 410px/s.test(css),
-  /@media \(min-width: 1181px\)[\s\S]*?\.profile-sidebar\s*{[^}]*position:\s*sticky[^}]*grid-column:\s*2/s.test(css),
-  /@media \(min-width: 1181px\)[\s\S]*?\.schedule-page-layout,[\s\S]*?\.updates-layout\s*{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 320px/s.test(css),
-  /@media \(min-width: 1280px\) and \(max-width: 1599px\)[\s\S]*?\.season-page-grid,[\s\S]*?\.bookmarks-page-grid\s*{[^}]*repeat\(6,/s.test(css),
-  /\.directory-toolbar\s*{[^}]*align-items:\s*end[^}]*min-height:\s*70px[^}]*background:\s*var\(--surface\)/s.test(css),
-  css.includes(".toolbar-caption"),
-];
-add(
-  "css.wideDirectoryComposition",
-  "CSS: композиция профиля и каталогов на больших экранах",
-  wideDirectoryLayoutChecks.every(Boolean),
-  wideDirectoryLayoutChecks.every(Boolean)
-    ? "профиль центрирует identity и ставит статистику справа; расписание/обновления имеют выровненный sidebar, сезон/закладки — 6 крупных постеров"
-    : "desktop-композиция профиля, каталогов или панелей управления расходится с контрактом",
-);
-
-const profileSource = read("profile.html");
-const profileViewingTokens = [
-  "Статистика просмотра",
-  "тайтлов в списке",
-  "серий просмотрено",
-  "время просмотра",
-  "серии за 7 дней",
-  "profile-dynamics__summary",
-  "watch-chart__scale",
-  "watch-chart__bar is-today",
-  "серии за неделю",
-  "4,9 серии в день",
-];
-const missingProfileViewingTokens = profileViewingTokens.filter((token) => !profileSource.includes(token));
-add(
-  "html.profileViewingStats",
-  "HTML: профиль показывает измеримую статистику просмотра",
-  missingProfileViewingTokens.length === 0,
-  missingProfileViewingTokens.length
-    ? `Не найдены: ${missingProfileViewingTokens.join(", ")}`
-    : "четыре профильные метрики и недельный график содержат числа серий, даты, итог и среднее",
-);
-
-const profileChartCssTokens = [
-  ".profile-metrics div > svg",
-  ".profile-dynamics__head",
-  ".watch-chart__scale",
-  ".watch-chart__line--middle",
-  ".watch-chart__bar > b",
-  ".watch-chart__bar.is-today > span",
-  ".profile-dynamics__footer",
-];
-const missingProfileChartCss = profileChartCssTokens.filter((token) => !css.includes(token));
-add(
-  "css.profileViewingChart",
-  "CSS: читаемый график просмотра серий",
-  missingProfileChartCss.length === 0,
-  missingProfileChartCss.length
-    ? `Не найдены: ${missingProfileChartCss.join(", ")}`
-    : "график имеет шкалу, сетку, точные значения, даты и выделение текущего дня",
+  searchMarkupChecks.every(Boolean) ? "обе страницы используют одну структуру: поле, 5 фильтров, недавние, результаты и очистку" : "структура поиска расходится между страницами",
 );
 
 const sliderCssTokens = [
@@ -565,27 +367,6 @@ add("css.noOutfit", "CSS: нет безкириллической гарниту
 add("css.tabularNums", "CSS: tabular-nums на числовых узлах", css.includes("font-variant-numeric: tabular-nums"), `${count(css, /font-variant-numeric: tabular-nums/g)} правил с tabular-nums`);
 
 const js = read("app.js");
-const directoryJsTokens = [
-  "function initDirectoryPages",
-  "function applyListFilter",
-  "data-page-tabs",
-  "data-list-filter",
-  "data-local-search",
-  "dataset.filterTags",
-];
-const missingDirectoryJs = directoryJsTokens.filter((token) => !js.includes(token));
-add(
-  "js.directoryPages",
-  "JS: навигация и фильтры новых разделов",
-  missingDirectoryJs.length === 0,
-  missingDirectoryJs.length ? `Не найдены: ${missingDirectoryJs.join(", ")}` : "табы, статусные фильтры, локальный поиск и синхронизация закладок подключены",
-);
-add(
-  "js.titleStatusTone",
-  "JS: выбранный статус окрашивает кнопку тайтла",
-  js.includes("control.dataset.bookmarkTone = state.listStatus") && js.includes("delete control.dataset.bookmarkTone"),
-  "desktop и mobile list triggers получают общий data-bookmark-tone",
-);
 add(
   "js.headerSearch",
   "JS: non-modal поиск",
