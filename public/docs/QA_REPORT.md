@@ -22,7 +22,7 @@
 - предыдущий browser runtime подтвердил базовую геометрию hero, poster grid и sheets; новый встроенный search и внутренний poster overlay требуют повторной browser-matrix перед merge;
 - шесть новых разделов имеют отдельные structural contracts: profile tabs, недельное расписание, update filters, сезонную сетку, collection search и bookmark filters; у directory controls проверяются постоянные подписи и группировка внутри общей панели;
 - `18` contrast pairs (9 на тему), минимум `4.97:1`.
-- wide-screen контракт требует при `1363×936`: центрированный profile identity, основную ленту слева, analytics-колонку `410 px` справа, шесть постеров сезона/закладок и единую поверхность directory controls. Браузерная сверка этого точного commit-preview фиксируется отдельно после публикации; предыдущая ревизия подтверждала числа графика, круглый avatar `112×112`, status colors, list-trigger, bookmark filter и внутренний poster menu.
+- exact commit-preview `3220c085` проверен при `1363×936`: avatar `112×112` и profile copy центрированы; основная лента занимает `834 px`, analytics-колонка — `410 px`; оба аналитических блока последовательно стоят справа. Расписание/обновления используют основной поток `924 px` и sidebar `320 px`. Сезон/закладки показывают шесть постеров шириной около `199 px`. На всех шести маршрутах horizontal overflow отсутствует; dark/light поверхности проверены, ошибок JavaScript страницы нет.
 
 Полный machine-readable результат: `qa-results.json`. Повторный запуск:
 
@@ -73,7 +73,7 @@ node tools/qa.mjs --write
 
 ## Ограничение среды
 
-Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `98/98` статических проверок и `node --check`; новый desktop browser smoke выполняется на точном опубликованном commit-preview. До production merge требуется проверить mobile/tablet ширины, недельный график профиля, сетки `5/4/3`, mobile sheets, drawer и горизонтальные rails. Неповторённый baseline не считается pass для изменённых узлов.
+Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `98/98` статических проверок, `node --check` и desktop browser smoke на точном опубликованном commit-preview. До production merge требуется проверить mobile/tablet ширины, недельный график профиля, сетки `5/4/3`, mobile sheets, drawer и горизонтальные rails. Неповторённый baseline не считается pass для изменённых узлов.
 
 В изолированной среде внешние poster URL Shikimori возвращали transport errors. Regression-прогон подтвердил штатное состояние «Изображение недоступно». Целевой visual harness подставлял детерминированные локальные SVG-fixtures только для проверки crop/mask/геометрии hero и постера; сами production-постеры этим прогоном не подтверждаются.
 
