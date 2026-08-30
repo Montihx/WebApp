@@ -102,6 +102,7 @@ add("files.required", "Обязательные файлы", missingRequired.len
 
 for (const page of pages) {
   const source = read(page);
+  const headSource = source.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1] || "";
   const ids = [...source.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
   const duplicates = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
   const localRefs = [...source.matchAll(/\b(?:href|src)="((?:\.\/|\.\.\/)[^"?#]+)(?:[?#][^"]*)?"/g)].map((match) => match[1]);
@@ -118,6 +119,7 @@ for (const page of pages) {
   add(`${page}.buttons`, `${page}: типы кнопок`, !/<button\b(?![^>]*\btype=)[^>]*>/i.test(source), "у каждой кнопки указан type");
   add(`${page}.images`, `${page}: alt у изображений`, !/<img\b(?![^>]*\balt=)[^>]*>/i.test(source), `${count(source, /<img\b/g)} изображений проверено`);
   add(`${page}.anchors`, `${page}: ссылки без заглушек`, !/href="#"/.test(source) && !/javascript:/i.test(source), "нет href=\"#\" и javascript-ссылок");
+  add(`${page}.headStyles`, `${page}: стили подключены в head`, headSource.includes("styles.css") && headSource.includes("art-direction.css"), "оба слоя CSS загружаются до body без невалидной разметки");
 }
 
 const css = read("styles.css");
@@ -281,6 +283,44 @@ add(
   "CSS: адаптивные стили новых разделов",
   missingDirectoryCss.length === 0,
   missingDirectoryCss.length ? `Не найдены: ${missingDirectoryCss.join(", ")}` : "все шесть разделов используют общий responsive-контракт и токены тем",
+);
+
+const craftedRouteMarkupChecks = [
+  read("schedule.html").includes("calendar-panel") && read("schedule.html").includes("schedule-changes"),
+  read("updates.html").includes("updates-feed") && read("updates.html").includes("update-release"),
+  read("collections.html").includes("collections-hero-preview") && read("collections.html").includes("editorial-collection"),
+  read("bookmarks.html").includes("bookmark-summary") && ["watching", "planned", "completed", "on_hold", "dropped"].every((tone) => read("bookmarks.html").includes(`data-bookmark-tone=\"${tone}\"`)),
+  read("profile.html").includes("profile-dynamics__summary") && read("profile.html").includes("watch-chart__scale"),
+  read("anime.html").includes("player-stage") && read("anime.html").includes("comments-layout"),
+];
+add(
+  "html.craftedRouteRhythm",
+  "HTML: страницы имеют разные информационные композиции",
+  craftedRouteMarkupChecks.every(Boolean),
+  craftedRouteMarkupChecks.every(Boolean)
+    ? "расписание, хронология, редакционные коллекции, пять статусов, профильная аналитика и медиастраница не сведены к одному карточному шаблону"
+    : "одна или несколько страниц потеряли свой композиционный контракт",
+);
+
+const craftedRouteCssTokens = [
+  'body[data-page="schedule"] .directory-hero::before',
+  ".updates-feed",
+  ".update-release::before",
+  ".collections-hero-preview",
+  ".bookmark-summary > div::after",
+  ".activity-list::before",
+  ".watch-chart__bar.is-today span",
+  ".player-section::before",
+  "@keyframes ad-search-in",
+];
+const missingCraftedRouteCss = craftedRouteCssTokens.filter((token) => !artCss.includes(token));
+add(
+  "css.craftedRouteRhythm",
+  "CSS: индивидуальный ритм и motion страниц",
+  missingCraftedRouteCss.length === 0,
+  missingCraftedRouteCss.length
+    ? `Не найдены: ${missingCraftedRouteCss.join(", ")}`
+    : "маршруты различаются композицией; поиск, меню и медиа используют короткое осмысленное движение",
 );
 
 const directoryControlContracts = {
