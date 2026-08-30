@@ -328,12 +328,12 @@ p {
 }
 
 .anime-grid {
-  grid-template-columns: repeat(auto-fill, minmax(205px, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 32px 18px;
 }
 
 .anime-grid--compact {
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(168px, 200px));
 }
 
 .anime-card {
@@ -677,7 +677,7 @@ p {
 
 .season-page-grid,
 .bookmarks-page-grid {
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
 /* Collections: visual essays, not dashboard widgets. */
@@ -972,9 +972,6 @@ p {
 
   .desktop-nav { display: none; }
   .mobile-menu-button { display: grid; }
-  .feature-slider__viewport,
-  .feature-slide { min-height: 520px; }
-  .hero-copy { width: 56%; }
   .profile-layout,
   .schedule-page-layout,
   .updates-layout { grid-template-columns: 1fr; }
@@ -983,9 +980,18 @@ p {
   .updates-sidebar { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 24px; }
   .editorial-collection { grid-column: span 6; }
   .editorial-collection--wide { grid-column: span 12; }
+  .anime-grid,
+  .season-page-grid,
+  .bookmarks-page-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 920px) {
+  .anime-grid,
+  .season-page-grid,
+  .bookmarks-page-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+@media (max-width: 720px) {
   :root { --ad-page: calc(100% - 28px); }
 
   body { padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
@@ -1005,43 +1011,13 @@ p {
   .search-filters { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .search-body { max-height: calc(100dvh - 162px); }
 
-  .hero-section { padding-top: 10px; }
-  .hero-slider-container,
-  .season-hero { width: calc(100vw - 20px); }
-  .feature-slider,
-  .season-hero { border-radius: 25px; }
-  .feature-slider__viewport,
-  .feature-slide { min-height: 650px; }
-  .feature-slide__art {
-    inset: 0 0 auto;
-    width: 100%;
-    height: 64%;
-    transform: none;
-    object-position: center 22%;
-    mask-image: linear-gradient(180deg, #000 0%, #000 55%, transparent 100%);
-  }
-  .feature-slide__veil {
-    background: linear-gradient(0deg, rgba(8,8,12,.99) 0%, rgba(8,8,12,.92) 35%, transparent 76%);
-  }
-  .hero-copy {
-    width: 100%;
-    padding: 330px 20px 100px;
-    align-self: end;
-  }
-  .hero-copy h2 {
-    max-width: 14ch;
-    font-size: clamp(38px, 11vw, 54px);
-  }
-  .hero-description { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .feature-slider__controls { left: 18px; right: 18px; bottom: 20px; }
-
   .content-section { padding: 46px 0; }
   .anime-grid,
   .anime-grid--compact,
   .season-page-grid,
   .bookmarks-page-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 26px 12px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px 10px;
   }
   .poster-frame { border-radius: 17px; }
   .card-title-row h3 { font-size: 14px; }
@@ -1059,8 +1035,10 @@ p {
     padding: 7px;
     border-radius: 15px;
   }
-  .directory-toolbar--wrap { flex-wrap: nowrap; }
-  .toolbar-field { flex: 0 0 auto; }
+  .directory-toolbar--wrap { flex-wrap: wrap; }
+  .directory-toolbar .toolbar-group,
+  .directory-toolbar .toolbar-field,
+  .directory-toolbar .toolbar-side { width: 100%; }
 
   .schedule-release {
     grid-template-columns: 58px 52px minmax(0, 1fr);
@@ -1075,9 +1053,6 @@ p {
     grid-template-columns: 92px minmax(0,1fr);
     gap: 16px;
   }
-
-  .season-hero { min-height: 620px; }
-  .season-hero__content { min-height: 620px; padding: 320px 20px 42px; }
 
   .collection-page-grid { display: grid; grid-template-columns: 1fr; }
   .editorial-collection,
@@ -1111,6 +1086,22 @@ p {
     border-top: 1px solid var(--ad-line);
     background: color-mix(in srgb, var(--ad-canvas) 94%, transparent);
     backdrop-filter: blur(22px);
+  }
+}
+
+@media (min-width: 1280px) and (max-width: 1599px) {
+  .anime-grid,
+  .season-page-grid,
+  .bookmarks-page-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+
+@media (max-width: 639px) {
+  .anime-grid,
+  .anime-grid--compact,
+  .season-page-grid,
+  .bookmarks-page-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px 9px;
   }
 }
 

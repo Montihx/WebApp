@@ -126,7 +126,15 @@ const structure = cssStructure(css);
 add("css.structure", "CSS: синтаксическая структура", structure.ok, structure.detail);
 const artStructure = cssStructure(artCss);
 add("css.artDirection", "CSS: единый слой арт-дирекции", artStructure.ok && pages.every((page) => read(page).includes("art-direction.css")), artStructure.ok ? "все восемь страниц используют общий визуальный слой" : artStructure.detail);
-add("css.artDirectionResponsive", "CSS: адаптивная арт-дирекция", [1180, 760].every((value) => artCss.includes(`max-width: ${value}px`)) && artCss.includes("prefers-reduced-motion"), "desktop/tablet/mobile и reduced-motion определены в новом слое");
+add("css.artDirectionResponsive", "CSS: адаптивная арт-дирекция", [1180, 920, 720, 639].every((value) => artCss.includes(`max-width: ${value}px`)) && artCss.includes("prefers-reduced-motion"), "desktop/tablet/mobile и reduced-motion определены без конфликта с базовой сеткой");
+const artPosterGridChecks = [
+  /\.anime-grid\s*{[^}]*repeat\(7,/s.test(artCss),
+  /@media \(min-width: 1280px\) and \(max-width: 1599px\)[\s\S]*?\.anime-grid,[\s\S]*?repeat\(6,/s.test(artCss),
+  /@media \(max-width: 920px\)[\s\S]*?repeat\(5,/s.test(artCss),
+  /@media \(max-width: 720px\)[\s\S]*?repeat\(4,/s.test(artCss),
+  /@media \(max-width: 639px\)[\s\S]*?repeat\(3,/s.test(artCss),
+];
+add("css.artPosterGrid", "CSS: стабильный размер постеров", artPosterGridChecks.every(Boolean), artPosterGridChecks.every(Boolean) ? "7/6/5/4/3 колонки без скачка к двум чрезмерно крупным постерам" : "арт-дирекция нарушает согласованную плотность постеров");
 add("css.themes", "CSS: две темы", /:root\s*{/.test(css) && /html\[data-theme="light"\]/.test(css), "тёмные и светлые токены присутствуют");
 add("css.responsive", "CSS: адаптивность", [1279, 1180, 920, 720, 639, 460].every((value) => css.includes(`max-width: ${value}px`)), "контрольные точки 1279/1180/920/720/639/460 px");
 add("css.a11y", "CSS: доступность", css.includes(":focus-visible") && css.includes("prefers-reduced-motion"), "focus-visible и reduced-motion присутствуют");

@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-30T11:21:24.530Z",
+  "generated_at": "2026-08-30T12:45:48.899Z",
   "summary": {
     "status": "pass",
-    "total": 100,
-    "passed": 100,
+    "total": 101,
+    "passed": 101,
     "failed": 0
   },
   "results": [
@@ -367,7 +367,13 @@
       "id": "css.artDirectionResponsive",
       "label": "CSS: адаптивная арт-дирекция",
       "status": "pass",
-      "detail": "desktop/tablet/mobile и reduced-motion определены в новом слое"
+      "detail": "desktop/tablet/mobile и reduced-motion определены без конфликта с базовой сеткой"
+    },
+    {
+      "id": "css.artPosterGrid",
+      "label": "CSS: стабильный размер постеров",
+      "status": "pass",
+      "detail": "7/6/5/4/3 колонки без скачка к двум чрезмерно крупным постерам"
     },
     {
       "id": "css.themes",
