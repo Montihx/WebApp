@@ -180,6 +180,24 @@ add(
       : "внутренний poster overlay снова допускает выход слоя, обрезание названий или дублирующую trigger-кнопку",
 );
 
+const statusSemanticChecks = [
+  /\[data-bookmark-tone="watching"\]\s*{[^}]*--bookmark-color:\s*var\(--green\)[^}]*--bookmark-status-color:\s*var\(--green\)/s.test(css),
+  /\[data-bookmark-tone="planned"\]\s*{[^}]*--bookmark-color:\s*var\(--info\)[^}]*--bookmark-status-color:\s*var\(--info\)/s.test(css),
+  /\[data-bookmark-tone="completed"\]\s*{[^}]*--bookmark-color:\s*var\(--accent-strong\)[^}]*--bookmark-status-color:\s*var\(--accent-strong\)/s.test(css),
+  /\[data-bookmark-tone="on_hold"\]\s*{[^}]*--bookmark-color:\s*var\(--amber\)[^}]*--bookmark-status-color:\s*var\(--amber\)/s.test(css),
+  /\[data-bookmark-tone="dropped"\]\s*{[^}]*--bookmark-color:\s*var\(--red\)[^}]*--bookmark-status-color:\s*var\(--red\)/s.test(css),
+  css.includes('[data-list-filter="bookmarks"] [data-filter-value].is-active'),
+  css.includes('#list-trigger[data-bookmark-tone]'),
+  /\.profile-avatar\s*{[^}]*border-radius:\s*50%/s.test(css),
+  /\.owner-avatar\s*{[^}]*border-radius:\s*50%/s.test(css),
+];
+add(
+  "css.statusSemantics",
+  "CSS: единые цвета статусов и круглые аватары",
+  statusSemanticChecks.every(Boolean),
+  statusSemanticChecks.every(Boolean) ? "5 статусов окрашивают кнопки, фильтры, полоски и статистику; profile/owner avatars круглые" : "семантика статусов или геометрия аватаров расходится между разделами",
+);
+
 const headerSearchChecks = [
   css.includes("@keyframes header-search-in"),
   css.includes(".search-dialog::backdrop"),
@@ -429,6 +447,12 @@ add(
   "JS: навигация и фильтры новых разделов",
   missingDirectoryJs.length === 0,
   missingDirectoryJs.length ? `Не найдены: ${missingDirectoryJs.join(", ")}` : "табы, статусные фильтры, локальный поиск и синхронизация закладок подключены",
+);
+add(
+  "js.titleStatusTone",
+  "JS: выбранный статус окрашивает кнопку тайтла",
+  js.includes("control.dataset.bookmarkTone = state.listStatus") && js.includes("delete control.dataset.bookmarkTone"),
+  "desktop и mobile list triggers получают общий data-bookmark-tone",
 );
 add(
   "js.headerSearch",

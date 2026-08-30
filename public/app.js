@@ -1194,8 +1194,10 @@
       if (label) label.textContent = nextLabel;
     });
     $$('[data-list-status]').forEach((item) => item.classList.toggle("is-active", item.dataset.listStatus === state.listStatus));
-    $$('[data-open-mobile-list]').forEach((control) => {
+    [$("#list-trigger"), ...$$('[data-open-mobile-list]')].filter(Boolean).forEach((control) => {
       control.classList.toggle("is-active", state.listStatus !== "none");
+      if (state.listStatus !== "none") control.dataset.bookmarkTone = state.listStatus;
+      else delete control.dataset.bookmarkTone;
       control.setAttribute("aria-label", state.listStatus === "none" ? "Добавить в список" : `${nextLabel}. Изменить статус`);
     });
   }
