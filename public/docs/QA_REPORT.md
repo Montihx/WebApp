@@ -4,7 +4,7 @@
 
 ## Итог
 
-- `94/94` автоматических статических проверки — pass (`node tools/qa.mjs`);
+- `96/96` автоматических статических проверок — pass (`node tools/qa.mjs`);
 - `95/95` браузерных проверок предыдущей визуальной ревизии — только baseline: `58` regression + `37` целевых для hero/title/player; после текущей переработки hero, continue rail и title требуется повторный browser gate;
 - `8/8` HTML documents разобраны без parser errors;
 - `0` duplicate IDs;
@@ -22,7 +22,7 @@
 - предыдущий browser runtime подтвердил базовую геометрию hero, poster grid и sheets; новый встроенный search и внутренний poster overlay требуют повторной browser-matrix перед merge;
 - шесть новых разделов имеют отдельные structural contracts: profile tabs, недельное расписание, update filters, сезонную сетку, collection search и bookmark filters;
 - `18` contrast pairs (9 на тему), минимум `4.97:1`.
-- опубликованный commit-preview проверен при `1363×936`: шесть новых маршрутов открываются без horizontal overflow; круглый avatar профиля `112×112`, полноширинные analytics/content sections, пять вычисленных status colors, окрашивание list-trigger, bookmark filter и внутренний poster menu подтверждены; dark/light просмотрены, ошибок JavaScript страницы нет.
+- опубликованный commit-preview текущей ревизии проверен при `1363×936`: четыре метрики просмотра занимают полную ширину, недельный график имеет область `457×200 px`, семь подписанных столбцов, шкалу `0/4/8`, итог `34`, среднее `4,9`, даты и выделение текущего дня; horizontal overflow отсутствует. Светлая и тёмная темы используют свои поверхности. Предыдущей browser-матрицей также подтверждены шесть новых маршрутов, круглый avatar профиля `112×112`, status colors, list-trigger, bookmark filter и внутренний poster menu.
 
 Полный machine-readable результат: `qa-results.json`. Повторный запуск:
 
@@ -73,7 +73,7 @@ node tools/qa.mjs --write
 
 ## Ограничение среды
 
-Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `94/94` статические проверки, `node --check` и отдельный desktop browser smoke на точном commit. До production merge требуется проверить mobile/tablet ширины, сетки `5/4/3`, mobile sheets, drawer и горизонтальные rails. Неповторённый baseline не считается pass для изменённых узлов.
+Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `96/96` статических проверок, `node --check` и desktop browser smoke на точном commit-preview. До production merge требуется проверить mobile/tablet ширины, недельный график профиля, сетки `5/4/3`, mobile sheets, drawer и горизонтальные rails. Неповторённый baseline не считается pass для изменённых узлов.
 
 В изолированной среде внешние poster URL Shikimori возвращали transport errors. Regression-прогон подтвердил штатное состояние «Изображение недоступно». Целевой visual harness подставлял детерминированные локальные SVG-fixtures только для проверки crop/mask/геометрии hero и постера; сами production-постеры этим прогоном не подтверждаются.
 
