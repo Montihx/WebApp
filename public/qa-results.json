@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-30T03:42:49.540Z",
+  "generated_at": "2026-08-30T04:01:27.649Z",
   "summary": {
     "status": "pass",
-    "total": 96,
-    "passed": 96,
+    "total": 98,
+    "passed": 98,
     "failed": 0
   },
   "results": [
@@ -355,7 +355,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "1409 блоков, структура сбалансирована"
+      "detail": "1452 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -416,6 +416,18 @@
       "label": "CSS: адаптивные стили новых разделов",
       "status": "pass",
       "detail": "все шесть разделов используют общий responsive-контракт и токены тем"
+    },
+    {
+      "id": "html.directoryControlPanels",
+      "label": "HTML: подписанные панели управления разделами",
+      "status": "pass",
+      "detail": "фильтры, поиск, сезон, период и сортировка сгруппированы и имеют постоянные подписи"
+    },
+    {
+      "id": "css.wideDirectoryComposition",
+      "label": "CSS: композиция профиля и каталогов на больших экранах",
+      "status": "pass",
+      "detail": "профиль центрирует identity и ставит статистику справа; расписание/обновления имеют выровненный sidebar, сезон/закладки — 6 крупных постеров"
     },
     {
       "id": "html.profileViewingStats",

@@ -270,6 +270,43 @@ add(
   missingDirectoryCss.length ? `Не найдены: ${missingDirectoryCss.join(", ")}` : "все шесть разделов используют общий responsive-контракт и токены тем",
 );
 
+const directoryControlContracts = {
+  "updates.html": ["toolbar-group", "toolbar-field", "Тип обновления", "Период"],
+  "season.html": ["toolbar-group", "toolbar-field", "Сезон", "Статус", "Год"],
+  "collections.html": ["toolbar-group", "toolbar-field--search", "Автор", "Поиск"],
+  "bookmarks.html": ["toolbar-group--grow", "toolbar-field", "Статус списка", "Сортировка"],
+};
+const missingDirectoryControlContracts = Object.entries(directoryControlContracts).flatMap(([page, tokens]) => {
+  const source = read(page);
+  return tokens.filter((token) => !source.includes(token)).map((token) => `${page}:${token}`);
+});
+add(
+  "html.directoryControlPanels",
+  "HTML: подписанные панели управления разделами",
+  missingDirectoryControlContracts.length === 0,
+  missingDirectoryControlContracts.length
+    ? `Не найдены: ${missingDirectoryControlContracts.join(", ")}`
+    : "фильтры, поиск, сезон, период и сортировка сгруппированы и имеют постоянные подписи",
+);
+
+const wideDirectoryLayoutChecks = [
+  /@media \(min-width: 1181px\)[\s\S]*?\.profile-identity\s*{[^}]*grid-template-areas:[^}]*avatar actions[^}]*copy actions/s.test(css),
+  /@media \(min-width: 1181px\)[\s\S]*?\.profile-layout\s*{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 410px/s.test(css),
+  /@media \(min-width: 1181px\)[\s\S]*?\.profile-sidebar\s*{[^}]*position:\s*sticky[^}]*grid-column:\s*2/s.test(css),
+  /@media \(min-width: 1181px\)[\s\S]*?\.schedule-page-layout,[\s\S]*?\.updates-layout\s*{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 320px/s.test(css),
+  /@media \(min-width: 1280px\) and \(max-width: 1599px\)[\s\S]*?\.season-page-grid,[\s\S]*?\.bookmarks-page-grid\s*{[^}]*repeat\(6,/s.test(css),
+  /\.directory-toolbar\s*{[^}]*align-items:\s*end[^}]*min-height:\s*70px[^}]*background:\s*var\(--surface\)/s.test(css),
+  css.includes(".toolbar-caption"),
+];
+add(
+  "css.wideDirectoryComposition",
+  "CSS: композиция профиля и каталогов на больших экранах",
+  wideDirectoryLayoutChecks.every(Boolean),
+  wideDirectoryLayoutChecks.every(Boolean)
+    ? "профиль центрирует identity и ставит статистику справа; расписание/обновления имеют выровненный sidebar, сезон/закладки — 6 крупных постеров"
+    : "desktop-композиция профиля, каталогов или панелей управления расходится с контрактом",
+);
+
 const profileSource = read("profile.html");
 const profileViewingTokens = [
   "Статистика просмотра",
