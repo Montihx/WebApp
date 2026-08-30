@@ -9299,6 +9299,243 @@ img.is-image-error {
   }
 }
 
+/* Wide-screen composition shared by the six account and directory pages. */
+.directory-toolbar {
+  align-items: end;
+  min-height: 70px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface);
+}
+
+.toolbar-group,
+.toolbar-field {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.toolbar-group--grow {
+  flex: 1 1 auto;
+}
+
+.toolbar-caption {
+  padding-inline: 4px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.directory-toolbar .segmented-control,
+.directory-toolbar .season-switcher {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.directory-toolbar .segmented-control button,
+.directory-toolbar .season-switcher button {
+  min-height: 38px;
+}
+
+.directory-toolbar .compact-select select,
+.directory-toolbar .inline-search {
+  height: 38px;
+  min-height: 38px;
+  border-radius: 10px;
+  background: var(--canvas);
+}
+
+.directory-toolbar .compact-select select {
+  min-width: 166px;
+}
+
+.toolbar-field--search {
+  width: min(320px, 34vw);
+}
+
+.toolbar-field--search .inline-search {
+  width: 100%;
+}
+
+.directory-toolbar .toolbar-side {
+  align-items: end;
+}
+
+@media (min-width: 1181px) {
+  .profile-identity {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(320px, 460px) minmax(180px, 1fr);
+    grid-template-areas:
+      ". avatar actions"
+      ". copy actions";
+    gap: 11px 22px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-avatar {
+    grid-area: avatar;
+    justify-self: center;
+  }
+
+  .profile-copy {
+    grid-area: copy;
+    padding: 0;
+  }
+
+  .profile-copy > div,
+  .profile-online {
+    justify-content: center;
+  }
+
+  .profile-copy > p {
+    max-width: 440px;
+    margin-inline: auto;
+  }
+
+  .profile-actions {
+    grid-area: actions;
+    align-self: center;
+    justify-self: end;
+    padding: 0;
+  }
+
+  .profile-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 410px;
+    gap: 22px;
+    align-items: start;
+  }
+
+  .profile-main {
+    grid-column: 1;
+    min-height: 690px;
+    padding: 22px;
+  }
+
+  .profile-sidebar {
+    position: sticky;
+    top: calc(var(--header-height) + 18px);
+    order: 0;
+    display: grid;
+    grid-column: 2;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .profile-sidebar section {
+    padding: 19px;
+  }
+
+  .profile-sidebar .profile-status-layout {
+    grid-template-columns: minmax(0, 1fr) 128px;
+    gap: 18px;
+  }
+
+  .profile-sidebar .status-donut {
+    width: 124px;
+    height: 124px;
+  }
+
+  .profile-sidebar .status-donut::before {
+    width: 78px;
+    height: 78px;
+  }
+
+  .profile-sidebar .watch-chart {
+    height: 190px;
+  }
+
+  .profile-sidebar .watch-chart__plot {
+    height: 190px;
+    gap: 5px;
+  }
+
+  .profile-sidebar .watch-chart__bar {
+    height: 182px;
+  }
+
+  .schedule-page-layout,
+  .updates-layout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 22px;
+  }
+
+  .schedule-sidebar,
+  .updates-sidebar {
+    position: sticky;
+    top: calc(var(--header-height) + 18px);
+  }
+
+  .schedule-sidebar section,
+  .updates-sidebar section {
+    padding: 18px;
+  }
+}
+
+@media (min-width: 1280px) and (max-width: 1599px) {
+  .season-page-grid,
+  .bookmarks-page-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1180px) {
+  .directory-toolbar {
+    align-items: stretch;
+  }
+
+  .toolbar-group,
+  .toolbar-field,
+  .toolbar-field--search {
+    width: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .directory-toolbar {
+    min-height: 0;
+    margin-inline: calc(-1 * var(--page-gutter));
+    padding: 12px var(--page-gutter);
+    border-width: 1px 0;
+    border-radius: 0;
+  }
+
+  .directory-toolbar,
+  .directory-toolbar .toolbar-side {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar-caption {
+    font-size: 6.5px;
+  }
+
+  .directory-toolbar .segmented-control,
+  .directory-toolbar .season-switcher {
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .directory-toolbar .segmented-control::-webkit-scrollbar,
+  .directory-toolbar .season-switcher::-webkit-scrollbar {
+    display: none;
+  }
+
+  .directory-toolbar .compact-select,
+  .directory-toolbar .compact-select select,
+  .toolbar-field--search .inline-search {
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

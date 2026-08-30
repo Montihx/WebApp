@@ -4,7 +4,7 @@
 
 ## Итог
 
-- `96/96` автоматических статических проверок — pass (`node tools/qa.mjs`);
+- `98/98` автоматических статических проверок — pass (`node tools/qa.mjs`);
 - `95/95` браузерных проверок предыдущей визуальной ревизии — только baseline: `58` regression + `37` целевых для hero/title/player; после текущей переработки hero, continue rail и title требуется повторный browser gate;
 - `8/8` HTML documents разобраны без parser errors;
 - `0` duplicate IDs;
@@ -17,12 +17,12 @@
 - `node --check app.js` — pass;
 - `24` локальных WOFF2 font-файлов подключено;
 - `18` ключевых JS interaction families, включая hero, continue rail и отдельный пятистатусный bookmark-сценарий, обнаружены QA-script;
-- сетка постеров подтверждена как `7/6/5/4/3` колонок: карточки увеличены на desktop и ноутбуках, tablet/mobile gates сохранены;
+- сетка постеров подтверждена как `7/6/5/4/3` колонок; сезон и закладки дополнительно ограничены шестью карточками на `1280–1599 px`, чтобы не возвращать слишком узкие poster overlays;
 - отдельный runtime-harness: `18/18` — адаптивная структура, выбор, явное удаление, защита от случайного toggle-off, persistence, синхронизация дубликатов и keyboard focus;
 - предыдущий browser runtime подтвердил базовую геометрию hero, poster grid и sheets; новый встроенный search и внутренний poster overlay требуют повторной browser-matrix перед merge;
-- шесть новых разделов имеют отдельные structural contracts: profile tabs, недельное расписание, update filters, сезонную сетку, collection search и bookmark filters;
+- шесть новых разделов имеют отдельные structural contracts: profile tabs, недельное расписание, update filters, сезонную сетку, collection search и bookmark filters; у directory controls проверяются постоянные подписи и группировка внутри общей панели;
 - `18` contrast pairs (9 на тему), минимум `4.97:1`.
-- опубликованный commit-preview текущей ревизии проверен при `1363×936`: четыре метрики просмотра занимают полную ширину, недельный график имеет область `457×200 px`, семь подписанных столбцов, шкалу `0/4/8`, итог `34`, среднее `4,9`, даты и выделение текущего дня; horizontal overflow отсутствует. Светлая и тёмная темы используют свои поверхности. Предыдущей browser-матрицей также подтверждены шесть новых маршрутов, круглый avatar профиля `112×112`, status colors, list-trigger, bookmark filter и внутренний poster menu.
+- exact commit-preview `3220c085` проверен при `1363×936`: avatar `112×112` и profile copy центрированы; основная лента занимает `834 px`, analytics-колонка — `410 px`; оба аналитических блока последовательно стоят справа. Расписание/обновления используют основной поток `924 px` и sidebar `320 px`. Сезон/закладки показывают шесть постеров шириной около `199 px`. На всех шести маршрутах horizontal overflow отсутствует; dark/light поверхности проверены, ошибок JavaScript страницы нет.
 
 Полный machine-readable результат: `qa-results.json`. Повторный запуск:
 
@@ -73,7 +73,7 @@ node tools/qa.mjs --write
 
 ## Ограничение среды
 
-Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `96/96` статических проверок, `node --check` и desktop browser smoke на точном commit-preview. До production merge требуется проверить mobile/tablet ширины, недельный график профиля, сетки `5/4/3`, mobile sheets, drawer и горизонтальные rails. Неповторённый baseline не считается pass для изменённых узлов.
+Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `98/98` статических проверок, `node --check` и desktop browser smoke на точном опубликованном commit-preview. До production merge требуется проверить mobile/tablet ширины, недельный график профиля, сетки `5/4/3`, mobile sheets, drawer и горизонтальные rails. Неповторённый baseline не считается pass для изменённых узлов.
 
 В изолированной среде внешние poster URL Shikimori возвращали transport errors. Regression-прогон подтвердил штатное состояние «Изображение недоступно». Целевой visual harness подставлял детерминированные локальные SVG-fixtures только для проверки crop/mask/геометрии hero и постера; сами production-постеры этим прогоном не подтверждаются.
 
