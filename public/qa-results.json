@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-08-30T04:01:27.649Z",
+  "generated_at": "2026-08-30T11:15:47.287Z",
   "summary": {
     "status": "pass",
-    "total": 98,
-    "passed": 98,
+    "total": 100,
+    "passed": 100,
     "failed": 0
   },
   "results": [
@@ -13,7 +13,7 @@
       "id": "files.required",
       "label": "Обязательные файлы",
       "status": "pass",
-      "detail": "16 файлов на месте"
+      "detail": "17 файлов на месте"
     },
     {
       "id": "index.html.document",
@@ -31,7 +31,7 @@
       "id": "index.html.references",
       "label": "index.html: локальные ссылки",
       "status": "pass",
-      "detail": "84 локальных ссылок разрешены"
+      "detail": "85 локальных ссылок разрешены"
     },
     {
       "id": "index.html.aria",
@@ -73,7 +73,7 @@
       "id": "anime.html.references",
       "label": "anime.html: локальные ссылки",
       "status": "pass",
-      "detail": "38 локальных ссылок разрешены"
+      "detail": "39 локальных ссылок разрешены"
     },
     {
       "id": "anime.html.aria",
@@ -115,7 +115,7 @@
       "id": "profile.html.references",
       "label": "profile.html: локальные ссылки",
       "status": "pass",
-      "detail": "48 локальных ссылок разрешены"
+      "detail": "49 локальных ссылок разрешены"
     },
     {
       "id": "profile.html.aria",
@@ -157,7 +157,7 @@
       "id": "schedule.html.references",
       "label": "schedule.html: локальные ссылки",
       "status": "pass",
-      "detail": "41 локальных ссылок разрешены"
+      "detail": "42 локальных ссылок разрешены"
     },
     {
       "id": "schedule.html.aria",
@@ -199,7 +199,7 @@
       "id": "updates.html.references",
       "label": "updates.html: локальные ссылки",
       "status": "pass",
-      "detail": "50 локальных ссылок разрешены"
+      "detail": "51 локальных ссылок разрешены"
     },
     {
       "id": "updates.html.aria",
@@ -241,7 +241,7 @@
       "id": "season.html.references",
       "label": "season.html: локальные ссылки",
       "status": "pass",
-      "detail": "49 локальных ссылок разрешены"
+      "detail": "50 локальных ссылок разрешены"
     },
     {
       "id": "season.html.aria",
@@ -283,7 +283,7 @@
       "id": "collections.html.references",
       "label": "collections.html: локальные ссылки",
       "status": "pass",
-      "detail": "45 локальных ссылок разрешены"
+      "detail": "46 локальных ссылок разрешены"
     },
     {
       "id": "collections.html.aria",
@@ -325,7 +325,7 @@
       "id": "bookmarks.html.references",
       "label": "bookmarks.html: локальные ссылки",
       "status": "pass",
-      "detail": "49 локальных ссылок разрешены"
+      "detail": "50 локальных ссылок разрешены"
     },
     {
       "id": "bookmarks.html.aria",
@@ -356,6 +356,18 @@
       "label": "CSS: синтаксическая структура",
       "status": "pass",
       "detail": "1452 блоков, структура сбалансирована"
+    },
+    {
+      "id": "css.artDirection",
+      "label": "CSS: единый слой арт-дирекции",
+      "status": "pass",
+      "detail": "все восемь страниц используют общий визуальный слой"
+    },
+    {
+      "id": "css.artDirectionResponsive",
+      "label": "CSS: адаптивная арт-дирекция",
+      "status": "pass",
+      "detail": "desktop/tablet/mobile и reduced-motion определены в новом слое"
     },
     {
       "id": "css.themes",
