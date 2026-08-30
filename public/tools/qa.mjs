@@ -88,6 +88,7 @@ function contrastRatio(foreground, background) {
 const required = [
   ...pages,
   "styles.css",
+  "art-direction.css",
   "app.js",
   "vendor/lucide.min.js",
   "vendor/LUCIDE-LICENSE.txt",
@@ -120,8 +121,12 @@ for (const page of pages) {
 }
 
 const css = read("styles.css");
+const artCss = read("art-direction.css");
 const structure = cssStructure(css);
 add("css.structure", "CSS: синтаксическая структура", structure.ok, structure.detail);
+const artStructure = cssStructure(artCss);
+add("css.artDirection", "CSS: единый слой арт-дирекции", artStructure.ok && pages.every((page) => read(page).includes("art-direction.css")), artStructure.ok ? "все восемь страниц используют общий визуальный слой" : artStructure.detail);
+add("css.artDirectionResponsive", "CSS: адаптивная арт-дирекция", [1180, 760].every((value) => artCss.includes(`max-width: ${value}px`)) && artCss.includes("prefers-reduced-motion"), "desktop/tablet/mobile и reduced-motion определены в новом слое");
 add("css.themes", "CSS: две темы", /:root\s*{/.test(css) && /html\[data-theme="light"\]/.test(css), "тёмные и светлые токены присутствуют");
 add("css.responsive", "CSS: адаптивность", [1279, 1180, 920, 720, 639, 460].every((value) => css.includes(`max-width: ${value}px`)), "контрольные точки 1279/1180/920/720/639/460 px");
 add("css.a11y", "CSS: доступность", css.includes(":focus-visible") && css.includes("prefers-reduced-motion"), "focus-visible и reduced-motion присутствуют");
