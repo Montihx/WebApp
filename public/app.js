@@ -369,11 +369,6 @@
       remove.hidden = !status || !bookmarkSheetQuery.matches;
       remove.setAttribute("aria-label", `Убрать «${title}» из списка`);
     }
-
-    if (body.dataset.page === "bookmarks") {
-      card.dataset.filterTags = status?.key || "none";
-      applyListFilter("bookmarks");
-    }
   }
 
   function setBookmarkStatus(cardId, statusKey) {
@@ -419,12 +414,9 @@
 
       const storageKey = `kitsu-demo-bookmark-status-${cardId}`;
       const storedStatus = storage.get(storageKey);
-      const defaultStatus = BOOKMARK_STATUS_BY_KEY[card.dataset.bookmarkDefault]
-        ? card.dataset.bookmarkDefault
-        : DEFAULT_BOOKMARK_STATUSES[cardId] || "none";
       const initialStatus = storedStatus === "none" || BOOKMARK_STATUS_BY_KEY[storedStatus]
         ? storedStatus
-        : defaultStatus;
+        : DEFAULT_BOOKMARK_STATUSES[cardId] || "none";
       syncBookmarkCard(card, initialStatus);
 
       trigger.addEventListener("click", (event) => {
@@ -681,68 +673,6 @@
     });
   }
 
-  function activeFilterValue(name) {
-    return $(`[data-list-filter="${name}"] [data-filter-value].is-active`)?.dataset.filterValue || "all";
-  }
-
-  function applyListFilter(name) {
-    const container = $(`[data-filter-items="${name}"]`);
-    if (!container) return;
-    const value = activeFilterValue(name);
-    const query = ($(`[data-local-search="${name}"]`)?.value || "").trim().toLocaleLowerCase("ru");
-    const items = [...container.children].filter((item) => item instanceof HTMLElement);
-    let visible = 0;
-
-    items.forEach((item) => {
-      const tags = (item.dataset.filterTags || "").split(/\s+/).filter(Boolean);
-      const text = (item.dataset.searchText || item.textContent || "").toLocaleLowerCase("ru");
-      const matchesFilter = value === "all" || tags.includes(value);
-      const matchesSearch = !query || text.includes(query);
-      item.hidden = !(matchesFilter && matchesSearch);
-      if (!item.hidden) visible += 1;
-    });
-
-    const empty = $(`[data-empty-filter="${name}"]`);
-    if (empty) empty.hidden = visible > 0;
-  }
-
-  function initDirectoryPages() {
-    $$('[data-page-tabs]').forEach((rootNode) => {
-      const tabs = $$('[data-page-tab]', rootNode);
-      const panels = $$('[data-page-panel]', rootNode);
-      const selectTab = (value) => {
-        tabs.forEach((tab) => {
-          const active = tab.dataset.pageTab === value;
-          tab.classList.toggle("is-active", active);
-          tab.setAttribute("aria-selected", String(active));
-          tab.tabIndex = active ? 0 : -1;
-        });
-        panels.forEach((panel) => { panel.hidden = panel.dataset.pagePanel !== value; });
-      };
-      tabs.forEach((tab) => tab.addEventListener("click", () => selectTab(tab.dataset.pageTab)));
-      selectTab(tabs.find((tab) => tab.classList.contains("is-active"))?.dataset.pageTab || tabs[0]?.dataset.pageTab);
-    });
-
-    $$('[data-list-filter]').forEach((control) => {
-      const name = control.dataset.listFilter;
-      $$('[data-filter-value]', control).forEach((button) => {
-        button.addEventListener("click", () => {
-          $$('[data-filter-value]', control).forEach((peer) => {
-            const active = peer === button;
-            peer.classList.toggle("is-active", active);
-            peer.setAttribute("aria-pressed", String(active));
-          });
-          applyListFilter(name);
-        });
-      });
-      applyListFilter(name);
-    });
-
-    $$('[data-local-search]').forEach((input) => {
-      input.addEventListener("input", () => applyListFilter(input.dataset.localSearch));
-    });
-  }
-
   function initShared() {
     setTheme(root.dataset.theme || storage.get("kitsu-theme", "dark"), false);
     refreshIcons();
@@ -895,7 +825,6 @@
       });
     });
 
-    initDirectoryPages();
     initBookmarks();
   }
 
@@ -1194,10 +1123,8 @@
       if (label) label.textContent = nextLabel;
     });
     $$('[data-list-status]').forEach((item) => item.classList.toggle("is-active", item.dataset.listStatus === state.listStatus));
-    [$("#list-trigger"), ...$$('[data-open-mobile-list]')].filter(Boolean).forEach((control) => {
+    $$('[data-open-mobile-list]').forEach((control) => {
       control.classList.toggle("is-active", state.listStatus !== "none");
-      if (state.listStatus !== "none") control.dataset.bookmarkTone = state.listStatus;
-      else delete control.dataset.bookmarkTone;
       control.setAttribute("aria-label", state.listStatus === "none" ? "Добавить в список" : `${nextLabel}. Изменить статус`);
     });
   }

@@ -1,12 +1,12 @@
 # QA report — Kitsu Public Anime Graphite
 
-Дата последней сверки документа с `qa-results.json`: 30 августа 2026 года.
+Дата последней сверки документа с `qa-results.json`: 29 августа 2026 года.
 
 ## Итог
 
-- `111/111` автоматических статических проверок — pass (`node tools/qa.mjs`);
+- `47/47` автоматических статических проверок — pass (`node tools/qa.mjs`);
 - `95/95` браузерных проверок предыдущей визуальной ревизии — только baseline: `58` regression + `37` целевых для hero/title/player; после текущей переработки hero, continue rail и title требуется повторный browser gate;
-- `8/8` HTML documents разобраны без parser errors;
+- `2/2` HTML documents разобраны без parser errors;
 - `0` duplicate IDs;
 - `0` unresolved `aria-controls`, `aria-labelledby` и label `for` references;
 - `0` отсутствующих локальных HTML/CSS assets;
@@ -17,14 +17,10 @@
 - `node --check app.js` — pass;
 - `24` локальных WOFF2 font-файлов подключено;
 - `18` ключевых JS interaction families, включая hero, continue rail и отдельный пятистатусный bookmark-сценарий, обнаружены QA-script;
-- сетка постеров подтверждена как `7/6/5/4/3` колонок; сезон и закладки дополнительно ограничены шестью карточками на `1280–1599 px`, чтобы не возвращать слишком узкие poster overlays;
+- сетка постеров подтверждена как `7/6/5/4/3` колонок: карточки увеличены на desktop и ноутбуках, tablet/mobile gates сохранены;
 - отдельный runtime-harness: `18/18` — адаптивная структура, выбор, явное удаление, защита от случайного toggle-off, persistence, синхронизация дубликатов и keyboard focus;
 - предыдущий browser runtime подтвердил базовую геометрию hero, poster grid и sheets; новый встроенный search и внутренний poster overlay требуют повторной browser-matrix перед merge;
-- шесть новых разделов имеют отдельные structural contracts: profile tabs, недельное расписание, update filters, сезонную сетку, collection search и bookmark filters; дополнительный craft-contract запрещает сводить их к одному карточному шаблону;
-- все восемь HTML-документов подключают `styles.css` и `art-direction.css` внутри `head`, до первого рендера `body`;
-- пять bookmark-статусов присутствуют в обзоре, фильтрах, карточках, профиле и меню с одной цветовой семантикой;
 - `18` contrast pairs (9 на тему), минимум `4.97:1`.
-- опубликованный desktop preview ветки проверен при `1363×936`: avatar `112×112` и profile copy центрированы; основная лента занимает `834 px`, analytics-колонка — `410 px`; оба аналитических блока последовательно стоят справа. Расписание/обновления используют основной поток `924 px` и sidebar `320 px`. Сезон/закладки показывают шесть постеров шириной около `188–199 px`. На всех восьми маршрутах horizontal overflow отсутствует; dark/light поверхности, встроенный поиск и внутреннее меню закладок проверены, ошибок JavaScript страницы нет.
 
 Полный machine-readable результат: `qa-results.json`. Повторный запуск:
 
@@ -54,8 +50,6 @@ node tools/qa.mjs --write
 - episode selection, incremental load и grid/list view;
 - remote image failure state;
 - `prefers-reduced-motion`.
-- новые разделы: переключение профильных и календарных tab panels, фильтры updates/season/collections/bookmarks, локальный поиск коллекций и синхронизация изменённого bookmark-status с активным фильтром;
-- craft-pass: календарная шкала и timeline расписания, нумерованная хронология обновлений, веер коллекций, пятицветный обзор закладок, точный зелёный график профиля и медиасвязка player/episodes/comments.
 
 ## Контраст
 
@@ -76,11 +70,11 @@ node tools/qa.mjs --write
 
 ## Ограничение среды
 
-Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `111/111` статических проверок, `node --check` и desktop commit-preview при `1363×936`. До production merge требуется проверить mobile/tablet ширины, недельный график профиля, сетки `5/4/3`, mobile sheets, drawer и горизонтальные rails. Desktop-проверка не считается заменой этой адаптивной matrix.
+Полный прогон `95/95` в Chrome for Testing относится к предыдущей визуальной ревизии. Текущая ревизия проходит `47/47` статических проверок и `node --check`; до production merge необходимо заново проверить карточки и внутренний bookmark overlay на сетках `7/6/5/4/3`, mobile sheet, header search, hero, continue rail и mobile toolbar в реальном browser viewport. Неповторённый baseline не считается pass для изменённых узлов.
 
 В изолированной среде внешние poster URL Shikimori возвращали transport errors. Regression-прогон подтвердил штатное состояние «Изображение недоступно». Целевой visual harness подставлял детерминированные локальные SVG-fixtures только для проверки crop/mask/геометрии hero и постера; сами production-постеры этим прогоном не подтверждаются.
 
-Перед production merge остаётся обязательной браузерная matrix: `360×800`, `390×844`, `768×1024`, `1024×768`, `1440×900`; обе темы; восемь маршрутов, bookmark popover/sheet/status strip, search, drawer, tabs, filters, collection search, list/subscription, player, episodes, dialogs, comments; horizontal overflow и console errors.
+Перед production merge остаётся обязательной браузерная matrix: `360×800`, `390×844`, `768×1024`, `1024×768`, `1440×900`; обе темы; bookmark popover/sheet/status strip, search, drawer, tabs, list/subscription, player, episodes, dialogs, comments; horizontal overflow и console errors.
 
 ## Граница результата
 
