@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-09-02T11:16:10.653Z",
+  "generated_at": "2026-09-02T16:56:17.056Z",
   "summary": {
     "status": "pass",
     "total": 47,
@@ -25,13 +25,13 @@
       "id": "index.html.ids",
       "label": "index.html: уникальные ID",
       "status": "pass",
-      "detail": "37 уникальных ID"
+      "detail": "39 уникальных ID"
     },
     {
       "id": "index.html.references",
       "label": "index.html: локальные ссылки",
       "status": "pass",
-      "detail": "64 локальных ссылок разрешены"
+      "detail": "59 локальных ссылок разрешены"
     },
     {
       "id": "index.html.aria",
@@ -67,19 +67,19 @@
       "id": "anime.html.ids",
       "label": "anime.html: уникальные ID",
       "status": "pass",
-      "detail": "58 уникальных ID"
+      "detail": "67 уникальных ID"
     },
     {
       "id": "anime.html.references",
       "label": "anime.html: локальные ссылки",
       "status": "pass",
-      "detail": "37 локальных ссылок разрешены"
+      "detail": "39 локальных ссылок разрешены"
     },
     {
       "id": "anime.html.aria",
       "label": "anime.html: ARIA-ссылки",
       "status": "pass",
-      "detail": "23 ссылок разрешены"
+      "detail": "26 ссылок разрешены"
     },
     {
       "id": "anime.html.buttons",
@@ -91,7 +91,7 @@
       "id": "anime.html.images",
       "label": "anime.html: alt у изображений",
       "status": "pass",
-      "detail": "17 изображений проверено"
+      "detail": "19 изображений проверено"
     },
     {
       "id": "anime.html.anchors",
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "973 блоков, структура сбалансирована"
+      "detail": "1003 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -151,7 +151,7 @@
       "id": "css.heroSlider",
       "label": "CSS: адаптивный hero-слайдер",
       "status": "pass",
-      "detail": "desktop hero использует центральный sharp-art 1600 px, симметричное растворение краёв и safe-area; mobile composition, controls и progress оформлены"
+      "detail": "desktop hero использует центральный sharp-art 1600 px, симметричное растворение краёв и safe-area; стрелки доступны на desktop и mobile"
     },
     {
       "id": "css.continueRail",
@@ -163,7 +163,7 @@
       "id": "css.titleMobile",
       "label": "CSS: mobile title hierarchy",
       "status": "pass",
-      "detail": "верхний bell, компактные действия, естественные metadata-строки без разделителей и оба mobile sheet оформлены"
+      "detail": "отдельный постер по центру, компактные действия, естественные metadata-строки и оба mobile sheet оформлены"
     },
     {
       "id": "css.playerSettings",
@@ -199,7 +199,7 @@
       "id": "css.tabularNums",
       "label": "CSS: tabular-nums на числовых узлах",
       "status": "pass",
-      "detail": "15 правил с tabular-nums"
+      "detail": "14 правил с tabular-nums"
     },
     {
       "id": "js.headerSearch",
@@ -235,7 +235,7 @@
       "id": "html.heroSlider",
       "label": "HTML: hero-слайдер",
       "status": "pass",
-      "detail": "5 слайдов, разнесённые controls, pause и live-status"
+      "detail": "5 слайдов, стрелки и live-status"
     },
     {
       "id": "html.continueRail",
@@ -247,7 +247,7 @@
       "id": "html.titleMobile",
       "label": "HTML: мобильный тайтл и список",
       "status": "pass",
-      "detail": "mobile status без лишней ведущей иконки, 5 естественных metadata-строк и 5 статусов с отдельным удалением синхронизированы"
+      "detail": "mobile status без лишней ведущей иконки, 6 metadata-строк с возрастным рейтингом и 5 статусов с отдельным удалением синхронизированы"
     },
     {
       "id": "html.titleNotifications",
@@ -334,7 +334,7 @@
       "token": "green",
       "foreground": "#56ad91",
       "background": "#19191c",
-      "ratio": 6.500396026830483,
+      "ratio": 6.500396026830482,
       "threshold": 6,
       "tier": "reinforced"
     },

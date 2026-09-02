@@ -210,10 +210,7 @@ const sliderCssTokens = [
   ".feature-slider",
   ".feature-slide.is-active",
   ".feature-slider__controls",
-  ".feature-slider__pagination",
   ".feature-slider__nav",
-  ".feature-slider__progress",
-  "@keyframes hero-progress",
   "touch-action: pan-y",
   "width: min(100%, 1600px)",
   "#000 15%, #000 85%",
@@ -224,7 +221,7 @@ add(
   "css.heroSlider",
   "CSS: адаптивный hero-слайдер",
   missingSliderCss.length === 0,
-  missingSliderCss.length ? `Не найдены: ${missingSliderCss.join(", ")}` : "desktop hero использует центральный sharp-art 1600 px, симметричное растворение краёв и safe-area; mobile composition, controls и progress оформлены",
+  missingSliderCss.length ? `Не найдены: ${missingSliderCss.join(", ")}` : "desktop hero использует центральный sharp-art 1600 px, симметричное растворение краёв и safe-area; стрелки доступны на desktop и mobile",
 );
 
 const continueCssTokens = [
@@ -388,7 +385,7 @@ const jsCapabilities = [
   "translation-select",
   "requestFullscreen",
   "data-hero-slide",
-  "data-hero-pause",
+  "data-hero-next",
   "data-continue-rail",
   "data-continue-next",
   "data-open-mobile-list",
@@ -446,11 +443,11 @@ add(
   "html.heroSlider",
   "HTML: hero-слайдер",
   heroSlideCount === 5
-    && indexSource.includes("data-hero-pause")
+    && indexSource.includes("data-hero-prev")
+    && indexSource.includes("data-hero-next")
     && indexSource.includes("data-hero-live")
-    && indexSource.includes("feature-slider__pagination")
     && indexSource.includes("feature-slider__nav"),
-  `${heroSlideCount} слайдов, разнесённые controls, pause и live-status`,
+  `${heroSlideCount} слайдов, стрелки и live-status`,
 );
 const continueCardCount = count(indexSource, /class="continue-card"/g);
 add(
