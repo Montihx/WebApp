@@ -262,9 +262,9 @@ const missingTitleMobileCss = titleMobileCssTokens.filter((token) => !css.includ
 const titleMobileLayoutChecks = [
   /\.title-meta-list\s*{[^}]*display:\s*flex[^}]*flex-direction:\s*column/s.test(baseCss),
   /\.title-meta-list > li\s*{[^}]*display:\s*flex/s.test(baseCss),
-  /\.title-mobile-actions\s*{[^}]*width:\s*min\(100%, 520px\)[^}]*grid-template-columns:/s.test(mediaSource(720)),
+  /\.title-mobile-actions\s*{[^}]*width:\s*100%[^}]*grid-template-columns:/s.test(mediaSource(720)),
   !/\.title-meta-list[^,{]*::after/.test(css),
-  /\.title-poster\s*{[^}]*width:\s*100%[^}]*aspect-ratio:/s.test(mediaSource(720)),
+  /\.title-poster\s*{[^}]*width:\s*var\(--title-poster-width\)[^}]*margin:\s*0 auto[^}]*aspect-ratio:\s*2 \/ 3/s.test(mediaSource(720)),
   /\.title-description\s*{[^}]*background:\s*transparent/s.test(mediaSource(720)),
   /\.title-hero\s*{[^}]*overflow:\s*visible/s.test(baseCss),
   /\.title-hero\s*{[^}]*overflow:\s*hidden/s.test(mediaSource(720)),
@@ -277,7 +277,7 @@ add(
   missingTitleMobileCss.length
     ? `Не найдены: ${missingTitleMobileCss.join(", ")}`
     : titleMobileLayoutChecks.every(Boolean)
-      ? "верхний bell, компактные действия, естественные metadata-строки без разделителей и оба mobile sheet оформлены"
+      ? "отдельный постер по центру, компактные действия, естественные metadata-строки и оба mobile sheet оформлены"
       : "mobile metadata или скрытие дублирующего desktop subscription не соответствует контракту",
 );
 
