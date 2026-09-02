@@ -31,7 +31,7 @@
 | Каталог tabs | `/anime` с `sort_by`, `status`, `season`; `/recent-updates` | три понятных discovery состояния |
 | Расписание | `/schedule/history` + `/schedule/calendar` | время скрывается, если API его не вернул |
 | Публичные коллекции | `/interactions/collections/public` | только read-only cards |
-| Title hero | SSR `/anime/{slug}` + `AnimeInfo` | сохранены metadata/SEO boundaries и production-размеры poster `340/280 px` desktop, `3:4` full-width mobile; список/community находятся под постером, menu не обрезается hero-контейнером; факты остаются цельными строками без карточек, колонок и разделителей |
+| Title hero | SSR `/anime/{slug}` + `AnimeInfo` | сохранены metadata/SEO boundaries и размеры poster `340/280 px` desktop; на mobile отдельный постер `2:3` по центру над названием и действиями, за ним приглушённая иллюстрация; desktop menu не обрезается hero-контейнером, факты остаются цельными строками без карточек и колонок |
 | Мой список | favorites categories и отдельный DELETE | ровно пять подтверждённых categories; popover на desktop и modal sheet на mobile |
 | Счётчики тайтла | `anime.favorites_count`, `anime.comments_count` | оба числа видны рядом со статусом на mobile и в компактной community-строке под постером на desktop/tablet; автономные числа — fixtures, production значения берутся только из detail response |
 | Уведомления тайтла | `users/me.preferences.anime_notifications` | episode/dubbing/all/none; desktop trigger находится в community-строке под постером, mobile trigger заменяет повторную закладку справа сверху; оба открывают один адаптивный dialog/sheet |
