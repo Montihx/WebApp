@@ -1,0 +1,13 @@
+{
+  "name": "kitsu-templates",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node tools/build.mjs",
+    "check": "node public/tools/qa.mjs && node admin/tools/qa.mjs"
+  },
+  "devDependencies": {
+    "vite": "7.3.1"
+  }
+}
