@@ -1205,11 +1205,21 @@ html[data-theme="light"] .theme-icon--moon {
 }
 
 .feature-slider__dots button {
+  position: relative;
   width: 7px;
   height: 7px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.34);
   transition: width 220ms ease, background 220ms ease;
+}
+
+.feature-slider__dots button::before {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 10px;
+  height: 24px;
+  transform: translate(-50%, -50%);
+  content: "";
 }
 
 .feature-slider__dots button.is-active {
