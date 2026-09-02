@@ -471,7 +471,11 @@ const mobileListTriggerSource = animeSource.slice(mobileListTriggerStart, animeS
 const titleMetaStart = animeSource.indexOf('class="title-meta-list"');
 const titleMetaSource = animeSource.slice(titleMetaStart, animeSource.indexOf("</ul>", titleMetaStart));
 const naturalTitleMetadata = titleMetaStart >= 0
-  && count(titleMetaSource, /<li>/g) === 5
+  && count(titleMetaSource, /<li>/g) === 6
+  && titleMetaSource.includes("Возрастной рейтинг R-17")
+  && count(titleMetaSource, /R-17/g) === 1
+  && !animeSource.includes('class="age-badge"')
+  && !animeSource.includes('class="mobile-age-badge"')
   && !/<small>|<strong>/.test(titleMetaSource)
   && !/Страна|Эпизоды|Формат|Показ/.test(titleMetaSource);
 add(
@@ -483,7 +487,7 @@ add(
     && naturalTitleMetadata,
   missingTitleInteractions.length
     ? `Не найдены: ${missingTitleInteractions.join(", ")}`
-    : "mobile status без лишней ведущей иконки, 5 естественных metadata-строк и 5 статусов с отдельным удалением синхронизированы",
+    : "mobile status без лишней ведущей иконки, 6 metadata-строк с возрастным рейтингом и 5 статусов с отдельным удалением синхронизированы",
 );
 const mobileToolbarStart = animeSource.indexOf('class="title-mobile-toolbar"');
 const mobileToolbarEnd = animeSource.indexOf('</div>', mobileToolbarStart);
