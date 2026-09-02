@@ -1,4 +1,4 @@
-@import url("../tokens.css?v=bookmark-status-2");
+@import url("../tokens.css?v=bookmark-colors-restored-3");
 
 @font-face {
   font-family: "Onest";
@@ -1931,8 +1931,8 @@ html[data-theme="light"] .theme-icon--moon {
   overflow: hidden;
   padding: 2px 8px;
   border-top: 2px solid var(--bookmark-color);
-  background: color-mix(in srgb, var(--bookmark-color) 12%, rgba(12, 12, 14, 0.96));
-  color: var(--bookmark-text);
+  background: color-mix(in srgb, var(--bookmark-color) 28%, #101012);
+  color: #ffffff;
 
   font-size: 11px;
   font-weight: 650;
