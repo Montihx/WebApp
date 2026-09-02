@@ -3341,15 +3341,38 @@ html[data-theme="light"] .log-console {
 
   .sidebar {
     position: fixed;
-    width: min(290px, calc(100vw - 42px));
-    transform: translateX(-102%);
+    z-index: 90;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    height: auto;
+    max-height: 82vh;
+    border-radius: 20px 20px 0 0;
+    transform: translateY(100%);
     visibility: hidden;
     pointer-events: none;
     box-shadow: var(--shadow-menu);
+    padding-top: 14px;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .sidebar::before {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    z-index: 1;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--line-strong);
+    content: "";
+    transform: translateX(-50%);
   }
 
   .app-shell.is-mobile-open .sidebar {
-    transform: translateX(0);
+    transform: translateY(0);
     visibility: visible;
     pointer-events: auto;
   }
@@ -3381,7 +3404,7 @@ html[data-theme="light"] .log-console {
   .sidebar-scrim {
     position: fixed;
     inset: 0;
-    z-index: 35;
+    z-index: 85;
     background: rgba(5, 4, 8, 0.54);
 
   }
@@ -3661,6 +3684,10 @@ html[data-theme="light"] .log-console {
     z-index: 2;
     width: auto;
     min-height: 0;
+  }
+
+  .data-table.responsive .check-cell + td {
+    padding-right: 34px;
   }
 
   .table-footer {
