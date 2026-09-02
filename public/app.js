@@ -1169,6 +1169,12 @@
     }
   }
 
+  const TRANSLATION_VIEWS = {
+    "AniLibria.TV": "18 200",
+    "AniDub Online": "6 040",
+    "Субтитры": "2 310",
+  };
+
   function syncReleaseSummary() {
     const source = $("#source-select")?.value || "Kodik";
     const translation = $("#translation-select")?.value || "AniLibria.TV";
@@ -1177,6 +1183,7 @@
     const quality = $("#release-quality")?.textContent || "1080p";
     if ($("#release-type")) $("#release-type").textContent = type;
     if ($("#release-language")) $("#release-language").textContent = language;
+    if ($("#release-views")) $("#release-views").textContent = TRANSLATION_VIEWS[translation] || "—";
     if ($("#release-summary")) $("#release-summary").textContent = source;
     if ($("#release-summary-detail")) $("#release-summary-detail").textContent = `${translation} · ${quality}`;
     if ($("#release-status")) $("#release-status").innerHTML = `<i data-lucide="radio"></i>${source} · ${translation} · ${quality}`;
