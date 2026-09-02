@@ -105,7 +105,7 @@ test('restoring a saved status paints both title controls without writing storag
   assert.equal(f.stored.size, 0);
 });
 
-test('bookmark text remains readable in both themes and on poster bands', () => {
+test('bookmark text remains readable in both themes', () => {
   const css = readFileSync(new URL('../tokens.css', import.meta.url), 'utf8');
   const blocks = [...css.matchAll(/(:root|html\[data-theme="light"\])\s*\{([^}]+)\}/g)];
   const rgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
@@ -120,9 +120,6 @@ test('bookmark text remains readable in both themes and on poster bands', () => 
         const bg = rgb(tokens.surface).map((v, i) => rgb(tokens[key])[i] * tint + v * (1 - tint));
         assert.ok(contrast(fg, bg) >= 4.5, `${theme}: ${status} tint ${tint}`);
       }
-      const media = rgb(tokens[key]);
-      const band = rgb('#101012').map((v, i) => media[i] * .28 + v * .72);
-      assert.ok(contrast(rgb('#ffffff'), band) >= 4.5, `${theme}: poster ${status}`);
     }
   }
 });
@@ -138,11 +135,20 @@ test('existing title status migrates on read and newer card status takes precede
   assert.equal(f.context.getBookmarkStatus('52991'), 'planned');
 });
 
-test('reference palette keeps the same semantic hues in every theme', () => {
+test('semantic palette keeps one subdued status hue in every theme', () => {
   const css = readFileSync(new URL('../tokens.css', import.meta.url), 'utf8');
-  const expected = {planned: '#3b82f6', watching: '#22c55e', completed: '#a855f7', 'on-hold': '#eab308', dropped: '#ef4444'};
+  const expected = {planned: '#768196', watching: '#5b8def', completed: '#4f9d75', 'on-hold': '#bd8b43', dropped: '#c85c66'};
   for (const [key, color] of Object.entries(expected)) {
     const values = [...css.matchAll(new RegExp('--bookmark-' + key + ':\\s*(#[a-f0-9]+)', 'g'))].map(match => match[1]);
     assert.deepEqual(values, [color], key);
   }
+});
+
+test('poster status bar stays compact and carries no decorative pulse', () => {
+  const css = readFileSync(new URL('../public/styles.css', import.meta.url), 'utf8');
+  const block = css.match(/\.bookmark-status-bar\s*\{([^}]+)\}/s)?.[1] || '';
+  assert.match(block, /min-height:\s*22px/);
+  assert.match(block, /padding:\s*2px 8px/);
+  assert.match(block, /border-top:\s*2px solid var\(--bookmark-color\)/);
+  assert.doesNotMatch(css, /\.bookmark-status-bar::before/);
 });

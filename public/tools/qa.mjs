@@ -151,7 +151,9 @@ const bookmarkCssTokens = [
   "@container (max-width: 135px)",
   "[data-bookmark-tone=\"watching\"]",
   "justify-content: center",
-  "border-top: 1px solid var(--bookmark-color)",
+  "min-height: 22px",
+  "padding: 2px 8px",
+  "border-top: 2px solid var(--bookmark-color)",
 ];
 const missingBookmarkCss = bookmarkCssTokens.filter((token) => !css.includes(token));
 const bookmarkPosterLayoutChecks = [
