@@ -799,7 +799,9 @@
 
     $$("dialog").forEach((dialog) => {
       dialog.addEventListener("click", (event) => {
-        if (event.target === dialog) closeDialog(dialog);
+        if (event.target !== dialog) return;
+        const rect = dialog.getBoundingClientRect();
+        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeDialog(dialog);
       });
       dialog.addEventListener("close", () => {
         body.classList.remove("is-locked");
@@ -1284,6 +1286,69 @@
     $("small", button).textContent = `${end + 1}–${Math.min(74, end + 12)} из 74`;
   }
 
+  function initTitleNames() {
+    const dialog = $("#titles-dialog");
+    if (!dialog) return;
+    const feedback = $("#title-copy-feedback", dialog);
+    const controls = $$('[data-copy-title]', dialog);
+    let copyRequest = 0;
+    let copying = false;
+
+    function resetCopyState() {
+      copyRequest += 1;
+      copying = false;
+      controls.forEach((control) => {
+        delete control.dataset.copyState;
+        control.removeAttribute("aria-disabled");
+        control.removeAttribute("aria-busy");
+        control.title = "Скопировать";
+        setIcon($('[data-copy-icon]', control), "copy");
+      });
+      delete feedback.dataset.state;
+      feedback.textContent = "Нажмите на значок, чтобы скопировать название.";
+    }
+
+    $('[data-open-titles]')?.addEventListener("click", () => {
+      resetCopyState();
+      openDialog(dialog);
+    });
+    dialog.addEventListener("close", resetCopyState);
+    controls.forEach((control) => {
+      control.addEventListener("click", async () => {
+        if (copying) return;
+        const value = document.getElementById(control.dataset.copyTitle)?.textContent.trim();
+        if (!value) return;
+        resetCopyState();
+        const request = copyRequest;
+        copying = true;
+        controls.forEach((item) => item.setAttribute("aria-disabled", "true"));
+        control.setAttribute("aria-busy", "true");
+        feedback.dataset.state = "pending";
+        feedback.textContent = "Копирование…";
+        try {
+          if (!navigator.clipboard?.writeText) throw new Error("Clipboard unavailable");
+          await navigator.clipboard.writeText(value);
+          if (request !== copyRequest) return;
+          control.dataset.copyState = "copied";
+          control.title = "Скопировано";
+          setIcon($('[data-copy-icon]', control), "check");
+          feedback.dataset.state = "success";
+          feedback.textContent = "Название скопировано.";
+        } catch (_) {
+          if (request !== copyRequest) return;
+          feedback.dataset.state = "error";
+          feedback.textContent = "Не удалось скопировать. Выделите название и скопируйте вручную.";
+        } finally {
+          if (request === copyRequest) {
+            copying = false;
+            controls.forEach((item) => item.removeAttribute("aria-disabled"));
+            control.removeAttribute("aria-busy");
+          }
+        }
+      });
+    });
+  }
+
   function initAnime() {
     const savedPlayerSettings = storage.get("kitsu-demo-player-settings");
     if (savedPlayerSettings) {
@@ -1363,7 +1428,7 @@
     });
     placeTitleSubscriptionDialog();
 
-    $('[data-open-titles]')?.addEventListener("click", () => openDialog($("#titles-dialog")));
+    initTitleNames();
     $('[data-open-player-settings]')?.addEventListener("click", () => openDialog($("#player-settings-dialog")));
     $$('[data-close-dialog]').forEach((control) => control.addEventListener("click", () => closeDialog(control.closest("dialog"))));
 
@@ -1486,4 +1551,3 @@
     }
   });
 })();
-

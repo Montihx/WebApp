@@ -24,7 +24,7 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=bookmark-colors-restored-3" />
+    <link rel="stylesheet" href="./styles.css?v=title-details-4" />
   </head>
   <body data-page="anime">
     <a class="skip-link" href="#main-content">К основному содержимому</a>
@@ -100,7 +100,6 @@
             <div class="title-poster-wrap">
               <div class="title-poster">
                 <img src="https://shikimori.one/system/animes/original/19.jpg" alt="Постер аниме «Монстр»" referrerpolicy="no-referrer" />
-                <span class="age-badge">R-17</span>
               </div>
               <div class="title-poster-actions">
                 <button class="button button--primary button--wide" type="button" data-scroll-player><i data-lucide="play"></i>Смотреть</button>
@@ -126,8 +125,8 @@
             <div class="title-main-copy">
               <div class="title-status-line"><span class="status-pill status-pill--released"><span></span>Завершён</span><span>TV-сериал</span><span>2004</span></div>
               <div class="title-heading-row">
-                <div><h1 id="title-name">Монстр</h1><p>Monster <span class="mobile-age-badge">R-17</span></p></div>
-                <button class="icon-button title-info-button" type="button" data-open-titles aria-label="Все названия"><i data-lucide="info"></i></button>
+                <div><h1 id="title-name">Монстр</h1><p>Monster</p></div>
+                <button class="icon-button title-info-button" type="button" data-open-titles aria-label="Все названия" aria-haspopup="dialog" aria-controls="titles-dialog"><i data-lucide="info"></i></button>
               </div>
               <div class="title-mobile-actions" aria-label="Основные действия">
                 <button class="title-mobile-list-trigger" type="button" id="mobile-list-trigger" data-open-mobile-list aria-haspopup="dialog" aria-controls="mobile-list-menu"><span id="mobile-list-label" aria-live="polite">В закладки</span><i data-lucide="chevron-down"></i></button>
@@ -141,16 +140,17 @@
                 <li><i data-lucide="calendar-days"></i><span>TV-сериал, завершён</span></li>
                 <li><i data-lucide="star"></i><span>Оценка 8.88 · 12 400 оценок</span></li>
                 <li><i data-lucide="users"></i><span>Студия <a href="./index.html#catalog">Madhouse</a></span></li>
+                <li><i data-lucide="shield-check"></i><span>Возрастной рейтинг R-17</span></li>
               </ul>
               <div class="genre-links" aria-label="Жанры"><a href="./index.html#catalog">Драма</a><a href="./index.html#catalog">Детектив</a><a href="./index.html#catalog">Триллер</a><a href="./index.html#catalog">Психологическое</a></div>
               <div class="title-description" id="title-description">
                 <p>
                   Блестящий нейрохирург Кэндзо Тэмма спасает тяжело раненого мальчика, поставив врачебный долг выше распоряжения руководства. Спустя годы последствия этого решения возвращают его к старому пациенту и превращают спокойную жизнь в долгий поиск истины.
                 </p>
-                <p class="title-description-more" hidden>
+                <p class="title-description-more" id="title-description-more" hidden>
                   История разворачивается в послевоенной Европе и постепенно связывает личный выбор врача, исчезнувшие воспоминания и преступления, которые на первый взгляд не имеют ничего общего.
                 </p>
-                <button type="button" data-expand-description aria-expanded="false">Подробнее <i data-lucide="chevron-down"></i></button>
+                <button type="button" data-expand-description aria-expanded="false" aria-controls="title-description-more">Подробнее <i data-lucide="chevron-down"></i></button>
               </div>
             </div>
           </div>
@@ -302,10 +302,32 @@
       </div>
     </dialog>
 
-    <dialog class="content-dialog" id="titles-dialog" aria-labelledby="titles-dialog-title">
-      <div class="content-dialog-head"><div><p class="section-kicker"><i data-lucide="type"></i>Названия</p><h2 id="titles-dialog-title">Монстр</h2></div><button class="icon-button" type="button" data-close-dialog aria-label="Закрыть"><i data-lucide="x"></i></button></div>
-      <dl class="dialog-data-list"><div><dt>Русское</dt><dd>Монстр</dd></div><div><dt>Английское</dt><dd>Monster</dd></div><div><dt>Оригинальное</dt><dd>モンスター</dd></div><div><dt>Синонимы</dt><dd>MONSTER, Naoki Urasawa's Monster</dd></div></dl>
-      <button class="button button--secondary button--wide" type="button" data-close-dialog>Закрыть</button>
+    <dialog class="titles-dialog" id="titles-dialog" aria-labelledby="titles-dialog-title">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <header class="titles-dialog__head">
+        <h2 id="titles-dialog-title">Названия</h2>
+        <button class="icon-button" type="button" data-close-dialog aria-label="Закрыть названия"><i data-lucide="x"></i></button>
+      </header>
+      <dl class="title-names-list">
+        <div class="title-name-entry">
+          <dt>Русское</dt>
+          <dd><span class="title-name-value" id="title-name-russian" lang="ru">Монстр</span><button class="title-name-copy" type="button" data-copy-title="title-name-russian" aria-label="Скопировать русское название" title="Скопировать"><span data-copy-icon aria-hidden="true"><i data-lucide="copy"></i></span></button></dd>
+        </div>
+        <div class="title-name-entry">
+          <dt>Английское</dt>
+          <dd><span class="title-name-value" id="title-name-english" lang="en">Monster</span><button class="title-name-copy" type="button" data-copy-title="title-name-english" aria-label="Скопировать английское название" title="Скопировать"><span data-copy-icon aria-hidden="true"><i data-lucide="copy"></i></span></button></dd>
+        </div>
+        <div class="title-name-entry">
+          <dt>Оригинальное</dt>
+          <dd><span class="title-name-value" id="title-name-original" lang="ja">モンスター</span><button class="title-name-copy" type="button" data-copy-title="title-name-original" aria-label="Скопировать оригинальное название" title="Скопировать"><span data-copy-icon aria-hidden="true"><i data-lucide="copy"></i></span></button></dd>
+        </div>
+        <div class="title-name-entry">
+          <dt>Другие названия</dt>
+          <dd><span class="title-name-value" id="title-name-alias-1" lang="en">MONSTER</span><button class="title-name-copy" type="button" data-copy-title="title-name-alias-1" aria-label="Скопировать название MONSTER" title="Скопировать"><span data-copy-icon aria-hidden="true"><i data-lucide="copy"></i></span></button></dd>
+          <dd><span class="title-name-value" id="title-name-alias-2" lang="en">Naoki Urasawa's Monster</span><button class="title-name-copy" type="button" data-copy-title="title-name-alias-2" aria-label="Скопировать название Naoki Urasawa's Monster" title="Скопировать"><span data-copy-icon aria-hidden="true"><i data-lucide="copy"></i></span></button></dd>
+        </div>
+      </dl>
+      <p class="title-copy-feedback" id="title-copy-feedback" role="status" aria-live="polite" aria-atomic="true">Нажмите на значок, чтобы скопировать название.</p>
     </dialog>
 
     <dialog class="title-list-dialog" id="mobile-list-menu" aria-labelledby="mobile-list-title" aria-modal="true">
@@ -376,6 +398,6 @@
 
     <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
     <script src="./vendor/lucide.min.js"></script>
-    <script src="./app.js?v=bookmarks-reference-1"></script>
+    <script src="./app.js?v=title-details-4"></script>
   </body>
 </html>
