@@ -30,7 +30,7 @@
     searchIndex: 0,
     searchRecentCleared: false,
     lastDrawerFocus: null,
-    listStatus: storage.get("kitsu-demo-list-status", "none"),
+    listStatus: "none",
     subscription: storage.get("kitsu-demo-subscription", "none"),
     selectedEpisode: 1,
     loadedEpisodes: 6,
@@ -54,6 +54,14 @@
   const bookmarkSheetQuery = window.matchMedia("(max-width: 720px)");
   const titleSubscriptionSheetQuery = window.matchMedia("(max-width: 720px)");
   let bookmarkScrim = null;
+
+  function getBookmarkStatus(cardId) {
+    const legacy = cardId === "19" ? storage.get("kitsu-demo-list-status") : null;
+    const saved = storage.get(`kitsu-demo-bookmark-status-${cardId}`, legacy);
+    return saved === "none" || BOOKMARK_STATUS_BY_KEY[saved]
+      ? saved
+      : DEFAULT_BOOKMARK_STATUSES[cardId] || "none";
+  }
 
   function refreshIcons() {
     if (!window.lucide) return;
@@ -377,10 +385,20 @@
 
   function setBookmarkStatus(cardId, statusKey) {
     if (!storage.set(`kitsu-demo-bookmark-status-${cardId}`, statusKey)) return false;
-    $$('[data-bookmark-card]').forEach((card) => {
-      if (card.dataset.bookmarkId === cardId) syncBookmarkCard(card, statusKey);
-    });
+    syncBookmarkStatus(cardId, statusKey);
     return true;
+  }
+
+  function syncBookmarkStatus(cardId, statusKey) {
+    const normalized = BOOKMARK_STATUS_BY_KEY[statusKey] ? statusKey : "none";
+    $$('[data-bookmark-card]').forEach((card) => {
+      if (card.dataset.bookmarkId === cardId) syncBookmarkCard(card, normalized);
+    });
+    if (cardId === "19") {
+      state.listStatus = normalized;
+      syncListState();
+    }
+    document.dispatchEvent(new CustomEvent("kitsu:bookmark"));
   }
 
   function initBookmarks() {
@@ -417,12 +435,7 @@
       poster.append(trigger, menu);
       setBookmarkMenuSemantics(menu, bookmarkSheetQuery.matches);
 
-      const storageKey = `kitsu-demo-bookmark-status-${cardId}`;
-      const storedStatus = storage.get(storageKey);
-      const initialStatus = storedStatus === "none" || BOOKMARK_STATUS_BY_KEY[storedStatus]
-        ? storedStatus
-        : DEFAULT_BOOKMARK_STATUSES[cardId] || "none";
-      syncBookmarkCard(card, initialStatus);
+      syncBookmarkCard(card, getBookmarkStatus(cardId));
 
       trigger.addEventListener("click", (event) => {
         event.preventDefault();
@@ -1091,12 +1104,8 @@
   }
 
   const listLabels = {
-    watching: "Смотрю",
-    completed: "Просмотрено",
-    planned: "Запланировано",
-    on_hold: "Отложено",
-    dropped: "Брошено",
-    none: "Не смотрю",
+    ...Object.fromEntries(BOOKMARK_STATUSES.map(({ key, label }) => [key, label])),
+    none: "В закладки",
   };
 
   const subscriptionLabels = {
@@ -1107,14 +1116,28 @@
   };
 
   function syncListState() {
-    const nextLabel = listLabels[state.listStatus] || listLabels.none;
+    const status = BOOKMARK_STATUS_BY_KEY[state.listStatus];
+    const nextLabel = status?.label || listLabels.none;
     [$("#list-label"), $("#mobile-list-label")].forEach((label) => {
       if (label) label.textContent = nextLabel;
     });
-    $$('[data-list-status]').forEach((item) => item.classList.toggle("is-active", item.dataset.listStatus === state.listStatus));
-    $$('[data-open-mobile-list]').forEach((control) => {
-      control.classList.toggle("is-active", state.listStatus !== "none");
-      control.setAttribute("aria-label", state.listStatus === "none" ? "Добавить в список" : `${nextLabel}. Изменить статус`);
+    $$('[data-list-status]').forEach((item) => {
+      const selected = item.dataset.listStatus === status?.key;
+      item.classList.toggle("is-active", selected);
+      if (item.dataset.listStatus === "none") {
+        item.hidden = !status;
+      } else {
+        item.setAttribute("aria-pressed", String(selected));
+        const check = $(".list-selection-check", item);
+        if (check) check.hidden = !selected;
+      }
+    });
+    $$('#list-trigger, [data-open-mobile-list]').forEach((control) => {
+      control.classList.toggle("is-active", Boolean(status));
+      if (status) control.dataset.bookmarkTone = status.key;
+      else delete control.dataset.bookmarkTone;
+      control.setAttribute("aria-label", status ? `${nextLabel}. Изменить статус` : "Добавить в закладки");
+      setIcon($(".title-list-icon", control), status?.icon || "bookmark-plus");
     });
   }
 
@@ -1274,6 +1297,7 @@
         }
       } catch (_) {}
     }
+    state.listStatus = getBookmarkStatus("19");
     syncListState();
     syncSubscriptionState();
     syncPlayer();
@@ -1289,12 +1313,10 @@
     $('[data-close-mobile-list]')?.addEventListener("click", () => closeDialog($("#mobile-list-menu")));
     $$('[data-list-status]').forEach((control) => {
       control.addEventListener("click", () => {
-        if (!storage.set("kitsu-demo-list-status", control.dataset.listStatus)) return;
-        state.listStatus = control.dataset.listStatus;
-        syncListState();
+        if (!setBookmarkStatus("19", control.dataset.listStatus)) return;
         closeMenu($("#list-trigger"), $("#list-menu"));
         closeDialog($("#mobile-list-menu"));
-        showToast(state.listStatus === "none" ? "Удалено из списка" : "Список обновлён", listLabels[state.listStatus]);
+        showToast(state.listStatus === "none" ? "Удалено из списка" : "Список обновлён", state.listStatus === "none" ? "Тайтл больше не находится в ваших списках." : listLabels[state.listStatus]);
       });
     });
 
@@ -1450,4 +1472,18 @@
   initShared();
   if (body.dataset.page === "home") initHome();
   if (body.dataset.page === "anime") initAnime();
+  window.addEventListener("storage", (event) => {
+    const prefix = "kitsu-demo-bookmark-status-";
+    if (event.key === null) {
+      const ids = new Set($$('[data-bookmark-card]').map(card => card.dataset.bookmarkId));
+      ids.add("19");
+      ids.forEach(id => syncBookmarkStatus(id, getBookmarkStatus(id)));
+    } else if (event.key === "kitsu-demo-list-status") {
+      syncBookmarkStatus("19", getBookmarkStatus("19"));
+    } else if (event.key.startsWith(prefix)) {
+      const id = event.key.slice(prefix.length);
+      syncBookmarkStatus(id, getBookmarkStatus(id));
+    }
+  });
 })();
+

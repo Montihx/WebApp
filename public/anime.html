@@ -24,7 +24,7 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=20260902-3" />
+    <link rel="stylesheet" href="./styles.css?v=bookmarks-reference-1" />
   </head>
   <body data-page="anime">
     <a class="skip-link" href="#main-content">К основному содержимому</a>
@@ -105,13 +105,13 @@
               <div class="title-poster-actions">
                 <button class="button button--primary button--wide" type="button" data-scroll-player><i data-lucide="play"></i>Смотреть</button>
                 <div class="list-control">
-                  <button class="button button--secondary button--wide" type="button" id="list-trigger" aria-expanded="false" aria-controls="list-menu"><i data-lucide="bookmark-plus"></i><span id="list-label">Не смотрю</span><i data-lucide="chevron-down"></i></button>
+                  <button class="button button--secondary button--wide" type="button" id="list-trigger" aria-expanded="false" aria-controls="list-menu"><span class="title-list-icon" aria-hidden="true"><i data-lucide="bookmark-plus"></i></span><span id="list-label" aria-live="polite">В закладки</span><i data-lucide="chevron-down"></i></button>
                   <div class="list-menu" id="list-menu" hidden>
-                    <button type="button" data-list-status="watching"><i data-lucide="play-circle"></i><span>Смотрю</span></button>
-                    <button type="button" data-list-status="completed"><i data-lucide="circle-check"></i><span>Просмотрено</span></button>
-                    <button type="button" data-list-status="planned"><i data-lucide="clock-3"></i><span>Запланировано</span></button>
-                    <button type="button" data-list-status="on_hold"><i data-lucide="pause-circle"></i><span>Отложено</span></button>
-                    <button type="button" data-list-status="dropped"><i data-lucide="circle-minus"></i><span>Брошено</span></button>
+                    <button type="button" data-list-status="watching"><i data-lucide="play-circle"></i><span>Смотрю</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
+                    <button type="button" data-list-status="completed"><i data-lucide="circle-check"></i><span>Просмотрено</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
+                    <button type="button" data-list-status="planned"><i data-lucide="clock-3"></i><span>Запланировано</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
+                    <button type="button" data-list-status="on_hold"><i data-lucide="pause-circle"></i><span>Отложено</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
+                    <button type="button" data-list-status="dropped"><i data-lucide="circle-minus"></i><span>Брошено</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
                     <button class="list-remove" type="button" data-list-status="none"><i data-lucide="trash-2"></i><span>Удалить из списка</span></button>
                   </div>
                 </div>
@@ -130,7 +130,7 @@
                 <button class="icon-button title-info-button" type="button" data-open-titles aria-label="Все названия"><i data-lucide="info"></i></button>
               </div>
               <div class="title-mobile-actions" aria-label="Основные действия">
-                <button class="title-mobile-list-trigger" type="button" id="mobile-list-trigger" data-open-mobile-list aria-haspopup="dialog" aria-controls="mobile-list-menu"><span id="mobile-list-label">Не смотрю</span><i data-lucide="chevron-down"></i></button>
+                <button class="title-mobile-list-trigger" type="button" id="mobile-list-trigger" data-open-mobile-list aria-haspopup="dialog" aria-controls="mobile-list-menu"><span id="mobile-list-label" aria-live="polite">В закладки</span><i data-lucide="chevron-down"></i></button>
                 <span class="title-mobile-count title-mobile-favorite" aria-label="В списках у 4 820 пользователей"><i data-lucide="bookmark"></i><strong data-field="favorites_count">4 820</strong></span>
                 <button class="title-mobile-count title-mobile-comment" type="button" data-scroll-comments aria-label="326 комментариев. Перейти к обсуждению"><i data-lucide="message-circle"></i><strong data-field="comments_count">326</strong></button>
               </div>
@@ -376,6 +376,7 @@
 
     <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
     <script src="./vendor/lucide.min.js"></script>
-    <script src="./app.js?v=20260902-3"></script>
+    <script src="./app.js?v=bookmarks-reference-1"></script>
   </body>
 </html>
+
