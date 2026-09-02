@@ -904,34 +904,26 @@
     const slider = $('[data-hero-slider]');
     if (!slider) return;
     const slides = $$('[data-hero-slide]', slider);
-    const dots = $$('[data-hero-dot]', slider);
-    const current = $('[data-hero-current]', slider);
+    if (!slides.length) return;
     const live = $('[data-hero-live]', slider);
-    const progress = $('[data-hero-progress]', slider);
-    const pauseButton = $('[data-hero-pause]', slider);
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let index = Math.max(0, slides.findIndex((slide) => slide.classList.contains('is-active')));
     let timer = 0;
-    let manuallyPaused = false;
-    let interactionPaused = false;
+    let userInteracted = false;
+    let hovered = false;
     let pointerStart = null;
 
     slider.tabIndex = 0;
 
     const restart = () => {
       window.clearTimeout(timer);
-      slider.classList.remove('is-running');
-      if (progress) void progress.offsetWidth;
-      if (manuallyPaused || interactionPaused || document.hidden || reducedMotion.matches) return;
-      requestAnimationFrame(() => slider.classList.add('is-running'));
+      if (slides.length < 2 || userInteracted || hovered || document.hidden || reducedMotion.matches) return;
       timer = window.setTimeout(() => show(index + 1, { announce: false }), 7000);
     };
 
-    const paintPause = () => {
-      if (!pauseButton) return;
-      pauseButton.setAttribute('aria-pressed', String(manuallyPaused));
-      pauseButton.setAttribute('aria-label', manuallyPaused ? 'Возобновить автопрокрутку' : 'Приостановить автопрокрутку');
-      setIcon(pauseButton, manuallyPaused ? 'play' : 'pause');
+    const takeControl = () => {
+      userInteracted = true;
+      window.clearTimeout(timer);
     };
 
     const show = (nextIndex, { announce = true } = {}) => {
@@ -945,44 +937,29 @@
           else item.tabIndex = -1;
         });
       });
-      dots.forEach((dot, dotIndex) => {
-        const active = dotIndex === index;
-        dot.classList.toggle('is-active', active);
-        if (active) dot.setAttribute('aria-current', 'true');
-        else dot.removeAttribute('aria-current');
-      });
-      if (current) current.textContent = String(index + 1).padStart(2, '0');
       const title = $('h2', slides[index])?.textContent?.trim() || `Слайд ${index + 1}`;
-      const accent = getComputedStyle(slides[index]).getPropertyValue('--hero-accent').trim();
-      if (accent) slider.style.setProperty('--hero-active-accent', accent);
       if (live && announce) live.textContent = `Слайд ${index + 1} из ${slides.length}: ${title}`;
       restart();
     };
 
-    $('[data-hero-prev]', slider)?.addEventListener('click', () => show(index - 1));
-    $('[data-hero-next]', slider)?.addEventListener('click', () => show(index + 1));
-    dots.forEach((dot) => dot.addEventListener('click', () => show(Number(dot.dataset.heroDot))));
-    pauseButton?.addEventListener('click', () => {
-      manuallyPaused = !manuallyPaused;
-      paintPause();
-      restart();
-    });
+    const move = (direction) => {
+      takeControl();
+      show(index + direction);
+    };
+    $('[data-hero-prev]', slider)?.addEventListener('click', () => move(-1));
+    $('[data-hero-next]', slider)?.addEventListener('click', () => move(1));
 
     slider.addEventListener('keydown', (event) => {
       if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
       event.preventDefault();
-      show(index + (event.key === 'ArrowRight' ? 1 : -1));
+      move(event.key === 'ArrowRight' ? 1 : -1);
     });
-    slider.addEventListener('mouseenter', () => { interactionPaused = true; restart(); });
-    slider.addEventListener('mouseleave', () => { interactionPaused = false; restart(); });
-    slider.addEventListener('focusin', () => { interactionPaused = true; restart(); });
-    slider.addEventListener('focusout', (event) => {
-      if (event.relatedTarget && slider.contains(event.relatedTarget)) return;
-      interactionPaused = false;
-      restart();
-    });
+    slider.addEventListener('mouseenter', () => { hovered = true; restart(); });
+    slider.addEventListener('mouseleave', () => { hovered = false; restart(); });
+    slider.addEventListener('focusin', takeControl);
     slider.addEventListener('pointerdown', (event) => {
       if (event.pointerType === 'mouse' || event.button !== 0) return;
+      takeControl();
       pointerStart = { x: event.clientX, y: event.clientY };
     });
     slider.addEventListener('pointerup', (event) => {
@@ -991,13 +968,12 @@
       const dy = event.clientY - pointerStart.y;
       pointerStart = null;
       if (Math.abs(dx) < 54 || Math.abs(dx) <= Math.abs(dy)) return;
-      show(index + (dx < 0 ? 1 : -1));
+      move(dx < 0 ? 1 : -1);
     });
     slider.addEventListener('pointercancel', () => { pointerStart = null; });
     document.addEventListener('visibilitychange', restart);
     reducedMotion.addEventListener?.('change', restart);
 
-    paintPause();
     show(index, { announce: false });
   }
 
