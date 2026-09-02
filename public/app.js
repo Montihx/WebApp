@@ -1025,6 +1025,9 @@
     initSeasonLabel();
     const filters = $$('[data-filter]');
     const cards = $$('.anime-card[data-status]');
+    const grid = $("#anime-grid");
+    const catalogCards = grid ? $$('.anime-card[data-status]', grid) : [];
+    const catalogCount = $("#catalog-count");
     filters.forEach((control) => {
       control.addEventListener("click", () => {
         const filter = control.dataset.filter;
@@ -1038,6 +1041,10 @@
           const values = (card.dataset.status || "").split(/\s+/);
           card.classList.toggle("is-filtered-out", filter !== "all" && !values.includes(filter));
         });
+        if (catalogCount) {
+          const visible = catalogCards.filter((card) => !card.classList.contains("is-filtered-out")).length;
+          catalogCount.textContent = `Показано ${visible} из 1 284`;
+        }
       });
     });
 
@@ -1050,9 +1057,7 @@
     });
 
     const catalogSort = $("#catalog-sort");
-    const grid = $("#anime-grid");
     if (catalogSort && grid) {
-      const catalogCards = $$('.anime-card[data-status]', grid);
       catalogSort.addEventListener("change", () => {
         const ordered = catalogSort.value === "score"
           ? catalogCards.slice().sort((a, b) => Number(b.dataset.score || 0) - Number(a.dataset.score || 0))
