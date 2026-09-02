@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "node tools/build.mjs",
-    "check": "node public/tools/qa.mjs && node admin/tools/qa.mjs"
+    "check": "node public/tools/qa.mjs && node admin/tools/qa.mjs",
+    "test": "node --test tools/*.test.mjs"
   },
   "devDependencies": {
     "vite": "7.3.1"

@@ -53,6 +53,18 @@
   --radius-md: 12px;
   --radius-lg: 12px;
   --radius-xl: 12px;
+
+  /* Bookmark colors follow the profile statistics reference. */
+  --bookmark-planned: #3b82f6;
+  --bookmark-planned-text: #60a5fa;
+  --bookmark-watching: #22c55e;
+  --bookmark-watching-text: #4ade80;
+  --bookmark-completed: #a855f7;
+  --bookmark-completed-text: #c084fc;
+  --bookmark-on-hold: #eab308;
+  --bookmark-on-hold-text: #facc15;
+  --bookmark-dropped: #ef4444;
+  --bookmark-dropped-text: #f87171;
   --ease: 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -91,4 +103,35 @@ html[data-theme="light"] {
   --shadow-menu: 0 20px 58px rgba(25, 22, 25, 0.13);
   --shadow-dialog: 0 34px 100px rgba(25, 22, 25, 0.22);
   --shadow-card: none;
+  --bookmark-planned-text: #1d4ed8;
+  --bookmark-watching-text: #166534;
+  --bookmark-completed-text: #7e22ce;
+  --bookmark-on-hold-text: #854d0e;
+  --bookmark-dropped-text: #b91c1c;
+
+}
+
+[data-bookmark-tone="planned"], [data-list-status="planned"] {
+  --bookmark-color: var(--bookmark-planned);
+  --bookmark-text: var(--bookmark-planned-text);
+}
+
+[data-bookmark-tone="watching"], [data-list-status="watching"] {
+  --bookmark-color: var(--bookmark-watching);
+  --bookmark-text: var(--bookmark-watching-text);
+}
+
+[data-bookmark-tone="completed"], [data-list-status="completed"] {
+  --bookmark-color: var(--bookmark-completed);
+  --bookmark-text: var(--bookmark-completed-text);
+}
+
+[data-bookmark-tone="on_hold"], [data-list-status="on_hold"] {
+  --bookmark-color: var(--bookmark-on-hold);
+  --bookmark-text: var(--bookmark-on-hold-text);
+}
+
+[data-bookmark-tone="dropped"], [data-list-status="dropped"] {
+  --bookmark-color: var(--bookmark-dropped);
+  --bookmark-text: var(--bookmark-dropped-text);
 }
