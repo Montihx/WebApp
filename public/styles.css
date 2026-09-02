@@ -1575,6 +1575,29 @@ html[data-theme="light"] .theme-icon--moon {
   align-items: center;
 }
 
+.catalog-toolbar-secondary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.catalog-result-count {
+  color: var(--text-muted);
+  font-size: var(--type-meta);
+  font-weight: 600;
+}
+
+.catalog-sort-select {
+  width: 168px;
+}
+
+.catalog-sort-select select {
+  min-height: 36px;
+}
+
 .tabs {
   position: relative;
   display: flex;

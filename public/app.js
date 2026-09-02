@@ -1049,6 +1049,18 @@
       });
     });
 
+    const catalogSort = $("#catalog-sort");
+    const grid = $("#anime-grid");
+    if (catalogSort && grid) {
+      const catalogCards = $$('.anime-card[data-status]', grid);
+      catalogSort.addEventListener("change", () => {
+        const ordered = catalogSort.value === "score"
+          ? catalogCards.slice().sort((a, b) => Number(b.dataset.score || 0) - Number(a.dataset.score || 0))
+          : catalogCards;
+        ordered.forEach((card) => grid.appendChild(card));
+      });
+    }
+
     $$('[data-day]').forEach((control) => {
       control.addEventListener("click", () => {
         const day = control.dataset.day;
