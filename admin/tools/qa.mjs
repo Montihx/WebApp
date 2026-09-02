@@ -105,7 +105,7 @@ add("index.references", "index.html: локальные ссылки", missingRe
 add("index.buttons", "index.html: типы кнопок", !/<button\b(?![^>]*\btype=)[^>]*>/i.test(html), "у каждой кнопки указан type");
 
 // --- styles.css ------------------------------------------------------------
-const css = read("styles.css");
+const css = read("../tokens.css") + "\n" + read("styles.css");
 const structure = cssStructure(css);
 add("css.structure", "CSS: синтаксическая структура", structure.ok, structure.detail);
 add("css.themes", "CSS: две темы", /:root\s*{/.test(css) && /html\[data-theme="light"\]/.test(css), "тёмные и светлые токены присутствуют");
@@ -234,6 +234,8 @@ function checkPagesLinks(filesToScan) {
       const rel = clean.replace(/^\.\//, "");
       let dir = root;
       for (const segment of rel.split("/")) {
+        if (segment === "..") { dir = dirname(dir); continue; }
+        if (segment === ".") continue;
         const entries = readdirSync(dir);
         if (!entries.includes(segment)) {
           const insensitive = entries.find((e) => e.toLowerCase() === segment.toLowerCase());

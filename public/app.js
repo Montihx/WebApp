@@ -18,7 +18,11 @@
     set(key, value) {
       try {
         localStorage.setItem(key, value);
-      } catch (_) {}
+        return true;
+      } catch (_) {
+        showToast("Не удалось сохранить", "Проверьте, разрешено ли сохранение данных сайта, и повторите действие.", "danger");
+        return false;
+      }
     },
   };
 
@@ -372,10 +376,11 @@
   }
 
   function setBookmarkStatus(cardId, statusKey) {
-    storage.set(`kitsu-demo-bookmark-status-${cardId}`, statusKey);
+    if (!storage.set(`kitsu-demo-bookmark-status-${cardId}`, statusKey)) return false;
     $$('[data-bookmark-card]').forEach((card) => {
       if (card.dataset.bookmarkId === cardId) syncBookmarkCard(card, statusKey);
     });
+    return true;
   }
 
   function initBookmarks() {
@@ -436,7 +441,7 @@
           return;
         }
         if (event.target.closest('[data-bookmark-remove]')) {
-          setBookmarkStatus(cardId, "none");
+          if (!setBookmarkStatus(cardId, "none")) return;
           closeBookmarkMenu(menu, { restoreFocus: true });
           showToast("Удалено из списка", "Состояние сохранено на этом устройстве.");
           return;
@@ -448,7 +453,7 @@
           closeBookmarkMenu(menu, { restoreFocus: true });
           return;
         }
-        setBookmarkStatus(cardId, selectedKey);
+        if (!setBookmarkStatus(cardId, selectedKey)) return;
         closeBookmarkMenu(menu, { restoreFocus: true });
         showToast(`${BOOKMARK_STATUS_BY_KEY[selectedKey].label} — сохранено`, "Статус обновлён на этом устройстве.");
       });
@@ -678,7 +683,6 @@
     refreshIcons();
     initRovingTabs();
     initTabIndicators();
-    initScrollReveal();
 
     $$('img').forEach((image) => {
       image.addEventListener("error", () => image.classList.add("is-image-error"), { once: true });
@@ -853,38 +857,6 @@
     kicker.innerHTML = `<i data-lucide="${meta.icon}"></i>Сезон`;
     title.textContent = `${meta.label} ${year}`;
     refreshIcons();
-  }
-
-  function initScrollReveal() {
-    const groups = $$("[data-reveal-group]");
-    if (!groups.length) return;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const reveal = (group) => {
-      $$(":scope > *", group).forEach((item, index) => {
-        item.classList.add("reveal-item");
-        if (reduceMotion) {
-          item.classList.add("is-revealed");
-          return;
-        }
-        item.style.transitionDelay = `${Math.min(index, 7) * 45}ms`;
-      });
-    };
-    groups.forEach(reveal);
-    if (reduceMotion || !("IntersectionObserver" in window)) {
-      $$(".reveal-item").forEach((item) => item.classList.add("is-revealed"));
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          $$(":scope > .reveal-item", entry.target).forEach((item) => item.classList.add("is-revealed"));
-          observer.unobserve(entry.target);
-        });
-      },
-      { threshold: 0.14, rootMargin: "0px 0px -60px 0px" },
-    );
-    groups.forEach((group) => observer.observe(group));
   }
 
   function initTabIndicators() {
@@ -1293,8 +1265,8 @@
     $('[data-close-mobile-list]')?.addEventListener("click", () => closeDialog($("#mobile-list-menu")));
     $$('[data-list-status]').forEach((control) => {
       control.addEventListener("click", () => {
+        if (!storage.set("kitsu-demo-list-status", control.dataset.listStatus)) return;
         state.listStatus = control.dataset.listStatus;
-        storage.set("kitsu-demo-list-status", state.listStatus);
         syncListState();
         closeMenu($("#list-trigger"), $("#list-menu"));
         closeDialog($("#mobile-list-menu"));
@@ -1330,8 +1302,8 @@
     });
     $$('[data-subscribe]').forEach((control) => {
       control.addEventListener("click", () => {
+        if (!storage.set("kitsu-demo-subscription", control.dataset.subscribe)) return;
         state.subscription = control.dataset.subscribe;
-        storage.set("kitsu-demo-subscription", state.subscription);
         syncSubscriptionState();
         const mobileDialog = $("#mobile-subscribe-menu");
         if (mobileDialog?.open) closeTitleSubscription({ restoreFocus: true });
@@ -1355,7 +1327,7 @@
         speed: $("#player-speed")?.value,
         quality: $("#player-quality")?.value,
       };
-      storage.set("kitsu-demo-player-settings", JSON.stringify(settings));
+      if (!storage.set("kitsu-demo-player-settings", JSON.stringify(settings))) return;
       if ($("#release-quality")) $("#release-quality").textContent = settings.quality;
       syncReleaseSummary();
       closeDialog($("#player-settings-dialog"));

@@ -110,7 +110,7 @@ for (const page of pages) {
   add(`${page}.anchors`, `${page}: ссылки без заглушек`, !/href="#"/.test(source) && !/javascript:/i.test(source), "нет href=\"#\" и javascript-ссылок");
 }
 
-const css = read("styles.css");
+const css = read("../tokens.css") + "\n" + read("styles.css");
 const structure = cssStructure(css);
 add("css.structure", "CSS: синтаксическая структура", structure.ok, structure.detail);
 add("css.themes", "CSS: две темы", /:root\s*{/.test(css) && /html\[data-theme="light"\]/.test(css), "тёмные и светлые токены присутствуют");
@@ -215,7 +215,7 @@ const sliderCssTokens = [
   "touch-action: pan-y",
   "width: min(100%, 1600px)",
   "#000 15%, #000 85%",
-  "height: 580px",
+  "height: 460px",
 ];
 const missingSliderCss = sliderCssTokens.filter((token) => !css.includes(token));
 add(
@@ -569,6 +569,8 @@ function checkPagesLinks(filesToScan) {
       const rel = clean.replace(/^\.\//, "");
       let dir = root;
       for (const segment of rel.split("/")) {
+        if (segment === "..") { dir = dirname(dir); continue; }
+        if (segment === ".") continue;
         const entries = readdirSync(dir);
         if (!entries.includes(segment)) {
           const insensitive = entries.find((e) => e.toLowerCase() === segment.toLowerCase());
