@@ -198,3 +198,14 @@ test('phone controls are hidden without hiding the desktop controls or the progr
   assert.doesNotMatch(mobile, /\.feature-slider__progress\s*\{[^}]*display:\s*none/);
   assert.match(mobile, /padding: 64px 16px 24px/);
 });
+
+test('the public README describes the current slider rather than the removed controls', () => {
+  const readme = readFileSync(new URL('../public/README.md', import.meta.url), 'utf8');
+  const description = readme.split('\n').find(line => line.startsWith('- полноширинный desktop hero-слайдер'));
+  assert.match(description, /9-секундная автопрокрутка/);
+  assert.match(description, /единственная нижняя полоса прогресса/);
+  assert.match(description, /Стрелки доступны только шире `720 px`/);
+  assert.match(description, /на телефоне — свайпы без навигационных кнопок/);
+  assert.match(description, /Кнопка паузы, точки, счётчик и «О тайтле» удалены/);
+  assert.doesNotMatch(description, /7-секундная/);
+});
