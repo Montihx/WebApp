@@ -30,10 +30,12 @@ function fixture({failStorage = false} = {}) {
     return card;
   });
   const titleLabel = node(), mobileLabel = node();
+  const counters = [node(), node()];
+  for (const counter of counters) counter.children['[data-field="favorites_count"]'] = {textContent: '4 820'};
   const document = node();
   Object.assign(document.children, {'#list-label': titleLabel, '#mobile-list-label': mobileLabel,
     '#list-trigger, [data-open-mobile-list]': [desktop, mobile], '[data-list-status]': options,
-    '[data-bookmark-card]': cards});
+    '[data-bookmark-card]': cards, '[data-title-bookmark-count]': counters});
   document.dispatchEvent = event => events.push(event.type);
   const context = createContext({document, bookmarkSheetQuery: {matches: true}, state: {listStatus: 'none'},
     storage: {get(key, fallback = null) {return stored.get(key) ?? fallback}, set(key, value) {if (failStorage) return false; stored.set(key, value); return true}},
@@ -47,7 +49,7 @@ function fixture({failStorage = false} = {}) {
   const listLabels = source.slice(source.indexOf('  const listLabels'), source.indexOf('  const subscriptionLabels'));
   const title = source.slice(source.indexOf('  function syncListState'), source.indexOf('  function syncSubscriptionState'));
   new Script(constants + readStatus + paint + listLabels + title).runInContext(context);
-  return {context, stored, events, desktop, mobile, options, cards, titleLabel, mobileLabel};
+  return {context, stored, events, desktop, mobile, options, cards, counters, titleLabel, mobileLabel};
 }
 
 test('every status updates desktop, mobile and duplicate cards immediately', () => {
@@ -62,6 +64,12 @@ test('every status updates desktop, mobile and duplicate cards immediately', () 
     }
     assert.equal(f.titleLabel.textContent, labels[index]);
     assert.equal(f.mobileLabel.textContent, labels[index]);
+    for (const counter of f.counters) {
+      assert.equal(counter.dataset.bookmarkTone, status);
+      assert.equal(counter.classList.contains('is-bookmarked'), true);
+      assert.match(counter.attrs['aria-label'], new RegExp(`Ваш статус: ${labels[index]}`));
+      assert.equal(counter.children['[data-field="favorites_count"]'].textContent, '4 820');
+    }
     assert.equal(f.options.filter(option => option.attrs['aria-pressed'] === 'true').length, 1);
     for (const card of f.cards.slice(0, 2)) {
       assert.equal(card.dataset.bookmarkTone, status);
@@ -85,6 +93,11 @@ test('removal resets the title controls, hides poster label and clears selected 
   assert.equal(f.cards[0].children['[data-bookmark-status-bar]'].hidden, true);
   assert.equal(f.options.at(-1).hidden, true);
   assert.equal(f.options.some(option => option.attrs['aria-pressed'] === 'true'), false);
+  for (const counter of f.counters) {
+    assert.equal(counter.dataset.bookmarkTone, undefined);
+    assert.equal(counter.classList.contains('is-bookmarked'), false);
+    assert.equal(counter.attrs['aria-label'], 'В списках у 4 820 пользователей');
+  }
 });
 
 test('failed save leaves selected state intact and emits no success event', () => {
@@ -93,6 +106,7 @@ test('failed save leaves selected state intact and emits no success event', () =
   const before = f.events.length;
   assert.equal(f.context.setBookmarkStatus('19', 'dropped'), false);
   assert.equal(f.desktop.dataset.bookmarkTone, 'planned');
+  assert.equal(f.counters[0].dataset.bookmarkTone, 'planned');
   assert.equal(f.events.length, before);
   assert.equal(f.stored.size, 0);
 });
@@ -102,10 +116,16 @@ test('restoring a saved status paints both title controls without writing storag
   f.context.syncBookmarkStatus('19', 'completed');
   assert.equal(f.desktop.dataset.bookmarkTone, 'completed');
   assert.equal(f.mobile.dataset.bookmarkTone, 'completed');
+  assert.equal(f.counters[1].dataset.bookmarkTone, 'completed');
   assert.equal(f.stored.size, 0);
 });
 
 test('bookmark text remains readable in both themes and on poster bands', () => {
+  const styles = readFileSync(new URL('../public/styles.css', import.meta.url), 'utf8');
+  const bandStyles = styles.match(/\.bookmark-status-bar\s*\{([^}]+)\}/s)?.[1] || '';
+  // Bind the contrast calculation to the actual shipped foreground/background.
+  assert.match(bandStyles, /color:\s*#ffffff;/);
+  assert.match(bandStyles, /background:\s*color-mix\(in srgb, var\(--bookmark-color\) 28%, #101012\)/);
   const css = readFileSync(new URL('../tokens.css', import.meta.url), 'utf8');
   const blocks = [...css.matchAll(/(:root|html\[data-theme="light"\])\s*\{([^}]+)\}/g)];
   const rgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);

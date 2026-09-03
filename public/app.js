@@ -906,24 +906,52 @@
     const slides = $$('[data-hero-slide]', slider);
     if (!slides.length) return;
     const live = $('[data-hero-live]', slider);
+    const toggle = $('[data-hero-toggle]', slider);
+    const progress = $('[data-hero-progress]', slider);
+    const progressTrack = $('[data-hero-progress-track]', slider);
+    const interval = 9000;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let index = Math.max(0, slides.findIndex((slide) => slide.classList.contains('is-active')));
     let timer = 0;
     let userInteracted = false;
     let hovered = false;
+    let focusPaused = false;
+    let progressAnimation = null;
     let pointerStart = null;
 
     slider.tabIndex = 0;
+    if (progressTrack) progressTrack.hidden = slides.length < 2;
+
+    const syncToggle = () => {
+      if (!toggle) return;
+      const paused = userInteracted || reducedMotion.matches;
+      const label = reducedMotion.matches ? 'Автопрокрутка отключена: уменьшение движения' : paused ? 'Возобновить автопрокрутку' : 'Остановить автопрокрутку';
+      toggle.hidden = slides.length < 2;
+      toggle.disabled = reducedMotion.matches;
+      toggle.setAttribute('aria-label', label);
+      toggle.setAttribute('title', label);
+      const pauseIcon = $('[data-hero-pause-icon]', toggle);
+      const playIcon = $('[data-hero-play-icon]', toggle);
+      if (pauseIcon) pauseIcon.hidden = paused;
+      if (playIcon) playIcon.hidden = !paused;
+    };
 
     const restart = () => {
       window.clearTimeout(timer);
-      if (slides.length < 2 || userInteracted || hovered || document.hidden || reducedMotion.matches) return;
-      timer = window.setTimeout(() => show(index + 1, { announce: false }), 7000);
+      progressAnimation?.cancel();
+      progressAnimation = null;
+      syncToggle();
+      if (slides.length < 2 || userInteracted || hovered || focusPaused || document.hidden || reducedMotion.matches) return;
+      progressAnimation = progress?.animate?.(
+        [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }],
+        { duration: interval, easing: 'linear', fill: 'forwards' },
+      ) || null;
+      timer = window.setTimeout(() => show(index + 1, { announce: false }), interval);
     };
 
     const takeControl = () => {
       userInteracted = true;
-      window.clearTimeout(timer);
+      restart();
     };
 
     const show = (nextIndex, { announce = true } = {}) => {
@@ -948,6 +976,14 @@
     };
     $('[data-hero-prev]', slider)?.addEventListener('click', () => move(-1));
     $('[data-hero-next]', slider)?.addEventListener('click', () => move(1));
+    toggle?.addEventListener('click', () => {
+      if (reducedMotion.matches) return;
+      userInteracted = !userInteracted;
+      // Explicit resume takes precedence over the current hover/focus pause.
+      focusPaused = false;
+      hovered = false;
+      restart();
+    });
 
     slider.addEventListener('keydown', (event) => {
       if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
@@ -956,8 +992,19 @@
     });
     slider.addEventListener('mouseenter', () => { hovered = true; restart(); });
     slider.addEventListener('mouseleave', () => { hovered = false; restart(); });
-    slider.addEventListener('focusin', takeControl);
+    slider.addEventListener('focusin', (event) => {
+      focusPaused = true;
+      // Preserve the pause button's intended action while it receives focus.
+      if (event.target?.closest?.('[data-hero-toggle]')) restart();
+      else takeControl();
+    });
+    slider.addEventListener('focusout', (event) => {
+      if (slider.contains?.(event.relatedTarget)) return;
+      focusPaused = false;
+      restart();
+    });
     slider.addEventListener('pointerdown', (event) => {
+      if (event.target?.closest?.('[data-hero-toggle]')) return;
       if (event.pointerType === 'mouse' || event.button !== 0) return;
       takeControl();
       pointerStart = { x: event.clientX, y: event.clientY };
@@ -1116,6 +1163,13 @@
       else delete control.dataset.bookmarkTone;
       control.setAttribute("aria-label", status ? `${nextLabel}. Изменить статус` : "Добавить в закладки");
       setIcon($(".title-list-icon", control), status?.icon || "bookmark-plus");
+    });
+    $$('[data-title-bookmark-count]').forEach((counter) => {
+      counter.classList.toggle('is-bookmarked', Boolean(status));
+      if (status) counter.dataset.bookmarkTone = status.key;
+      else delete counter.dataset.bookmarkTone;
+      const count = $('[data-field="favorites_count"]', counter)?.textContent?.trim() || '';
+      counter.setAttribute('aria-label', `В списках у ${count} пользователей${status ? `. Ваш статус: ${nextLabel}` : ''}`);
     });
   }
 
