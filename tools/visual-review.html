@@ -4,27 +4,71 @@
 <title>Kitsu — проверка адаптивности</title>
 <style>
 body { margin:0; background:#303035; color:#fff; font:14px system-ui; }
-header { height:56px; display:flex; align-items:center; gap:16px; padding:0 16px; }
+header { min-height:56px; display:flex; flex-wrap:wrap; align-items:center; gap:16px; padding:0 16px; }
 select { font:inherit; padding:6px; }
 main { margin:auto; width:fit-content; transform-origin:top center; }
 iframe { border:0; display:block; background:#0d0d0f; }
+details { margin:8px 16px; }
+pre { white-space:pre-wrap; font-size:12px; }
 </style>
 <header>
-<label>Страница <select id="page"><option value="../public/index.html">Главная</option><option value="../public/anime.html">Тайтл</option><option value="../admin/index.html">Админка</option></select></label>
+<label>Страница <select id="page"><option value="../public/index.html">Главная</option><option value="../public/anime.html">Тайтл</option><option value="../admin/index.html#overview">Админка — обзор</option><option value="../admin/index.html#catalog">Аниме</option><option value="../admin/index.html#episodes">Эпизоды</option><option value="../admin/index.html#releases">Релизы</option><option value="../admin/index.html#collections">Коллекции</option><option value="../admin/index.html#assets">Декорации и аватары</option><option value="../admin/index.html#anime-editor">Редактор аниме</option><option value="../admin/index.html#episode-editor">Редактор эпизода</option><option value="../admin/index.html#release-editor">Редактор релиза</option><option value="../admin/index.html#parsers">Парсер-центр</option><option value="../admin/index.html#imports">Поиск и импорт</option><option value="../admin/index.html#conflicts">Конфликты</option><option value="../admin/index.html#scheduler">Планировщик</option><option value="../admin/index.html#parser-settings">Настройки парсера</option><option value="../admin/index.html#moderation">Модерация</option><option value="../admin/index.html#users">Пользователи</option><option value="../admin/index.html#monitoring">Мониторинг</option><option value="../admin/index.html#settings">Настройки сайта</option><option value="../admin/index.html#backups">Резервные копии</option><option value="../admin/index.html#audit">Журнал аудита</option></select></label>
 <label>Ширина <select id="width"><option>375</option><option>390</option><option>768</option><option selected>1440</option></select></label>
 <label>Высота <select id="height"><option>900</option><option>1800</option><option selected>3400</option></select></label>
+<label>Тема <select id="theme"><option value="dark">Тёмная</option><option value="light">Светлая</option></select></label>
+<output id="review-status" aria-live="polite">Загрузка…</output>
 </header>
+<details><summary>Размеры и служебные иконки</summary><pre id="layout-report"></pre></details>
 <main><iframe title="Проверяемая страница" src="../public/index.html"></iframe></main>
 <script>
 const frame=document.querySelector('iframe');
 const page=document.querySelector('#page');
 const width=document.querySelector('#width');
 const height=document.querySelector('#height');
+const theme=document.querySelector('#theme');
+const status=document.querySelector('#review-status');
+function inspect(){
+  const doc=frame.contentDocument, view=doc.defaultView;
+  if (!doc.body || doc.URL !== new URL(page.value, location.href).href) return;
+  const boxes=[...doc.querySelectorAll('[class]')].filter(el =>
+    el.tagName !== 'BUTTON' && typeof el.className === 'string' &&
+    /(?:icon|glyph|symbol)/.test(el.className) && el.querySelector(':scope > svg') && el.getBoundingClientRect().width > 0
+  ).map(el => ({class:el.className, background:view.getComputedStyle(el).backgroundColor, border:view.getComputedStyle(el).borderWidth}))
+   .filter(el => el.background !== 'rgba(0, 0, 0, 0)' || el.border !== '0px');
+  document.querySelector('#layout-report').textContent=JSON.stringify({
+    page:page.selectedOptions[0].textContent,
+    viewport:view.innerWidth,
+    height:view.innerHeight,
+    theme:doc.documentElement.dataset.theme,
+    width:doc.documentElement.clientWidth,
+    scrollWidth:doc.documentElement.scrollWidth,
+    heading:doc.querySelector('h1')?.textContent.trim(),
+    boxes,
+  }, null, 2);
+}
+function applyTheme(){
+  frame.contentDocument.documentElement.dataset.theme=theme.value;
+  inspect();
+}
+async function ready(){
+  const doc=frame.contentDocument;
+  await doc.fonts.ready;
+  if (doc !== frame.contentDocument || doc.URL !== new URL(page.value, location.href).href) return;
+  status.textContent=page.selectedOptions[0].textContent;
+  applyTheme();
+}
 function size(){
   frame.width=width.value; frame.height=height.value;
   document.querySelector('main').style.zoom=Math.min(1,(innerWidth-32)/Number(width.value));
+  inspect();
 }
-page.addEventListener('change',()=>{frame.src=page.value;});
+page.addEventListener('change',()=>{status.textContent='Загрузка…'; frame.src=page.value;});
+frame.addEventListener('load',()=>{
+  applyTheme();
+  frame.contentWindow.addEventListener('hashchange',ready);
+  ready();
+});
+theme.addEventListener('change',applyTheme);
 width.addEventListener('change',size); height.addEventListener('change',size);
 addEventListener('resize',size); size();
 </script>
