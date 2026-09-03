@@ -24,7 +24,7 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=slider-cleanup-6" />
+    <link rel="stylesheet" href="./styles.css?v=compact-controls-7" />
   </head>
   <body data-page="home">
     <a class="skip-link" href="#main-content">К основному содержимому</a>
@@ -222,10 +222,15 @@
 
             <div class="feature-slider__controls">
               <div class="feature-slider__nav" aria-label="Переключение слайдов">
+                <button class="feature-slider__arrow feature-slider__toggle" type="button" data-hero-toggle aria-label="Остановить автопрокрутку" title="Остановить автопрокрутку">
+                  <span data-hero-pause-icon aria-hidden="true"><i data-lucide="pause"></i></span>
+                  <span data-hero-play-icon aria-hidden="true" hidden><i data-lucide="play"></i></span>
+                </button>
                 <button class="feature-slider__arrow" type="button" data-hero-prev aria-label="Предыдущий слайд"><i data-lucide="chevron-left"></i></button>
                 <button class="feature-slider__arrow" type="button" data-hero-next aria-label="Следующий слайд"><i data-lucide="chevron-right"></i></button>
               </div>
             </div>
+            <div class="feature-slider__progress" data-hero-progress-track aria-hidden="true"><span data-hero-progress></span></div>
             <p class="sr-only" data-hero-live aria-live="polite">Слайд 1 из 5: Провожающая в последний путь Фрирен</p>
           </div>
         </div>
@@ -534,6 +539,6 @@
     <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
 
     <script src="./vendor/lucide.min.js"></script>
-    <script src="./app.js?v=slider-cleanup-6"></script>
+    <script src="./app.js?v=compact-controls-7"></script>
   </body>
 </html>

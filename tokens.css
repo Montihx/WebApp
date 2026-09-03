@@ -15,6 +15,9 @@
   --type-body: 1rem;
   --type-ui: 0.875rem;
   --type-meta: 0.75rem;
+  --control-height: 40px;
+  --control-touch-height: 44px;
+  --mobile-nav-height: 54px;
   --canvas: #0d0d0f;
   --sidebar: #111113;
   --surface: #19191c;

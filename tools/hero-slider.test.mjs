@@ -23,7 +23,14 @@ function node(active = false) {
 }
 
 function fixture({reduced = false, count = 3} = {}) {
-  const slider = node(), previous = node(), next = node(), live = node();
+  const slider = node(), previous = node(), next = node(), live = node(), toggle = node();
+  const pauseIcon = node(), playIcon = node(), track = node(), progress = node();
+  const animations = [];
+  progress.animate = (frames, options) => {
+    const animation = {frames, options, cancelled: false, cancel() {this.cancelled = true}};
+    animations.push(animation);
+    return animation;
+  };
   const document = {...node(), hidden: false};
   const motion = {...node(), matches: reduced};
   const slides = Array.from({length: count}, (_, i) => ({
@@ -41,16 +48,20 @@ function fixture({reduced = false, count = 3} = {}) {
     $: (selector, scope) => selector === 'h2' ? scope.heading : ({
       '[data-hero-slider]': slider, '[data-hero-prev]': previous,
       '[data-hero-next]': next, '[data-hero-live]': live,
+      '[data-hero-toggle]': toggle, '[data-hero-progress]': progress,
+      '[data-hero-progress-track]': track, '[data-hero-pause-icon]': pauseIcon,
+      '[data-hero-play-icon]': playIcon,
     })[selector] ?? null,
     $$: (selector, scope) => selector === '[data-hero-slide]' ? slides : [scope.link],
   });
   new Script(code + '\ninitHeroSlider();').runInContext(context);
   return {
     slider, slides, previous, next, live, document, motion, timers,
+    toggle, pauseIcon, playIcon, track, animations,
     active: () => slides.findIndex(slide => slide.classList.contains('is-active')),
     tick() {
       const [id, {callback, delay}] = timers.entries().next().value;
-      assert.equal(delay, 7000);
+      assert.equal(delay, 9000);
       timers.delete(id);
       callback();
     },
@@ -125,4 +136,61 @@ test('automatic movement respects reduced motion, visibility and hover', () => {
   assert.equal(f.timers.size, 1);
   assert.equal(fixture({count: 1}).timers.size, 0);
   assert.equal(fixture({count: 0}).timers.size, 0);
+});
+
+test('the progress animation uses the same nine-second clock and resets on each slide', () => {
+  const f = fixture();
+  const first = f.animations[0];
+  assert.equal(first.options.duration, 9000);
+  assert.equal(first.frames[0].transform, 'scaleX(0)');
+  assert.equal(first.frames[1].transform, 'scaleX(1)');
+  f.tick();
+  assert.equal(first.cancelled, true);
+  assert.equal(f.animations.length, 2);
+  f.next.fire('click');
+  assert.equal(f.animations.at(-1).cancelled, true);
+  assert.equal(f.timers.size, 0);
+});
+
+test('explicit pause and resume keep their intended action through pointer and focus events', () => {
+  const f = fixture();
+  const target = {closest: () => f.toggle};
+  assert.equal(f.toggle.attrs['aria-label'], 'Остановить автопрокрутку');
+  assert.equal(f.pauseIcon.hidden, false);
+  f.slider.fire('mouseenter');
+  f.slider.fire('pointerdown', {pointerType: 'touch', button: 0, target});
+  f.slider.fire('focusin', {target});
+  assert.equal(f.timers.size, 0);
+  assert.equal(f.toggle.attrs['aria-label'], 'Остановить автопрокрутку');
+  f.toggle.fire('click');
+  assert.equal(f.timers.size, 0);
+  assert.equal(f.toggle.attrs['aria-label'], 'Возобновить автопрокрутку');
+  assert.equal(f.playIcon.hidden, false);
+  f.slider.fire('focusout');
+  f.slider.fire('mouseleave');
+  assert.equal(f.timers.size, 0);
+  f.slider.fire('focusin', {target});
+  f.toggle.fire('click');
+  assert.equal(f.timers.size, 1);
+  assert.equal(f.toggle.attrs['aria-label'], 'Остановить автопрокрутку');
+  f.tick();
+  assert.equal(f.active(), 1);
+});
+
+test('reduced motion prevents progress and explicit resume; a single slide needs no timer controls', () => {
+  const f = fixture({reduced: true});
+  f.toggle.fire('click');
+  assert.equal(f.timers.size, 0);
+  assert.equal(f.animations.length, 0);
+  assert.equal(f.toggle.disabled, true);
+  const single = fixture({count: 1});
+  assert.equal(single.track.hidden, true);
+  assert.equal(single.toggle.hidden, true);
+});
+
+test('the page exposes only a standalone pause, arrows and one noninteractive progress track', () => {
+  const html = readFileSync(new URL('../public/index.html', import.meta.url), 'utf8');
+  assert.equal((html.match(/data-hero-toggle\b/g) || []).length, 1);
+  assert.equal((html.match(/data-hero-progress-track\b/g) || []).length, 1);
+  assert.doesNotMatch(html, /data-hero-dot|data-hero-counter|О тайтле/);
 });

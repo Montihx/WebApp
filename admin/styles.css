@@ -1,4 +1,4 @@
-@import url("../tokens.css");
+@import url("../tokens.css?v=compact-controls-7");
 
 @font-face {
   font-family: "Onest";
@@ -1099,7 +1099,7 @@ html[data-theme="light"] .theme-icon-dark {
 
 .button {
   display: inline-flex;
-  min-height: 40px;
+  min-height: var(--control-height);
   align-items: center;
   justify-content: center;
   gap: 7px;
@@ -3718,7 +3718,7 @@ html[data-theme="light"] .log-console {
 
   .bulk-bar {
     right: 12px;
-    bottom: calc(70px + env(safe-area-inset-bottom));
+    bottom: calc(var(--mobile-nav-height) + 12px + env(safe-area-inset-bottom, 0px));
     left: 12px;
     justify-content: space-between;
   }
@@ -3731,7 +3731,7 @@ html[data-theme="light"] .log-console {
     z-index: 60;
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    min-height: calc(58px + env(safe-area-inset-bottom));
+    min-height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px));
     padding: 5px 4px env(safe-area-inset-bottom);
     border-top: 1px solid var(--line);
     background: color-mix(in srgb, var(--sidebar) 94%, transparent);
@@ -3740,6 +3740,7 @@ html[data-theme="light"] .log-console {
 
   .mobile-nav-item {
     display: grid;
+    min-height: var(--control-touch-height);
     place-items: center;
     align-content: center;
     gap: 3px;
@@ -3767,7 +3768,7 @@ html[data-theme="light"] .log-console {
 
   .toast-region {
     right: 10px;
-    bottom: calc(70px + env(safe-area-inset-bottom));
+    bottom: calc(var(--mobile-nav-height) + 12px + env(safe-area-inset-bottom, 0px));
   }
 
   .dialog {
@@ -4102,7 +4103,7 @@ svg {
 }
 
 .button {
-  min-height: 40px;
+  min-height: var(--control-height);
   gap: 8px;
   padding: 0 13px;
   border-radius: var(--radius-sm);
@@ -4818,7 +4819,7 @@ svg {
 
 .service-bar button {
   display: flex;
-  min-height: 50px;
+  min-height: var(--control-touch-height);
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -6694,7 +6695,7 @@ body::before {
 .button {
   border-radius: 8px 8px 3px 8px;
   font-size: var(--type-ui);
-  min-height: 40px;
+  min-height: var(--control-height);
 }
 
 .button svg {
@@ -7382,7 +7383,7 @@ html[data-theme="light"] .sidebar {
 }
 
 .button {
-  min-height: 40px;
+  min-height: var(--control-height);
   padding: 0 13px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
@@ -11304,5 +11305,5 @@ html[data-theme="dark"] .button--primary {
   .metric-card:nth-child(n + 3) { border-top: 1px solid var(--line); }
 }
 @media (max-width: 720px) {
-  .button { min-height: 44px; }
+  .button { min-height: var(--control-touch-height); }
 }

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-09-02T16:56:17.056Z",
+  "generated_at": "2026-09-03T02:06:11.632Z",
   "summary": {
     "status": "pass",
     "total": 47,
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "1003 блоков, структура сбалансирована"
+      "detail": "1013 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -235,7 +235,7 @@
       "id": "html.heroSlider",
       "label": "HTML: hero-слайдер",
       "status": "pass",
-      "detail": "5 слайдов, стрелки и live-status"
+      "detail": "5 слайдов, отдельная пауза, стрелки, одна полоса прогресса и live-status; без плашки пагинации"
     },
     {
       "id": "html.continueRail",

@@ -211,6 +211,8 @@ const sliderCssTokens = [
   ".feature-slide.is-active",
   ".feature-slider__controls",
   ".feature-slider__nav",
+  ".feature-slider__toggle",
+  ".feature-slider__progress",
   "touch-action: pan-y",
   "width: min(100%, 1600px)",
   "#000 15%, #000 85%",
@@ -446,8 +448,11 @@ add(
     && indexSource.includes("data-hero-prev")
     && indexSource.includes("data-hero-next")
     && indexSource.includes("data-hero-live")
+    && count(indexSource, /data-hero-toggle\b/g) === 1
+    && count(indexSource, /data-hero-progress-track\b/g) === 1
+    && !/data-hero-dot|data-hero-counter|О тайтле/.test(indexSource)
     && indexSource.includes("feature-slider__nav"),
-  `${heroSlideCount} слайдов, стрелки и live-status`,
+  `${heroSlideCount} слайдов, отдельная пауза, стрелки, одна полоса прогресса и live-status; без плашки пагинации`,
 );
 const continueCardCount = count(indexSource, /class="continue-card"/g);
 add(
