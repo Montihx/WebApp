@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node tools/manifests.mjs && node tools/build.mjs",
+    "build": "node tools/build.mjs",
     "check": "node public/tools/qa.mjs && node admin/tools/qa.mjs",
     "check:integrity": "node tools/manifests.mjs",
     "manifest:update": "node tools/manifests.mjs --write",
