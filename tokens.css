@@ -29,6 +29,7 @@
   --text: #f3f2f4;
   --text-secondary: #b9b6bc;
   --text-muted: #8b8790;
+  --focus-ring: #b9b6bc;
   --accent: #7242e0;
   --accent-strong: #8961e5;
   --accent-text: #d2c3f6;
@@ -84,6 +85,7 @@ html[data-theme="light"] {
   --text: #252225;
   --text-secondary: #5e5960;
   --text-muted: #746e74;
+  --focus-ring: #5e5960;
   --accent: #36255c;
   --accent-strong: #2a1d49;
   --accent-text: #36255c;
@@ -137,4 +139,19 @@ html[data-theme="light"] {
 [data-bookmark-tone="dropped"], [data-list-status="dropped"] {
   --bookmark-color: var(--bookmark-dropped);
   --bookmark-text: var(--bookmark-dropped-text);
+}
+
+/* Programmatic dialog focus stays accessible without a ring after a tap.
+   Keyboard navigation restores the indicator; text fields always retain it. */
+html[data-input-modality="keyboard"] :is(a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])):focus {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+html[data-input-modality="pointer"] :focus-visible:not(input, textarea, select, [contenteditable="true"]) {
+  outline: none;
+}
+
+@media (forced-colors: active) {
+  :root, html[data-theme="light"] { --focus-ring: Highlight; }
 }

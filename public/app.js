@@ -1,6 +1,19 @@
 (() => {
   "use strict";
 
+  function initInputModality() {
+    const root = document.documentElement;
+    document.addEventListener("pointerdown", () => {
+      root.dataset.inputModality = "pointer";
+    }, { capture: true, passive: true });
+    document.addEventListener("keydown", (event) => {
+      if (["Tab", "Enter", " ", "Escape", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+        root.dataset.inputModality = "keyboard";
+      }
+    }, true);
+  }
+  initInputModality();
+
   const root = document.documentElement;
   const body = document.body;
   const $ = (selector, scope = document) => scope.querySelector(selector);
@@ -41,9 +54,9 @@
   const BOOKMARK_STATUSES = [
     { key: "watching", label: "Смотрю", icon: "play" },
     { key: "planned", label: "Запланировано", icon: "clock" },
-    { key: "completed", label: "Просмотрено", icon: "check-circle-2" },
-    { key: "dropped", label: "Брошено", icon: "x-circle" },
-    { key: "on_hold", label: "Отложено", icon: "pause-circle" },
+    { key: "completed", label: "Просмотрено", icon: "check" },
+    { key: "dropped", label: "Брошено", icon: "minus" },
+    { key: "on_hold", label: "Отложено", icon: "pause" },
   ];
 
   const BOOKMARK_STATUS_BY_KEY = Object.fromEntries(BOOKMARK_STATUSES.map((status) => [status.key, status]));

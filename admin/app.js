@@ -1,6 +1,19 @@
 (() => {
   "use strict";
 
+  function initInputModality() {
+    const root = document.documentElement;
+    document.addEventListener("pointerdown", () => {
+      root.dataset.inputModality = "pointer";
+    }, { capture: true, passive: true });
+    document.addEventListener("keydown", (event) => {
+      if (["Tab", "Enter", " ", "Escape", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+        root.dataset.inputModality = "keyboard";
+      }
+    }, true);
+  }
+  initInputModality();
+
   const viewRoot = document.querySelector("#view-root");
   const appShell = document.querySelector("#app-shell");
   const overlay = document.querySelector("#overlay");

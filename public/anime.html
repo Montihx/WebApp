@@ -24,7 +24,7 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=slider-mobile-cleanup-8" />
+    <link rel="stylesheet" href="./styles.css?v=quiet-controls-10" />
   </head>
   <body data-page="anime">
     <a class="skip-link" href="#main-content">К основному содержимому</a>
@@ -106,11 +106,11 @@
                 <div class="list-control">
                   <button class="button button--secondary button--wide" type="button" id="list-trigger" aria-expanded="false" aria-controls="list-menu"><span class="title-list-icon" aria-hidden="true"><i data-lucide="bookmark-plus"></i></span><span id="list-label" aria-live="polite">В закладки</span><i data-lucide="chevron-down"></i></button>
                   <div class="list-menu" id="list-menu" hidden>
-                    <button type="button" data-list-status="watching"><i data-lucide="play-circle"></i><span>Смотрю</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
-                    <button type="button" data-list-status="completed"><i data-lucide="circle-check"></i><span>Просмотрено</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
-                    <button type="button" data-list-status="planned"><i data-lucide="clock-3"></i><span>Запланировано</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
-                    <button type="button" data-list-status="on_hold"><i data-lucide="pause-circle"></i><span>Отложено</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
-                    <button type="button" data-list-status="dropped"><i data-lucide="circle-minus"></i><span>Брошено</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
+                    <button type="button" data-list-status="watching"><i data-lucide="play"></i><span>Смотрю</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
+                    <button type="button" data-list-status="completed"><i data-lucide="check"></i><span>Просмотрено</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
+                    <button type="button" data-list-status="planned"><i data-lucide="clock"></i><span>Запланировано</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
+                    <button type="button" data-list-status="on_hold"><i data-lucide="pause"></i><span>Отложено</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
+                    <button type="button" data-list-status="dropped"><i data-lucide="minus"></i><span>Брошено</span><span class="list-selection-check" aria-hidden="true" hidden><i data-lucide="check"></i></span></button>
                     <button class="list-remove" type="button" data-list-status="none"><i data-lucide="trash-2"></i><span>Удалить из списка</span></button>
                   </div>
                 </div>
@@ -337,11 +337,11 @@
         <button type="button" data-close-mobile-list>Готово</button>
       </div>
       <div class="title-list-dialog__options">
-        <button type="button" data-list-status="watching"><span><i data-lucide="play-circle"></i></span><strong>Смотрю</strong><i data-lucide="check"></i></button>
-        <button type="button" data-list-status="completed"><span><i data-lucide="circle-check"></i></span><strong>Просмотрено</strong><i data-lucide="check"></i></button>
-        <button type="button" data-list-status="planned"><span><i data-lucide="clock-3"></i></span><strong>Запланировано</strong><i data-lucide="check"></i></button>
-        <button type="button" data-list-status="on_hold"><span><i data-lucide="pause-circle"></i></span><strong>Отложено</strong><i data-lucide="check"></i></button>
-        <button type="button" data-list-status="dropped"><span><i data-lucide="circle-minus"></i></span><strong>Брошено</strong><i data-lucide="check"></i></button>
+        <button type="button" data-list-status="watching"><span><i data-lucide="play"></i></span><strong>Смотрю</strong><i data-lucide="check"></i></button>
+        <button type="button" data-list-status="completed"><span><i data-lucide="check"></i></span><strong>Просмотрено</strong><i data-lucide="check"></i></button>
+        <button type="button" data-list-status="planned"><span><i data-lucide="clock"></i></span><strong>Запланировано</strong><i data-lucide="check"></i></button>
+        <button type="button" data-list-status="on_hold"><span><i data-lucide="pause"></i></span><strong>Отложено</strong><i data-lucide="check"></i></button>
+        <button type="button" data-list-status="dropped"><span><i data-lucide="minus"></i></span><strong>Брошено</strong><i data-lucide="check"></i></button>
       </div>
       <button class="title-list-dialog__remove" type="button" data-list-status="none"><i data-lucide="trash-2"></i><span>Удалить из списка</span></button>
     </dialog>
@@ -398,6 +398,6 @@
 
     <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
     <script src="./vendor/lucide.min.js"></script>
-    <script src="./app.js?v=slider-mobile-cleanup-8"></script>
+    <script src="./app.js?v=quiet-controls-10"></script>
   </body>
 </html>

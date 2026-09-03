@@ -2,7 +2,7 @@
 
 ## Замысел
 
-Система сохраняет компактность и расположение понравившегося dashboard. Dark строится на почти чёрном canvas и нейтральных graphite surfaces; светлая primary-кнопка создаёт ясную иерархию, а фиолетовый accent появляется только в focus, selection и identity markers (running/in-progress). Light использует тёплый нейтральный canvas, белые поверхности и почти чёрный `#1F1D20` как локальный сильный action/brand anchor.
+Система сохраняет компактность и расположение понравившегося dashboard. Dark строится на почти чёрном canvas и нейтральных graphite surfaces; светлая primary-кнопка создаёт ясную иерархию, а фиолетовый accent появляется только в selection и identity markers (running/in-progress). Клавиатурный фокус нейтральный. Light использует тёплый нейтральный canvas, белые поверхности и почти чёрный `#1F1D20` как локальный сильный action/brand anchor.
 
 Это собственная система Kitsu, а не копия Anixart и не набор случайных компонентов из UI-каталогов.
 
@@ -23,7 +23,8 @@ Feature-компоненты используют semantic tokens. Raw hex ра�
 | Text           | `#F3F2F4` | `#252225` | основной текст                     |
 | Secondary      | `#B9B6BC` | `#5E5960` | пояснения                          |
 | Muted          | `#8B8790` | `#746E74` | metadata с AA-контрастом           |
-| Accent marker  | `#7242E0` | `#36255C` | focus, selection rail, running/in-progress |
+| Accent marker  | `#7242E0` | `#36255C` | selection, running/in-progress |
+| Focus ring     | `#B9B6BC` | `#5E5960` | клавиатурный фокус |
 | Accent text    | `#D2C3F6` | `#36255C` | малый accent text с AA-контрастом  |
 | Primary fill   | `#ECEAEC` | `#1F1D20` | один главный action в контексте    |
 | Primary text   | `#171719` | `#FFFFFF` | текст главного action              |
@@ -42,6 +43,8 @@ Feature-компоненты используют semantic tokens. Raw hex ра�
 - Red не используется для ordinary attention: warning остаётся amber.
 - Primary button и danger button никогда не имеют одинаковый вес рядом.
 - Status нельзя передавать только цветом: всегда label/icon/текст.
+- Служебные иконки не имеют декоративных плиток, рамок и glow. Текстовые статусы и выделение выбранного действия сохраняются. Canvas, sidebar, панели и строки используют ровные поверхности без декоративных градиентов.
+- После pointer-нажатия программный фокус кнопок не обводится; клавиатурная навигация восстанавливает нейтральный контур. Фокус не снимается, ловушки и возврат фокуса сохранены. В forced-colors применяется системный `Highlight` в обеих темах.
 - Gradients не являются фоном canvas или каждой карточки; допустимы только poster/media placeholders.
 
 ## Индикаторы статуса в текущем статическом шаблоне

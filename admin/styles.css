@@ -1,4 +1,4 @@
-@import url("../tokens.css?v=slider-mobile-cleanup-8");
+@import url("../tokens.css?v=quiet-controls-10");
 
 @font-face {
   font-family: "Onest";
@@ -293,7 +293,7 @@ svg {
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent-strong);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
@@ -370,7 +370,7 @@ svg {
   font-size: 17px;
   font-weight: 800;
   letter-spacing: -0.04em;
-  box-shadow: 0 6px 22px rgba(169, 92, 151, 0.22);
+  box-shadow: none;
 }
 
 .brand-copy {
@@ -516,7 +516,7 @@ svg {
   height: 7px;
   border-radius: 50%;
   background: var(--green);
-  box-shadow: 0 0 0 4px var(--green-soft);
+  box-shadow: none;
 }
 
 .sidebar-footer {
@@ -550,8 +550,8 @@ svg {
   height: 30px;
   flex: 0 0 auto;
   place-items: center;
-  border-radius: var(--radius-sm);
-  background: var(--green-soft);
+  border-radius: 0;
+  background: transparent;
   color: var(--green);
 }
 
@@ -1007,7 +1007,7 @@ html[data-theme="light"] .theme-icon-dark {
   height: 27px;
   flex: 0 0 auto;
   place-items: center;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
 }
 
 .event-icon svg {
@@ -1016,17 +1016,17 @@ html[data-theme="light"] .theme-icon-dark {
 }
 
 .event-icon--success {
-  background: var(--green-soft);
+  background: transparent;
   color: var(--green);
 }
 
 .event-icon--warning {
-  background: var(--amber-soft);
+  background: transparent;
   color: var(--amber);
 }
 
 .event-icon--info {
-  background: var(--info-soft);
+  background: transparent;
   color: var(--info);
 }
 
@@ -1492,7 +1492,7 @@ html[data-theme="light"] .theme-icon-dark {
   width: 30px;
   height: 30px;
   place-items: center;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
 }
 
 .attention-icon svg {
@@ -1501,17 +1501,17 @@ html[data-theme="light"] .theme-icon-dark {
 }
 
 .attention-icon--warning {
-  background: var(--amber-soft);
+  background: transparent;
   color: var(--amber);
 }
 
 .attention-icon--danger {
-  background: var(--red-soft);
+  background: transparent;
   color: var(--red);
 }
 
 .attention-icon--info {
-  background: var(--info-soft);
+  background: transparent;
   color: var(--info);
 }
 
@@ -1643,8 +1643,8 @@ html[data-theme="light"] .theme-icon-dark {
   height: 27px;
   flex: 0 0 auto;
   place-items: center;
-  border-radius: var(--radius-sm);
-  background: var(--surface-hover);
+  border-radius: 0;
+  background: transparent;
   color: var(--text-muted);
 }
 
@@ -1654,17 +1654,17 @@ html[data-theme="light"] .theme-icon-dark {
 }
 
 .mini-icon--accent {
-  background: var(--accent-soft);
+  background: transparent;
   color: var(--accent-strong);
 }
 
 .mini-icon--green {
-  background: var(--green-soft);
+  background: transparent;
   color: var(--green);
 }
 
 .mini-icon--warning {
-  background: var(--amber-soft);
+  background: transparent;
   color: var(--amber);
 }
 
@@ -2016,7 +2016,7 @@ html[data-theme="light"] .theme-icon-dark {
 .field textarea:focus,
 .field select:focus,
 .select-control:focus {
-  border-color: var(--accent);
+  border-color: var(--focus-ring);
   outline: none;
 }
 
@@ -2076,14 +2076,7 @@ html[data-theme="light"] .theme-icon-dark {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
-  background:
-    linear-gradient(155deg, transparent 40%, rgba(0, 0, 0, 0.55)),
-    radial-gradient(
-      circle at 75% 25%,
-      var(--poster-b, #93658a),
-      transparent 38%
-    ),
-    linear-gradient(135deg, var(--poster-a, #2e2e33), #19191c);
+  background: var(--poster-a, var(--surface-active));
 }
 
 .poster::before {
@@ -2834,9 +2827,9 @@ html[data-theme="light"] .log-console {
   height: 42px;
   margin: 0 auto 11px;
   place-items: center;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--surface-raised);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--text-muted);
 }
 
@@ -3151,8 +3144,8 @@ html[data-theme="light"] .log-console {
   width: 25px;
   height: 25px;
   place-items: center;
-  border-radius: var(--radius-sm);
-  background: var(--green-soft);
+  border-radius: 0;
+  background: transparent;
   color: var(--green);
 }
 
@@ -3991,8 +3984,8 @@ svg {
 .environment-icon {
   width: 31px;
   height: 31px;
-  border-radius: var(--radius-sm);
-  background: var(--surface-hover);
+  border-radius: 0;
+  background: transparent;
   color: var(--text-secondary);
 }
 
@@ -4357,37 +4350,37 @@ svg {
 .attention-icon,
 .event-icon,
 .empty-icon {
-  border: 1px solid var(--line);
-  background: var(--surface-hover);
+  border: 0;
+  background: transparent;
   box-shadow: none;
   color: var(--text-secondary);
 }
 
 .mini-icon--accent,
 .attention-icon--info {
-  border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
-  background: var(--accent-soft);
+  border-color: transparent;
+  background: transparent;
   color: var(--accent-strong);
 }
 
 .mini-icon--green,
 .event-icon--success {
-  border-color: color-mix(in srgb, var(--green) 25%, var(--line));
-  background: var(--green-soft);
+  border-color: transparent;
+  background: transparent;
   color: var(--green);
 }
 
 .mini-icon--warning,
 .attention-icon--warning,
 .event-icon--warning {
-  border-color: color-mix(in srgb, var(--amber) 25%, var(--line));
-  background: var(--amber-soft);
+  border-color: transparent;
+  background: transparent;
   color: var(--amber);
 }
 
 .attention-icon--danger {
-  border-color: color-mix(in srgb, var(--red) 25%, var(--line));
-  background: var(--red-soft);
+  border-color: transparent;
+  background: transparent;
   color: var(--red);
 }
 
@@ -4644,9 +4637,9 @@ svg {
   width: 32px;
   height: 32px;
   place-items: center;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--surface-raised);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--text-secondary);
 }
 
@@ -4869,13 +4862,7 @@ svg {
   justify-content: center;
   gap: 14px;
   border-bottom: 1px solid var(--line);
-  background:
-    radial-gradient(
-      circle at 50% 30%,
-      color-mix(in srgb, var(--asset-color) 28%, transparent),
-      transparent 56%
-    ),
-    linear-gradient(135deg, var(--surface-raised), var(--surface));
+  background: var(--surface);
 }
 
 .asset-preview span {
@@ -5111,8 +5098,8 @@ svg {
   width: 34px;
   height: 34px;
   place-items: center;
-  border-radius: var(--radius-sm);
-  background: var(--green-soft);
+  border-radius: 0;
+  background: transparent;
   color: var(--green);
 }
 
@@ -5233,9 +5220,9 @@ svg {
   height: 38px;
   flex: 0 0 38px;
   place-items: center;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--surface-raised);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--text-secondary);
 }
 
@@ -5566,14 +5553,7 @@ svg {
   padding: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
-  background:
-    linear-gradient(0deg, rgba(0, 0, 0, 0.68), transparent 62%),
-    radial-gradient(
-      circle at 72% 24%,
-      rgba(169, 92, 151, 0.48),
-      transparent 36%
-    ),
-    linear-gradient(135deg, #19191c, #46464e 60%, #19191c);
+  background: #212124;
 }
 
 .cover-placeholder span {
@@ -5605,8 +5585,8 @@ svg {
   height: 34px;
   flex: 0 0 34px;
   place-items: center;
-  border-radius: var(--radius-sm);
-  background: rgba(0, 0, 0, 0.12);
+  border-radius: 0;
+  background: transparent;
   color: var(--green);
 }
 
@@ -6486,46 +6466,16 @@ svg {
 }
 
 body {
-  background:
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--accent) 2%, transparent),
-      transparent 22%
-    ),
-    var(--canvas);
+  background: var(--canvas);
 }
 
 body::before {
-  position: fixed;
-  z-index: -1;
-  inset: 0;
-  background:
-    linear-gradient(
-      color-mix(in srgb, var(--line) 16%, transparent) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--line) 12%, transparent) 1px,
-      transparent 1px
-    );
-  background-size: 56px 56px;
-  content: "";
-  -webkit-mask-image: linear-gradient(to bottom, black, transparent 46%);
-  mask-image: linear-gradient(to bottom, black, transparent 46%);
-  opacity: 0.18;
-  pointer-events: none;
+  content: none;
 }
 
 .sidebar {
   border-right-color: var(--line);
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--plum) 22%, var(--sidebar)),
-      var(--sidebar) 38%
-    ),
-    var(--sidebar);
+  background: var(--sidebar);
 }
 
 .brand-mark {
@@ -6534,21 +6484,9 @@ body::before {
   border: 1px solid color-mix(in srgb, var(--accent) 74%, var(--line));
   border-radius: 10px 10px 3px 10px;
   background: var(--accent);
-  box-shadow: 3px 3px 0 color-mix(in srgb, var(--plum) 72%, var(--canvas));
+  box-shadow: none;
   color: var(--accent-ink);
   isolation: isolate;
-}
-
-.brand-mark::after {
-  position: absolute;
-  top: -11px;
-  right: -7px;
-  width: 18px;
-  height: 54px;
-  background: color-mix(in srgb, var(--milk) 30%, transparent);
-  content: "";
-  transform: rotate(28deg);
-  z-index: -1;
 }
 
 .brand-glyph {
@@ -6578,11 +6516,7 @@ body::before {
 
 .nav-item.is-active {
   border-color: color-mix(in srgb, var(--accent) 22%, var(--line));
-  background: linear-gradient(
-    90deg,
-    var(--accent-soft),
-    color-mix(in srgb, var(--surface-active) 82%, transparent)
-  );
+  background: var(--surface-active);
 }
 
 .nav-item.is-active::before {
@@ -6590,7 +6524,7 @@ body::before {
   width: 3px;
   height: 25px;
   background: var(--accent);
-  box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 34%, transparent);
+  box-shadow: none;
 }
 
 .nav-item.is-active svg,
@@ -6607,7 +6541,7 @@ body::before {
 .nav-live,
 .notification-dot {
   background: var(--accent);
-  box-shadow: 0 0 0 4px var(--accent-soft);
+  box-shadow: none;
 }
 
 .environment-card {
@@ -6618,7 +6552,7 @@ body::before {
 .topbar {
   border-bottom-color: var(--line);
   background: color-mix(in srgb, var(--canvas) 90%, transparent);
-  box-shadow: 0 1px 0 color-mix(in srgb, var(--accent) 5%, transparent);
+  box-shadow: none;
 
 }
 
@@ -6634,23 +6568,25 @@ body::before {
 }
 
 .command-trigger,
-.icon-button,
 .site-link,
 .profile-button {
   border-color: var(--line);
   background: color-mix(in srgb, var(--surface) 86%, transparent);
 }
 
+.icon-button { border-color: transparent; background: transparent; }
+
 .command-trigger:hover,
-.icon-button:hover,
 .site-link:hover,
 .profile-button:hover {
   border-color: var(--line-strong);
   background: var(--surface-hover);
 }
 
+.icon-button:hover { border-color: transparent; background: var(--surface-hover); }
+
 .has-indicator {
-  border-color: color-mix(in srgb, var(--accent) 24%, var(--line));
+  border-color: transparent;
 }
 
 .avatar--admin {
@@ -6668,18 +6604,7 @@ body::before {
 }
 
 .page-heading::before {
-  position: absolute;
-  top: 3px;
-  bottom: 3px;
-  left: 0;
-  width: 2px;
-  border-radius: 2px;
-  background: linear-gradient(
-    to bottom,
-    var(--accent),
-    color-mix(in srgb, var(--accent) 8%, transparent)
-  );
-  content: "";
+  content: none;
 }
 
 .eyebrow {
@@ -6706,12 +6631,12 @@ body::before {
   border-color: color-mix(in srgb, var(--primary-border) 78%, var(--line));
   background: var(--primary-bg);
   color: var(--primary-fg);
-  box-shadow: 0 7px 18px color-mix(in srgb, var(--primary-bg) 14%, transparent);
+  box-shadow: none;
 }
 
 .button--primary:hover {
   background: var(--primary-bg-hover);
-  box-shadow: 0 9px 24px color-mix(in srgb, var(--primary-bg) 20%, transparent);
+  box-shadow: none;
   transform: translateY(-1px);
 }
 
@@ -6747,13 +6672,7 @@ body::before {
 }
 
 .panel-header::after {
-  position: absolute;
-  right: 18px;
-  bottom: -1px;
-  left: 18px;
-  height: 1px;
-  background: linear-gradient(90deg, var(--line), transparent 70%);
-  content: "";
+  content: none;
 }
 
 .panel--flush .panel-header::after {
@@ -6791,7 +6710,7 @@ body::before {
 .ops-summary article:first-child,
 .kpi:first-child,
 .stat-tile:first-child {
-  background: linear-gradient(135deg, var(--accent-soft), transparent 68%);
+  background: transparent;
 }
 
 .ops-summary strong,
@@ -6826,12 +6745,7 @@ body::before {
 .notification-row:hover,
 .attention-row:hover,
 .popular-row:hover {
-  background: linear-gradient(
-    90deg,
-    var(--accent-soft),
-    var(--surface-hover) 28%,
-    var(--surface-hover)
-  );
+  background: var(--surface-hover);
 }
 
 .ops-task__priority--info,
@@ -6847,7 +6761,7 @@ body::before {
 }
 
 .event-icon--info {
-  background: var(--info-soft);
+  background: transparent;
   color: var(--info);
 }
 
@@ -6857,7 +6771,7 @@ body::before {
 .empty-icon,
 .ops-task__icon,
 .job-glyph {
-  border-radius: 8px 8px 3px 8px;
+  border-radius: 0;
 }
 
 .data-table tbody tr {
@@ -6865,13 +6779,8 @@ body::before {
 }
 
 .data-table tbody tr:hover {
-  background: linear-gradient(
-    90deg,
-    var(--accent-soft),
-    color-mix(in srgb, var(--surface-hover) 70%, transparent) 18%,
-    transparent 74%
-  );
-  box-shadow: inset 2px 0 0 var(--accent);
+  background: var(--surface-hover);
+  box-shadow: none;
 }
 
 .data-table th {
@@ -6883,8 +6792,8 @@ body::before {
 .field select:focus,
 .field textarea:focus,
 .command-input-row:focus-within {
-  border-color: color-mix(in srgb, var(--accent) 62%, var(--line));
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  border-color: var(--focus-ring);
+  box-shadow: none;
 }
 
 .filter-chip.is-active,
@@ -6934,8 +6843,8 @@ body::before {
 }
 
 .command-result.is-active {
-  background: linear-gradient(90deg, var(--accent-soft), var(--surface-hover));
-  box-shadow: inset 2px 0 0 var(--accent);
+  background: var(--surface-active);
+  box-shadow: none;
 }
 
 .command-result > .mini-icon {
@@ -7114,13 +7023,7 @@ body::before {
    -------------------------------------------------------------------------- */
 
 body {
-  background:
-    radial-gradient(
-      circle at 77% -10%,
-      color-mix(in srgb, var(--accent) 8%, transparent) 0,
-      transparent 33%
-    ),
-    var(--canvas);
+  background: var(--canvas);
   font-size: 13px;
   letter-spacing: -0.005em;
 }
@@ -7141,9 +7044,7 @@ kbd,
 
 .sidebar {
   border-right: 0;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 24%),
-    var(--sidebar);
+  background: var(--sidebar);
   box-shadow: 16px 0 42px rgba(7, 3, 6, 0.18);
   color: #fff3e6;
 }
@@ -7240,11 +7141,7 @@ html[data-theme="light"] .sidebar {
 }
 
 .nav-item.is-active {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 243, 230, 0.15),
-    rgba(255, 243, 230, 0.065)
-  );
+  background: var(--surface-active);
   box-shadow: inset 3px 0 0 #fff3e6;
   color: #fff8f0;
 }
@@ -7283,7 +7180,7 @@ html[data-theme="light"] .sidebar {
 }
 
 .environment-icon {
-  background: rgba(255, 243, 230, 0.12);
+  background: transparent;
   color: #fff3e6;
 }
 
@@ -7320,7 +7217,7 @@ html[data-theme="light"] .sidebar {
 .command-trigger:hover {
   border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
   background: var(--surface);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  box-shadow: none;
 }
 
 .icon-button {
@@ -7397,14 +7294,14 @@ html[data-theme="light"] .sidebar {
 .button:hover:not(:disabled) {
   border-color: color-mix(in srgb, var(--accent) 38%, var(--line));
   background: var(--surface-raised);
-  box-shadow: 0 5px 14px color-mix(in srgb, var(--accent) 8%, transparent);
+  box-shadow: none;
   transform: translateY(-1px);
 }
 
 .button--primary {
   border-color: var(--primary-border);
   background: var(--primary-bg);
-  box-shadow: 0 7px 18px color-mix(in srgb, var(--primary-bg) 23%, transparent);
+  box-shadow: none;
   color: var(--primary-fg);
 }
 
@@ -7589,7 +7486,7 @@ button:disabled {
 }
 
 .decision-row:hover {
-  background: linear-gradient(90deg, var(--accent-soft), transparent 80%);
+  background: var(--surface-hover);
 }
 
 .decision-code {
@@ -7638,7 +7535,7 @@ button:disabled {
   width: 28px;
   height: 28px;
   place-items: center;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
 }
 
 .decision-icon svg {
@@ -7646,17 +7543,17 @@ button:disabled {
 }
 
 .decision-icon--warning {
-  background: var(--amber-soft);
+  background: transparent;
   color: var(--amber);
 }
 
 .decision-icon--danger {
-  background: var(--red-soft);
+  background: transparent;
   color: var(--red);
 }
 
 .decision-icon--info {
-  background: var(--info-soft);
+  background: transparent;
   color: var(--info);
 }
 
@@ -8009,7 +7906,7 @@ button:disabled {
 
 .data-table tbody tr:hover {
   background: color-mix(in srgb, var(--accent-soft) 65%, var(--surface));
-  box-shadow: inset 3px 0 0 var(--accent);
+  box-shadow: none;
 }
 
 .data-table tr.is-error {
@@ -8084,9 +7981,9 @@ button:disabled {
   height: 34px;
   flex: 0 0 34px;
   place-items: center;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--surface-raised);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--accent);
 }
 
@@ -8097,20 +7994,20 @@ button:disabled {
 }
 
 .job-glyph--running {
-  border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
-  background: var(--accent-soft);
+  border-color: transparent;
+  background: transparent;
   color: var(--accent-text);
 }
 
 .job-glyph--failed {
-  border-color: color-mix(in srgb, var(--red) 28%, var(--line));
-  background: var(--red-soft);
+  border-color: transparent;
+  background: transparent;
   color: var(--red);
 }
 
 .job-glyph--success {
-  border-color: color-mix(in srgb, var(--green) 28%, var(--line));
-  background: var(--green-soft);
+  border-color: transparent;
+  background: transparent;
   color: var(--green);
 }
 
@@ -8498,8 +8395,8 @@ button:disabled {
   width: 44px;
   height: 44px;
   place-items: center;
-  border-radius: var(--radius-md);
-  background: var(--surface-raised);
+  border-radius: 0;
+  background: transparent;
   color: var(--text-secondary);
 }
 
@@ -9039,9 +8936,9 @@ button:disabled {
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  border-color: var(--accent);
+  border-color: var(--focus-ring);
   background: var(--surface);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  box-shadow: none;
 }
 
 .field small {
@@ -9266,8 +9163,8 @@ button:disabled {
   height: 36px;
   flex: 0 0 36px;
   place-items: center;
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--green) 14%, transparent);
+  border-radius: 0;
+  background: transparent;
   color: var(--green);
 }
 
@@ -9671,7 +9568,7 @@ button:disabled {
   border: 3px solid color-mix(in srgb, var(--green) 30%, transparent);
   border-radius: 50%;
   background: var(--green);
-  box-shadow: 0 0 0 5px var(--green-soft);
+  box-shadow: none;
 }
 
 .service-state-grid {
@@ -9708,13 +9605,13 @@ button:disabled {
   width: 40px;
   height: 40px;
   place-items: center;
-  border-radius: var(--radius-sm);
-  background: var(--green-soft);
+  border-radius: 0;
+  background: transparent;
   color: var(--green);
 }
 
 .service-state--degraded .service-state__icon {
-  background: var(--amber-soft);
+  background: transparent;
   color: var(--amber);
 }
 
@@ -9980,8 +9877,8 @@ button:disabled {
   width: 42px;
   height: 42px;
   place-items: center;
-  border-radius: var(--radius-sm);
-  background: var(--amber-soft);
+  border-radius: 0;
+  background: transparent;
   color: var(--amber);
 }
 
@@ -10051,8 +9948,8 @@ button:disabled {
   height: 35px;
   flex: 0 0 35px;
   place-items: center;
-  border-radius: var(--radius-sm);
-  background: var(--green-soft);
+  border-radius: 0;
+  background: transparent;
   color: var(--green);
 }
 
@@ -10135,8 +10032,7 @@ button:disabled {
 
 .backup-primary {
   border-color: color-mix(in srgb, var(--green) 30%, var(--line)) !important;
-  background:
-    linear-gradient(135deg, var(--green-soft), transparent 70%), var(--surface) !important;
+  background: var(--surface) !important;
 }
 
 .backup-primary .status-badge {
@@ -11048,7 +10944,7 @@ button:disabled {
    KITSU ANIME GRAPHITE · final palette contract
 
    The layout remains unchanged. Neutral graphite owns the canvas, navigation,
-   panels and hover states. Mauve is deliberately limited to focus, selection
+   panels, hover states and focus. Mauve is deliberately limited to selection
    and a small number of identity cues; semantic colors keep their own jobs.
    -------------------------------------------------------------------------- */
 
@@ -11111,7 +11007,7 @@ html[data-theme="light"] .sidebar {
 
 .nav-item.is-active {
   background: var(--surface-active);
-  box-shadow: inset 3px 0 0 var(--accent);
+  box-shadow: none;
   color: var(--text);
 }
 
@@ -11139,7 +11035,7 @@ html[data-theme="light"] .sidebar {
 }
 
 .environment-icon {
-  background: var(--accent-soft);
+  background: transparent;
 }
 
 .eyebrow,
@@ -11222,7 +11118,7 @@ html[data-theme="dark"] .button--primary {
 
 .data-table tbody tr.is-selected {
   background: color-mix(in srgb, var(--accent-soft) 72%, var(--surface));
-  box-shadow: inset 3px 0 0 var(--accent);
+  box-shadow: none;
 }
 
 .log-console {
@@ -11280,9 +11176,7 @@ html[data-theme="dark"] .button--primary {
 }
 
 .cover-placeholder--plum {
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.09), transparent 42%),
-    linear-gradient(125deg, #381932 0%, #69445f 56%, #9b718f 100%);
+  background: #212124;
   color: #f3f2f4;
 }
 
