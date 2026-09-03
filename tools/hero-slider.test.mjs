@@ -22,9 +22,9 @@ function node(active = false) {
   };
 }
 
-function fixture({reduced = false, count = 3} = {}) {
-  const slider = node(), previous = node(), next = node(), live = node(), toggle = node();
-  const pauseIcon = node(), playIcon = node(), track = node(), progress = node();
+function fixture({reduced = false, count = 3, arrows = true} = {}) {
+  const slider = node(), previous = node(), next = node(), live = node();
+  const track = node(), progress = node();
   const animations = [];
   progress.animate = (frames, options) => {
     const animation = {frames, options, cancelled: false, cancel() {this.cancelled = true}};
@@ -46,18 +46,16 @@ function fixture({reduced = false, count = 3} = {}) {
       clearTimeout: id => timers.delete(id),
     },
     $: (selector, scope) => selector === 'h2' ? scope.heading : ({
-      '[data-hero-slider]': slider, '[data-hero-prev]': previous,
-      '[data-hero-next]': next, '[data-hero-live]': live,
-      '[data-hero-toggle]': toggle, '[data-hero-progress]': progress,
-      '[data-hero-progress-track]': track, '[data-hero-pause-icon]': pauseIcon,
-      '[data-hero-play-icon]': playIcon,
+      '[data-hero-slider]': slider, '[data-hero-prev]': arrows ? previous : null,
+      '[data-hero-next]': arrows ? next : null, '[data-hero-live]': live,
+      '[data-hero-progress]': progress, '[data-hero-progress-track]': track,
     })[selector] ?? null,
     $$: (selector, scope) => selector === '[data-hero-slide]' ? slides : [scope.link],
   });
   new Script(code + '\ninitHeroSlider();').runInContext(context);
   return {
     slider, slides, previous, next, live, document, motion, timers,
-    toggle, pauseIcon, playIcon, track, animations,
+    track, animations,
     active: () => slides.findIndex(slide => slide.classList.contains('is-active')),
     tick() {
       const [id, {callback, delay}] = timers.entries().next().value;
@@ -152,45 +150,51 @@ test('the progress animation uses the same nine-second clock and resets on each 
   assert.equal(f.timers.size, 0);
 });
 
-test('explicit pause and resume keep their intended action through pointer and focus events', () => {
-  const f = fixture();
-  const target = {closest: () => f.toggle};
-  assert.equal(f.toggle.attrs['aria-label'], 'Остановить автопрокрутку');
-  assert.equal(f.pauseIcon.hidden, false);
-  f.slider.fire('mouseenter');
-  f.slider.fire('pointerdown', {pointerType: 'touch', button: 0, target});
-  f.slider.fire('focusin', {target});
-  assert.equal(f.timers.size, 0);
-  assert.equal(f.toggle.attrs['aria-label'], 'Остановить автопрокрутку');
-  f.toggle.fire('click');
-  assert.equal(f.timers.size, 0);
-  assert.equal(f.toggle.attrs['aria-label'], 'Возобновить автопрокрутку');
-  assert.equal(f.playIcon.hidden, false);
-  f.slider.fire('focusout');
-  f.slider.fire('mouseleave');
-  assert.equal(f.timers.size, 0);
-  f.slider.fire('focusin', {target});
-  f.toggle.fire('click');
-  assert.equal(f.timers.size, 1);
-  assert.equal(f.toggle.attrs['aria-label'], 'Остановить автопрокрутку');
+test('swipes work without arrow nodes and interaction prevents automatic restart', () => {
+  const f = fixture({arrows: false});
   f.tick();
   assert.equal(f.active(), 1);
+  f.slider.fire('pointerdown', {pointerType: 'touch', button: 0, clientX: 200, clientY: 100});
+  f.slider.fire('pointerup', {clientX: 100, clientY: 105});
+  assert.equal(f.active(), 2);
+  f.slider.fire('focusout');
+  f.slider.fire('mouseleave');
+  f.document.hidden = true;
+  f.document.fire('visibilitychange');
+  f.document.hidden = false;
+  f.document.fire('visibilitychange');
+  f.motion.matches = true;
+  f.motion.fire('change');
+  f.motion.matches = false;
+  f.motion.fire('change');
+  assert.equal(f.timers.size, 0);
+  assert.equal(f.animations.at(-1).cancelled, true);
 });
 
-test('reduced motion prevents progress and explicit resume; a single slide needs no timer controls', () => {
+test('reduced motion prevents progress; a single slide needs no timer or progress', () => {
   const f = fixture({reduced: true});
-  f.toggle.fire('click');
   assert.equal(f.timers.size, 0);
   assert.equal(f.animations.length, 0);
-  assert.equal(f.toggle.disabled, true);
   const single = fixture({count: 1});
   assert.equal(single.track.hidden, true);
-  assert.equal(single.toggle.hidden, true);
+  assert.equal(single.timers.size, 0);
+  assert.equal(single.animations.length, 0);
 });
 
-test('the page exposes only a standalone pause, arrows and one noninteractive progress track', () => {
+test('pause markup, styles and logic are removed; desktop arrows and progress remain', () => {
   const html = readFileSync(new URL('../public/index.html', import.meta.url), 'utf8');
-  assert.equal((html.match(/data-hero-toggle\b/g) || []).length, 1);
+  const css = readFileSync(new URL('../public/styles.css', import.meta.url), 'utf8');
+  assert.doesNotMatch(html + css + code, /data-hero-(?:toggle|pause-icon|play-icon)|feature-slider__toggle|syncToggle|focusPaused/);
+  assert.equal((html.match(/data-hero-(?:prev|next)\b/g) || []).length, 2);
   assert.equal((html.match(/data-hero-progress-track\b/g) || []).length, 1);
   assert.doesNotMatch(html, /data-hero-dot|data-hero-counter|О тайтле/);
+});
+
+test('phone controls are hidden without hiding the desktop controls or the progress track', () => {
+  const css = readFileSync(new URL('../public/styles.css', import.meta.url), 'utf8');
+  const mobile = css.slice(css.indexOf('@media (max-width: 720px)'), css.indexOf('@media (max-width: 639px)'));
+  assert.match(mobile, /\.feature-slider__controls\s*\{\s*display:\s*none;\s*\}/);
+  assert.match(css.slice(0, css.indexOf('@media')), /\.feature-slider__controls\s*\{[^}]*display:\s*flex;/);
+  assert.doesNotMatch(mobile, /\.feature-slider__progress\s*\{[^}]*display:\s*none/);
+  assert.match(mobile, /padding: 64px 16px 24px/);
 });

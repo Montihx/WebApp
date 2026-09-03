@@ -57,7 +57,7 @@ test('both title counters are wired to the shared saved-state style without a pe
 });
 
 test('all changed stylesheet entry points and public scripts share the new cache version', () => {
-  const version = 'compact-controls-7';
+  const version = 'slider-mobile-cleanup-8';
   for (const page of ['public/index.html', 'public/anime.html', 'admin/index.html']) {
     assert.ok(read(page).includes(`./styles.css?v=${version}`), page);
     if (page.startsWith('public/')) assert.ok(read(page).includes(`./app.js?v=${version}`), page);

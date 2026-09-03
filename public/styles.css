@@ -1,4 +1,4 @@
-@import url("../tokens.css?v=compact-controls-7");
+@import url("../tokens.css?v=slider-mobile-cleanup-8");
 
 @font-face {
   font-family: "Onest";
@@ -1155,11 +1155,7 @@ html[data-theme="light"] .theme-icon--moon {
   height: 18px;
 }
 
-.feature-slider__toggle > span { display: grid; place-items: center; }
-.feature-slider__toggle > [hidden],
-.feature-slider__toggle[hidden],
 .feature-slider__progress[hidden] { display: none; }
-.feature-slider__toggle:disabled { opacity: 0.55; cursor: default; }
 .feature-slider__progress {
   position: absolute;
   z-index: 8;
@@ -5577,7 +5573,6 @@ img.is-image-error {
   }
 
   .button, .title-poster-actions .button { min-height: var(--control-touch-height); }
-  .feature-slider__arrow { width: var(--control-touch-height); height: var(--control-touch-height); }
 
   .bookmark-menu.bookmark-menu--sheet {
     position: fixed;
@@ -5812,7 +5807,7 @@ img.is-image-error {
     width: 100%;
     justify-content: flex-end;
     margin-left: 0;
-    padding: 64px 16px 72px;
+    padding: 64px 16px 24px;
   }
 
   .hero-copy h2 {
@@ -5844,10 +5839,7 @@ img.is-image-error {
   }
 
   .feature-slider__controls {
-    right: 20px;
-    bottom: 15px;
-    left: 20px;
-    transform: none;
+    display: none;
   }
 
   .content-section {

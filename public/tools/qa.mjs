@@ -211,7 +211,6 @@ const sliderCssTokens = [
   ".feature-slide.is-active",
   ".feature-slider__controls",
   ".feature-slider__nav",
-  ".feature-slider__toggle",
   ".feature-slider__progress",
   "touch-action: pan-y",
   "width: min(100%, 1600px)",
@@ -223,7 +222,7 @@ add(
   "css.heroSlider",
   "CSS: адаптивный hero-слайдер",
   missingSliderCss.length === 0,
-  missingSliderCss.length ? `Не найдены: ${missingSliderCss.join(", ")}` : "desktop hero использует центральный sharp-art 1600 px, симметричное растворение краёв и safe-area; стрелки доступны на desktop и mobile",
+  missingSliderCss.length ? `Не найдены: ${missingSliderCss.join(", ")}` : "desktop hero использует центральный sharp-art 1600 px, симметричное растворение краёв и safe-area; стрелки только на desktop, на mobile — свайпы",
 );
 
 const continueCssTokens = [
@@ -448,11 +447,10 @@ add(
     && indexSource.includes("data-hero-prev")
     && indexSource.includes("data-hero-next")
     && indexSource.includes("data-hero-live")
-    && count(indexSource, /data-hero-toggle\b/g) === 1
     && count(indexSource, /data-hero-progress-track\b/g) === 1
-    && !/data-hero-dot|data-hero-counter|О тайтле/.test(indexSource)
+    && !/data-hero-toggle|data-hero-dot|data-hero-counter|О тайтле/.test(indexSource)
     && indexSource.includes("feature-slider__nav"),
-  `${heroSlideCount} слайдов, отдельная пауза, стрелки, одна полоса прогресса и live-status; без плашки пагинации`,
+  `${heroSlideCount} слайдов, desktop-стрелки, одна полоса прогресса и live-status; без паузы и плашки пагинации`,
 );
 const continueCardCount = count(indexSource, /class="continue-card"/g);
 add(
