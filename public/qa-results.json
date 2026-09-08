@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-09-03T08:27:23.826Z",
+  "generated_at": "2026-09-08T09:33:07.568Z",
   "summary": {
     "status": "pass",
     "total": 47,
@@ -25,13 +25,13 @@
       "id": "index.html.ids",
       "label": "index.html: уникальные ID",
       "status": "pass",
-      "detail": "39 уникальных ID"
+      "detail": "42 уникальных ID"
     },
     {
       "id": "index.html.references",
       "label": "index.html: локальные ссылки",
       "status": "pass",
-      "detail": "59 локальных ссылок разрешены"
+      "detail": "51 локальных ссылок разрешены"
     },
     {
       "id": "index.html.aria",
@@ -49,7 +49,7 @@
       "id": "index.html.images",
       "label": "index.html: alt у изображений",
       "status": "pass",
-      "detail": "47 изображений проверено"
+      "detail": "37 изображений проверено"
     },
     {
       "id": "index.html.anchors",
@@ -67,7 +67,7 @@
       "id": "anime.html.ids",
       "label": "anime.html: уникальные ID",
       "status": "pass",
-      "detail": "67 уникальных ID"
+      "detail": "71 уникальных ID"
     },
     {
       "id": "anime.html.references",
@@ -79,7 +79,7 @@
       "id": "anime.html.aria",
       "label": "anime.html: ARIA-ссылки",
       "status": "pass",
-      "detail": "26 ссылок разрешены"
+      "detail": "27 ссылок разрешены"
     },
     {
       "id": "anime.html.buttons",
@@ -91,7 +91,7 @@
       "id": "anime.html.images",
       "label": "anime.html: alt у изображений",
       "status": "pass",
-      "detail": "19 изображений проверено"
+      "detail": "17 изображений проверено"
     },
     {
       "id": "anime.html.anchors",
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "1014 блоков, структура сбалансирована"
+      "detail": "1032 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -199,7 +199,7 @@
       "id": "css.tabularNums",
       "label": "CSS: tabular-nums на числовых узлах",
       "status": "pass",
-      "detail": "14 правил с tabular-nums"
+      "detail": "15 правил с tabular-nums"
     },
     {
       "id": "js.headerSearch",

@@ -16,7 +16,7 @@
 
 - `backend-go/cmd/api/main.go` — активные Go routes каталога, anime detail, episodes/releases, interactions, schedule history и notification reads.
 - `backend-go/internal/handlers/*` — response shapes и authorization текущего Go слоя.
-- `backend/app/api/v1/endpoints/anime.py` — Kodik playlist, skip-times и оставшиеся title routes.
+- `backend-go/internal/handlers/anime_player.go` — Kodik playlist и skip-times; GET зарегистрированы в активном Go router. `POST /watch-progress/sync` синхронизирует прогресс Kodik с авторизацией.
 - `backend/app/api/v1/endpoints/stream.py` — HLS proxy/master routes.
 - `backend/app/api/v1/endpoints/schedule.py` — calendar и history Python implementation.
 - `backend/app/api/v1/endpoints/notifications.py` — mark-read writes, пока они не зарегистрированы в Go.
@@ -52,5 +52,7 @@
 - маркировки «данные проверены/синхронизированы», которые нельзя доказать runtime response.
 
 ## Статические fixtures
+
+Повторная сверка 8 сентября 2026: порядок просмотра — вертикальные строки перед плеером, раскрытие/сворачивание, текущий тайтл, только локальные slug; поля года, формата, серий и оценки выводятся при наличии. Пустые связи скрывают блок. Расписание сохраняет конкретные даты, номер серии, время и минутный отсчёт; смена минуты не сбрасывает выбранную дату. Обновления используют дату релиза, серию и озвучку независимо друг от друга. Эти примеры не являются настоящим расписанием вещания. Слайдер сохраняет согласованный интервал 9 секунд, нижний прогресс, отсутствие паузы и мобильных стрелок.
 
 Названия и числа в HTML демонстрируют реальные поля и граничные состояния, но не являются текущими production данными. При переносе они заменяются responses существующих queries. Внешние poster URLs не входят в архив; production должен использовать API URLs и существующую image policy.

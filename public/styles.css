@@ -2345,6 +2345,10 @@ html[data-theme="light"] .theme-icon--moon {
 }
 
 .schedule-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-height: 580px;
   overflow: hidden;
   border: 0;
   border-radius: 0;
@@ -2389,6 +2393,9 @@ html[data-theme="light"] .theme-icon--moon {
 
 .schedule-list {
   padding: 0;
+  overflow-y: auto;
+  min-height: 0;
+  scrollbar-width: thin;
 }
 
 .schedule-item {
@@ -2438,6 +2445,12 @@ html[data-theme="light"] .theme-icon--moon {
   background: transparent;
   font-variant-numeric: tabular-nums;
 }
+
+.schedule-item time > span, .schedule-item time > b { display: block; text-align: right; }
+.schedule-item time > b { color: var(--text); font-size: 16px; }
+.schedule-countdown { font-variant-numeric: tabular-nums; }
+#schedule-days { flex: 0 0 auto; }
+#schedule-days .day-tab { flex: 0 0 62px; }
 
 .schedule-item small {
   display: inline-flex;
@@ -4999,74 +5012,28 @@ button.title-community-action:hover {
   scroll-snap-align: start;
 }
 
-.franchise-rail {
-  display: grid;
-  grid-auto-columns: 176px;
-  grid-auto-flow: column;
-  grid-template-columns: none;
-  gap: 16px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: thin;
-}
-
-.franchise-card {
-  scroll-snap-align: start;
-}
-
-.franchise-card.is-current .poster-frame {
-  border-color: var(--line-strong);
-  box-shadow: none;
-}
-
-.franchise-badge {
-  position: absolute;
-  z-index: 2;
-  top: 9px;
-  left: 9px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 24px;
-  padding: 0 8px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: var(--radius-sm);
-  background: rgba(13, 13, 15, 0.78);
-  color: #fff;
-  font-size: var(--type-meta);
-  font-weight: 700;
-}
-
-.franchise-badge svg {
-  width: 12px;
-  height: 12px;
-}
-
-.franchise-badge--current {
-  border-color: transparent;
-  background: var(--accent);
-  color: #fff;
-}
-
-.franchise-copy {
-  display: grid;
-  gap: 2px;
-  margin-top: 9px;
-}
-
-.franchise-copy h3 {
-  overflow: hidden;
-  color: var(--text);
-  font-size: var(--type-ui);
-  font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.franchise-copy span {
-  color: var(--text-muted);
-  font-size: var(--type-meta);
+.watch-order h2 { margin: 0; }
+.watch-order [hidden] { display: none; }
+#watch-order-toggle { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; padding: 12px 0; border: 0; background: none; color: var(--text); font: inherit; font-size: 15px; font-weight: 750; text-align: left; cursor: pointer; }
+#watch-order-toggle > span:first-child { display: flex; align-items: center; gap: 10px; }
+#watch-order-toggle svg { width: 18px; height: 18px; }
+#watch-order-count { font-size: 13px; font-weight: 500; color: var(--text-muted); white-space: nowrap; }
+.watch-order-chevron { transition: transform var(--ease); }
+[aria-expanded="false"] .watch-order-chevron { transform: rotate(-90deg); }
+#watch-order-list { padding: 0; margin: 12px 0 0; list-style: none; }
+#watch-order-list li + li { border-top: 1px solid var(--line); }
+.watch-order-row { display: flex; align-items: flex-start; gap: 20px; padding: 16px 0; color: var(--text); }
+a.watch-order-row:hover { background: var(--surface-hover); }
+.watch-order-row > img { width: 68px; height: 96px; flex: 0 0 auto; border-radius: var(--radius-sm); object-fit: cover; background: var(--surface-raised); }
+.watch-order-copy { min-width: 0; display: grid; gap: 8px; padding-top: 6px; }
+.watch-order-copy > strong { font-size: 16px; line-height: 1.4; overflow-wrap: anywhere; }
+.watch-order-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 13px; color: var(--text-secondary); }
+.watch-relation { font-weight: 600; }
+.watch-relation.is-current { color: var(--accent-text); }
+@media (max-width: 720px) {
+  .watch-order-row { gap: 16px; padding: 12px 0; }
+  .watch-order-row > img { width: 60px; height: 86px; }
+  .watch-order-copy > strong { font-size: 15px; }
 }
 
 .comments-layout {
@@ -5512,7 +5479,8 @@ img.is-image-error {
   }
 
   .schedule-item time {
-    display: none;
+    display: block;
+    white-space: nowrap;
   }
 
   .title-layout {

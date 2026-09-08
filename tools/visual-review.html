@@ -12,7 +12,7 @@ details { margin:8px 16px; }
 pre { white-space:pre-wrap; font-size:12px; }
 </style>
 <header>
-<label>Страница <select id="page"><option value="../public/index.html">Главная</option><option value="../public/anime.html">Тайтл</option><option value="../admin/index.html#overview">Админка — обзор</option><option value="../admin/index.html#catalog">Аниме</option><option value="../admin/index.html#episodes">Эпизоды</option><option value="../admin/index.html#releases">Релизы</option><option value="../admin/index.html#collections">Коллекции</option><option value="../admin/index.html#assets">Декорации и аватары</option><option value="../admin/index.html#anime-editor">Редактор аниме</option><option value="../admin/index.html#episode-editor">Редактор эпизода</option><option value="../admin/index.html#release-editor">Редактор релиза</option><option value="../admin/index.html#parsers">Парсер-центр</option><option value="../admin/index.html#imports">Поиск и импорт</option><option value="../admin/index.html#conflicts">Конфликты</option><option value="../admin/index.html#scheduler">Планировщик</option><option value="../admin/index.html#parser-settings">Настройки парсера</option><option value="../admin/index.html#moderation">Модерация</option><option value="../admin/index.html#users">Пользователи</option><option value="../admin/index.html#monitoring">Мониторинг</option><option value="../admin/index.html#settings">Настройки сайта</option><option value="../admin/index.html#backups">Резервные копии</option><option value="../admin/index.html#audit">Журнал аудита</option></select></label>
+<label>Страница <select id="page"><option value="../public/index.html">Главная</option><option value="../public/anime.html">Тайтл</option><option value="../public/anime.html?title=steins-gate">Тайтл — связанные аниме</option><option value="../public/anime.html?title=steins-gate-movie">Тайтл — фильм</option><option value="../public/anime.html?title=steins-gate-0">Тайтл — альтернативная история</option><option value="../admin/index.html#overview">Админка — обзор</option><option value="../admin/index.html#catalog">Аниме</option><option value="../admin/index.html#episodes">Эпизоды</option><option value="../admin/index.html#releases">Релизы</option><option value="../admin/index.html#collections">Коллекции</option><option value="../admin/index.html#assets">Декорации и аватары</option><option value="../admin/index.html#anime-editor">Редактор аниме</option><option value="../admin/index.html#episode-editor">Редактор эпизода</option><option value="../admin/index.html#release-editor">Редактор релиза</option><option value="../admin/index.html#parsers">Парсер-центр</option><option value="../admin/index.html#imports">Поиск и импорт</option><option value="../admin/index.html#conflicts">Конфликты</option><option value="../admin/index.html#scheduler">Планировщик</option><option value="../admin/index.html#parser-settings">Настройки парсера</option><option value="../admin/index.html#moderation">Модерация</option><option value="../admin/index.html#users">Пользователи</option><option value="../admin/index.html#monitoring">Мониторинг</option><option value="../admin/index.html#settings">Настройки сайта</option><option value="../admin/index.html#backups">Резервные копии</option><option value="../admin/index.html#audit">Журнал аудита</option></select></label>
 <label>Ширина <select id="width"><option>375</option><option>390</option><option>768</option><option selected>1440</option></select></label>
 <label>Высота <select id="height"><option>900</option><option>1800</option><option selected>3400</option></select></label>
 <label>Тема <select id="theme"><option value="dark">Тёмная</option><option value="light">Светлая</option></select></label>
@@ -27,9 +27,25 @@ const width=document.querySelector('#width');
 const height=document.querySelector('#height');
 const theme=document.querySelector('#theme');
 const status=document.querySelector('#review-status');
+let reviewObserver;
+let pendingFrame;
+function matchingOption(url) {
+  const current = new URL(url);
+  return [...page.options].find(option => {
+    const candidate = new URL(option.value, location.href);
+    return candidate.pathname === current.pathname && candidate.search === current.search && (!candidate.pathname.includes('/admin/') || candidate.hash === current.hash.split('/')[0]);
+  });
+}
+function syncPage() {
+  const option = matchingOption(frame.contentDocument.URL);
+  if (!option) return false;
+  page.value = option.value;
+  status.textContent = option.textContent;
+  return true;
+}
 function inspect(){
   const doc=frame.contentDocument, view=doc.defaultView;
-  if (!doc.body || doc.URL !== new URL(page.value, location.href).href) return;
+  if (!doc.body || !matchingOption(doc.URL)) return;
   const boxes=[...doc.querySelectorAll('[class]')].filter(el =>
     el.tagName !== 'BUTTON' && typeof el.className === 'string' &&
     /(?:icon|glyph|symbol)/.test(el.className) && el.querySelector(':scope > svg') && el.getBoundingClientRect().width > 0
@@ -37,6 +53,7 @@ function inspect(){
    .filter(el => el.background !== 'rgba(0, 0, 0, 0)' || el.border !== '0px');
   document.querySelector('#layout-report').textContent=JSON.stringify({
     page:page.selectedOptions[0].textContent,
+    url:doc.URL,
     viewport:view.innerWidth,
     height:view.innerHeight,
     theme:doc.documentElement.dataset.theme,
@@ -53,8 +70,7 @@ function applyTheme(){
 async function ready(){
   const doc=frame.contentDocument;
   await doc.fonts.ready;
-  if (doc !== frame.contentDocument || doc.URL !== new URL(page.value, location.href).href) return;
-  status.textContent=page.selectedOptions[0].textContent;
+  if (doc !== frame.contentDocument || !syncPage()) return;
   applyTheme();
 }
 function size(){
@@ -64,8 +80,18 @@ function size(){
 }
 page.addEventListener('change',()=>{status.textContent='Загрузка…'; frame.src=page.value;});
 frame.addEventListener('load',()=>{
-  applyTheme();
+  reviewObserver?.disconnect();
+  cancelAnimationFrame(pendingFrame);
+  const doc = frame.contentDocument;
+  // The app renders after pushState/replaceState; these do not emit hashchange.
+  // Observe the displayed view, not browser history APIs or app internals.
+  reviewObserver = new MutationObserver(() => {
+    cancelAnimationFrame(pendingFrame);
+    pendingFrame = requestAnimationFrame(() => { if (doc === frame.contentDocument && syncPage()) inspect(); });
+  });
+  if (doc.body) reviewObserver.observe(doc.querySelector('#view-root') || doc.body, { childList:true, subtree:true });
   frame.contentWindow.addEventListener('hashchange',ready);
+  frame.contentWindow.addEventListener('popstate',ready);
   ready();
 });
 theme.addEventListener('change',applyTheme);

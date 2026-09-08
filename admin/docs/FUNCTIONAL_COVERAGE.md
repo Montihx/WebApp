@@ -106,7 +106,8 @@ Trigger body содержит только `parser_name` и `job_type`.
 
 - `kodik / incremental`;
 - `kodik / full_sync`;
-- `shikimori / shikimori_related_refresh`.
+- `shikimori / shikimori_related_refresh`;
+- `shikimori / calendar_snapshot`.
 
 Другие Shikimori sync modes сейчас явно завершаются ошибкой worker. Targeted anime/poster refresh не являются job type этого trigger.
 
@@ -121,9 +122,9 @@ Schema: `parser_name`, `job_type`, `cron_expression`, `is_active`, IDs и run ti
 - create задаёт первый `next_run_at` примерно `now + 1h`, а не из cron;
 - update cron не пересчитывает `next_run_at`;
 - любой Kodik schedule dispatch идёт в mode `incremental`, даже если `job_type=full_sync`;
-- Shikimori schedule не формирует `related_refresh` mode и текущим worker не выполняется успешно.
+- Shikimori `calendar_snapshot` формирует одноимённый mode и поддерживается worker; `related_refresh` через scheduler по-прежнему не формируется.
 
-Поэтому UI разрешает создавать/включать/run-now только `kodik / incremental`, а существующие небезопасные строки показывает с `backend gap`. Расширять список можно после contract/runtime fix и тестов.
+Поэтому UI разрешает создавать/включать/run-now `kodik / incremental` и `shikimori / calendar_snapshot`, а существующие неподдерживаемые строки показывает с `backend gap`. Ручной запуск использует `/jobs/trigger`, запуск сохранённого расписания — `/scheduler/jobs/{id}/run-now`: это разные операции с разным отображением mode. Сверено с `modeForTrigger`, `modeForRunNow` и recovery worker оригинала на `c46ba4d`, 8 сентября 2026.
 
 ## Conflicts, moderation и blacklist
 

@@ -56,11 +56,12 @@ test('both title counters are wired to the shared saved-state style without a pe
   assert.match(rules(publicCss, '.title-mobile-count').join('\n'), /background:\s*transparent/);
 });
 
-test('all changed stylesheet entry points and public scripts share the new cache version', () => {
-  const version = 'quiet-controls-10';
+test('changed entry points use the parity cache version and unchanged tokens retain theirs', () => {
+  const version = 'original-parity-11';
   for (const page of ['public/index.html', 'public/anime.html', 'admin/index.html']) {
-    assert.ok(read(page).includes(`./styles.css?v=${version}`), page);
-    if (page.startsWith('public/')) assert.ok(read(page).includes(`./app.js?v=${version}`), page);
+    const cssVersion = page.startsWith('public/') ? version : 'quiet-controls-10';
+    assert.ok(read(page).includes(`./styles.css?v=${cssVersion}`), page);
+    assert.ok(read(page).includes(`./app.js?v=${version}`), page);
   }
-  for (const css of [publicCss, adminCss]) assert.ok(css.includes(`../tokens.css?v=${version}`));
+  for (const css of [publicCss, adminCss]) assert.ok(css.includes('../tokens.css?v=quiet-controls-10'));
 });

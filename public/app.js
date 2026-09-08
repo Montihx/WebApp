@@ -16,6 +16,8 @@
 
   const root = document.documentElement;
   const body = document.body;
+  const titleId = () => body.dataset.animeId || "19";
+  const episodeTotal = () => Number(body.dataset.episodesTotal) || 74;
   const $ = (selector, scope = document) => scope.querySelector(selector);
   const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)];
 
@@ -44,7 +46,7 @@
     searchRecentCleared: false,
     lastDrawerFocus: null,
     listStatus: "none",
-    subscription: storage.get("kitsu-demo-subscription", "none"),
+    subscription: storage.get(`kitsu-demo-subscription-${titleId()}`, titleId() === "19" ? storage.get("kitsu-demo-subscription", "none") : "none"),
     selectedEpisode: 1,
     loadedEpisodes: 6,
     playing: false,
@@ -407,7 +409,7 @@
     $$('[data-bookmark-card]').forEach((card) => {
       if (card.dataset.bookmarkId === cardId) syncBookmarkCard(card, normalized);
     });
-    if (cardId === "19") {
+    if (cardId === titleId()) {
       state.listStatus = normalized;
       syncListState();
     }
@@ -1039,7 +1041,6 @@
     initContinueRail();
     initSeasonLabel();
     const filters = $$('[data-filter]');
-    const cards = $$('.anime-card[data-status]');
     const grid = $("#anime-grid");
     const catalogCards = grid ? $$('.anime-card[data-status]', grid) : [];
     const catalogCount = $("#catalog-count");
@@ -1052,13 +1053,13 @@
           item.setAttribute("aria-selected", String(active));
           item.tabIndex = active ? 0 : -1;
         });
-        cards.forEach((card) => {
+        catalogCards.forEach((card) => {
           const values = (card.dataset.status || "").split(/\s+/);
           card.classList.toggle("is-filtered-out", filter !== "all" && !values.includes(filter));
         });
         if (catalogCount) {
           const visible = catalogCards.filter((card) => !card.classList.contains("is-filtered-out")).length;
-          catalogCount.textContent = `Показано ${visible} из 1 284`;
+          catalogCount.textContent = `Показано ${visible} из ${catalogCards.length} в примере`;
         }
       });
     });
@@ -1067,7 +1068,7 @@
       link.addEventListener("click", () => {
         closeAllMenus();
         scrollToTarget("#catalog");
-        showToast("Фильтр каталога", `Выбрано: ${link.textContent.trim()}. Полная выборка откроется в каталоге.`, "info");
+        filters.find(control => control.dataset.filter === link.dataset.filterLink)?.click();
       });
     });
 
@@ -1080,19 +1081,6 @@
         ordered.forEach((card) => grid.appendChild(card));
       });
     }
-
-    $$('[data-day]').forEach((control) => {
-      control.addEventListener("click", () => {
-        const day = control.dataset.day;
-        $$('[data-day]').forEach((item) => {
-          const active = item === control;
-          item.classList.toggle("is-active", active);
-          item.setAttribute("aria-selected", String(active));
-          item.tabIndex = active ? 0 : -1;
-        });
-        $$('[data-day-panel]').forEach((panel) => { panel.hidden = panel.dataset.dayPanel !== day; });
-      });
-    });
 
     $$('[data-remove-card]').forEach((control) => {
       control.addEventListener("click", () => {
@@ -1265,7 +1253,7 @@
     card.dataset.episode = String(number);
     card.setAttribute("aria-pressed", "false");
     card.innerHTML = `
-      <span class="episode-thumb"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span>
+      <span class="episode-thumb"><img src="${body.dataset.animePoster || "https://shikimori.one/system/animes/original/19.jpg"}" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span>
       <span class="episode-copy"><strong>Серия ${number}</strong><small>Сезон 1</small></span>
       <span class="episode-state"><i data-lucide="circle"></i></span>
     `;
@@ -1279,18 +1267,18 @@
     const button = $('[data-load-episodes]');
     if (!grid || !button) return;
     const start = state.loadedEpisodes + 1;
-    const end = Math.min(74, state.loadedEpisodes + 12);
+    const end = Math.min(episodeTotal(), state.loadedEpisodes + 12);
     const fragment = document.createDocumentFragment();
     for (let number = start; number <= end; number += 1) fragment.append(buildEpisodeCard(number));
     grid.append(fragment);
     state.loadedEpisodes = end;
     refreshIcons();
-    if (end >= 74) {
+    if (end >= episodeTotal()) {
       button.hidden = true;
-      showToast("Все серии показаны", "Список содержит 74 эпизода.", "info");
+      showToast("Все серии показаны", `Список содержит ${episodeTotal()} эпизодов.`, "info");
       return;
     }
-    $("small", button).textContent = `${end + 1}–${Math.min(74, end + 12)} из 74`;
+    $("small", button).textContent = `${end + 1}–${Math.min(episodeTotal(), end + 12)} из ${episodeTotal()}`;
   }
 
   function initTitleNames() {
@@ -1369,7 +1357,8 @@
         }
       } catch (_) {}
     }
-    state.listStatus = getBookmarkStatus("19");
+    state.listStatus = getBookmarkStatus(titleId());
+    state.loadedEpisodes = $$('[data-episode]').length;
     syncListState();
     syncSubscriptionState();
     syncPlayer();
@@ -1385,7 +1374,7 @@
     $('[data-close-mobile-list]')?.addEventListener("click", () => closeDialog($("#mobile-list-menu")));
     $$('[data-list-status]').forEach((control) => {
       control.addEventListener("click", () => {
-        if (!setBookmarkStatus("19", control.dataset.listStatus)) return;
+        if (!setBookmarkStatus(titleId(), control.dataset.listStatus)) return;
         closeMenu($("#list-trigger"), $("#list-menu"));
         closeDialog($("#mobile-list-menu"));
         showToast(state.listStatus === "none" ? "Удалено из списка" : "Список обновлён", state.listStatus === "none" ? "Тайтл больше не находится в ваших списках." : listLabels[state.listStatus]);
@@ -1420,7 +1409,7 @@
     });
     $$('[data-subscribe]').forEach((control) => {
       control.addEventListener("click", () => {
-        if (!storage.set("kitsu-demo-subscription", control.dataset.subscribe)) return;
+        if (!storage.set(`kitsu-demo-subscription-${titleId()}`, control.dataset.subscribe)) return;
         state.subscription = control.dataset.subscribe;
         syncSubscriptionState();
         const mobileDialog = $("#mobile-subscribe-menu");
@@ -1548,7 +1537,7 @@
     const prefix = "kitsu-demo-bookmark-status-";
     if (event.key === null) {
       const ids = new Set($$('[data-bookmark-card]').map(card => card.dataset.bookmarkId));
-      ids.add("19");
+      ids.add(titleId());
       ids.forEach(id => syncBookmarkStatus(id, getBookmarkStatus(id)));
     } else if (event.key === "kitsu-demo-list-status") {
       syncBookmarkStatus("19", getBookmarkStatus("19"));
