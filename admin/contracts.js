@@ -76,8 +76,23 @@
   }
   function localDateToUtc(value) {
     if (!value) return '';
-    const date = new Date(`${value}+05:00`);
-    return Number.isFinite(date.getTime()) ? date.toISOString() : null;
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?$/.test(value)) return null;
+    const normalized = value.length === 16 ? `${value}:00` : value;
+    const wall = Date.parse(`${normalized}Z`);
+    if (!Number.isFinite(wall) || new Date(wall).toISOString().slice(0, 19) !== normalized) return null;
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Almaty', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
+    });
+    const localStamp = stamp => {
+      const p = Object.fromEntries(formatter.formatToParts(new Date(stamp)).map(part => [part.type, part.value]));
+      return Date.parse(`${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}Z`);
+    };
+    // Sample either side of an offset transition. Repeated wall times use the earlier instant;
+    // nonexistent wall times are rejected instead of silently shifting an episode.
+    const offsets = new Set([-86400000, 0, 86400000].map(delta => localStamp(wall + delta) - (wall + delta)));
+    const candidates = [...offsets].map(offset => wall - offset).filter(stamp => localStamp(stamp) === wall).sort((a, b) => a - b);
+    return candidates.length ? new Date(candidates[0]).toISOString() : null;
   }
   window.KitsuAdminContracts = { operations, validUrl, validCron, fields, hydrate, read, errors, localDateToUtc };
 })();

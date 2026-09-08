@@ -8,7 +8,7 @@
 
   function initTitle() {
     const requested = new URLSearchParams(location.search).get('title');
-    const title = M.titles[requested] || M.titles.monster;
+    const title = Object.hasOwn(M.titles, requested) ? M.titles[requested] : M.titles.monster;
     document.body.dataset.animeId = title.id;
     document.body.dataset.episodesTotal = title.episodes_total;
     document.body.dataset.animePoster = title.poster_url;
@@ -18,7 +18,7 @@
       $('#title-name').nextElementSibling.textContent = title.title_en || '';
       $('.breadcrumbs span:last-child')?.replaceChildren(document.createTextNode(title.title));
       $('#mobile-list-title').textContent = title.title;
-      document.querySelectorAll('.title-backdrop img, .title-poster img, .title-poster-wrap img, .player-stage-art img, .episode-thumb img').forEach(img => { img.src = title.poster_url; img.alt = title.title; });
+      document.querySelectorAll('.title-backdrop img, .title-poster img, .title-poster-wrap img, .player-stage-art img, .episode-thumb img').forEach(img => { img.src = title.poster_url; img.alt = img.closest('.title-poster') ? title.title : ''; });
       const status = title.status || 'released';
       const statusLabel = {released:'Завершён',ongoing:'Онгоинг',announced:'Анонс'}[status];
       $('.title-status-line').innerHTML = `<span class="status-pill status-pill--${status}">${statusLabel}</span><span>${M.kindLabel(title.kind)}</span>${title.year ? `<span>${title.year}</span>` : ''}`;
@@ -40,7 +40,7 @@
       more.querySelector('small').textContent = `7–${Math.min(18, title.episodes_total)} из ${title.episodes_total}`;
       if (!title.episodes_total) {
         $('#player').hidden = true;
-        document.querySelectorAll('[data-watch]').forEach(button => { button.disabled = true; button.title = 'В демонстрационных данных пока нет эпизодов'; });
+        document.querySelectorAll('[data-scroll-player]').forEach(button => { button.disabled = true; button.title = 'В демонстрационных данных пока нет эпизодов'; });
       }
     }
     const section = $('#watch-order');
@@ -74,6 +74,7 @@
       item('steins-gate', 9253, 'Врата Штейна', 8, at(4, 23)),
     ]);
     let activeKey = M.dateKey(now);
+    let followToday = true;
     function renderDays() {
       const today = M.dateKey(new Date());
       const days = M.scheduleDays(schedule);
@@ -91,6 +92,7 @@
     }
     function selectDay(key, focus = false) {
       activeKey = key;
+      followToday = key === M.dateKey(new Date());
       $('#schedule-days').querySelectorAll('[role="tab"]').forEach(button => {
         const active = button.dataset.calendarDay === key;
         button.classList.toggle('is-active', active); button.setAttribute('aria-selected', String(active)); button.tabIndex = active ? 0 : -1;
@@ -120,7 +122,12 @@
     function refresh() {
       if (document.hidden) return;
       const today = M.dateKey(new Date());
-      if (today !== renderedDate) { renderDays(); renderedDate = today; }
+      if (today !== renderedDate) {
+        if (followToday) activeKey = today;
+        renderDays();
+        renderItems();
+        renderedDate = today;
+      }
       // Update only the clock text, preserving focused links and the date strip.
       $('#schedule-items').querySelectorAll('time').forEach(time => {
         const date = M.parseDateAsUtc(time.dateTime), diff = date - Date.now();
