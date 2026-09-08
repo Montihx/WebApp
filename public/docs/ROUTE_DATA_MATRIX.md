@@ -1,6 +1,6 @@
 # Route/data matrix
 
-Префикс для строк ниже: `/api/v1`. Владельцы повторно сверены с mirror ветки `main` 21 августа 2026 года и обязаны быть ещё раз проверены в фактической ветке переноса.
+Префикс для строк ниже: `/api/v1`. Владельцы повторно сверены 8 сентября 2026 года с активной регистрацией маршрутов Go backend на commit `c46ba4defe58fdf02a888acfa33c01dfc06f5cad`. Маршруты legacy Python отмечены отдельно: их наличие в текущем frontend не означает, что они уже перенесены в Go.
 
 | Method | Path | Owner | UI consumer | Integration rule |
 | --- | --- | --- | --- | --- |
@@ -12,13 +12,13 @@
 | GET | `/episodes/{id}/releases` | Go | fallback release selector | `source` отдельно от `translation_team` |
 | GET | `/anime/{slug}/last-update` | Go | last release label | optional поля не заменять вымышленной датой |
 | GET | `/anime/{slug}/translation-views` | Go | translator ordering/metadata | не превращать в общий view counter |
-| GET | `/anime/{slug}/kodik-playlist` | Python/hybrid | primary Kodik player | translators/seasons/episodes/iframe base |
-| GET | `/anime/{slug}/skip-times` | Python/hybrid | opening/ending controls | применять только при наличии диапазонов |
-| POST | `/anime/{slug}/translations/{id}/view` | Python/hybrid | translation view tracking | после реального playback start |
-| GET | `/stream/m3u8` | Python | native HLS source | параметры текущего consumer не угадывать |
-| GET | `/stream/master.m3u8` | Python | HLS master | сохранять proxy/error behavior |
+| GET | `/anime/{slug}/kodik-playlist` | Go | primary Kodik player | translators/seasons/episodes/iframe base |
+| GET | `/anime/{slug}/skip-times` | Go | opening/ending controls | применять только при наличии диапазонов |
+| POST | `/anime/{slug}/translations/{id}/view` | Legacy Python; в Go router отсутствует | translation view tracking | после реального playback start; перед переносом подтвердить wire contract |
+| GET | `/stream/m3u8` | Legacy Python; в Go router отсутствует | native HLS source | параметры текущего consumer не угадывать |
+| GET | `/stream/master.m3u8` | Legacy Python; в Go router отсутствует | HLS master | сохранять proxy/error behavior |
 | GET | `/schedule/history?days=7` | Go | прошедшие/изменённые релизы | `next_episode_at` optional |
-| GET | `/schedule/calendar` | Python/hybrid | будущие релизы | merge/dedupe остаётся в текущем owner до рефакторинга |
+| GET | `/schedule/calendar` | Legacy Python; в Go router отсутствует | будущие релизы | merge/dedupe остаётся в текущем owner до рефакторинга |
 | GET | `/interactions/watch-progress/continue` | Go, auth | главная «Продолжить» | guest local history и auth history не смешивать без sync |
 | DELETE | `/interactions/watch-progress/{item_id}` | Go, auth | убрать из истории | скрывать после успешного response |
 | PATCH | `/interactions/watch-progress/kodik` | Go, optional auth | progress player | local write всегда; API — по текущей auth semantics |
@@ -34,8 +34,8 @@
 | GET | `/interactions/collections/public` | Go, public | public collections | не показывать private collections |
 | GET | `/notifications/` | Go, auth | notification popover | unread/read fields из response |
 | GET | `/notifications/unread-count` | Go, auth | header badge | raw integer в текущем frontend consumer |
-| POST | `/notifications/mark-all-read` | Python/hybrid, auth | «Прочитать все» | Go route в audited registration отсутствует |
-| PATCH | `/notifications/{id}/read` | Python/hybrid, auth | read single item | owner повторно проверить после migration waves |
+| POST | `/notifications/mark-all-read` | Legacy Python; в Go router отсутствует, auth | «Прочитать все» | не показывать успешное действие без доступного endpoint |
+| PATCH | `/notifications/{id}/read` | Legacy Python; в Go router отсутствует, auth | read single item | повторно проверить после migration waves |
 | GET/PUT | `/users/me` | Go, auth | preferences/profile | merge `preferences`, не затирать соседние keys |
 
 ## Response fields used by the template

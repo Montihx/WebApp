@@ -2649,9 +2649,10 @@
       }
       if (actionTarget.dataset.action === 'validate-url-local') {
         const input=actionTarget.closest('.input-action')?.querySelector('input');
-        const valid=contracts.validUrl(input?.value || '');
+        const relative = !['url', 'embed_url'].includes(input?.name);
+        const valid=contracts.validUrl(input?.value || '', relative);
         if(input) input.setAttribute('aria-invalid',String(!valid));
-        toast(valid?'Формат URL корректен':'Некорректный URL',valid?'Доступность ресурса не проверялась.':'Укажите HTTP(S) URL или локальный /путь.',valid?'warning':'danger'); return;
+        toast(valid?'Формат URL корректен':'Некорректный URL',valid?'Доступность ресурса не проверялась.':relative?'Укажите HTTP(S) URL или локальный /путь.':'Укажите HTTP(S) URL.',valid?'warning':'danger'); return;
       }
       handleAction(actionTarget.dataset.action, actionTarget.dataset);
       return;

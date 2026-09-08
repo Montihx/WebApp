@@ -10,6 +10,59 @@ const M = window.KitsuContent;
 runInNewContext(read('admin/contracts.js'), {window, URL, Date});
 const C = window.KitsuAdminContracts;
 
+test('title lookup rejects inherited object members', () => {
+  const source = read('public/content.js');
+  const lookup = source.slice(source.indexOf('    const requested'), source.indexOf('    document.body.dataset.animeId'));
+  for (const slug of ['constructor', '__proto__', 'toString', 'unknown']) {
+    const context = {M, URLSearchParams, location: {search: `?title=${slug}`}};
+    runInNewContext(`${lookup}; result = title.slug;`, context);
+    assert.equal(context.result, 'monster');
+  }
+});
+
+test('no-episode disabling targets the real watch buttons and decorative alt remains empty', () => {
+  const source = read('public/content.js'), html = read('public/anime.html');
+  assert.equal((html.match(/data-scroll-player/g) || []).length, 2);
+  assert.match(source, /querySelectorAll\('\[data-scroll-player\]'\).*button.disabled = true/);
+  assert.match(source, /img.alt = img.closest\('\.title-poster'\) \? title.title : ''/);
+});
+
+test('midnight follows today but preserves an explicitly selected different day', () => {
+  const source = read('public/content.js');
+  const refresh = source.slice(source.indexOf('    function refresh()'), source.indexOf('    let timer'));
+  for (const followToday of [true, false]) {
+    const context = {
+      document: {hidden: false}, M: {dateKey: () => '2026-09-09'}, Date,
+      activeKey: '2026-09-08', renderedDate: '2026-09-08', followToday,
+      days: 0, items: 0, $: () => ({querySelectorAll: () => []}),
+    };
+    runInNewContext(`function renderDays(){days++;} function renderItems(){items++;} ${refresh}; refresh();`, context);
+    assert.equal(context.activeKey, followToday ? '2026-09-09' : '2026-09-08');
+    assert.equal(context.items, 1);
+    runInNewContext('refresh()', context);
+    assert.equal(context.items, 1, 'minute ticks do not replace focused links');
+  }
+});
+
+test('Almaty wall time uses historical offsets and validates dates', () => {
+  assert.equal(C.localDateToUtc('2023-09-03T12:30'), '2023-09-03T06:30:00.000Z');
+  assert.equal(C.localDateToUtc('2026-09-03T12:30'), '2026-09-03T07:30:00.000Z');
+  assert.equal(C.localDateToUtc('2024-02-29T23:30'), '2024-02-29T17:30:00.000Z');
+  assert.equal(C.localDateToUtc('2024-03-01T00:30'), '2024-02-29T19:30:00.000Z');
+  assert.equal(C.localDateToUtc('2023-02-29T12:30'), null);
+  assert.equal(C.localDateToUtc('2026-01-01T25:00'), null);
+});
+
+test('release format check uses the same relative URL policy as save', () => {
+  const source = read('admin/app.js');
+  assert.match(source, /const relative = !\['url', 'embed_url'\].includes\(input\?\.name\)/);
+  assert.match(source, /contracts.validUrl\(input\?\.value \|\| '', relative\)/);
+  for (const name of ['url', 'embed_url']) {
+    assert.equal(C.validUrl('/video/14', !['url', 'embed_url'].includes(name)), false);
+    assert.ok(C.errors('release', {[name]: '/video/14'}).some(error => error.startsWith(`${name}: нужен HTTP(S)`)));
+  }
+});
+
 test('search and continue entries retain their own title identity', () => {
   assert.equal(M.titles['attack-on-titan'].id, '16498');
   assert.match(read('public/content.js'), /\.landscape-card, \.search-result/);
@@ -75,7 +128,9 @@ test('watch order precedes the player and old fake franchise/CSS are removed', (
 test('schedule clock updates preserve focus and restart after bfcache restoration', () => {
   const source=read('public/content.js');
   const refresh=source.slice(source.indexOf('    function refresh()'),source.indexOf('    let timer'));
-  assert.doesNotMatch(refresh,/innerHTML|renderItems\(\)/);
+  assert.doesNotMatch(refresh,/innerHTML/);
+  assert.match(refresh,/if \(today !== renderedDate\)/);
+  assert.match(refresh,/if \(followToday\) activeKey = today/);
   assert.match(source,/event.persisted/);
   assert.match(source,/60000/);
   assert.match(source,/last_release_at/);
@@ -118,6 +173,25 @@ test('all 20 admin renderers and every content-tab variant produce markup', () =
       assert.doesNotMatch(html,/>undefined</,`${name}/${value}`);
     }
   }
+});
+test('every rendered admin data-action has a handler or delegated click contract', () => {
+  const admin=read('admin/app.js');
+  const context={window,location:{hash:''},document:{documentElement:{dataset:{}},querySelector(){return null},addEventListener(){}},URL,Date};
+  runInNewContext(admin.slice(0,admin.indexOf('  function refreshIcons()'))+'window.audit={renderers,state};})();',context);
+  const {renderers,state}=window.audit;
+  const variants={ 'anime-editor':['editorTab',['main','media','sources','review']], 'parser-settings':['parserSettingsTab',['general','kodik','shikimori','images','blacklist','schedule','advanced','player']], parsers:['parserTab',['jobs','logs','sources']], conflicts:['conflictTab',['pending','auto','resolved']], moderation:['moderationTab',['import','comments']], users:['usersTab',['accounts','roles']], assets:['assetTab',['avatars','decorations']] };
+  const actions=new Set();
+  for(const [name,render] of Object.entries(renderers)) {
+    state.currentView=name;
+    for(const value of (variants[name]?.[1] || ['default'])) {
+      if(variants[name]) state[variants[name][0]]=value;
+      for(const match of render().matchAll(/data-action="([^"]+)"/g)) actions.add(match[1]);
+    }
+  }
+  const handler=admin.slice(admin.indexOf('  function handleAction('),admin.indexOf('\n  document.addEventListener("click"'));
+  const delegated=new Set(['toggle-switch','validate-url-local']);
+  const unhandled=[...actions].filter(action=>!delegated.has(action)&&!handler.includes(`"${action}"`)&&!handler.includes(`'${action}'`));
+  assert.deepEqual(unhandled,[],`Unhandled admin actions: ${unhandled.join(', ')}`);
 });
 test('review harness follows actual DOM views and history navigation, including nested tabs', () => {
   const html=read('tools/visual-review.html');
