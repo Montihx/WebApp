@@ -299,6 +299,8 @@
 
   const [initialHashView, initialHashTab] = location.hash.slice(1).split("/");
 
+  const contracts = window.KitsuAdminContracts;
+  const formDrafts = new Map();
   const state = {
     currentView: initialHashView in viewMeta ? initialHashView : "overview",
     catalogQuery: "",
@@ -598,7 +600,7 @@
         return `<tr><td><button class="row-leading" data-action="view-job" data-id="${job.id}"><span class="job-glyph job-glyph--${job.status}">${icon(job.status === "running" ? "loader-circle" : job.status === "failed" ? "circle-x" : "check")}</span><span class="row-leading__copy"><strong>${job.source}</strong><span>${job.id} · ${job.scope}</span></span></button></td><td>${status(labelForStatus(job.status), toneForStatus(job.status))}</td><td>${progress}</td><td class="cell-muted">${job.records}</td><td class="cell-muted">${job.duration}</td><td>${rowActions(job.id, "job")}</td></tr>`;
       })
       .join("");
-    const jobsView = `<div class="parser-workspace"><aside class="source-matrix"><article class="source-mode source-mode--ready"><div class="source-mode__head"><span>KI</span><div><strong>Kodik incremental</strong><small>релизы и эпизоды</small></div>${status("Работает", "success")}</div><ul><li>Ручной и scheduled запуск</li><li>Live counters доступны</li><li>Каждый trigger создаёт новую job</li></ul><button class="button button--primary button--block" data-action="run-job">${icon("play")}Запустить incremental</button></article><article class="source-mode source-mode--manual"><div class="source-mode__head"><span>KF</span><div><strong>Kodik full sync</strong><small>полная сверка</small></div>${status("Только вручную", "warning")}</div><ul><li>Checkpoint / resume API нет</li><li>Длительность заранее неизвестна</li><li>Без live процента</li></ul><button class="button button--block" data-action="start-sync">${icon("refresh-cw")}Настроить запуск</button></article><article class="source-mode source-mode--ready"><div class="source-mode__head"><span>SR</span><div><strong>Related refresh</strong><small>Shikimori links</small></div>${status("Работает", "success")}</div><ul><li>Только ручной запуск</li><li>Live progress</li><li>Создаёт conflicts</li></ul><button class="button button--block" data-action="run-related-refresh">${icon("git-branch")}Обновить связи</button></article><article class="source-mode source-mode--disabled"><div class="source-mode__head"><span>SM</span><div><strong>Shikimori metadata</strong><small>incremental / full</small></div>${status("Не портировано", "neutral")}</div><ul><li>Worker возвращает ошибку</li><li>Нельзя планировать</li><li>Нет кнопки запуска</li></ul><button class="button button--block" disabled>Недоступно</button></article></aside><section class="panel panel--flush parser-table"><header class="panel-header"><div class="panel-title-group"><h2 class="panel-title">Журнал задач</h2><p class="panel-subtitle">Фактические поля progress и items_processed…items_failed</p></div><div class="panel-header__actions"><button class="button button--small" data-action="clear-jobs">${icon("trash-2")}Очистить журнал</button><button class="button button--small" data-action="refresh-jobs">${icon("refresh-cw")}Обновить</button></div></header><div class="table-toolbar"><div class="toolbar-leading"><label class="search-field">${icon("search")}<input placeholder="ID, источник или статус"></label><button class="filter-button">${icon("list-filter")}Статус</button></div><span class="timezone-chip">${icon("clock-3")}Asia/Almaty · UTC+5</span></div><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Задача</th><th>Статус</th><th>Прогресс</th><th>Результат</th><th>Время</th><th></th></tr></thead><tbody>${jobRows}</tbody></table></div></section></div>`;
+    const jobsView = `<div class="parser-workspace"><aside class="source-matrix"><article class="source-mode source-mode--ready"><div class="source-mode__head"><span>KI</span><div><strong>Kodik incremental</strong><small>релизы и эпизоды</small></div>${status("Работает", "success")}</div><ul><li>Ручной и scheduled запуск</li><li>Счётчики подтверждаются результатом job</li><li>Каждый trigger создаёт новую job</li></ul><button class="button button--primary button--block" data-action="run-job">${icon("play")}Запустить incremental</button></article><article class="source-mode source-mode--manual"><div class="source-mode__head"><span>KF</span><div><strong>Kodik full sync</strong><small>полная сверка</small></div>${status("Только вручную", "warning")}</div><ul><li>Checkpoint / resume API нет</li><li>Длительность заранее неизвестна</li><li>Без live процента</li></ul><button class="button button--block" data-action="start-sync">${icon("refresh-cw")}Настроить запуск</button></article><article class="source-mode source-mode--ready"><div class="source-mode__head"><span>SR</span><div><strong>Related refresh</strong><small>Shikimori links</small></div>${status("Работает", "success")}</div><ul><li>Только ручной запуск</li><li>Live progress</li><li>Создаёт conflicts</li></ul><button class="button button--block" data-action="run-related-refresh">${icon("git-branch")}Обновить связи</button></article><article class="source-mode source-mode--disabled"><div class="source-mode__head"><span>SM</span><div><strong>Shikimori metadata</strong><small>incremental / full</small></div>${status("Не портировано", "neutral")}</div><ul><li>Worker возвращает ошибку</li><li>Нельзя планировать</li><li>Нет кнопки запуска</li></ul><button class="button button--block" disabled>Недоступно</button></article></aside><section class="panel panel--flush parser-table"><header class="panel-header"><div class="panel-title-group"><h2 class="panel-title">Журнал задач</h2><p class="panel-subtitle">Фактические поля progress и items_processed…items_failed</p></div><div class="panel-header__actions"><button class="button button--small" data-action="clear-jobs">${icon("trash-2")}Очистить журнал</button><button class="button button--small" data-action="refresh-jobs">${icon("refresh-cw")}Обновить</button></div></header><div class="table-toolbar"><div class="toolbar-leading"><label class="search-field">${icon("search")}<input placeholder="ID, источник или статус"></label><button class="filter-button">${icon("list-filter")}Статус</button></div><span class="timezone-chip">${icon("clock-3")}Asia/Almaty · UTC+5</span></div><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Задача</th><th>Статус</th><th>Прогресс</th><th>Результат</th><th>Время</th><th></th></tr></thead><tbody>${jobRows}</tbody></table></div></section></div>`;
     const logsView = `<section class="log-console"><header><div><span class="section-kicker">REST snapshot</span><h2>Глобальный журнал worker</h2></div><div class="log-controls"><button class="filter-chip is-active">Все уровни</button><button class="filter-chip">Warning</button><button class="filter-chip">Error</button><button class="button button--small" data-action="refresh-jobs">${icon("refresh-cw")}Обновить</button></div></header><div class="log-stream"><p><time>11:00:42.218</time><span class="log-level log-level--info">INFO</span><code>job=#J-8412</code><span>kodik full sync: page fetched</span><b>page=41</b></p><p><time>11:00:41.934</time><span class="log-level log-level--info">INFO</span><code>job=#J-8412</code><span>batch committed</span><b>created=18 updated=76 skipped=4</b></p><p><time>10:59:58.102</time><span class="log-level log-level--warning">WARN</span><code>source=kodik</code><span>rate limit backoff</span><b>retry_in=2s</b></p><p><time>10:59:12.044</time><span class="log-level log-level--info">INFO</span><code>worker=parser-2</code><span>heartbeat</span><b>active_jobs=1</b></p><p><time>10:54:03.611</time><span class="log-level log-level--danger">ERROR</span><code>job=#J-8408</code><span>request failed after retry</span><b>source=kodik</b></p></div><footer><span>REST GET /logs · обновление по запросу</span><span>Показан контрактный снимок 5 строк</span></footer></section>`;
     const sourcesView = `<div class="integration-grid"><article class="integration-card"><div class="integration-card__icon">${icon("radio-tower")}</div><div><span class="section-kicker">Primary source</span><h3>Kodik API</h3><p>Каталог видео, эпизоды, релизы и translation metadata.</p></div><dl><dt>Конфигурация</dt><dd>${status("Подключена", "neutral")}</dd><dt>Health probe</dt><dd>Не предусмотрен</dd><dt>Данные</dt><dd>Из parser jobs/logs</dd></dl></article><article class="integration-card"><div class="integration-card__icon">${icon("network")}</div><div><span class="section-kicker">Identity source</span><h3>Shikimori API</h3><p>External IDs и related graph через ручной related refresh.</p></div><dl><dt>Конфигурация</dt><dd>${status("Подключена", "neutral")}</dd><dt>Health probe</dt><dd>Не предусмотрен</dd><dt>Metadata sync</dt><dd>${status("Не портирован", "neutral")}</dd></dl></article><article class="integration-card"><div class="integration-card__icon">${icon("database")}</div><div><span class="section-kicker">Persistence</span><h3>PostgreSQL</h3><p>Jobs, logs, conflicts и транзакционные изменения каталога.</p></div><dl><dt>Состояние</dt><dd>${status("Online", "success")}</dd><dt>Latency</dt><dd>12 ms</dd><dt>Проверка</dt><dd>SELECT 1</dd></dl></article><article class="integration-card"><div class="integration-card__icon">${icon("memory-stick")}</div><div><span class="section-kicker">Coordination</span><h3>Redis</h3><p>Cache, locks и координация фоновых процессов.</p></div><dl><dt>Ответ backend</dt><dd>${status("Online*", "warning")}</dd><dt>Health probe</dt><dd>Не выполняется</dd><dt>Ограничение</dt><dd>Статус hardcoded</dd></dl></article></div>`;
     const body =
@@ -699,7 +701,7 @@
   }
 
   function renderSchedulerReal() {
-    return `${heading({ eyebrow: "Потоки данных · ParserSchedule", title: "Планировщик", description: "Расписание оставлено только для поддерживаемого Kodik incremental; длинные операции запускаются вручную.", actions: actionButton("Новое расписание", "create-schedule", "plus", true) })}<div class="scheduler-layout"><section class="schedule-board"><article class="schedule-card schedule-card--active"><header><span class="schedule-symbol">KI</span><div><h3>Kodik incremental</h3><p>parser_name=kodik · job_type=incremental</p></div>${status("Активно", "success")}<button class="switch is-on" data-action="toggle-switch" aria-label="Kodik incremental включён"></button></header><div class="schedule-timing"><div><span>Cron expression</span><strong><code>*/30 * * * *</code></strong><small>каждые 30 минут</small></div><div><span>Последний запуск</span><strong>сегодня, 10:30</strong><small>completed · 06:18</small></div><div><span>Следующий запуск</span><strong>сегодня, 11:30</strong><small>Asia/Almaty · UTC+5</small></div></div><footer><button class="button button--small" data-action="run-job">${icon("play")}Запустить сейчас</button><button class="button button--small" data-action="edit-schedule">${icon("pencil")}Изменить cron</button></footer></article><article class="manual-operation"><span class="manual-operation__index">01</span><div><h3>Kodik full sync</h3><p>Ручной запуск; checkpoint/resume endpoint отсутствует. Не добавлять расписание без повторной проверки worker.</p></div>${status("Manual only", "warning")}<button class="button" data-action="start-sync">Запустить</button></article><article class="manual-operation"><span class="manual-operation__index">02</span><div><h3>Shikimori related refresh</h3><p>Ручной проход связей с live progress и conflict output.</p></div>${status("Manual only", "warning")}<button class="button" data-action="run-related-refresh">Запустить</button></article><article class="manual-operation manual-operation--disabled"><span class="manual-operation__index">03</span><div><h3>Shikimori metadata</h3><p>Incremental/full worker ещё не портирован в Go.</p></div>${status("Недоступно", "neutral")}<button class="button" disabled>Нет действия</button></article></section><aside class="scheduler-aside"><section class="panel"><span class="section-kicker">Поведение backend</span><h2 class="aside-title">Что важно при редактировании</h2><ul class="system-facts"><li>${icon("clock-4")}При создании <code>next_run_at</code> сначала равен now + 1h.</li><li>${icon("refresh-cw")}Cron рассчитывается при следующем recovery-проходе.</li><li>${icon("pencil")}Изменение cron не пересчитывает next_run_at мгновенно.</li><li>${icon("play")}Run now для schedule исполняет incremental.</li></ul></section><section class="timezone-panel"><span>Часовой пояс интерфейса</span><strong>Asia/Almaty</strong><small>UTC+5 · backend timestamps интерпретируются как UTC</small></section></aside></div>`;
+    return `${heading({ eyebrow: "Потоки данных · ParserSchedule", title: "Планировщик", description: "Kodik incremental и Shikimori calendar snapshot по расписанию; full sync и related refresh — вручную.", actions: actionButton("Новое расписание", "create-schedule", "plus", true) })}<div class="scheduler-layout"><section class="schedule-board"><article class="schedule-card schedule-card--active"><header><span class="schedule-symbol">KI</span><div><h3>Kodik incremental</h3><p>parser_name=kodik · job_type=incremental</p></div>${status("Активно", "success")}<button class="switch is-on" data-action="toggle-switch" aria-label="Kodik incremental включён"></button></header><div class="schedule-timing"><div><span>Cron expression</span><strong><code>*/30 * * * *</code></strong><small>каждые 30 минут</small></div><div><span>Последний запуск</span><strong>сегодня, 10:30</strong><small>last_run_at из ответа</small></div><div><span>Следующий запуск</span><strong>сегодня, 11:30</strong><small>Asia/Almaty · UTC+5</small></div></div><footer><button class="button button--small" data-action="run-schedule" data-id="schedule-kodik" data-operation="kodik:incremental">${icon("play")}Запустить сейчас</button><button class="button button--small" data-action="edit-schedule">${icon("pencil")}Изменить cron</button></footer></article><article class="schedule-card"><header><span class="schedule-symbol">SC</span><div><h3>Shikimori calendar snapshot</h3><p>parser_name=shikimori · job_type=calendar_snapshot</p></div><button class="switch is-on" data-action="toggle-switch" aria-label="Shikimori calendar snapshot включён"></button></header><div class="schedule-timing"><div><span>Cron expression</span><strong><code>0 4 * * *</code></strong><small>04:00 UTC · один раз в сутки</small></div><div><span>Что обновляет</span><strong>Календарь и next_episode_at</strong><small>Не импортирует каталог и не заменяет related refresh</small></div></div><footer><button class="button button--small" data-action="run-schedule" data-id="schedule-calendar" data-operation="shikimori:calendar_snapshot">Запустить сейчас</button><button class="button button--small" data-action="edit-schedule" data-operation="shikimori:calendar_snapshot">Изменить cron</button><button class="button button--small" data-action="delete-schedule" data-id="schedule-calendar">Удалить</button></footer></article><article class="manual-operation"><span class="manual-operation__index">01</span><div><h3>Kodik full sync</h3><p>Ручной запуск; checkpoint/resume endpoint отсутствует. Не добавлять расписание без повторной проверки worker.</p></div>${status("Manual only", "warning")}<button class="button" data-action="start-sync">Запустить</button></article><article class="manual-operation"><span class="manual-operation__index">02</span><div><h3>Shikimori related refresh</h3><p>Ручной проход связей с live progress и conflict output.</p></div>${status("Manual only", "warning")}<button class="button" data-action="run-related-refresh">Запустить</button></article><article class="manual-operation manual-operation--disabled"><span class="manual-operation__index">03</span><div><h3>Shikimori metadata</h3><p>Incremental/full worker ещё не портирован в Go.</p></div>${status("Недоступно", "neutral")}<button class="button" disabled>Нет действия</button></article></section><aside class="scheduler-aside"><section class="panel"><span class="section-kicker">Поведение backend</span><h2 class="aside-title">Что важно при редактировании</h2><ul class="system-facts"><li>${icon("clock-4")}При создании <code>next_run_at</code> сначала равен now + 1h.</li><li>${icon("refresh-cw")}Cron рассчитывается при следующем recovery-проходе.</li><li>${icon("pencil")}Изменение cron не пересчитывает next_run_at мгновенно.</li><li>${icon("play")}Kodik run-now исполняет incremental; Shikimori calendar_snapshot обновляет календарь.</li></ul></section><section class="timezone-panel"><span>Часовой пояс интерфейса</span><strong>Asia/Almaty</strong><small>UTC+5 · backend timestamps интерпретируются как UTC</small></section></aside></div>`;
   }
 
   function renderMonitoringReal() {
@@ -891,7 +893,7 @@
   }
 
   function renderReleaseEditorReal() {
-    return `<div class="editor-shell editor-shell--real"><header class="editor-topline"><div class="editor-topline__copy"><button class="back-link" data-view="releases">${icon("arrow-left")}Релизы</button><div><h1>Новый релиз</h1><p>Release form · источник, перевод и два URL-поля</p></div></div><div class="editor-actions"><button class="button" data-view="releases">Отмена</button><button class="button button--primary" data-action="save-release">${icon("save")}Сохранить Release</button></div></header><div class="editor-layout editor-layout--compact"><main class="editor-main"><section class="editor-section"><header><div><span class="section-kicker">Release · связи</span><h2>Аниме и эпизод</h2><p>Release сохраняет episode_id; Anime используется только для удобного выбора.</p></div></header><div class="form-grid form-grid--editor"><label class="field field--full"><span>Аниме</span><div class="entity-select"><span class="poster poster--tiny" style="--poster-a:#381932;--poster-b:#9a587f"><span>SL</span></span><span><strong>Поднятие уровня в одиночку 2</strong><small>sample response · вспомогательный выбор</small></span><button class="button button--small" data-action="choose-anime">Изменить</button></div></label><label class="field field--full"><span>Episode ID <b>*</b></span><select><option>EP-8413 · S2E14</option><option>EP-8412 · S2E13</option></select></label></div></section><section class="editor-section"><header><div><span class="section-kicker">Release · playback</span><h2>Источник воспроизведения</h2><p>url и embed_url сохраняются отдельно; backend не проверяет поток.</p></div><span class="unsupported-label">Без server validate/test-stream</span></header><div class="form-grid form-grid--editor"><label class="field"><span>Source <b>*</b></span><select><option>Kodik</option><option>Aniboom</option><option>Sibnet</option><option>other</option></select></label><label class="field"><span>Quality</span><select><option>1080p</option><option>720p</option><option>480p</option><option>auto</option></select></label><label class="field field--full"><span>URL <b>*</b></span><div class="input-action"><input value="https://kodik.info/video/498912/14"><button class="button" data-action="validate-url-local">Проверить формат</button></div></label><label class="field field--full"><span>Embed URL</span><div class="input-action"><input value="https://kodik.info/seria/498912/14"><button class="button" data-action="validate-url-local">Проверить формат</button></div></label><label class="field"><span>External ID</span><input value="498912:14:anilibria"></label><label class="field"><span>Verified</span><select><option>Да</option><option>Нет</option></select><small>is_verified — сохранённый boolean, не результат probe.</small></label></div></section><section class="editor-section"><header><div><span class="section-kicker">Release · translation</span><h2>Перевод</h2><p>Тип, команда и язык используются в выборе варианта плеера.</p></div></header><div class="form-grid form-grid--editor"><label class="field"><span>Translation type</span><select><option>voice</option><option>subtitles</option><option>raw</option></select></label><label class="field"><span>Translation language</span><input value="ru"></label><label class="field field--full"><span>Translation team</span><input value="AniLibria"></label></div><div class="switch-row"><span class="switch-copy"><strong>Активный релиз</strong><small>is_active=true · доступен как вариант плеера</small></span><button class="switch is-on" data-action="toggle-switch"></button></div></section></main><aside class="editor-rail"><section class="rail-card"><h3>Проверка URL</h3><div class="source-check"><span class="status-dot status-dot--warning"></span><div><strong>Только локальная URL schema</strong><p>Доступность источника неизвестна</p></div></div><dl class="definition-list"><dt>Source</dt><dd>Kodik</dd><dt>Quality</dt><dd>1080p</dd><dt>is_verified</dt><dd>true</dd></dl></section><section class="rail-card"><h3>Поля POST</h3><ul class="check-list"><li class="is-done">${icon("check")}episode_id</li><li class="is-done">${icon("check")}source + url</li><li class="is-done">${icon("check")}translation</li><li class="is-done">${icon("check")}is_active + is_verified</li></ul></section><section class="rail-card rail-card--success"><span>${icon("badge-check")}</span><div><strong>Форма заполнена</strong><p>Публичный плеер должен использовать только подтверждённую Release policy, а не собственные догадки.</p></div></section></aside></div></div>`;
+    return `<div class="editor-shell editor-shell--real"><header class="editor-topline"><div class="editor-topline__copy"><button class="back-link" data-view="releases">${icon("arrow-left")}Релизы</button><div><h1>Новый релиз</h1><p>Release form · источник, перевод и два URL-поля</p></div></div><div class="editor-actions"><button class="button" data-view="releases">Отмена</button><button class="button button--primary" data-action="save-release">${icon("save")}Сохранить Release</button></div></header><div class="editor-layout editor-layout--compact"><main class="editor-main"><section class="editor-section"><header><div><span class="section-kicker">Release · связи</span><h2>Аниме и эпизод</h2><p>Release сохраняет episode_id; Anime используется только для удобного выбора.</p></div></header><div class="form-grid form-grid--editor"><label class="field field--full"><span>Аниме</span><div class="entity-select"><span class="poster poster--tiny" style="--poster-a:#381932;--poster-b:#9a587f"><span>SL</span></span><span><strong>Поднятие уровня в одиночку 2</strong><small>sample response · вспомогательный выбор</small></span><button class="button button--small" data-action="choose-anime">Изменить</button></div></label><label class="field field--full"><span>Episode ID <b>*</b></span><select><option value="00000000-0000-4000-8000-000000008413">EP-8413 · S2E14</option><option value="00000000-0000-4000-8000-000000008412">EP-8412 · S2E13</option></select></label></div></section><section class="editor-section"><header><div><span class="section-kicker">Release · playback</span><h2>Источник воспроизведения</h2><p>url и embed_url сохраняются отдельно; backend не проверяет поток.</p></div><span class="unsupported-label">Без server validate/test-stream</span></header><div class="form-grid form-grid--editor"><label class="field"><span>Source <b>*</b></span><select><option>Kodik</option><option>Aniboom</option><option>Sibnet</option><option>other</option></select></label><label class="field"><span>Quality</span><select><option>1080p</option><option>720p</option><option>480p</option><option>auto</option></select></label><label class="field field--full"><span>URL <b>*</b></span><div class="input-action"><input value="https://kodik.info/video/498912/14"><button class="button" data-action="validate-url-local">Проверить формат</button></div></label><label class="field field--full"><span>Embed URL</span><div class="input-action"><input value="https://kodik.info/seria/498912/14"><button class="button" data-action="validate-url-local">Проверить формат</button></div></label><label class="field"><span>External ID</span><input value="498912:14:anilibria"></label><label class="field"><span>Verified</span><select><option>Да</option><option>Нет</option></select><small>is_verified — сохранённый boolean, не результат probe.</small></label></div></section><section class="editor-section"><header><div><span class="section-kicker">Release · translation</span><h2>Перевод</h2><p>Тип, команда и язык используются в выборе варианта плеера.</p></div></header><div class="form-grid form-grid--editor"><label class="field"><span>Translation type</span><select><option>voice</option><option>subtitles</option><option>raw</option></select></label><label class="field"><span>Translation language</span><input value="ru"></label><label class="field field--full"><span>Translation team</span><input value="AniLibria"></label></div><div class="switch-row"><span class="switch-copy"><strong>Активный релиз</strong><small>is_active=true · доступен как вариант плеера</small></span><button class="switch is-on" data-action="toggle-switch"></button></div></section></main><aside class="editor-rail"><section class="rail-card"><h3>Проверка URL</h3><div class="source-check"><span class="status-dot status-dot--warning"></span><div><strong>Только локальная URL schema</strong><p>Доступность источника неизвестна</p></div></div><dl class="definition-list"><dt>Source</dt><dd>Kodik</dd><dt>Quality</dt><dd>1080p</dd><dt>is_verified</dt><dd>true</dd></dl></section><section class="rail-card"><h3>Поля POST</h3><ul class="check-list"><li class="is-done">${icon("check")}episode_id</li><li class="is-done">${icon("check")}source + url</li><li class="is-done">${icon("check")}translation</li><li class="is-done">${icon("check")}is_active + is_verified</li></ul></section><section class="rail-card rail-card--success"><span>${icon("badge-check")}</span><div><strong>Форма заполнена</strong><p>Публичный плеер должен использовать только подтверждённую Release policy, а не собственные догадки.</p></div></section></aside></div></div>`;
   }
 
   function renderModerationReal() {
@@ -1549,7 +1551,62 @@
     setTimeout(finish, 90);
   }
 
+  function keepFormDraft() {
+    const key = viewRoot.dataset.draftKey;
+    if (!key) return;
+    const entries = [...viewRoot.querySelectorAll('input,select,textarea')].map(input => ({value:input.value,checked:input.checked}));
+    const switches = [...viewRoot.querySelectorAll('.switch')].map(control => control.classList.contains('is-on'));
+    formDrafts.set(key, { entries, switches });
+  }
+  function restoreFormDraft(root, key) {
+    const draft = formDrafts.get(key);
+    if (!draft) return;
+    [...root.querySelectorAll('input,select,textarea')].forEach((input, i) => {
+      if (draft.entries[i]) { input.value = draft.entries[i].value; input.checked = draft.entries[i].checked; }
+    });
+    [...root.querySelectorAll('.switch')].forEach((control, i) => {
+      control.classList.toggle('is-on', !!draft.switches[i]);
+      control.setAttribute('aria-checked', String(!!draft.switches[i]));
+    });
+  }
+  function hydrateFormDraft() {
+    contracts.hydrate(viewRoot);
+    const formView = ['anime-editor','episode-editor','release-editor','parser-settings','settings'].includes(state.currentView);
+    const key = formView ? state.currentView + ':' + (state.currentView === 'anime-editor' ? state.editorTab : state.currentView === 'parser-settings' ? state.parserSettingsTab : '') : '';
+    viewRoot.dataset.draftKey = key;
+    restoreFormDraft(viewRoot, key);
+    const date = viewRoot.querySelector('[name="aired_on"]'), year = viewRoot.querySelector('[name="year"]');
+    if (date && year) { const update=()=>{year.value=date.value.slice(0,4);};date.addEventListener('input',update);update(); }
+    const localDate = viewRoot.querySelector('[name="aired_at"]'), utc = viewRoot.querySelector('input[readonly]:not([name])');
+    if(localDate && utc) localDate.addEventListener('input',()=>{utc.value=contracts.localDateToUtc(localDate.value) || '';});
+  }
+  function previewForm(kind) {
+    const invalid = [...viewRoot.querySelectorAll('input,select,textarea')].find(input => !input.checkValidity());
+    if (invalid) { invalid.reportValidity(); return toast('Проверьте форму', 'Исправьте отмеченное поле.', 'danger'); }
+    keepFormDraft();
+    let payload = contracts.read(viewRoot);
+    if (kind === 'anime') {
+      payload = {};
+      const currentTab = state.editorTab;
+      try {
+        for (const tab of ['main', 'media', 'sources']) {
+          state.editorTab = tab;
+          const detached = document.createElement('div');
+          detached.innerHTML = renderAnimeEditorReal();
+          contracts.hydrate(detached);
+          restoreFormDraft(detached, `anime-editor:${tab}`);
+          Object.assign(payload, contracts.read(detached));
+        }
+      } finally { state.editorTab = currentTab; }
+    }
+    if(kind === 'episode') payload.anime_id = '00000000-0000-4000-8000-000000009253';
+    const errors = contracts.errors(kind, payload);
+    if(errors.length) return toast('Проверьте форму',errors.join('; '),'danger');
+    const json=JSON.stringify(payload,null,2).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+    return openDrawer({eyebrow:'Локальная проверка · запрос не отправлен',title:'Поля перед сохранением',body:'<p>Показаны фактические значения формы, включая черновики других вкладок. Уникальность, права и доступность URL проверяются только API. Демонстрационные идентификаторы не являются production ID.</p><pre class="payload-preview">'+json+'</pre>'});
+  }
   function renderCurrent({ focus = false } = {}) {
+    keepFormDraft();
     hideTooltip(true);
     viewRoot.innerHTML = `<div class="view-enter">${renderers[state.currentView]()}</div>`;
     document.querySelector("#breadcrumb-current").textContent =
@@ -1603,6 +1660,7 @@
         );
       });
     refreshIcons();
+    hydrateFormDraft();
     if (focus) viewRoot.focus({ preventScroll: true });
   }
 
@@ -1942,30 +2000,18 @@
       return navigate("episode-editor");
     if (action === "add-release" || action === "edit-release")
       return navigate("release-editor");
-    if (action === "preview-content")
-      return openDrawer({
-        eyebrow: "Локальная сводка · без API request",
-        title: "Изменения Anime",
-        body: `<section class="detail-section"><h4>PATCH payload preview</h4><dl class="definition-list"><dt>title</dt><dd>Поднятие уровня в одиночку 2</dd><dt>slug</dt><dd>solo-leveling-season-2</dd><dt>status</dt><dd>ongoing</dd><dt>needs_moderation</dt><dd>Сохраняется по backend rules</dd></dl></section><div class="truth-note">${icon("info")}<p>Публичная карточка здесь не эмулируется. В production preview открывает фактический /anime/[slug] после успешного чтения.</p></div>`,
-      });
-    if (action === "save-anime")
-      return toast(
-        "Anime form проверена",
-        "Production отправляет POST или PATCH; standalone запрос не выполняет",
-        "warning",
-      );
-    if (action === "save-episode")
-      return toast(
-        "Episode form проверена",
-        "Production отправляет POST /episodes; standalone запрос не выполняет",
-        "warning",
-      );
-    if (action === "save-release")
-      return toast(
-        "Release form проверена",
-        "Production отправляет POST /releases; URL health остаётся неизвестен",
-        "warning",
-      );
+    if (action === "preview-content" || action === "save-anime") return previewForm('anime');
+    if (action === "save-episode") return previewForm('episode');
+    if (action === "save-release") return previewForm('release');
+    if ((action === "open-filters" || action === "focus-filter") && state.currentView !== 'catalog') {
+      const labels = {parsers:'status/parser_name',episodes:'skip/limit',releases:'episode_id',audit:'skip/limit',users:'параметры users list'};
+      return openDialog({eyebrow:'Фильтр текущего раздела',title:'Поиск в загруженных строках',body:'<label class="field"><span>Текст</span><input id="loaded-row-query" placeholder="Текст в таблице"></label><p>Локальный поиск, без API запроса. Контракт раздела: '+(labels[state.currentView] || 'проверяется при интеграции')+'.</p>',confirm:'Применить',confirmAction:'apply-loaded-filter'});
+    }
+    if(action === 'apply-loaded-filter') {
+      const query=document.querySelector('#loaded-row-query').value.trim().toLocaleLowerCase('ru-RU');
+      viewRoot.querySelectorAll('tbody tr').forEach(row=>{row.hidden=!!query&&!row.textContent.toLocaleLowerCase('ru-RU').includes(query);});
+      closeTransient(); return;
+    }
     if (action === "open-filters" || action === "focus-filter")
       return openDialog({
         eyebrow: "Таблица · фильтры",
@@ -2043,7 +2089,7 @@
       return openDialog({
         eyebrow: "ParserJob · ручной запуск",
         title: "Запустить поддерживаемую операцию",
-        body: `<div class="form-grid"><label class="field field--full"><span>parser_name + job_type</span><select><option>kodik · incremental</option><option>kodik · full_sync</option><option>shikimori · shikimori_related_refresh</option></select><small>POST /jobs/trigger принимает только parser_name и job_type. Batch size и priority в request отсутствуют.</small></label></div><div class="truth-note truth-note--dialog">${icon("info")}<p><strong>Прогресс зависит от режима.</strong><br>Full sync не публикует промежуточный процент; related refresh публикует telemetry и может создать conflicts.</p></div>`,
+        body: `<div class="form-grid"><label class="field field--full"><span>parser_name + job_type</span><select><option>kodik · incremental</option><option>kodik · full_sync</option><option>shikimori · shikimori_related_refresh</option><option>shikimori · calendar_snapshot</option></select><small>POST /jobs/trigger принимает только parser_name и job_type. Batch size и priority в request отсутствуют.</small></label></div><div class="truth-note truth-note--dialog">${icon("info")}<p><strong>Прогресс зависит от режима.</strong><br>Full sync не публикует промежуточный процент; related refresh публикует telemetry и может создать conflicts.</p></div>`,
         confirm: "Создать задачу",
         confirmAction: "confirm-sync",
       });
@@ -2189,6 +2235,10 @@
       return navigate("parsers");
     }
     if (action === "run-job") return handleAction("start-sync", dataset);
+    if (action === 'run-schedule') return openDialog({eyebrow:'POST /dashboard/parsers/scheduler/jobs/{id}/run-now',title:'Запустить выбранное расписание?',body:'<p>'+contracts.operations[dataset.operation].label+'</p><p>Используется ID расписания, не jobs/trigger. Демонстрационный запрос не будет отправлен.</p>',confirm:'Подтвердить',confirmAction:'confirm-run-schedule'});
+    if (action === 'confirm-run-schedule') { closeTransient();return toast('Контракт run-now подтверждён','Запрос не отправлен; новая job появляется только после ответа API.','warning'); }
+    if (action === 'delete-schedule') return openDialog({eyebrow:'DELETE /dashboard/parsers/scheduler/jobs/{id}',title:'Удалить расписание?',body:'<p>Удаляется только выбранное расписание. История запусков не удаляется.</p>',confirm:'Удалить расписание',confirmAction:'confirm-delete-schedule',danger:true});
+    if(action === 'confirm-delete-schedule'){closeTransient();return toast('Демонстрация удаления','Запрос не отправлен.','warning');}
     if (action === "stop-job")
       return openDialog({
         eyebrow: "Парсер · остановка",
@@ -2241,12 +2291,11 @@
         "Production повторяет GET текущей queue; sample rows не изменены",
         "warning",
       );
-    if (action === "save-settings")
-      return toast(
-        "Пять значений проверены",
-        "Production отправляет один PATCH map; standalone запрос не выполняет",
-        "warning",
-      );
+    if (action === "save-settings") {
+      const inputs=[...viewRoot.querySelectorAll('input:not([type="color"])')];
+      if(!inputs[0]?.value.trim() || inputs.slice(1).some(input=>!/^#[0-9a-f]{6}$/i.test(input.value))) return toast('Проверьте настройки','Нужны название и два цвета в формате #RRGGBB.','danger');
+      return toast('Локальная проверка пройдена','Данные не отправлены. Backend только хранит настройки; применение не подтверждено.','warning');
+    }
     if (action === "save-parser-settings") {
       const raw =
         document.querySelector(".config-content textarea")?.value || "{}";
@@ -2311,11 +2360,12 @@
       return openDialog({
         eyebrow: "ParserSchedule · новая запись",
         title: "Создать расписание",
-        body: `<div class="form-grid"><label class="field field--full"><span>Поддерживаемая задача</span><select><option>Kodik · incremental</option></select><small>Full sync и Shikimori related refresh доступны только вручную.</small></label><label class="field field--full"><span>Cron expression</span><input value="*/30 * * * *"><small>Например: каждые 30 минут.</small></label><label class="field field--full"><span>Состояние</span><select><option>Активно</option><option>Выключено</option></select></label></div><div class="truth-note truth-note--dialog">${icon("clock-4")}<p>После создания <code>next_run_at</code> сначала будет now + 1h. Точный cron-time установит recovery-проход.</p></div>`,
+        body: `<div class="form-grid"><label class="field field--full"><span>Поддерживаемая задача</span><select id="schedule-operation"><option value="kodik:incremental">Kodik · incremental</option><option value="shikimori:calendar_snapshot">Shikimori · calendar snapshot</option></select><small>Full sync и Shikimori related refresh доступны только вручную.</small></label><label class="field field--full"><span>Cron expression</span><input id="schedule-cron" value="*/30 * * * *" required><small>Например: каждые 30 минут.</small></label><label class="field field--full"><span>Состояние</span><select><option>Активно</option><option>Выключено</option></select></label></div><div class="truth-note truth-note--dialog">${icon("clock-4")}<p>После создания <code>next_run_at</code> сначала будет now + 1h. Точный cron-time установит recovery-проход.</p></div>`,
         confirm: "Создать расписание",
         confirmAction: "confirm-schedule",
       });
     if (action === "confirm-schedule") {
+      if (!contracts.validCron(document.querySelector('#schedule-cron')?.value)) return toast('Некорректный cron','Нужны 5 корректных полей: минуты, часы, день, месяц, день недели.','danger');
       closeTransient();
       return toast(
         "Schedule payload проверен",
@@ -2327,11 +2377,12 @@
       return openDialog({
         eyebrow: "ParserSchedule · редактирование",
         title: "Изменить cron expression",
-        body: `<label class="field"><span>Cron expression</span><input value="*/30 * * * *"><small>Изменение cron не пересчитает текущий next_run_at мгновенно.</small></label>`,
+        body: `<label class="field"><span>Cron expression</span><input id="schedule-cron" value="${dataset.operation === 'shikimori:calendar_snapshot' ? '0 4 * * *' : '*/30 * * * *'}"><small>Изменение cron не пересчитает текущий next_run_at мгновенно.</small></label>`,
         confirm: "Сохранить cron",
         confirmAction: "confirm-schedule-edit",
       });
     if (action === "confirm-schedule-edit") {
+      if (!contracts.validCron(document.querySelector('#schedule-cron')?.value)) return toast('Некорректный cron','Проверьте пять полей и их диапазоны.','danger');
       closeTransient();
       return toast(
         "Cron payload проверен",
@@ -2595,6 +2646,12 @@
       if (actionTarget.dataset.action === "toggle-switch") {
         toggleSwitch(actionTarget);
         return;
+      }
+      if (actionTarget.dataset.action === 'validate-url-local') {
+        const input=actionTarget.closest('.input-action')?.querySelector('input');
+        const valid=contracts.validUrl(input?.value || '');
+        if(input) input.setAttribute('aria-invalid',String(!valid));
+        toast(valid?'Формат URL корректен':'Некорректный URL',valid?'Доступность ресурса не проверялась.':'Укажите HTTP(S) URL или локальный /путь.',valid?'warning':'danger'); return;
       }
       handleAction(actionTarget.dataset.action, actionTarget.dataset);
       return;

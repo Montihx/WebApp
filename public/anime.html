@@ -24,7 +24,7 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=quiet-controls-10" />
+    <link rel="stylesheet" href="./styles.css?v=original-parity-11" />
   </head>
   <body data-page="anime">
     <a class="skip-link" href="#main-content">К основному содержимому</a>
@@ -157,6 +157,12 @@
         </div>
       </section>
 
+      <section class="content-section watch-order" id="watch-order" aria-labelledby="franchise-title" hidden>
+        <div class="page-container">
+          <h2 id="franchise-title"><button type="button" id="watch-order-toggle" aria-expanded="true" aria-controls="watch-order-list"><span><i data-lucide="link"></i>Связанные аниме <i data-lucide="chevron-down" class="watch-order-chevron"></i></span><span id="watch-order-count"></span></button></h2>
+          <ol id="watch-order-list" aria-label="Порядок просмотра"></ol>
+        </div>
+      </section>
       <section class="content-section player-section" id="player" aria-labelledby="player-title">
         <div class="page-container">
           <div class="section-heading player-heading">
@@ -219,21 +225,6 @@
         </div>
       </section>
 
-      <section class="content-section" aria-labelledby="franchise-title">
-        <div class="page-container">
-          <div class="section-heading"><div><h2 id="franchise-title">Порядок просмотра</h2><p class="section-subtitle">Хронология истории «Монстра»</p></div></div>
-          <div class="franchise-rail">
-            <article class="franchise-card is-current" aria-current="true">
-              <a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="Постер «Монстр»" loading="lazy" referrerpolicy="no-referrer" /><span class="franchise-badge franchise-badge--current"><i data-lucide="play"></i>Смотрите сейчас</span></a>
-              <div class="franchise-copy"><h3>Монстр</h3><span>TV-сериал · 2004 · 74 эп.</span></div>
-            </article>
-            <article class="franchise-card">
-              <a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="Постер «Монстр: Другая история»" loading="lazy" referrerpolicy="no-referrer" /><span class="franchise-badge">Другая история</span></a>
-              <div class="franchise-copy"><h3>Монстр: Другая история</h3><span>OVA · 2008 · 1 эп.</span></div>
-            </article>
-          </div>
-        </div>
-      </section>
 
       <section class="content-section" aria-labelledby="related-title">
         <div class="page-container">
@@ -398,6 +389,8 @@
 
     <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
     <script src="./vendor/lucide.min.js"></script>
-    <script src="./app.js?v=quiet-controls-10"></script>
+    <script src="./content-model.js?v=original-parity-11"></script>
+    <script src="./content.js?v=original-parity-11"></script>
+    <script src="./app.js?v=original-parity-11"></script>
   </body>
 </html>

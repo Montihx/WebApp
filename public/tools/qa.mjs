@@ -117,12 +117,26 @@ add("css.themes", "CSS: две темы", /:root\s*{/.test(css) && /html\[data-t
 add("css.responsive", "CSS: адаптивность", [1279, 1180, 920, 720, 639, 460].every((value) => css.includes(`max-width: ${value}px`)), "контрольные точки 1279/1180/920/720/639/460 px");
 add("css.a11y", "CSS: доступность", css.includes(":focus-visible") && css.includes("prefers-reduced-motion"), "focus-visible и reduced-motion присутствуют");
 function mediaSource(maxWidth) {
-  const start = css.indexOf(`@media (max-width: ${maxWidth}px)`);
-  if (start === -1) return "";
-  const next = css.indexOf("@media", start + 1);
-  return css.slice(start, next === -1 ? css.length : next);
+  return mediaBlocks.filter(block => block.header === `@media (max-width: ${maxWidth}px)`).map(block => block.body).join("\n");
 }
-const baseCss = css.slice(0, css.indexOf("@media (max-width"));
+const mediaBlocks = [];
+let baseCss = "";
+let cursor = 0;
+for (const match of css.matchAll(/@media\s+[^{}]+\{/g)) {
+  if (match.index < cursor) continue;
+  let end = match.index + match[0].length;
+  const bodyStart = end;
+  let depth = 1;
+  while (end < css.length && depth) {
+    if (css[end] === "{") depth++;
+    if (css[end] === "}") depth--;
+    end++;
+  }
+  baseCss += css.slice(cursor, match.index);
+  mediaBlocks.push({ header: match[0].slice(0, -1).trim(), body: css.slice(bodyStart, end - 1) });
+  cursor = end;
+}
+baseCss += css.slice(cursor);
 const posterDensityChecks = [
   /\.anime-grid\s*{[^}]*repeat\(7,/s.test(baseCss),
   /\.anime-grid\s*{[^}]*repeat\(6,/s.test(mediaSource(1279)),
@@ -366,7 +380,7 @@ add("css.fonts", "CSS: локальные шрифты", fontUrls.length >= 20 &
 add("css.noOutfit", "CSS: нет безкириллической гарнитуры", !/Outfit/.test(css), "Outfit удалён из styles.css");
 add("css.tabularNums", "CSS: tabular-nums на числовых узлах", css.includes("font-variant-numeric: tabular-nums"), `${count(css, /font-variant-numeric: tabular-nums/g)} правил с tabular-nums`);
 
-const js = read("app.js");
+const js = read("app.js") + "\n" + read("content.js");
 add(
   "js.headerSearch",
   "JS: non-modal поиск",
@@ -378,7 +392,7 @@ const jsCapabilities = [
   "data-open-search",
   "mobile-menu-trigger",
   "data-filter",
-  "data-day",
+  "data-calendar-day",
   "data-list-status",
   "data-subscribe",
   "data-episode",

@@ -41,7 +41,7 @@
 ### Parser jobs
 
 - `POST /jobs/trigger` принимает только `parser_name` и `job_type`.
-- Поддержанные ручные пары: `kodik/incremental`, `kodik/full_sync`, `shikimori/shikimori_related_refresh`.
+- Поддержанные ручные пары: `kodik/incremental`, `kodik/full_sync`, `shikimori/shikimori_related_refresh`, `shikimori/calendar_snapshot`.
 - Kodik full sync не публикует надёжный промежуточный percentage/counters; итог появляется после завершения.
 - Checkpoint/resume endpoint не найден.
 - Логи читаются отдельным REST route; WebSocket публикует telemetry/stats, а не полный log stream.
@@ -51,9 +51,13 @@
 - create первоначально задаёт `next_run_at` примерно `now + 1h`, затем recovery уточняет cron-time;
 - PATCH cron не пересчитывает `next_run_at` сразу;
 - Kodik scheduled dispatch фактически incremental;
-- Shikimori schedule не формирует рабочий related-refresh mode.
+- Shikimori `calendar_snapshot` поддержан в scheduled dispatcher и recovery worker; related-refresh остаётся ручным.
 
-До backend исправления UI не обещает другие schedule modes.
+В форме расписания доступны Kodik incremental и Shikimori calendar snapshot. Kodik full_sync по расписанию фактически запускает incremental, поэтому полный импорт предлагается только вручную. Основание: `modeForTrigger`, `modeForRunNow` и `RunSchedulerRecovery` оригинала `c46ba4d`.
+
+## Повторная сверка 8 сентября 2026
+
+Новые локальные формы валидируют обязательные поля, числа и URL и показывают payload, но не выполняют серверную запись. Черновик редактора аниме сохраняется при смене вкладок. Фильтры каталога не открываются в таблицах других сущностей. Подробности и границы проверки: `../../docs/ORIGINAL_PARITY_AUDIT.md` в исходном репозитории.
 
 ### Settings
 

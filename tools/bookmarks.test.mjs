@@ -14,7 +14,7 @@ function node(dataset = {}) {
     querySelector(selector) {return this.children[selector] || null},
     querySelectorAll(selector) {return this.children[selector] || []}};
 }
-function fixture({failStorage = false} = {}) {
+function fixture({failStorage = false, animeId = '19'} = {}) {
   const stored = new Map(), events = [], desktop = node(), mobile = node();
   desktop.children['.title-list-icon'] = node();
   const options = [...statuses, 'none'].map(listStatus => {
@@ -38,6 +38,7 @@ function fixture({failStorage = false} = {}) {
     '[data-bookmark-card]': cards, '[data-title-bookmark-count]': counters});
   document.dispatchEvent = event => events.push(event.type);
   const context = createContext({document, bookmarkSheetQuery: {matches: true}, state: {listStatus: 'none'},
+    body: {dataset: {animeId}},
     storage: {get(key, fallback = null) {return stored.get(key) ?? fallback}, set(key, value) {if (failStorage) return false; stored.set(key, value); return true}},
     $: (selector, scope = document) => scope.querySelector(selector),
     $$: (selector, scope = document) => scope.querySelectorAll(selector),
@@ -48,7 +49,8 @@ function fixture({failStorage = false} = {}) {
   const paint = source.slice(source.indexOf('  function syncBookmarkCard'), source.indexOf('  function initBookmarks'));
   const listLabels = source.slice(source.indexOf('  const listLabels'), source.indexOf('  const subscriptionLabels'));
   const title = source.slice(source.indexOf('  function syncListState'), source.indexOf('  function syncSubscriptionState'));
-  new Script(constants + readStatus + paint + listLabels + title).runInContext(context);
+  const titleIdentity = source.match(/  const titleId = .*;/)[0];
+  new Script(titleIdentity + constants + readStatus + paint + listLabels + title).runInContext(context);
   return {context, stored, events, desktop, mobile, options, cards, counters, titleLabel, mobileLabel};
 }
 
@@ -79,6 +81,15 @@ test('every status updates desktop, mobile and duplicate cards immediately', () 
     assert.equal(f.stored.get('kitsu-demo-bookmark-status-19'), status);
   });
   assert.equal(f.events.length, 5);
+});
+
+test('a related title has its own bookmark status, independent of Monster', () => {
+  const f = fixture({animeId: '9253'});
+  f.context.setBookmarkStatus('9253', 'planned');
+  assert.equal(f.titleLabel.textContent, 'Запланировано');
+  f.context.setBookmarkStatus('19', 'completed');
+  assert.equal(f.titleLabel.textContent, 'Запланировано');
+  assert.equal(f.stored.get('kitsu-demo-bookmark-status-9253'), 'planned');
 });
 
 test('removal resets the title controls, hides poster label and clears selected options', () => {
