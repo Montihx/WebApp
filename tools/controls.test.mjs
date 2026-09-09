@@ -56,10 +56,36 @@ test('both title counters are wired to the shared saved-state style without a pe
   assert.match(rules(publicCss, '.title-mobile-count').join('\n'), /background:\s*transparent/);
 });
 
+test('every standard home poster keeps a permanently visible bookmark control', () => {
+  const html = read('public/index.html');
+  const cards = html.match(/<article class="anime-card"[\s\S]*?<\/article>/g) || [];
+  assert.ok(cards.length >= 10);
+  for (const card of cards) assert.match(card, /data-bookmark\b/);
+  assert.doesNotMatch(html, /landscape-count"><i data-lucide="bookmark"/);
+
+  const button = rules(publicCss, '.bookmark-button.poster-bookmark-button').join('\n');
+  assert.match(button, /position:\s*absolute/);
+  assert.match(button, /top:\s*8px/);
+  assert.match(button, /right:\s*8px/);
+  assert.doesNotMatch(button, /(?:display:\s*none|visibility:\s*hidden|opacity:\s*0)/);
+});
+
+test('home section DOM order matches the visual editorial flow', () => {
+  const html = read('public/index.html');
+  const order = ['continue', 'schedule', 'stories', 'season', 'catalog', 'collections']
+    .map(id => html.indexOf(`id="${id}"`));
+  assert.ok(order.every((position, index) => position >= 0 && (index === 0 || position > order[index - 1])));
+  assert.doesNotMatch(publicCss, /body\[data-page="home"\]\s+#(?:continue|schedule|stories|season|catalog|collections)\s*\{[^}]*\border:/s);
+});
+
 test('changed styles use a fresh cache version and unchanged scripts retain theirs', () => {
   const version = 'original-parity-11';
   for (const page of ['public/index.html', 'public/anime.html', 'admin/index.html']) {
-    const cssVersion = page.startsWith('public/') ? 'details-control-12' : 'quiet-controls-10';
+    const cssVersion = page === 'public/index.html'
+      ? 'editorial-home-14'
+      : page === 'public/anime.html'
+        ? 'details-control-12'
+        : 'quiet-controls-10';
     assert.ok(read(page).includes(`./styles.css?v=${cssVersion}`), page);
     assert.ok(read(page).includes(`./app.js?v=${version}`), page);
   }
