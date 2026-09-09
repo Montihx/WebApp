@@ -24,7 +24,7 @@
 - [ ] Asset upload требует существующий entity id, допустимый MIME и ≤5 MB.
 - [ ] Collections admin list read-only.
 - [ ] Job trigger принимает только parser_name/job_type и safe pairs.
-- [ ] Scheduler разрешает create/enable/run только Kodik incremental до backend fix.
+- [ ] Scheduler разрешает create/enable/run только подтверждённые пары Kodik incremental и Shikimori calendar_snapshot.
 - [ ] Moderation правильно показывает approved/skipped/skipped_ids.
 - [ ] Blacklist использует только Shikimori ID/Kodik ID/slug.
 - [ ] Comments не показывают reports/total/review metrics.

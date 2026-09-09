@@ -281,6 +281,8 @@ const titleMobileLayoutChecks = [
   /\.title-hero\s*{[^}]*overflow:\s*visible/s.test(baseCss),
   /\.title-hero\s*{[^}]*overflow:\s*hidden/s.test(mediaSource(720)),
   /\.title-layout\s*{[^}]*grid-template-columns:\s*340px/s.test(baseCss),
+  /\.title-description button\s*{[^}]*width:\s*128px[^}]*background:\s*transparent[^}]*transition:\s*color/s.test(baseCss),
+  /@media \(hover:\s*hover\) and \(pointer:\s*fine\)\s*{[\s\S]*?\.title-description button:hover\s*{[^}]*background:\s*transparent/s.test(css),
 ];
 add(
   "css.titleMobile",
