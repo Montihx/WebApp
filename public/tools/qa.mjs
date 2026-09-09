@@ -227,16 +227,18 @@ const sliderCssTokens = [
   ".feature-slider__nav",
   ".feature-slider__progress",
   "touch-action: pan-y",
-  "width: min(100%, 1600px)",
-  "#000 15%, #000 85%",
-  "height: 460px",
+  "body[data-page=\"home\"] .feature-slide__art",
+  "width:min(46vw,690px)",
+  "right:max(var(--page-gutter)",
+  "mask-image:linear-gradient(90deg,transparent 0%,#000 24%,#000 100%)",
+  "height:520px",
 ];
 const missingSliderCss = sliderCssTokens.filter((token) => !css.includes(token));
 add(
   "css.heroSlider",
   "CSS: адаптивный hero-слайдер",
   missingSliderCss.length === 0,
-  missingSliderCss.length ? `Не найдены: ${missingSliderCss.join(", ")}` : "desktop hero использует центральный sharp-art 1600 px, симметричное растворение краёв и safe-area; стрелки только на desktop, на mobile — свайпы",
+  missingSliderCss.length ? `Не найдены: ${missingSliderCss.join(", ")}` : "desktop hero использует правый focus-art до 690 px и защитную маску текста; стрелки только на desktop, на mobile — свайпы",
 );
 
 const continueCssTokens = [
@@ -439,6 +441,14 @@ add(
 
 const indexSource = read("index.html");
 const animeSource = read("anime.html");
+const homeSectionOrder = ["continue", "schedule", "stories", "season", "catalog", "collections"]
+  .map((id) => indexSource.indexOf(`id="${id}"`));
+add(
+  "html.homeSectionOrder",
+  "HTML: сценарный порядок секций главной",
+  homeSectionOrder.every((position, index) => position >= 0 && (index === 0 || position > homeSectionOrder[index - 1])),
+  "continue → schedule → stories → season → catalog → collections закреплены в DOM без CSS-перестановки",
+);
 const posterFactsChecks = [
   !indexSource.includes('class="score-badge"'),
   !indexSource.includes('class="episode-badge"'),

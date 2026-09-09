@@ -6531,15 +6531,6 @@ img.is-image-error {
 .bookmark-menu .bookmark-menu__check {color:var(--bookmark-text)}
 
 /* Home reconstruction: editorial streaming hierarchy with database depth. */
-body[data-page="home"] main { display:flex; flex-direction:column; }
-body[data-page="home"] .hero-section { order:1; }
-body[data-page="home"] #continue { order:2; }
-body[data-page="home"] #schedule { order:3; }
-body[data-page="home"] #stories { order:4; }
-body[data-page="home"] #season { order:5; }
-body[data-page="home"] #catalog { order:6; }
-body[data-page="home"] #collections { order:7; }
-
 body[data-page="home"] .content-section { padding-block:clamp(42px,6vw,88px); }
 body[data-page="home"] .section-heading { margin-bottom:clamp(24px,3vw,38px); }
 body[data-page="home"] .section-heading h2,
