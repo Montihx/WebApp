@@ -74,6 +74,14 @@ Pattern отклоняется, если он:
 - Duration: преимущественно 120–220 ms.
 - Reduced motion: content остаётся полностью понятным без transitions.
 
+## Матрица текущей ревизии
+
+- `25` вариантов экранов (`5` public и `20` admin) проверяются на `375` и `1440 px` в light/dark: всего `100` конфигураций.
+- Проверка отклоняет горизонтальное переполнение и служебные icon/glyph/symbol wrappers с декоративной рамкой или подложкой.
+- Disclosure-действие описания сохраняет размер и позицию между «Подробнее» и «Свернуть»; pointer/touch не добавляет фоновую pill-подложку, keyboard focus остаётся видимым.
+- Градиенты допустимы только как media/poster legibility layer или предметный indeterminate progress; для canvas, admin panels, карточек, текста и служебных иконок они запрещены.
+- Автоматическая layout matrix не доказывает работу всех mutations: операции и состояния проходят отдельные contract/unit/browser проверки.
+
 ## Ссылки для повторной проверки
 
 - Magic UI: https://magicui.design/docs/components

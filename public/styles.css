@@ -4225,7 +4225,7 @@ button.title-community-action:hover {
 
 .title-description button {
   display: flex;
-  width: fit-content;
+  width: 128px;
   min-height: 44px;
   align-items: center;
   justify-content: center;
@@ -4236,12 +4236,20 @@ button.title-community-action:hover {
   color: var(--accent-text);
   font-size: 14px;
   font-weight: 650;
-  transition: color var(--ease), background var(--ease);
+  border: 0;
+  background: transparent;
+  transition: color var(--ease);
 }
 
-.title-description button:is(:hover, :focus-visible) {
-  background: var(--surface-hover);
-  color: var(--text);
+@media (hover: hover) and (pointer: fine) {
+  .title-description button:hover {
+    background: transparent;
+    color: var(--text);
+  }
+}
+
+.title-description button:focus-visible {
+  background: transparent;
 }
 
 .title-description button svg {
