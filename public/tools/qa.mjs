@@ -441,13 +441,13 @@ add(
 
 const indexSource = read("index.html");
 const animeSource = read("anime.html");
-const homeSectionOrder = ["continue", "schedule", "stories", "season", "catalog", "collections"]
+const homeSectionOrder = ["catalog", "season", "schedule", "continue", "stories", "collections"]
   .map((id) => indexSource.indexOf(`id="${id}"`));
 add(
   "html.homeSectionOrder",
   "HTML: сценарный порядок секций главной",
   homeSectionOrder.every((position, index) => position >= 0 && (index === 0 || position > homeSectionOrder[index - 1])),
-  "continue → schedule → stories → season → catalog → collections закреплены в DOM без CSS-перестановки",
+  "catalog → season → schedule → continue → stories → collections закреплены в DOM без CSS-перестановки",
 );
 const posterFactsChecks = [
   !indexSource.includes('class="score-badge"'),

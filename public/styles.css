@@ -6596,8 +6596,8 @@ body[data-page="home"] .schedule-intro {
 }
 body[data-page="home"] .schedule-intro .section-subtitle { text-align:right; }
 body[data-page="home"] .schedule-updates-grid {
-  grid-template-columns:minmax(0,1.18fr) minmax(340px,.82fr);
-  gap:clamp(36px,6vw,88px);
+  grid-template-columns:minmax(0,1fr);
+  gap:clamp(48px,7vw,96px);
 }
 body[data-page="home"] .schedule-head { padding-bottom:22px; }
 body[data-page="home"] .schedule-item {

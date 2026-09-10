@@ -72,17 +72,19 @@ test('every standard home poster keeps a permanently visible bookmark control', 
 
 test('home section DOM order matches the visual editorial flow', () => {
   const html = read('public/index.html');
-  const order = ['continue', 'schedule', 'stories', 'season', 'catalog', 'collections']
+  const order = ['catalog', 'season', 'schedule', 'continue', 'stories', 'collections']
     .map(id => html.indexOf(`id="${id}"`));
   assert.ok(order.every((position, index) => position >= 0 && (index === 0 || position > order[index - 1])));
   assert.doesNotMatch(publicCss, /body\[data-page="home"\]\s+#(?:continue|schedule|stories|season|catalog|collections)\s*\{[^}]*\border:/s);
+  assert.ok(html.indexOf('id="schedule-items"') < html.indexOf('id="update-items"'));
+  assert.match(rules(publicCss, 'body[data-page="home"] .schedule-updates-grid').join('\n'), /grid-template-columns:\s*minmax\(0,1fr\)/);
 });
 
 test('changed styles use a fresh cache version and unchanged scripts retain theirs', () => {
   const version = 'original-parity-11';
   for (const page of ['public/index.html', 'public/anime.html', 'admin/index.html']) {
     const cssVersion = page === 'public/index.html'
-      ? 'editorial-home-14'
+      ? 'editorial-home-15'
       : page === 'public/anime.html'
         ? 'details-control-12'
         : 'quiet-controls-10';
