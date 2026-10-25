@@ -1,4 +1,4 @@
-@import url("../tokens.css?v=v3-1");
+@import url("../tokens.css?v=v3-2");
 
 @font-face {
   font-family: "Onest";
@@ -11880,10 +11880,10 @@ html .app-shell .sidebar {
 
 .app-shell .brand-mark {
   border: 0;
-  border-radius: 10px;
-  background: var(--accent-grad);
-  box-shadow: 0 8px 22px -8px var(--accent-glow);
-  color: var(--primary-fg);
+  background: none;
+  box-shadow: none;
+  color: var(--accent);
+  filter: drop-shadow(0 0 10px var(--accent-glow));
 }
 
 .app-shell .brand-copy strong {
@@ -12750,4 +12750,12 @@ html.kz-palette-switching::view-transition-new(root) {
     font-size: 0.6875rem;
     letter-spacing: 0.04em;
   }
+}
+
+/* Иконки без плашек и рамок — везде */
+.app-shell :is(.backup-kind, .decision-icon, .event-icon, .job-glyph, .integration-card__icon, .source-mode__icon, .review-card__icon, .moderation-reason__icon, .conflict-icon, .notification-icon, .environment-icon, .attention-card__icon, .settings-card__icon, .empty-icon, .mini-icon),
+.app-shell :is(.panel, .detail-section, .rail-card, article, li, .truth-note) span:has(> svg:only-child) {
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
 }
