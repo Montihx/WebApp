@@ -82,6 +82,8 @@ const required = [
   "index.html",
   "styles.css",
   "app.js",
+  "data.js",
+  "contracts.js",
   "vendor/lucide.min.js",
   "vendor/LUCIDE-LICENSE.txt",
   "fonts/DELA-GOTHIC-ONE-LICENSE.txt",
@@ -111,9 +113,10 @@ add("css.structure", "CSS: синтаксическая структура", str
 add("css.themes", "CSS: две темы", /:root\s*{/.test(css) && /html\[data-theme="light"\]/.test(css), "тёмные и светлые токены присутствуют");
 add("css.a11y", "CSS: доступность", css.includes(":focus-visible") && css.includes("prefers-reduced-motion"), "focus-visible и reduced-motion присутствуют");
 
-// Breakpoint sprawl: at most 4 distinct max-width values, prefers-* excluded.
+// Breakpoint sprawl: at most 5 distinct max-width values, prefers-* excluded
+// (v4: 1360 сворачивает поиск, 1180 прячет подменю, 900/760 — планшет и телефон, 420 — узкие телефоны).
 const breakpointValues = [...new Set([...css.matchAll(/@media \(max-width: (\d+)px\)/g)].map((m) => Number(m[1])))].sort((a, b) => b - a);
-add("css.breakpoints", "CSS: число контрольных точек", breakpointValues.length > 0 && breakpointValues.length <= 4, `${breakpointValues.length} точек: ${breakpointValues.join("/")}px`);
+add("css.breakpoints", "CSS: число контрольных точек", breakpointValues.length > 0 && breakpointValues.length <= 5, `${breakpointValues.length} точек: ${breakpointValues.join("/")}px`);
 
 const fontUrls = [...css.matchAll(/url\(["']?(\.\/fonts\/[^)"']+)/g)].map((match) => match[1]);
 const missingFonts = fontUrls.filter((reference) => !existsSync(resolve(root, reference)));
@@ -213,9 +216,9 @@ add("assets.fontInventory", "Ассеты: набор шрифтов", fontFiles
 
 // --- JS: hash routing wiring --------------------------------------------------
 const js = read("app.js");
-const routingTokens = ["location.hash", "hashchange", "popstate", "pushState", "history.replaceState"];
+const routingTokens = ["location.hash", "hashchange", "routeFromHash"];
 const missingRouting = routingTokens.filter((token) => !js.includes(token));
-add("js.hashRouting", "JS: адресация экранов по хешу", missingRouting.length === 0, missingRouting.length ? `Не найдены: ${missingRouting.join(", ")}` : "чтение хеша при загрузке, hashchange/popstate и pushState на переходах присутствуют");
+add("js.hashRouting", "JS: адресация экранов по хешу", missingRouting.length === 0, missingRouting.length ? `Не найдены: ${missingRouting.join(", ")}` : "маршрут читается из хеша при загрузке и на hashchange; переходы — обычные ссылки #/раздел/страница");
 add("js.storage", "JS: локальные предпочтения", js.includes("localStorage") && js.includes("kitsu-admin-theme"), "тема сохраняется локально");
 
 // --- Pages link safety (step 6.4) --------------------------------------------
@@ -262,14 +265,14 @@ function checkPagesLinks(filesToScan) {
   return problems;
 }
 
-const pagesLinkProblems = checkPagesLinks(["index.html", "styles.css", "app.js"]);
+const pagesLinkProblems = checkPagesLinks(["index.html", "styles.css", "app.js", "data.js", "contracts.js"]);
 add("pages.linkSafety", "Pages: относительные пути и регистр", pagesLinkProblems.length === 0, pagesLinkProblems.length ? pagesLinkProblems.join("; ") : "нет ведущих слэшей, все относительные пути существуют с совпадающим регистром");
 
 // --- report -------------------------------------------------------------------
 const failed = results.filter((result) => result.status === "fail");
 const report = {
   schema_version: 2,
-  project: "Kitsu enterprise admin template · Anime Graphite",
+  project: "Kitsu admin template v4 · Пульт лисьего огня",
   generated_at: new Date().toISOString(),
   summary: {
     status: failed.length ? "fail" : "pass",

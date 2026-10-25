@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "project": "Kitsu enterprise admin template · Anime Graphite",
-  "generated_at": "2026-10-25T21:40:00.114Z",
+  "project": "Kitsu admin template v4 · Пульт лисьего огня",
+  "generated_at": "2026-10-25T22:57:38.442Z",
   "summary": {
     "status": "pass",
     "total": 19,
@@ -13,7 +13,7 @@
       "id": "files.required",
       "label": "Обязательные файлы",
       "status": "pass",
-      "detail": "9 файлов на месте"
+      "detail": "11 файлов на месте"
     },
     {
       "id": "index.document",
@@ -25,13 +25,13 @@
       "id": "index.ids",
       "label": "index.html: уникальные ID",
       "status": "pass",
-      "detail": "33 уникальных ID"
+      "detail": "13 уникальных ID"
     },
     {
       "id": "index.references",
       "label": "index.html: локальные ссылки",
       "status": "pass",
-      "detail": "5 локальных ссылок разрешены"
+      "detail": "6 локальных ссылок разрешены"
     },
     {
       "id": "index.buttons",
@@ -43,7 +43,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "2248 блоков, структура сбалансирована"
+      "detail": "681 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -61,7 +61,7 @@
       "id": "css.breakpoints",
       "label": "CSS: число контрольных точек",
       "status": "pass",
-      "detail": "4 точек: 1240/900/720/480px"
+      "detail": "5 точек: 1360/1180/900/760/420px"
     },
     {
       "id": "css.fonts",
@@ -79,7 +79,7 @@
       "id": "css.tabularNums",
       "label": "CSS: tabular-nums на числовых колонках",
       "status": "pass",
-      "detail": "14 правил с tabular-nums"
+      "detail": "9 правил с tabular-nums"
     },
     {
       "id": "css.contrastSync",
@@ -109,7 +109,7 @@
       "id": "js.hashRouting",
       "label": "JS: адресация экранов по хешу",
       "status": "pass",
-      "detail": "чтение хеша при загрузке, hashchange/popstate и pushState на переходах присутствуют"
+      "detail": "маршрут читается из хеша при загрузке и на hashchange; переходы — обычные ссылки #/раздел/страница"
     },
     {
       "id": "js.storage",

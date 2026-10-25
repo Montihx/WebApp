@@ -1,4 +1,5 @@
 import asyncio
+from admin_routes import ROUTES, each_overlay
 from playwright.async_api import async_playwright
 JS = r"""()=>{const out=[];const vis=c=>c&&c!=='rgba(0, 0, 0, 0)'&&c!=='transparent';
 for(const svg of document.querySelectorAll('svg')){
@@ -20,9 +21,12 @@ async def main():
             print(url, await pg.evaluate(JS))
         await pg.goto('http://127.0.0.1:4173/admin/'); await pg.wait_for_timeout(1000)
         allv=set()
-        for v in ['overview','catalog','episodes','releases','collections','assets','parsers','imports','conflicts','scheduler','parser-settings','moderation','users','monitoring','settings','backups','audit','anime-editor']:
+        for v in ROUTES:
             await pg.evaluate(f"location.hash='#{v}'"); await pg.wait_for_timeout(500)
             for x in await pg.evaluate(JS): allv.add(v+': '+x)
+        async def over(name):
+            for x in await pg.evaluate(JS): allv.add('overlay '+name+': '+x)
+        await each_overlay(pg, over)
         print('\n'.join(sorted(allv)))
         await b.close()
 asyncio.run(main())

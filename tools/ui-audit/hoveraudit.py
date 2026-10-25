@@ -18,7 +18,7 @@ async def main():
         for w in (390,768,1024,1440):
             pg=await b.new_page(viewport={'width':w,'height':900})
             await pg.add_init_script("localStorage.setItem('kitsu-theme','dark');localStorage.setItem('kitsu-admin-theme','dark')")
-            for u in ['public/','public/anime.html','admin/','admin/#catalog','admin/#parsers','admin/#users','admin/#anime-editor','admin/#moderation','admin/#backups']:
+            for u in ['public/','public/anime.html','admin/','admin/#/catalog/titles','admin/#/parser/run','admin/#/people/users','admin/#/queues/moderation','admin/#/stand/backups','admin/#/parser/schedule','admin/#/settings']:
                 await run(pg,u,seen)
             await pg.close()
         print('\n'.join(sorted(seen)) or 'CLEAN')

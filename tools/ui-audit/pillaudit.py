@@ -1,4 +1,5 @@
 import asyncio
+from admin_routes import ROUTES, each_overlay
 from playwright.async_api import async_playwright
 JS = r"""()=>{const out=new Map();const vis=c=>c&&c!=='rgba(0, 0, 0, 0)'&&c!=='transparent';
 const check=(el,pseudo)=>{const c=getComputedStyle(el,pseudo); if(pseudo&&(c.content==='none'||c.content==='normal'))return; if(c.display==='none')return;
@@ -25,9 +26,12 @@ async def main():
                 await pg.goto('http://127.0.0.1:4173/'+u); await pg.wait_for_timeout(1000)
                 for x in await pg.evaluate(JS): seen.setdefault(x.split(' ')[0],(u,x))
             await pg.goto('http://127.0.0.1:4173/admin/'); await pg.wait_for_timeout(800)
-            for v in ['overview','catalog','episodes','releases','collections','assets','anime-editor','episode-editor','release-editor','parsers','imports','conflicts','scheduler','parser-settings','moderation','users','monitoring','settings','backups','audit']:
+            for v in ROUTES:
                 await pg.evaluate(f"location.hash='#{v}'"); await pg.wait_for_timeout(350)
                 for x in await pg.evaluate(JS): seen.setdefault(x.split(' ')[0],('admin#'+v,x))
+            async def over(name):
+                for x in await pg.evaluate(JS): seen.setdefault(x.split(' ')[0],('admin overlay '+name,x))
+            await each_overlay(pg, over)
             await pg.close()
         for k,(u,x) in sorted(seen.items()): print(u.ljust(28), x)
         await b.close()

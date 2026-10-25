@@ -709,7 +709,7 @@
   color: var(--media-text);
 }
 
-:root .ofuda__jp { color: var(--media-text); font-weight: 400; opacity: 0.9; }
+:root .ofuda__jp { color: var(--media-text); font-weight: 400; opacity: 0.9; line-height: 1.25; }
 :root .ofuda__ru { color: var(--media-text); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.04em; }
 
 :root .ofuda--released { --ofuda-tone: var(--green); }
@@ -2573,4 +2573,9 @@
 @container (max-width: 130px) {
   :root .anime-card .bookmark-status-bar { min-height: 24px; font-size: 0.625rem; letter-spacing: 0.02em; }
   :root .anime-card .bookmark-status-bar::before { width: 10px; height: 10px; }
+}
+/* Самые узкие постеры: длинное «Запланировано» помещается без иконки и разрядки. */
+@container (max-width: 118px) {
+  :root .anime-card .bookmark-status-bar { padding: 0 4px; letter-spacing: 0; }
+  :root .anime-card .bookmark-status-bar::before { display: none; }
 }

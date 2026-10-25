@@ -12,7 +12,7 @@ async def main():
         for w in (320,390,768,1024,1440,1920):
             pg=await b.new_page(viewport={'width':w,'height':900})
             await pg.add_init_script("localStorage.setItem('kitsu-theme','dark');localStorage.setItem('kitsu-admin-theme','dark')")
-            for u in ['public/','public/anime.html','admin/','admin/#catalog','admin/#parsers','admin/#users']:
+            for u in ['public/','public/anime.html','admin/','admin/#/catalog/titles','admin/#/parser/run','admin/#/people/users','admin/#/stand/checks','admin/#/settings']:
                 await pg.goto('http://127.0.0.1:4173/'+u); await pg.wait_for_timeout(1000)
                 r=await pg.evaluate(JS)
                 if r: print(w,u,r)

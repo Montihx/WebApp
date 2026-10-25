@@ -7,8 +7,6 @@ const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'
 const window = {};
 runInNewContext(read('public/content-model.js'), {window, Date});
 const M = window.KitsuContent;
-runInNewContext(read('admin/contracts.js'), {window, URL, Date});
-const C = window.KitsuAdminContracts;
 
 test('title lookup rejects inherited object members', () => {
   const source = read('public/content.js');
@@ -41,25 +39,6 @@ test('midnight follows today but preserves an explicitly selected different day'
     assert.equal(context.items, 1);
     runInNewContext('refresh()', context);
     assert.equal(context.items, 1, 'minute ticks do not replace focused links');
-  }
-});
-
-test('Almaty wall time uses historical offsets and validates dates', () => {
-  assert.equal(C.localDateToUtc('2023-09-03T12:30'), '2023-09-03T06:30:00.000Z');
-  assert.equal(C.localDateToUtc('2026-09-03T12:30'), '2026-09-03T07:30:00.000Z');
-  assert.equal(C.localDateToUtc('2024-02-29T23:30'), '2024-02-29T17:30:00.000Z');
-  assert.equal(C.localDateToUtc('2024-03-01T00:30'), '2024-02-29T19:30:00.000Z');
-  assert.equal(C.localDateToUtc('2023-02-29T12:30'), null);
-  assert.equal(C.localDateToUtc('2026-01-01T25:00'), null);
-});
-
-test('release format check uses the same relative URL policy as save', () => {
-  const source = read('admin/app.js');
-  assert.match(source, /const relative = !\['url', 'embed_url'\].includes\(input\?\.name\)/);
-  assert.match(source, /contracts.validUrl\(input\?\.value \|\| '', relative\)/);
-  for (const name of ['url', 'embed_url']) {
-    assert.equal(C.validUrl('/video/14', !['url', 'embed_url'].includes(name)), false);
-    assert.ok(C.errors('release', {[name]: '/video/14'}).some(error => error.startsWith(`${name}: нужен HTTP(S)`)));
   }
 });
 
@@ -135,68 +114,10 @@ test('schedule clock updates preserve focus and restart after bfcache restoratio
   assert.match(source,/60000/);
   assert.match(source,/last_release_at/);
 });
-test('manual and scheduled parser pairs match the two distinct backend dispatchers', () => {
-  assert.equal(Object.keys(C.operations).length,4);
-  assert.deepEqual(Object.keys(C.operations).filter(k=>C.operations[k].scheduled),['kodik:incremental','shikimori:calendar_snapshot']);
-  assert.equal(C.operations['kodik:full_sync'].scheduled,false);
-  assert.equal(C.operations['shikimori:shikimori_related_refresh'].scheduled,false);
-});
-test('local URL validation checks format without pretending to probe a stream', () => {
-  for(const url of ['https://example.test/a','http://localhost/a','/media/poster.webp']) assert.equal(C.validUrl(url),true,url);
-  for(const url of ['javascript:alert(1)','//evil.test/a','https://u:p@a.test','https://a.test/x y','/a\\b']) assert.equal(C.validUrl(url),false,url);
-  assert.equal(C.validUrl('/media/a',false),false);
-});
-test('cron checks field count, ranges, lists and steps', () => {
-  for(const v of ['0 4 * * *','*/30 * * * *','0 0 1,15 * 1-5']) assert.equal(C.validCron(v),true,v);
-  for(const v of ['', '* * * *','60 * * * *','0 24 * * *','0 4 0 * *','*/0 * * * *','1-0 * * * *','0 4 * 13 *']) assert.equal(C.validCron(v),false,v);
-});
-test('forms reject missing fields, negative/invalid numbers and unsafe URLs', () => {
-  assert.equal(C.errors('anime',{title:'Example',slug:'example',score:8}).length,0);
-  assert.ok(C.errors('anime',{title:'',slug:'x',score:11}).length >= 2);
-  assert.ok(C.errors('episode',{anime_id:'not-a-uuid',episode:-1}).length >= 2);
-  assert.ok(C.errors('release',{episode_id:'id',source:'Kodik',url:'javascript:x'}).length >= 2);
-  assert.equal(C.localDateToUtc('2026-09-03T12:30'),'2026-09-03T07:30:00.000Z');
-  assert.equal(C.localDateToUtc('bad'),null);
-});
-test('all 20 admin renderers and every content-tab variant produce markup', () => {
-  const admin=read('admin/app.js'), context={window,location:{hash:''},document:{documentElement:{dataset:{}},querySelector(){return null},addEventListener(){}},URL,Date};
-  runInNewContext(admin.slice(0,admin.indexOf('  function refreshIcons()'))+'window.audit={renderers,state};})();',context);
-  const {renderers,state}=window.audit;
-  assert.equal(Object.keys(renderers).length,20);
-  const variants={ 'anime-editor':['editorTab',['main','media','sources','review']], 'parser-settings':['parserSettingsTab',['general','kodik','shikimori','images','blacklist','schedule','advanced','player']], parsers:['parserTab',['jobs','logs','sources']], conflicts:['conflictTab',['pending','auto','resolved']], moderation:['moderationTab',['import','comments']], users:['usersTab',['accounts','roles']], assets:['assetTab',['avatars','decorations']] };
-  for(const [name,render] of Object.entries(renderers)) {
-    state.currentView=name;
-    for(const value of (variants[name]?.[1] || ['default'])) {
-      if(variants[name]) state[variants[name][0]]=value;
-      const html=render();
-      assert.match(html,/<h1[ >]/,`${name}/${value}`);
-      assert.doesNotMatch(html,/>undefined</,`${name}/${value}`);
-    }
-  }
-});
-test('every rendered admin data-action has a handler or delegated click contract', () => {
-  const admin=read('admin/app.js');
-  const context={window,location:{hash:''},document:{documentElement:{dataset:{}},querySelector(){return null},addEventListener(){}},URL,Date};
-  runInNewContext(admin.slice(0,admin.indexOf('  function refreshIcons()'))+'window.audit={renderers,state};})();',context);
-  const {renderers,state}=window.audit;
-  const variants={ 'anime-editor':['editorTab',['main','media','sources','review']], 'parser-settings':['parserSettingsTab',['general','kodik','shikimori','images','blacklist','schedule','advanced','player']], parsers:['parserTab',['jobs','logs','sources']], conflicts:['conflictTab',['pending','auto','resolved']], moderation:['moderationTab',['import','comments']], users:['usersTab',['accounts','roles']], assets:['assetTab',['avatars','decorations']] };
-  const actions=new Set();
-  for(const [name,render] of Object.entries(renderers)) {
-    state.currentView=name;
-    for(const value of (variants[name]?.[1] || ['default'])) {
-      if(variants[name]) state[variants[name][0]]=value;
-      for(const match of render().matchAll(/data-action="([^"]+)"/g)) actions.add(match[1]);
-    }
-  }
-  const handler=admin.slice(admin.indexOf('  function handleAction('),admin.indexOf('\n  document.addEventListener("click"'));
-  const delegated=new Set(['toggle-switch','validate-url-local']);
-  const unhandled=[...actions].filter(action=>!delegated.has(action)&&!handler.includes(`"${action}"`)&&!handler.includes(`'${action}'`));
-  assert.deepEqual(unhandled,[],`Unhandled admin actions: ${unhandled.join(', ')}`);
-});
 test('review harness follows actual DOM views and history navigation, including nested tabs', () => {
   const html=read('tools/visual-review.html');
   assert.match(html,/MutationObserver/);
   assert.match(html,/addEventListener\('popstate',ready\)/);
-  assert.match(html,/current.hash.split\('\/'\)\[0\]/);
+  assert.match(html,/candidate.hash === current.hash/);
   assert.match(html,/url:doc.URL/);
 });

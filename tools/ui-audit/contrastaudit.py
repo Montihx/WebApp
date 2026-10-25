@@ -1,4 +1,5 @@
 import asyncio
+from admin_routes import ROUTES, each_overlay
 from playwright.async_api import async_playwright
 JS=r"""()=>{
 const parse=s=>{const m=s.match(/rgba?\(([^)]+)\)/);if(!m)return null;const p=m[1].split(/[ ,\/]+/).filter(Boolean).map(Number);return {r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1}};
@@ -36,9 +37,12 @@ async def main():
                 await pg.goto('http://127.0.0.1:4173/'+u); await pg.wait_for_timeout(900)
                 for x in await pg.evaluate(JS): seen.setdefault(x.split(' ',1)[1],[]).append(f'{theme}/{pal} {u or "root"} {x.split(" ")[0]}')
             await pg.goto('http://127.0.0.1:4173/admin/'); await pg.wait_for_timeout(800)
-            for v in ['overview','catalog','episodes','releases','collections','assets','anime-editor','parsers','imports','conflicts','scheduler','parser-settings','moderation','users','monitoring','settings','backups','audit']:
+            for v in ROUTES:
                 await pg.evaluate(f"location.hash='#{v}'"); await pg.wait_for_timeout(300)
                 for x in await pg.evaluate(JS): seen.setdefault(x.split(' ',1)[1],[]).append(f'{theme}/{pal} admin#{v} {x.split(" ")[0]}')
+            async def over(name):
+                for x in await pg.evaluate(JS): seen.setdefault(x.split(' ',1)[1],[]).append(f'{theme}/{pal} admin overlay {name} {x.split(" ")[0]}')
+            await each_overlay(pg, over)
             await pg.close()
         for k,v in sorted(seen.items()): print(k, '|', v[0], f'(+{len(v)-1})')
         if not seen: print('CLEAN')
