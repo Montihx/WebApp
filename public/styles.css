@@ -6795,6 +6795,7 @@ html[data-theme="light"] .brand-mark {
 
 /* Hanko: score in a red seal. Used on the hero, on poster facts and on the title page. */
 .hero-score,
+.hanko,
 .card-facts > b:not(.is-unrated) {
   --hanko-size: 38px;
   position: relative;
@@ -7015,3 +7016,354 @@ html[data-theme="light"] .brand-mark {
 .landscape-card,
 .collection-card,
 .schedule-card { border-radius: var(--radius-md); }
+
+/* ---- Continue watching, schedule, secondary rails ---- */
+.continue-poster {
+  border-radius: var(--radius-md);
+  background-color: var(--media-ink);
+}
+
+.continue-progress {
+  height: 3px;
+  background: rgba(242, 235, 221, 0.24);
+}
+
+.continue-progress > span { background: var(--accent); }
+
+.continue-copy h3 { font-family: var(--font-body); }
+
+.day-tab__num {
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 2vw, 1.75rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.1;
+}
+
+.day-tab { min-width: 52px; }
+.day-tab.is-today { color: var(--accent-text); }
+.day-tab.is-today .day-tab__num,
+.day-tab.is-today .day-tab__mon { color: var(--accent-text); }
+.day-tab.is-today .day-tab__dow::after { background: var(--accent); }
+.day-tab.is-today.is-active .tab-indicator { border-color: var(--accent); }
+
+.schedule-card { border-radius: var(--radius-md); }
+.schedule-item img { border-radius: var(--radius-sm); }
+.landscape-card { background-color: var(--media-ink); }
+
+:is(.continue-poster, .landscape-card, .episode-thumb):has(img.is-image-error) {
+  background-color: var(--media-ink);
+  background-image: linear-gradient(rgba(15, 12, 11, 0.9), rgba(15, 12, 11, 0.9)), var(--grain-url);
+  background-size: auto, 220px 220px;
+}
+
+.continue-poster:has(img.is-image-error)::before {
+  position: absolute;
+  z-index: 1;
+  top: 12px;
+  right: 48px;
+  left: 14px;
+  color: var(--media-text);
+  content: attr(data-fallback-title);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+/* ---- Kitsunebi: live status and the current episode, nothing else ---- */
+.status-pill {
+  position: relative;
+  border-radius: var(--radius-sm);
+}
+
+.status-pill--ongoing {
+  background: var(--kitsunebi-soft);
+  color: var(--kitsunebi);
+}
+
+.status-pill > span { position: relative; }
+
+.status-pill--ongoing > span::after {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--kitsunebi) 0%, transparent 70%);
+  content: "";
+  opacity: 0.7;
+  animation: kitsunebi-flicker 3s ease-in-out infinite;
+}
+
+.episode-card { position: relative; }
+
+.episode-card.is-selected {
+  border-color: var(--kitsunebi);
+  box-shadow: none;
+}
+
+.episode-card.is-selected::after {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  box-shadow: 0 0 18px 1px var(--kitsunebi-soft), inset 0 0 0 1px var(--kitsunebi);
+  content: "";
+  pointer-events: none;
+  animation: kitsunebi-flicker 3s ease-in-out infinite;
+}
+
+.episode-card.is-selected .episode-state { color: var(--kitsunebi); }
+
+@keyframes kitsunebi-flicker {
+  0%, 100% { opacity: 1; }
+  38% { opacity: 0.72; }
+  52% { opacity: 0.94; }
+  70% { opacity: 0.8; }
+}
+
+/* ---- Title page ---- */
+.title-poster {
+  border-radius: var(--radius-md);
+  background-color: var(--media-ink);
+  box-shadow: none;
+}
+
+.title-poster .hanko {
+  --hanko-size: 56px;
+  position: absolute;
+  z-index: 3;
+  right: 12px;
+  bottom: 12px;
+  padding: 0 7px;
+  font-size: 17px;
+}
+
+.title-poster .hanko[hidden] { display: none; }
+.title-poster .ofuda { left: 14px; padding-top: 10px; }
+.title-poster .ofuda__jp { font-size: 18px; }
+
+.title-heading-row h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(2.25rem, 5vw, 4.5rem);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+.title-status-line {
+  font-size: var(--type-meta);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.title-backdrop-plane {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--canvas) 30%, transparent) 0%, color-mix(in srgb, var(--canvas) 88%, transparent) 38%, var(--canvas) 72%),
+    linear-gradient(0deg, var(--canvas) 0%, transparent 30%, transparent 70%, color-mix(in srgb, var(--canvas) 60%, transparent) 100%);
+}
+
+.title-backdrop::before {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  background: var(--seigaiha-url) 0 0 / 56px 28px;
+  content: "";
+  opacity: var(--seigaiha-opacity);
+  pointer-events: none;
+}
+
+.player-stage {
+  border-color: var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--media-ink);
+  color: var(--media-text);
+}
+
+.player-stage-art::after {
+  background:
+    linear-gradient(90deg, rgba(15, 12, 11, 0.95), rgba(15, 12, 11, 0.36) 72%, rgba(15, 12, 11, 0.76)),
+    linear-gradient(0deg, rgba(15, 12, 11, 0.92), transparent 55%);
+}
+
+.player-stage-copy strong { font-family: var(--font-heading); font-weight: 400; }
+.player-timeline { background: rgba(242, 235, 221, 0.24); }
+.player-timeline span { background: var(--accent); }
+
+/* ---- Mobile bottom navigation: ink surface, a short torii beam over the active item ---- */
+@media (max-width: 720px) {
+  .mobile-bottom-nav {
+    border-top: 1px solid rgba(242, 235, 221, 0.12);
+    background: var(--media-ink);
+    box-shadow: none;
+  }
+
+  .mobile-bottom-nav a { color: var(--media-text-dim); }
+
+  .mobile-bottom-nav a::before {
+    top: -6px;
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    width: 30px;
+    height: 4px;
+    margin-left: -15px;
+    border-radius: 0;
+    background: var(--accent);
+    clip-path: polygon(0 0, 100% 0, 94% 100%, 6% 100%);
+    transform: scaleX(0.4);
+  }
+
+  .mobile-bottom-nav a::after {
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    width: 20px;
+    height: 2px;
+    margin-left: -10px;
+    background: var(--accent);
+    content: "";
+    opacity: 0;
+    transition: opacity var(--dur-2) var(--ease-out);
+  }
+
+  .mobile-bottom-nav a.is-active { color: var(--accent-on-ink); }
+  .mobile-bottom-nav a.is-active::before { transform: scaleX(1); transition-duration: var(--dur-2); transition-timing-function: var(--ease-out); }
+  .mobile-bottom-nav a.is-active::after { opacity: 1; }
+}
+
+/* ---- Motion ---- */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(16px); }
+}
+
+@keyframes ink-reveal {
+  from { clip-path: inset(-0.1em 100% -0.1em 0); }
+  to { clip-path: inset(-0.1em -0.1em -0.1em 0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .feature-slide.is-active .hero-copy h2 {
+    animation: ink-reveal 600ms var(--ease-ink) both;
+  }
+
+  .feature-slide.is-active .hero-score,
+  .title-poster .hanko {
+    animation: hanko-stamp var(--dur-3) var(--ease-spring) 300ms both;
+  }
+
+  /* Save to a list: the bookmark stamps itself. */
+  .bookmark-button.poster-bookmark-button.is-active svg,
+  #list-trigger[data-bookmark-tone] .title-list-icon,
+  #mobile-list-trigger[data-bookmark-tone] .title-list-icon {
+    animation: hanko-stamp var(--dur-3) var(--ease-spring) both;
+  }
+
+  /* Rails sit in a horizontal scroller, so they stagger by time instead of by scroll. */
+  .continue-card {
+    animation: rise var(--dur-3) var(--ease-out) backwards;
+    animation-delay: calc(var(--i, 0) * 40ms);
+  }
+
+  @view-transition { navigation: auto; }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--dur-2);
+    animation-timing-function: var(--ease-out);
+  }
+
+  ::view-transition-group(title-poster) {
+    animation-duration: var(--dur-3);
+    animation-timing-function: var(--ease-out);
+  }
+}
+
+.title-poster img { view-transition-name: title-poster; }
+
+.continue-card:nth-child(1) { --i: 0; }
+.continue-card:nth-child(2) { --i: 1; }
+.continue-card:nth-child(3) { --i: 2; }
+.continue-card:nth-child(4) { --i: 3; }
+.continue-card:nth-child(5) { --i: 4; }
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .anime-grid > .anime-card,
+    .landscape-grid > *,
+    .collection-grid > *,
+    .schedule-list > * {
+      animation: rise linear backwards;
+      animation-timeline: view();
+      animation-range: entry calc(var(--i, 0) * 4%) entry calc(36% + var(--i, 0) * 4%);
+    }
+
+    .anime-grid > :nth-child(7n + 2),
+    .landscape-grid > :nth-child(2),
+    .collection-grid > :nth-child(2),
+    .schedule-list > :nth-child(2) { --i: 1; }
+    .anime-grid > :nth-child(7n + 3), .landscape-grid > :nth-child(3), .schedule-list > :nth-child(3) { --i: 2; }
+    .anime-grid > :nth-child(7n + 4), .schedule-list > :nth-child(4) { --i: 3; }
+    .anime-grid > :nth-child(7n + 5), .schedule-list > :nth-child(5) { --i: 4; }
+    .anime-grid > :nth-child(7n + 6) { --i: 5; }
+    .anime-grid > :nth-child(7n + 7) { --i: 6; }
+
+    .anime-card .hanko,
+    .card-facts > b:not(.is-unrated) {
+      animation: hanko-stamp var(--dur-3) var(--ease-spring) backwards;
+      animation-timeline: view();
+      animation-range: entry 20% entry 80%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-slide.is-active .feature-slide__art img,
+  .feature-slide.is-active .hero-copy h2,
+  .feature-slide.is-active .hero-score,
+  .status-pill--ongoing > span::after,
+  .episode-card.is-selected::after,
+  .title-poster .hanko,
+  .continue-card,
+  .anime-grid > .anime-card,
+  .card-facts > b { animation: none; }
+
+  .anime-card::after,
+  .anime-card,
+  .poster-frame img { transition: none; }
+}
+
+/* The header scrolls over content; keep it opaque so headings never show through. */
+.site-header,
+html[data-theme="light"] .site-header {
+  border-bottom-color: var(--line);
+  background: var(--header-bg);
+}
+
+.title-backdrop img { filter: saturate(0.7) brightness(0.62) contrast(1.1); }
+html[data-theme="light"] .title-backdrop img { filter: saturate(0.5) brightness(0.9); opacity: 0.6; }
+
+.player-main-button { background: var(--primary-bg); }
+.player-main-button:hover { background: var(--primary-bg-hover); }
+
+/* Dark media surfaces keep a light focus ring in both themes (the light-theme ring is dark brown). */
+.feature-slider :focus-visible,
+.mobile-bottom-nav :focus-visible,
+.mobile-bottom-nav:focus-within a:focus-visible,
+.player-stage :focus-visible,
+html[data-input-modality="keyboard"] .feature-slider :is(a, button, [tabindex]):focus,
+html[data-input-modality="keyboard"] .mobile-bottom-nav :is(a, button):focus,
+html[data-input-modality="keyboard"] .player-stage :is(a, button, [tabindex]):focus {
+  outline-color: var(--media-text);
+}
+
+/* 24px minimum target for the poster title link (WCAG 2.5.8). */
+.card-title-row > a { display: block; padding-block: 5px; }
+
+.section-heading h2,
+.schedule-head h2,
+.continue-heading h2 { hyphens: manual; overflow-wrap: break-word; }
+
+@media (max-width: 720px) {
+  .section-heading { flex-wrap: wrap; row-gap: 8px; }
+  .section-heading > div:first-child { flex: 1 1 100%; }
+}

@@ -58,6 +58,7 @@
   --ofuda-bg: #ede3cf;
   --ofuda-fg: #1c1613;
   --media-ink: #0f0c0b;
+  --accent-on-ink: #ff8a6e;
   --media-text: #f2ebdd;
   --media-text-dim: #cfc4b2;
   --grain-opacity: 0.05;
@@ -140,7 +141,7 @@ html[data-theme="light"] {
   --hanko-bg: #b8341c;
   --hanko-fg: #fbf7f0;
   --grain-opacity: 0.06;
-  --seigaiha-opacity: 0.06;
+  --seigaiha-opacity: 0.05;
   --seigaiha-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='28' fill='none' stroke='%231c1613' stroke-width='1.2'%3E%3Cpath d='M-26 14a26 26 0 0 1 52 0M-19 14a19 19 0 0 1 38 0M-12 14a12 12 0 0 1 24 0M30 14a26 26 0 0 1 52 0M37 14a19 19 0 0 1 38 0M44 14a12 12 0 0 1 24 0M2 28a26 26 0 0 1 52 0M9 28a19 19 0 0 1 38 0M16 28a12 12 0 0 1 24 0'/%3E%3C/svg%3E");
   --bookmark-planned-text: #1d4ed8;
   --bookmark-watching-text: #166534;

@@ -21,6 +21,17 @@
       document.querySelectorAll('.title-backdrop img, .title-poster img, .title-poster-wrap img, .player-stage-art img, .episode-thumb img').forEach(img => { img.src = title.poster_url; img.alt = img.closest('.title-poster') ? title.title : ''; });
       const status = title.status || 'released';
       const statusLabel = {released:'Завершён',ongoing:'Онгоинг',announced:'Анонс'}[status];
+      const ofuda = $('.title-poster .ofuda');
+      if (ofuda) {
+        ofuda.className = `ofuda ofuda--${status}`;
+        ofuda.querySelector('.ofuda__jp').textContent = {released:'完結',ongoing:'放送中',announced:'予告'}[status];
+        ofuda.querySelector('.ofuda__ru').textContent = statusLabel;
+      }
+      const hanko = $('.title-poster .hanko');
+      if (hanko) {
+        hanko.hidden = !(title.score > 0);
+        if (title.score > 0) { hanko.textContent = title.score; hanko.setAttribute('aria-label', `Оценка ${title.score}`); }
+      }
       $('.title-status-line').innerHTML = `<span class="status-pill status-pill--${status}">${statusLabel}</span><span>${M.kindLabel(title.kind)}</span>${title.year ? `<span>${title.year}</span>` : ''}`;
       const facts = $('.title-meta-list');
       facts.innerHTML = `${title.year ? `<li><i data-lucide="map-pin"></i><span>Япония, ${title.year} г.</span></li>` : ''}<li><i data-lucide="monitor-play"></i><span>${title.episodes_total} эп. в примере</span></li><li><i data-lucide="calendar-days"></i><span>${M.kindLabel(title.kind)}, ${statusLabel.toLowerCase()}</span></li>${title.studio ? `<li><i data-lucide="users"></i><span>Студия ${esc(title.studio)}</span></li>` : ''}${title.rating ? `<li><i data-lucide="shield-check"></i><span>Возрастной рейтинг ${esc(title.rating)}</span></li>` : ''}`;

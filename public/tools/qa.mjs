@@ -239,6 +239,30 @@ add(
   missingSliderCss.length ? `Не найдены: ${missingSliderCss.join(", ")}` : "desktop hero использует центральный sharp-art 1600 px, симметричное растворение краёв и safe-area; стрелки только на desktop, на mobile — свайпы",
 );
 
+const kitsuneCssTokens = [
+  "height: clamp(520px, 68vh, 720px)",
+  ".ofuda",
+  ".hanko",
+  "var(--grain-url)",
+  "var(--seigaiha-url)",
+  "@keyframes hero-zoom",
+  "@keyframes kitsunebi-flicker",
+  "animation-timeline: view()",
+  "@view-transition",
+];
+const missingKitsuneCss = kitsuneCssTokens.filter((token) => !css.includes(token));
+const kitsuneTokens = ["--font-heading", "--kitsunebi:", "--kin:", "--ease-out:", "--ease-spring:", "--ease-ink:", "--dur-1:", "--dur-2:", "--dur-3:", "--grain-url:", "--seigaiha-url:"]
+  .filter((token) => !read("../tokens.css").includes(token));
+const ofudaMarkup = pages.flatMap((page) => [...read(page).matchAll(/<span class="ofuda__jp"([^>]*)>/g)].map((m) => m[1].includes('aria-hidden="true"')));
+add(
+  "css.kitsune",
+  "CSS: арт-направление «Кицунэ»",
+  missingKitsuneCss.length === 0 && kitsuneTokens.length === 0 && ofudaMarkup.length > 0 && ofudaMarkup.every(Boolean),
+  missingKitsuneCss.length || kitsuneTokens.length
+    ? `Не найдены: ${[...missingKitsuneCss, ...kitsuneTokens].join(", ")}`
+    : `hero 520–720 px, офуда (${ofudaMarkup.length}, иероглифы aria-hidden), ханко, зерно, сэйгайха, лисий огонь, токены движения`,
+);
+
 const continueCssTokens = [
   ".continue-grid",
   "grid-auto-flow: column",
