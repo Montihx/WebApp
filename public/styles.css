@@ -7342,8 +7342,6 @@ html[data-theme="light"] .site-header {
 .title-backdrop img { filter: saturate(0.7) brightness(0.62) contrast(1.1); }
 html[data-theme="light"] .title-backdrop img { filter: saturate(0.5) brightness(0.9); opacity: 0.6; }
 
-.player-main-button { background: var(--primary-bg); }
-.player-main-button:hover { background: var(--primary-bg-hover); }
 
 /* Dark media surfaces keep a light focus ring in both themes (the light-theme ring is dark brown). */
 .feature-slider :focus-visible,
@@ -7366,4 +7364,298 @@ html[data-input-modality="keyboard"] .player-stage :is(a, button, [tabindex]):fo
 @media (max-width: 720px) {
   .section-heading { flex-wrap: wrap; row-gap: 8px; }
   .section-heading > div:first-child { flex: 1 1 100%; }
+}
+
+/* ==========================================================================
+   Player card: source tabs, voice + settings row, stage, numbered episode strip.
+   ========================================================================== */
+.player-heading { margin-bottom: var(--space-4); }
+
+.player-card {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.player-tabs {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--line);
+  scrollbar-width: none;
+}
+
+.player-tabs::-webkit-scrollbar { display: none; }
+
+.player-tab {
+  position: relative;
+  flex: 0 0 auto;
+  min-height: 48px;
+  padding: 0 20px;
+  color: var(--text-muted);
+  font-size: var(--type-ui);
+  font-weight: 700;
+  transition: color var(--dur-1) var(--ease-out);
+}
+
+.player-tab::after {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--accent);
+  content: "";
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-2) var(--ease-out);
+}
+
+.player-tab:hover { color: var(--text); }
+.player-tab.is-active { color: var(--accent-text); }
+.player-tab.is-active::after { transform: scaleX(1); }
+
+.player-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.player-voice {
+  position: relative;
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+}
+
+.player-voice label {
+  color: var(--text-muted);
+  font-size: var(--type-meta);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.player-voice .select-wrap { position: static; display: inline-flex; align-items: center; }
+
+.player-voice select {
+  min-height: 36px;
+  padding: 0 22px 0 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: var(--type-ui);
+  font-weight: 700;
+  appearance: none;
+}
+
+.player-voice .select-wrap > svg,
+.player-voice .select-wrap > i {
+  position: absolute;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.player-now {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: var(--type-meta);
+}
+
+.player-now svg { width: 13px; height: 13px; }
+
+.player-settings-button {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: var(--type-ui);
+  font-weight: 700;
+  transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+}
+
+.player-settings-button:hover { background: var(--surface-hover); color: var(--text); }
+.player-settings-button svg { width: 16px; height: 16px; }
+
+.player-card .player-stage {
+  border: 0;
+  border-radius: 0;
+  background: var(--media-ink);
+}
+
+.player-card .player-stage-copy { top: 16px; left: 18px; }
+
+.player-card .player-main-button {
+  width: 88px;
+  height: 88px;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 4px solid rgba(242, 235, 221, 0.2);
+  border-radius: 50%;
+  background: var(--media-ink);
+  color: var(--media-text);
+}
+
+.player-card .player-main-button:hover { background: var(--accent); color: var(--ink); }
+.player-card .player-main-button svg { width: 30px; height: 30px; }
+
+.player-card .player-main-button span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.player-card .player-controls {
+  right: 18px;
+  bottom: 14px;
+  left: 18px;
+  grid-template-columns: 36px auto minmax(0, 1fr) 36px 36px;
+  grid-template-areas:
+    "bar bar bar bar bar"
+    "play time . mute full";
+  row-gap: 8px;
+}
+
+.player-card .player-controls button { width: 36px; height: 36px; }
+.player-card .player-controls svg { width: 18px; height: 18px; }
+.player-card .player-timeline { grid-area: bar; }
+.player-card .player-controls [data-player-play] { grid-area: play; }
+.player-card .player-controls time { grid-area: time; }
+.player-card .player-controls [data-player-mute] { grid-area: mute; }
+.player-card .player-controls [data-player-fullscreen] { grid-area: full; }
+
+.episode-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.episode-strip__label {
+  margin-right: 4px;
+  color: var(--text-muted);
+  font-size: var(--type-meta);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.episode-strip__nav {
+  display: grid;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 44px;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+}
+
+.episode-strip__nav:hover { background: var(--surface-hover); color: var(--text); }
+.episode-strip__nav svg { width: 18px; height: 18px; }
+
+.episode-strip__list {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px;
+  scrollbar-width: none;
+}
+
+.episode-strip__list::-webkit-scrollbar { display: none; }
+
+.episode-chip {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 48px;
+  height: 44px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font-size: var(--type-ui);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+}
+
+.episode-chip:hover { background: var(--surface-hover); color: var(--text); }
+
+.episode-chip.is-selected {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+/* The current episode carries the fox fire. */
+.episode-chip.is-selected::after {
+  position: absolute;
+  inset: -3px;
+  border: 1px solid var(--kitsunebi);
+  border-radius: calc(var(--radius-sm) + 3px);
+  box-shadow: 0 0 14px var(--kitsunebi-soft);
+  content: "";
+  pointer-events: none;
+  animation: kitsunebi-flicker 3s ease-in-out infinite;
+}
+
+.player-release {
+  margin-top: var(--space-4);
+  color: var(--text-secondary);
+}
+
+.player-release summary {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: var(--type-ui);
+  font-weight: 700;
+}
+
+.player-release[open] summary { color: var(--text); }
+.player-release .translation-facts { max-width: 560px; }
+
+@media (max-width: 720px) {
+  .player-tab { padding: 0 16px; }
+  .player-toolbar { padding: 10px 12px; }
+  .player-now { display: none; }
+  .player-settings-button { margin-left: auto; }
+  .player-settings-button span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .player-settings-button { width: 44px; justify-content: center; padding: 0; }
+  .player-card .player-main-button { width: 68px; height: 68px; }
+  .player-card .player-controls { right: 10px; bottom: 8px; left: 10px; }
+  .player-card .player-stage-copy { display: none; }
+  .episode-strip { padding: 10px 8px; gap: 4px; }
+  .episode-strip__label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .episode-chip.is-selected::after { animation: none; }
+  .player-tab::after { transition: none; }
 }

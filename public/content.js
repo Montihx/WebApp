@@ -41,14 +41,7 @@
       const names = [title.title, title.title_en, title.title_jp, title.title_en, ''];
       document.querySelectorAll('.title-name-value').forEach((node, index) => { node.textContent = names[index] || ''; node.closest('div')?.toggleAttribute('hidden', !names[index]); });
       document.querySelectorAll('[data-field="favorites_count"], [data-field="comments_count"]').forEach(node => { node.textContent = '—'; const control = node.closest('[aria-label]'); if (control) control.setAttribute('aria-label', node.dataset.field === 'comments_count' ? 'Перейти к обсуждению' : 'Количество сохранений неизвестно'); });
-      document.querySelectorAll('[data-episode]').forEach((node, i) => {
-        if (i >= title.episodes_total) node.remove();
-        else { node.querySelector('.episode-copy strong').textContent = `Серия ${i + 1}`; node.querySelector('.episode-copy small').textContent = 'Сезон 1'; }
-      });
-      $('.episodes-title span').textContent = `${title.episodes_total} эпизодов`;
-      const more = $('[data-load-episodes]');
-      more.hidden = title.episodes_total <= 6;
-      more.querySelector('small').textContent = `7–${Math.min(18, title.episodes_total)} из ${title.episodes_total}`;
+      document.querySelectorAll('[data-episode]').forEach((node, i) => { if (i >= title.episodes_total) node.remove(); });
       if (!title.episodes_total) {
         $('#player').hidden = true;
         document.querySelectorAll('[data-scroll-player]').forEach(button => { button.disabled = true; button.title = 'В демонстрационных данных пока нет эпизодов'; });

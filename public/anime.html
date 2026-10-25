@@ -168,15 +168,28 @@
       <section class="content-section player-section" id="player" aria-labelledby="player-title">
         <div class="page-container">
           <div class="section-heading player-heading">
-            <div><h2 id="player-title">Серия 1</h2><p class="section-subtitle" id="player-subtitle">Сезон 1 · выбранный перевод</p></div>
-            <div class="player-head-actions"><span class="last-update" id="release-status"><i data-lucide="radio"></i>Kodik · AniLibria.TV · 1080p</span><button class="icon-button" type="button" data-open-player-settings aria-label="Настройки плеера"><i data-lucide="settings-2"></i></button></div>
+            <div><p class="section-kicker">Плеер</p><h2 id="player-title">Серия 1</h2><p class="section-subtitle" id="player-subtitle">Сезон 1 · выбранный перевод</p></div>
           </div>
 
-          <div class="watch-layout">
-            <div class="player-column">
+          <div class="player-card">
+            <div class="player-tabs" role="tablist" aria-label="Источник плеера">
+              <button class="player-tab is-active" type="button" role="tab" aria-selected="true" data-player-source="Kodik">Смотреть онлайн</button>
+              <button class="player-tab" type="button" role="tab" aria-selected="false" tabindex="-1" data-player-source="AniBoom">Альтернативный плеер</button>
+            </div>
+            <select id="source-select" hidden aria-hidden="true" tabindex="-1"><option value="Kodik">Kodik</option><option value="AniBoom">AniBoom</option></select>
+
+            <div class="player-toolbar">
+              <div class="player-voice">
+                <label for="translation-select">Озвучка</label>
+                <div class="select-wrap"><select id="translation-select"><option value="AniLibria.TV">AniLibria.TV</option><option value="AniDub Online">AniDub Online</option><option value="Субтитры">Субтитры</option></select><i data-lucide="chevron-down"></i></div>
+              </div>
+              <span class="player-now" id="release-status"><i data-lucide="radio"></i>Kodik · AniLibria.TV · 1080p</span>
+              <button class="player-settings-button" type="button" data-open-player-settings aria-label="Настройки плеера"><i data-lucide="settings-2"></i><span>Настройки</span></button>
+            </div>
+
               <div class="player-stage" id="player-stage" aria-label="Область видеоплеера">
                 <div class="player-stage-art" aria-hidden="true"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /></div>
-                <div class="player-stage-copy"><span class="player-kicker"><i data-lucide="play-square"></i>Kitsu Player</span><strong id="stage-episode-title">Серия 1</strong><small id="stage-translation">Выберите перевод и запустите воспроизведение</small></div>
+                <div class="player-stage-copy"><strong id="stage-episode-title">Серия 1</strong><small id="stage-translation">Выберите перевод и запустите воспроизведение</small></div>
                 <button class="player-main-button" type="button" id="player-toggle" aria-label="Запустить воспроизведение"><i data-lucide="play"></i><span>Воспроизвести</span></button>
                 <div class="player-controls">
                   <button type="button" data-player-play aria-label="Запустить воспроизведение"><i data-lucide="play"></i></button>
@@ -186,44 +199,20 @@
                   <button type="button" data-player-fullscreen aria-label="Полноэкранный режим"><i data-lucide="maximize"></i></button>
                 </div>
               </div>
-            </div>
 
-            <aside class="release-panel" aria-label="Выбор релиза">
-              <div class="release-panel-head"><div><h3>Источник и перевод</h3></div><span class="source-status"><span></span>доступен</span></div>
-              <label class="field-label" for="source-select">Источник потока</label>
-              <div class="select-wrap"><select id="source-select"><option value="Kodik">Kodik</option><option value="AniBoom">AniBoom</option></select><i data-lucide="chevron-down"></i></div>
-              <label class="field-label" for="translation-select">Перевод</label>
-              <div class="select-wrap"><select id="translation-select"><option value="AniLibria.TV">AniLibria.TV</option><option value="AniDub Online">AniDub Online</option><option value="Субтитры">Субтитры</option></select><i data-lucide="chevron-down"></i></div>
-              <div class="translation-facts"><span><small>Тип</small><strong id="release-type">Озвучка</strong></span><span><small>Язык</small><strong id="release-language">Русский</strong></span><span><small>Качество</small><strong id="release-quality">1080p</strong></span><span><small>Просмотры</small><strong id="release-views">18 200</strong></span></div>
-              <fieldset class="player-options">
-                <legend>Поведение плеера</legend>
-                <label><input type="checkbox" checked data-player-option="opening" /><span class="check-ui"><i data-lucide="check"></i></span><span><strong>Пропускать опенинг</strong><small>Если есть skip times</small></span></label>
-                <label><input type="checkbox" checked data-player-option="ending" /><span class="check-ui"><i data-lucide="check"></i></span><span><strong>Пропускать эндинг</strong><small>Если есть skip times</small></span></label>
-                <label><input type="checkbox" data-player-option="autonext" /><span class="check-ui"><i data-lucide="check"></i></span><span><strong>Следующая серия</strong><small>Запускать автоматически</small></span></label>
-              </fieldset>
-              <div class="release-panel-footer"><i data-lucide="layers-3"></i><span><strong id="release-summary">Kodik</strong><small id="release-summary-detail">AniLibria.TV · 1080p</small></span></div>
-            </aside>
+            <div class="episode-strip" id="episodes" role="group" aria-label="Серии">
+              <span class="episode-strip__label">Серия</span>
+              <button class="episode-strip__nav" type="button" data-episode-prev aria-label="Прокрутить серии назад"><i data-lucide="chevron-left"></i></button>
+              <div class="episode-strip__list" id="episode-strip-list" data-episode-list><button class="episode-chip is-selected" type="button" data-episode="1" aria-label="Серия 1" aria-pressed="true">1</button><button class="episode-chip" type="button" data-episode="2" aria-label="Серия 2" aria-pressed="false">2</button><button class="episode-chip" type="button" data-episode="3" aria-label="Серия 3" aria-pressed="false">3</button><button class="episode-chip" type="button" data-episode="4" aria-label="Серия 4" aria-pressed="false">4</button><button class="episode-chip" type="button" data-episode="5" aria-label="Серия 5" aria-pressed="false">5</button><button class="episode-chip" type="button" data-episode="6" aria-label="Серия 6" aria-pressed="false">6</button><button class="episode-chip" type="button" data-episode="7" aria-label="Серия 7" aria-pressed="false">7</button><button class="episode-chip" type="button" data-episode="8" aria-label="Серия 8" aria-pressed="false">8</button><button class="episode-chip" type="button" data-episode="9" aria-label="Серия 9" aria-pressed="false">9</button><button class="episode-chip" type="button" data-episode="10" aria-label="Серия 10" aria-pressed="false">10</button><button class="episode-chip" type="button" data-episode="11" aria-label="Серия 11" aria-pressed="false">11</button><button class="episode-chip" type="button" data-episode="12" aria-label="Серия 12" aria-pressed="false">12</button></div>
+              <button class="episode-strip__nav" type="button" data-episode-next aria-label="Прокрутить серии вперёд"><i data-lucide="chevron-right"></i></button>
+            </div>
           </div>
 
-          <div class="episodes-section" id="episodes">
-            <div class="episodes-toolbar">
-              <div class="episodes-title"><h3>Серии</h3><span>74 эпизода</span></div>
-              <div class="episodes-controls">
-                <label><span class="sr-only">Сезон</span><select id="season-select"><option value="1">Сезон 1</option></select><i data-lucide="chevron-down"></i></label>
-                <button class="view-toggle is-active" type="button" data-episode-view="grid" aria-label="Плитка"><i data-lucide="grid-2x2"></i></button>
-                <button class="view-toggle" type="button" data-episode-view="list" aria-label="Список"><i data-lucide="list"></i></button>
-              </div>
-            </div>
-            <div class="episode-grid" id="episode-grid">
-              <button class="episode-card is-selected" type="button" data-episode="1"><span class="episode-thumb"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span><span class="episode-copy"><strong>Серия 1</strong><small>Сезон 1</small></span><span class="episode-state"><i data-lucide="check-circle-2"></i></span></button>
-              <button class="episode-card" type="button" data-episode="2"><span class="episode-thumb"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span><span class="episode-copy"><strong>Серия 2</strong><small>Сезон 1</small></span><span class="episode-state"><i data-lucide="circle"></i></span></button>
-              <button class="episode-card" type="button" data-episode="3"><span class="episode-thumb"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span><span class="episode-copy"><strong>Серия 3</strong><small>Сезон 1</small></span><span class="episode-state"><i data-lucide="circle"></i></span></button>
-              <button class="episode-card" type="button" data-episode="4"><span class="episode-thumb"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span><span class="episode-copy"><strong>Серия 4</strong><small>Сезон 1</small></span><span class="episode-state"><i data-lucide="circle"></i></span></button>
-              <button class="episode-card" type="button" data-episode="5"><span class="episode-thumb"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span><span class="episode-copy"><strong>Серия 5</strong><small>Сезон 1</small></span><span class="episode-state"><i data-lucide="circle"></i></span></button>
-              <button class="episode-card" type="button" data-episode="6"><span class="episode-thumb"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span><span class="episode-copy"><strong>Серия 6</strong><small>Сезон 1</small></span><span class="episode-state"><i data-lucide="circle"></i></span></button>
-            </div>
-            <button class="load-more-button" type="button" data-load-episodes><span>Показать следующие серии</span><small>7–18 из 74</small><i data-lucide="chevron-down"></i></button>
-          </div>
+          <details class="player-release">
+            <summary>Сведения о релизе</summary>
+            <div class="translation-facts"><span><small>Тип</small><strong id="release-type">Озвучка</strong></span><span><small>Язык</small><strong id="release-language">Русский</strong></span><span><small>Качество</small><strong id="release-quality">1080p</strong></span><span><small>Просмотры</small><strong id="release-views">18 200</strong></span></div>
+            <div class="release-panel-footer"><i data-lucide="layers-3"></i><span><strong id="release-summary">Kodik</strong><small id="release-summary-detail">AniLibria.TV · 1080p</small></span></div>
+          </details>
         </div>
       </section>
 

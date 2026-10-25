@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-10-25T06:07:44.385Z",
+  "generated_at": "2026-10-25T06:13:57.031Z",
   "summary": {
     "status": "pass",
     "total": 49,
@@ -67,7 +67,7 @@
       "id": "anime.html.ids",
       "label": "anime.html: уникальные ID",
       "status": "pass",
-      "detail": "71 уникальных ID"
+      "detail": "70 уникальных ID"
     },
     {
       "id": "anime.html.references",
@@ -79,7 +79,7 @@
       "id": "anime.html.aria",
       "label": "anime.html: ARIA-ссылки",
       "status": "pass",
-      "detail": "27 ссылок разрешены"
+      "detail": "26 ссылок разрешены"
     },
     {
       "id": "anime.html.buttons",
@@ -91,7 +91,7 @@
       "id": "anime.html.images",
       "label": "anime.html: alt у изображений",
       "status": "pass",
-      "detail": "17 изображений проверено"
+      "detail": "11 изображений проверено"
     },
     {
       "id": "anime.html.anchors",
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "1213 блоков, структура сбалансирована"
+      "detail": "1275 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -211,7 +211,7 @@
       "id": "css.tabularNums",
       "label": "CSS: tabular-nums на числовых узлах",
       "status": "pass",
-      "detail": "15 правил с tabular-nums"
+      "detail": "16 правил с tabular-nums"
     },
     {
       "id": "js.headerSearch",

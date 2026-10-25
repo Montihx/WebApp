@@ -48,7 +48,6 @@
     listStatus: "none",
     subscription: storage.get(`kitsu-demo-subscription-${titleId()}`, titleId() === "19" ? storage.get("kitsu-demo-subscription", "none") : "none"),
     selectedEpisode: 1,
-    loadedEpisodes: 6,
     playing: false,
     muted: false,
   };
@@ -1265,42 +1264,61 @@
     $("#stage-episode-title").textContent = `Серия ${number}`;
     syncReleaseSummary();
     syncPlayer();
-    scrollToTarget("#player");
+    centerSelectedEpisode();
   }
 
-  function buildEpisodeCard(number) {
-    const card = document.createElement("button");
-    card.className = "episode-card";
-    card.type = "button";
-    card.dataset.episode = String(number);
-    card.setAttribute("aria-pressed", "false");
-    card.innerHTML = `
-      <span class="episode-thumb"><img src="${body.dataset.animePoster || "https://shikimori.one/system/animes/original/19.jpg"}" alt="" referrerpolicy="no-referrer" /><span><i data-lucide="play"></i></span></span>
-      <span class="episode-copy"><strong>Серия ${number}</strong><small>Сезон 1</small></span>
-      <span class="episode-state"><i data-lucide="circle"></i></span>
-    `;
-    card.addEventListener("click", () => selectEpisode(number));
-    $("img", card)?.addEventListener("error", (event) => event.currentTarget.classList.add("is-image-error"), { once: true });
-    return card;
+  function centerSelectedEpisode() {
+    const list = $("[data-episode-list]");
+    const chip = list && $(".episode-chip.is-selected", list);
+    if (!chip) return;
+    const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    list.scrollTo({ left: chip.offsetLeft - (list.clientWidth - chip.offsetWidth) / 2, behavior: smooth ? "smooth" : "auto" });
   }
 
-  function loadMoreEpisodes() {
-    const grid = $("#episode-grid");
-    const button = $('[data-load-episodes]');
-    if (!grid || !button) return;
-    const start = state.loadedEpisodes + 1;
-    const end = Math.min(episodeTotal(), state.loadedEpisodes + 12);
+  // The strip lists every episode as a numbered chip; the markup ships the first twelve.
+  function fillEpisodeStrip() {
+    const list = $("[data-episode-list]");
+    if (!list) return;
     const fragment = document.createDocumentFragment();
-    for (let number = start; number <= end; number += 1) fragment.append(buildEpisodeCard(number));
-    grid.append(fragment);
-    state.loadedEpisodes = end;
-    refreshIcons();
-    if (end >= episodeTotal()) {
-      button.hidden = true;
-      showToast("Все серии показаны", `Список содержит ${episodeTotal()} эпизодов.`, "info");
-      return;
+    for (let number = $$("[data-episode]", list).length + 1; number <= episodeTotal(); number += 1) {
+      const chip = document.createElement("button");
+      chip.className = "episode-chip";
+      chip.type = "button";
+      chip.dataset.episode = String(number);
+      chip.setAttribute("aria-label", `Серия ${number}`);
+      chip.setAttribute("aria-pressed", "false");
+      chip.textContent = String(number);
+      chip.addEventListener("click", () => selectEpisode(number));
+      fragment.append(chip);
     }
-    $("small", button).textContent = `${end + 1}–${Math.min(episodeTotal(), end + 12)} из ${episodeTotal()}`;
+    list.append(fragment);
+  }
+
+  function initPlayerChrome() {
+    fillEpisodeStrip();
+    const list = $("[data-episode-list]");
+    const step = (direction) => list?.scrollBy({
+      left: direction * list.clientWidth * 0.8,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+    });
+    $("[data-episode-prev]")?.addEventListener("click", () => step(-1));
+    $("[data-episode-next]")?.addEventListener("click", () => step(1));
+
+    const select = $("#source-select");
+    $$("[data-player-source]").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        $$("[data-player-source]").forEach((item) => {
+          const active = item === tab;
+          item.classList.toggle("is-active", active);
+          item.setAttribute("aria-selected", String(active));
+          item.tabIndex = active ? 0 : -1;
+        });
+        if (select && select.value !== tab.dataset.playerSource) {
+          select.value = tab.dataset.playerSource;
+          select.dispatchEvent(new Event("change"));
+        }
+      });
+    });
   }
 
   function initTitleNames() {
@@ -1380,7 +1398,6 @@
       } catch (_) {}
     }
     state.listStatus = getBookmarkStatus(titleId());
-    state.loadedEpisodes = $$('[data-episode]').length;
     syncListState();
     syncSubscriptionState();
     syncPlayer();
@@ -1537,19 +1554,7 @@
       control.addEventListener("click", () => selectEpisode(Number(control.dataset.episode)));
     });
 
-    $$('[data-episode-view]').forEach((control) => {
-      control.addEventListener("click", () => {
-        const list = control.dataset.episodeView === "list";
-        $("#episode-grid")?.classList.toggle("is-list", list);
-        $$('[data-episode-view]').forEach((item) => {
-          const active = item === control;
-          item.classList.toggle("is-active", active);
-          item.setAttribute("aria-pressed", String(active));
-        });
-      });
-    });
-
-    $('[data-load-episodes]')?.addEventListener("click", loadMoreEpisodes);
+    initPlayerChrome();
   }
 
   initShared();
