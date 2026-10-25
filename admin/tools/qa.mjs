@@ -145,6 +145,8 @@ const baselinePairs = {
     info: "#7f9fbd",
     kitsunebi: "#8fd8ff",
     kin: "#d9a84e",
+    "kin-text": "#d9a84e",
+    "kitsunebi-text": "#8fd8ff",
   },
   light: {
     text: "#1c1613",
@@ -157,6 +159,8 @@ const baselinePairs = {
     info: "#1d4ed8",
     kitsunebi: "#0b6a99",
     kin: "#8a6112",
+    "kin-text": "#6a490b",
+    "kitsunebi-text": "#08587f",
   },
 };
 const reinforcedTokens = ["accent-text", "green", "amber", "red", "info"];

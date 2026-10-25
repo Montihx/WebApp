@@ -1,10 +1,38 @@
-# Anime Graphite — дизайн-система Kitsu
+# Кицунэ — дизайн-система админки Kitsu
 
 ## Замысел
 
-Система сохраняет компактность и расположение понравившегося dashboard. Dark строится на почти чёрном canvas и нейтральных graphite surfaces; светлая primary-кнопка создаёт ясную иерархию, а фиолетовый accent появляется только в selection и identity markers (running/in-progress). Клавиатурный фокус нейтральный. Light использует тёплый нейтральный canvas, белые поверхности и почти чёрный `#1F1D20` как локальный сильный action/brand anchor.
+Админка — рабочий пульт на 20 экранов: плотная, быстрая, спокойная. Основа та же, что у публичной части: тёплая тушь (тёмная тема) и бумага «день» (светлая), общие токены `tokens.css`, арт-направление [docs/ART_DIRECTION.md](../../docs/ART_DIRECTION.md). Характер «Кицунэ» присутствует в малых дозах и со смыслом; офуда, ханко, зерно и сэйгайха в админку не переносятся.
 
-Это собственная система Kitsu, а не копия Anixart и не набор случайных компонентов из UI-каталогов.
+## Язык админки
+
+| Элемент | Значение |
+| --- | --- |
+| Киноварь `--accent` | логотип, главная кнопка экрана, активный пункт меню, цвет серии Kodik на графике |
+| Лисий огонь `--kitsunebi` | «происходит прямо сейчас»: выполняющаяся задача, живой прогресс, «API онлайн», ближайший запуск планировщика, текущая серия. Мерцает мягко (3 с), только у живых процессов |
+| Золото `--kin` (текст `--kin-text`) | «требует внимания оператора»: очередь на обзоре, счётчик конфликтов, несохранённые изменения |
+| Малиновый `--red` | ошибка и удаление; всегда с текстом, в подтверждении назван объект |
+| Бумага | серия Shikimori на графике (`--text-secondary`) |
+| Dela Gothic One | только H1 страниц и крупные числа (KPI, счётчики очереди) |
+| Onest | интерфейс |
+| JetBrains Mono | ID, время, счётчики, числовые колонки (`tabular-nums`, выравнивание вправо) |
+| Балка тории | один фирменный элемент: над заголовком страницы и у активного пункта меню |
+
+Геометрия: радиусы из `tokens.css` (4/8/10/14 px), линии вместо теней; тени только у меню, диалогов и drawers.
+
+## Состояния экрана
+
+| Состояние | Компонент |
+| --- | --- |
+| Загрузка | спокойные скелетоны `.skeleton`, `.skeleton-line` (дыхание opacity, без мерцающих полос), геометрия сохраняется |
+| Пусто | `.empty-state`: причина и поддерживаемое следующее действие |
+| Ошибка | `.state-error`: видимое сообщение малиновым с текстом; повтор только там, где он есть в контракте |
+| Не сохранено | `.dirty-state` в шапке редактора («Изменений нет» / «Есть несохранённые изменения»), «Отмена» сбрасывает черновик |
+| Неизвестный прогресс | `.indeterminate-track` и `.honest-progress` — скользящая полоса огня и подпись «счётчики в конце», никогда «0%» |
+
+## Движение
+
+Токены `--ease-out`, `--dur-1/2/3`. Drawer выезжает за 240 мс (`transform`, `@starting-style`), диалог и палитра появляются `scale .98 → 1` с fade, тосты поднимаются снизу, смена экрана и темы — View Transitions как прогрессивное улучшение. Анимируются только `transform`, `opacity`, `filter`. `prefers-reduced-motion` выключает всё перечисленное.
 
 ## Цветовые роли
 
@@ -12,32 +40,34 @@ Feature-компоненты используют semantic tokens. Raw hex ра�
 
 | Роль           |      Dark |     Light | Применение                         |
 | -------------- | --------: | --------: | ---------------------------------- |
-| Canvas         | `#0D0D0F` | `#F5F4F2` | фон приложения                     |
-| Sidebar        | `#111113` | `#FBFAF9` | постоянная нейтральная навигация   |
-| Surface        | `#19191C` | `#FFFFFF` | panels, tables, cards              |
-| Raised         | `#212124` | `#F7F5F4` | popover, toolbar, input            |
-| Hover          | `#27272B` | `#EFEDEC` | обычный hover без brand tint       |
-| Active         | `#2D2D32` | `#E8E4E7` | selected surface                  |
-| Border         | `#2E2E33` | `#DEDADD` | обычная граница                    |
-| Strong border  | `#46464E` | `#C5BFC4` | focus/context boundary             |
-| Text           | `#F3F2F4` | `#252225` | основной текст                     |
-| Secondary      | `#B9B6BC` | `#5E5960` | пояснения                          |
-| Muted          | `#8B8790` | `#746E74` | metadata с AA-контрастом           |
-| Accent marker  | `#7242E0` | `#36255C` | selection, running/in-progress |
-| Focus ring     | `#B9B6BC` | `#5E5960` | клавиатурный фокус |
-| Accent text    | `#D2C3F6` | `#36255C` | малый accent text с AA-контрастом  |
-| Primary fill   | `#ECEAEC` | `#1F1D20` | один главный action в контексте    |
-| Primary text   | `#171719` | `#FFFFFF` | текст главного action              |
+| Canvas         | `#0F0C0B` | `#F4EEE3` | фон приложения                     |
+| Sidebar        | `#130F0D` | `#EFE7D8` | постоянная нейтральная навигация   |
+| Surface        | `#17120F` | `#FBF7F0` | panels, tables, cards              |
+| Raised         | `#201914` | `#F1E9DA` | popover, toolbar, input            |
+| Hover          | `#2A211B` | `#E9DFCB` | обычный hover без brand tint       |
+| Active         | `#33281F` | `#E0D3BA` | selected surface                  |
+| Border         | `#3A2E26` | `#D9CDB8` | обычная граница                    |
+| Strong border  | `#5A483B` | `#B8A78C` | focus/context boundary             |
+| Text           | `#F2EBDD` | `#1C1613` | основной текст                     |
+| Secondary      | `#CFC4B2` | `#4F433A` | пояснения                          |
+| Muted          | `#9C8F7E` | `#5E5145` | metadata с AA-контрастом           |
+| Accent (киноварь) | `#E0472B` | `#B8341C` | логотип, главная кнопка, активный пункт |
+| Focus ring     | `#CFC4B2` | `#4F433A` | клавиатурный фокус |
+| Accent text    | `#FF8A6E` | `#A32D16` | малый accent text с AA-контрастом  |
+| Primary fill   | `#E0472B` | `#B8341C` | один главный action в контексте    |
+| Primary text   | `#150D09` | `#FBF7F0` | текст главного action              |
 | Success        | `#56AD91` | `#166534` | только подтверждённый success      |
 | Warning        | `#D0A052` | `#854D0E` | attention/partial/unknown          |
-| Danger         | `#FF7A7A` | `#B91C1C` | destructive/error                  |
+| Danger         | `#FF6F93` | `#A8123E` | destructive/error                  |
 | Info           | `#7F9FBD` | `#1D4ED8` | редкое информационное состояние    |
+| Fox fire       | `#8FD8FF` | `#0B6A99` | только «происходит сейчас» (текст: `--kitsunebi-text`) |
+| Kin (gold)     | `#D9A84E` | `#8A6112` | «требует оператора» (текст: `--kin-text`) |
 
 Значения синхронизированы с общими custom properties в корневом `tokens.css` и проверяются автоматически контраст-чеками в `admin/tools/qa.mjs`. Источник истины — CSS-токены и `qa-results.json`, не эта таблица: при изменении токенов сначала прогонять `qa.mjs --write`, потом обновлять таблицу.
 
 ### Запреты цвета
 
-- Accent (фиолетовый) не используется как canvas, sidebar fill, массовая заливка cards или общая тень. Его площадь должна оставаться небольшой и означать только selected/running/in-progress.
+- Киноварь не используется как canvas, заливка sidebar, массовая заливка cards или общая тень. Её площадь мала: логотип, главная кнопка экрана, активный пункт меню, серия Kodik на графике.
 - Green не используется для brand, primary navigation или decorative glow.
 - Slate-blue не является темой или CTA: он разрешён только для информационного status и всегда сопровождается иконкой/текстом.
 - Red не используется для ordinary attention: warning остаётся amber.
@@ -53,14 +83,14 @@ Feature-компоненты используют semantic tokens. Raw hex ра�
 
 ### Один источник истины для тона
 
-Единственное место, которое решает, какой смысл (`success` / `warning` / `danger` / `info` / `accent` / `neutral`) получает статус — функции `toneForStatus(value)` и `labelForStatus(value)` в `admin/app.js`. Любой новый статус (новое значение `job.status`, `anime.status` и т.д.) добавляется ТОЛЬКО туда, одной строкой в оба объекта. Компонент, который рисует статус, обязан получать тон через `toneForStatus(...)`, а не задавать цвет литералом (`status("Текст", "info")` вручную допустим только для строк, у которых в принципе нет соответствующего status-значения — и даже тогда тон должен быть выбран по этой же таблице смыслов, а не на глаз).
+Единственное место, которое решает, какой смысл (`success` / `warning` / `danger` / `info` / `live` / `neutral`; `live` — лисий огонь, `warning` — золото оператора) получает статус — функции `toneForStatus(value)` и `labelForStatus(value)` в `admin/app.js`. Любой новый статус (новое значение `job.status`, `anime.status` и т.д.) добавляется ТОЛЬКО туда, одной строкой в оба объекта. Компонент, который рисует статус, обязан получать тон через `toneForStatus(...)`, а не задавать цвет литералом (`status("Текст", "info")` вручную допустим только для строк, у которых в принципе нет соответствующего status-значения — и даже тогда тон должен быть выбран по этой же таблице смыслов, а не на глаз).
 
 ### Компоненты, которые обязаны совпадать по цвету на один и тот же тон
 
 | Класс | Где используется | Тон берётся из |
 | --- | --- | --- |
-| `.status-badge` + `.status-badge--{tone}` | таблицы, drawer, карточки, service-state | `toneForStatus`/`labelForStatus` |
-| `.status-dot--{ok,warning,danger}` | health-ribbon, live-индикаторы | вручную, но только success/warning/danger |
+| `.status-badge` + `.status-badge--{tone}` (tone: success, warning, danger, info, live, neutral) | таблицы, drawer, карточки, service-state | `toneForStatus`/`labelForStatus` |
+| `.status-dot--{ok,warning,danger,live}` | health-ribbon, live-индикаторы | вручную; `live` — только живые процессы |
 | `.job-glyph--{running,success,failed}` | иконка задачи в строке таблицы | `job.status` |
 | `.decision-icon--{warning,info,danger}` | очередь решений | явный тон каждой строки очереди |
 | `.event-icon--{success,warning,info}` | список уведомлений (notification-popover) | явный тон каждой записи |
@@ -109,9 +139,9 @@ Feature-компоненты используют semantic tokens. Raw hex ра�
 
 ## Типографика
 
-- `Manrope` — body, controls, tables и длинный русский текст.
-- `Outfit` — page title, крупные числа и короткие product headings.
-- `Space Grotesk` — IDs, timestamps, API fields и telemetry, но не абзацы.
+- `Dela Gothic One` — только H1 страниц и крупные числа (KPI, счётчики очереди).
+- `Onest` — интерфейс, таблицы, формы и длинный русский текст.
+- `JetBrains Mono` — ID, время, счётчики и числовые колонки, всегда с `tabular-nums`.
 - Production подключает шрифты через `next/font`; standalone хранит лицензированные woff2 локально.
 
 Рекомендуемые production размеры:
@@ -132,7 +162,7 @@ Standalone-прототип визуально уменьшен для обзо�
 - base spacing: 4 px; рабочие интервалы 8/12/16/24/32;
 - controls: 36–40 px desktop, минимум 44 px touch target на mobile;
 - table row: 48–56 px desktop;
-- radius: 4/8/12 px из общего `tokens.css`;
+- radius: 4/8/10/14 px из общего `tokens.css`;
 - border: 1 px; elevation создаётся сочетанием границы и мягкой тени;
 - sidebar остаётся спокойным и постоянным, active item отмечается left rail + background, а не яркой pill;
 - page heading не превращается в marketing hero внутри admin.

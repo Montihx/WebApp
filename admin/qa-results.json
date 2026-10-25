@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu enterprise admin template · Anime Graphite",
-  "generated_at": "2026-10-25T06:34:12.263Z",
+  "generated_at": "2026-10-25T10:47:22.384Z",
   "summary": {
     "status": "pass",
     "total": 19,
@@ -43,7 +43,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "1786 блоков, структура сбалансирована"
+      "detail": "1982 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -79,7 +79,7 @@
       "id": "css.tabularNums",
       "label": "CSS: tabular-nums на числовых колонках",
       "status": "pass",
-      "detail": "11 правил с tabular-nums"
+      "detail": "13 правил с tabular-nums"
     },
     {
       "id": "css.contrastSync",
@@ -91,13 +91,13 @@
       "id": "css.contrast.dark",
       "label": "CSS: контраст токенов — тёмная тема",
       "status": "pass",
-      "detail": "11 пар посчитаны, минимум 4.67:1"
+      "detail": "13 пар посчитаны, минимум 4.67:1"
     },
     {
       "id": "css.contrast.light",
       "label": "CSS: контраст токенов — светлая тема",
       "status": "pass",
-      "detail": "11 пар посчитаны, минимум 5.18:1"
+      "detail": "13 пар посчитаны, минимум 5.18:1"
     },
     {
       "id": "assets.fontInventory",
@@ -217,6 +217,24 @@
     },
     {
       "theme": "dark",
+      "token": "kin-text",
+      "foreground": "#d9a84e",
+      "background": "#17120f",
+      "ratio": 8.55103703778497,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "dark",
+      "token": "kitsunebi-text",
+      "foreground": "#8fd8ff",
+      "background": "#17120f",
+      "ratio": 11.89029489579668,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "dark",
       "token": "primary-fg",
       "foreground": "#150d09",
       "background": "#e0472b",
@@ -311,6 +329,24 @@
       "foreground": "#8a6112",
       "background": "#fbf7f0",
       "ratio": 5.175842159395476,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "light",
+      "token": "kin-text",
+      "foreground": "#6a490b",
+      "background": "#fbf7f0",
+      "ratio": 7.649483614637398,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "light",
+      "token": "kitsunebi-text",
+      "foreground": "#08587f",
+      "background": "#fbf7f0",
+      "ratio": 7.2490817576002895,
       "threshold": 4.5,
       "tier": "baseline"
     },

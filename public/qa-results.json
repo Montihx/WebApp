@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-10-25T06:34:12.188Z",
+  "generated_at": "2026-10-25T10:47:22.476Z",
   "summary": {
     "status": "pass",
     "total": 49,
@@ -187,13 +187,13 @@
       "id": "css.contrast.dark",
       "label": "CSS: контраст токенов — тёмная тема",
       "status": "pass",
-      "detail": "11 пар посчитаны, минимум 4.67:1"
+      "detail": "13 пар посчитаны, минимум 4.67:1"
     },
     {
       "id": "css.contrast.light",
       "label": "CSS: контраст токенов — светлая тема",
       "status": "pass",
-      "detail": "11 пар посчитаны, минимум 5.18:1"
+      "detail": "13 пар посчитаны, минимум 5.18:1"
     },
     {
       "id": "css.fonts",
@@ -397,6 +397,24 @@
     },
     {
       "theme": "dark",
+      "token": "kin-text",
+      "foreground": "#d9a84e",
+      "background": "#17120f",
+      "ratio": 8.55103703778497,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "dark",
+      "token": "kitsunebi-text",
+      "foreground": "#8fd8ff",
+      "background": "#17120f",
+      "ratio": 11.89029489579668,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "dark",
       "token": "primary-fg",
       "foreground": "#150d09",
       "background": "#e0472b",
@@ -491,6 +509,24 @@
       "foreground": "#8a6112",
       "background": "#fbf7f0",
       "ratio": 5.175842159395476,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "light",
+      "token": "kin-text",
+      "foreground": "#6a490b",
+      "background": "#fbf7f0",
+      "ratio": 7.649483614637398,
+      "threshold": 4.5,
+      "tier": "baseline"
+    },
+    {
+      "theme": "light",
+      "token": "kitsunebi-text",
+      "foreground": "#08587f",
+      "background": "#fbf7f0",
+      "ratio": 7.2490817576002895,
       "threshold": 4.5,
       "tier": "baseline"
     },
