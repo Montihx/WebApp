@@ -77,11 +77,11 @@
   --shadow-menu: 0 24px 64px rgba(0, 0, 0, 0.46);
   --shadow-dialog: 0 36px 120px rgba(0, 0, 0, 0.66);
   --shadow-card: none;
-  --radius-xs: 2px;
-  --radius-sm: 2px;
-  --radius-md: 6px;
-  --radius-lg: 6px;
-  --radius-xl: 6px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
   --radius-pill: 999px;
 
   /* Shared bookmark colors from the profile statistics reference. */

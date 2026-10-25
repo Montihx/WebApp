@@ -6984,3 +6984,38 @@ html[data-theme="light"] .brand-mark {
 }
 
 .anime-card.has-bookmark-status .poster-frame:has(img.is-image-error)::after { padding-bottom: 36px; }
+
+/* Softer controls: buttons, tabs, search and arrows are pills; cards and posters use --radius-md. */
+.button,
+.header-login,
+.search-trigger,
+.tab,
+.day-tab,
+.select-wrap select,
+.catalog-sort-select select,
+.wide-link,
+.feature-slider__arrow,
+.continue-nav button,
+.search-field-row,
+.drawer-search {
+  border-radius: var(--radius-pill);
+}
+
+.icon-button,
+.mobile-menu-button,
+.bookmark-button,
+.continue-remove,
+.continue-play {
+  border-radius: 50%;
+}
+
+.tabs { border-radius: var(--radius-pill); }
+.tab-indicator { border-radius: var(--radius-pill); }
+.day-tabs .tab-indicator { border-radius: var(--radius-lg); }
+.day-tab { border-radius: var(--radius-lg); }
+.poster-action { border-radius: var(--radius-pill); }
+.continue-poster,
+.landscape-card,
+.collection-card,
+.schedule-card { border-radius: var(--radius-md); }
+.mobile-bottom-nav a { border-radius: var(--radius-pill); }
