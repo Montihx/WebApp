@@ -1,4 +1,4 @@
-@import url("../tokens.css?v=v3-7");
+@import url("../tokens.css?v=v3-8");
 
 @font-face {
   font-family: "Onest";
@@ -12890,3 +12890,12 @@ html body .app-shell .view-root .button { min-width: fit-content; flex-shrink: 0
 }
 .app-shell .command-trigger kbd { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
 .app-shell .command-trigger kbd svg { width: 11px; height: 11px; }
+
+/* Шкала кнопок админки: M 40 (телефон 44), S 32 (телефон 40) */
+.app-shell .view-root .button { min-height: 40px; }
+.app-shell .view-root .button--small { min-height: 32px; }
+.app-shell :is(.command-trigger, .site-link, .profile-button) { min-height: 40px; }
+@media (max-width: 720px) {
+  .app-shell .view-root .button { min-height: 44px; }
+  .app-shell .view-root .button--small { min-height: 40px; }
+}

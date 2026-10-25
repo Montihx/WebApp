@@ -2259,3 +2259,92 @@
   :root .schedule-card .schedule-item time > b { font-size: 1.0625rem; }
   :root .schedule-card .schedule-item time > span { font-size: 0.6875rem; }
 }
+
+/* ==========================================================================
+   Размеры: постеры и кнопки по единой шкале
+   Постер каталога: телефон 3 колонки (~110 px), планшет 5–6 (~130 px),
+   компьютер 8 (~150 px). Кнопки: L 48, M 40 (на телефоне 44), S 32 (36).
+   ========================================================================== */
+:root {
+  --btn-l: 48px;
+  --btn-m: 40px;
+  --btn-s: 32px;
+  --poster-min: clamp(100px, 13vw, 140px);
+}
+
+@media (max-width: 720px) {
+  :root { --btn-m: 44px; --btn-s: 36px; }
+}
+
+/* Сетки постеров: каталог, сезон и все остальные */
+:root .anime-grid,
+:root .anime-grid.anime-grid--compact,
+:root .anime-grid:not(.anime-grid--compact) {
+  grid-template-columns: repeat(auto-fill, minmax(var(--poster-min), 1fr));
+  gap: clamp(18px, 2vw, 24px) clamp(10px, 1.4vw, 16px);
+}
+
+/* Последний неполный ряд не растягивается: ширина постера ограничена */
+:root .anime-grid > .anime-card { max-width: 190px; }
+
+/* Ленты: похожие и связанные */
+:root .related-rail { grid-auto-columns: clamp(108px, 13vw, 150px); gap: clamp(10px, 1.4vw, 16px); }
+
+/* Продолжить смотреть: компактные кадры 16:9 */
+:root .continue-grid { grid-auto-columns: clamp(200px, 22vw, 268px); gap: clamp(10px, 1.4vw, 16px); }
+
+/* Карточка: текст под постером в масштабе постера */
+:root .card-title-row h3 { font-size: clamp(0.8125rem, 0.9vw + 0.45rem, 0.9375rem); }
+:root .card-facts { font-size: 0.75rem; }
+:root .card-facts > b { font-size: 0.75rem; }
+
+@container (max-width: 130px) {
+  :root .poster-action { min-height: 32px; padding: 0 10px; font-size: 0.75rem; }
+  :root .poster-bookmark-button { width: 28px; height: 28px; }
+  :root .ofuda { left: 6px; top: 6px; }
+}
+
+@media (max-width: 720px) {
+  :root .anime-grid,
+  :root .anime-grid:not(.anime-grid--compact) { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 16px 10px; }
+  :root .card-facts { flex-direction: column; align-items: flex-start; gap: 2px; }
+  :root .poster-action { display: none; }
+  :root .poster-bookmark-button { top: 6px; right: 6px; }
+  :root .ofuda { padding: 5px 3px; }
+}
+
+/* Постер на странице тайтла */
+:root .title-layout { grid-template-columns: clamp(220px, 20vw, 270px) minmax(0, 1fr); }
+:root .title-poster { width: 100%; }
+:root .title-poster .hanko { width: 60px; height: 60px; right: -10px; bottom: -10px; font-size: 1rem; border-radius: 14px; }
+
+@media (max-width: 900px) {
+  :root { --title-poster-width: min(46vw, 200px, 30dvh); }
+  :root .title-poster { width: var(--title-poster-width); }
+  :root .title-poster .hanko { width: 52px; height: 52px; font-size: 0.875rem; }
+}
+
+/* Кнопки: высоты из шкалы */
+:root :is(.button, .header-login, .search-trigger, .player-settings-button, .player-voice, .section-link, .wide-link) { min-height: var(--btn-m); }
+:root .button { height: auto; padding-block: 0; }
+:root .button--small { min-height: var(--btn-s); }
+:root :is(.hero-actions .button--primary, .title-poster-actions .button--primary, .title-mobile-watch) { min-height: var(--btn-l); height: var(--btn-l); font-size: 1rem; }
+:root .title-poster-actions .button--secondary { min-height: var(--btn-m); height: var(--btn-m); }
+:root .title-community-actions { min-height: var(--btn-m); }
+:root .title-community-action { min-height: calc(var(--btn-m) - 2px); }
+:root :is(.tab, .player-tab) { min-height: 36px; }
+:root .player-tab { height: 40px; }
+:root .episode-chip { min-width: 40px; height: 40px; min-height: 40px; }
+:root .section-link { min-height: 36px; }
+:root #schedule-days .day-tab { min-height: 76px; flex-basis: 58px; }
+:root #schedule-days .day-tab__num { font-size: 1.375rem; }
+:root .icon-button { width: var(--btn-m); height: var(--btn-m); }
+
+@media (max-width: 720px) {
+  :root .hero-actions .button--primary { height: var(--btn-l); padding-inline: 20px; }
+  :root .episode-chip { min-width: 44px; height: 44px; }
+}
+@media (max-width: 900px) {
+  :root .title-hero { --title-poster-width: min(46vw, 200px, 30dvh); }
+  :root .related-rail { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: clamp(108px, 30vw, 132px); }
+}
