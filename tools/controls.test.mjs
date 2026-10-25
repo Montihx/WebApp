@@ -57,13 +57,13 @@ test('both title counters are wired to the shared saved-state style without a pe
 });
 
 test('changed styles and scripts use a fresh cache version per area', () => {
-  // Public shipped with the Kitsune art direction (kitsune-2); the admin pass bumps only the admin files (kitsune-4).
-  const versions = { public: 'kitsune-2', admin: 'kitsune-4' };
+  // Kitsu v3 (Сакура / Обсидиан) bumps both areas together.
+  const versions = { public: 'v3-1', admin: 'v3-1' };
   for (const page of ['public/index.html', 'public/anime.html', 'admin/index.html']) {
     const version = versions[page.split('/')[0]];
     assert.ok(read(page).includes(`./styles.css?v=${version}`), page);
     assert.ok(read(page).includes(`./app.js?v=${version}`), page);
   }
-  assert.ok(publicCss.includes('../tokens.css?v=kitsune-2'));
-  assert.ok(adminCss.includes('../tokens.css?v=kitsune-4'));
+  assert.ok(publicCss.includes('../tokens.css?v=v3-1'));
+  assert.ok(adminCss.includes('../tokens.css?v=v3-1'));
 });

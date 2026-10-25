@@ -1,4 +1,4 @@
-@import url("../tokens.css?v=kitsune-4");
+@import url("../tokens.css?v=v3-1");
 
 @font-face {
   font-family: "Onest";
@@ -11712,7 +11712,7 @@ html[data-theme="light"] .panel, html[data-theme="light"] .now-strip, html[data-
   .editor-actions { flex-wrap: wrap; gap: 8px; }
   .dirty-state { width: 100%; margin: 0 0 2px; }
   .page-heading h1 { font-size: 1.75rem; }
-  .mobile-nav { background: var(--media-ink); border-top: 1px solid rgba(242, 235, 221, 0.12); }
+  .mobile-nav { background: var(--media-ink); border-top: 1px solid rgba(var(--media-text-rgb), 0.12); }
   .mobile-nav-item { color: var(--media-text-dim); }
   .mobile-nav-item.is-active { color: var(--accent-on-ink); }
   .mobile-nav-item.is-active::before {
@@ -11793,3 +11793,961 @@ html[data-theme="light"] .panel, html[data-theme="light"] .now-strip, html[data-
 }
 
 .row-leading__copy { text-align: left; justify-items: start; }
+
+/* ==========================================================================
+   Kitsu v3 «Ночной пульт» — палитры Сакура / Обсидиан.
+   Последний слой: перекрывает предыдущие. Цвета только из tokens.css.
+   ========================================================================== */
+
+/* --- Фон: медленное сияние и зерно -------------------------------------- */
+html body {
+  background: var(--canvas);
+  color: var(--text);
+}
+
+.app-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.app-shell::before {
+  position: fixed;
+  z-index: -1;
+  inset: -20vmax;
+  background:
+    radial-gradient(38vmax 30vmax at 78% 8%, var(--aurora-1), transparent 70%),
+    radial-gradient(34vmax 28vmax at 12% 92%, var(--aurora-2), transparent 70%),
+    radial-gradient(28vmax 22vmax at 52% 48%, var(--aurora-3), transparent 72%);
+  content: "";
+  pointer-events: none;
+  animation: kz-aurora 32s ease-in-out infinite alternate;
+}
+
+.app-shell::after {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background: var(--grain-url) 0 0 / 220px 220px;
+  content: "";
+  opacity: 0.035;
+  pointer-events: none;
+}
+
+@keyframes kz-aurora {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(-3vmax, 2vmax, 0) rotate(4deg); }
+  100% { transform: translate3d(2vmax, -2vmax, 0) rotate(-3deg); }
+}
+
+/* --- Боковая панель: парящая колонна ----------------------------------- */
+@media (min-width: 901px) {
+  .app-shell .sidebar {
+    top: 12px;
+    height: calc(100vh - 24px);
+    margin: 12px 0 12px 12px;
+    width: calc(var(--sidebar-width) - 12px);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent 220px),
+      color-mix(in srgb, var(--sidebar) 88%, transparent);
+    box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(18px) saturate(1.2);
+  }
+
+  html[data-theme="light"] .app-shell .sidebar {
+    box-shadow: 0 30px 80px -50px rgba(40, 20, 60, 0.35);
+  }
+}
+
+html .app-shell .sidebar {
+  --text: inherit;
+  color: var(--text);
+}
+
+html[data-theme="light"] .app-shell .sidebar,
+html .app-shell .sidebar {
+  --line: inherit;
+  --surface-hover: inherit;
+  --surface-active: inherit;
+  --text-secondary: inherit;
+  --text-muted: inherit;
+}
+
+.app-shell .brand-row {
+  border-bottom: 0;
+}
+
+.app-shell .brand-mark {
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent-grad);
+  box-shadow: 0 8px 22px -8px var(--accent-glow);
+  color: var(--primary-fg);
+}
+
+.app-shell .brand-copy strong {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.app-shell .brand-copy small {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.75rem;
+}
+
+.app-shell .nav-caption {
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+.app-shell .nav-item {
+  position: relative;
+  border-radius: 12px;
+  color: var(--text-secondary);
+  transition:
+    background var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out),
+    transform var(--dur-2) var(--ease-out);
+}
+
+.app-shell .nav-item::before {
+  position: absolute;
+  top: 9px;
+  bottom: 9px;
+  left: -2px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--accent-grad);
+  box-shadow: 0 0 14px var(--accent-glow);
+  content: "";
+  opacity: 0;
+  transform: scaleY(0.2);
+  transition: transform var(--dur-2) var(--ease-spring), opacity var(--dur-1);
+}
+
+.app-shell .nav-item:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+  transform: translateX(2px);
+}
+
+.app-shell .nav-item.is-active {
+  background: linear-gradient(90deg, var(--accent-soft), var(--accent-softer) 70%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--text);
+}
+
+.app-shell .nav-item.is-active::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.app-shell .nav-item.is-active > svg {
+  color: var(--accent-text);
+  filter: drop-shadow(0 0 6px var(--accent-glow));
+}
+
+.app-shell .nav-item kbd {
+  border-color: var(--line);
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.app-shell .nav-badge {
+  border: 0;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.app-shell .nav-badge--warning {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+
+.app-shell .nav-live,
+.app-shell .live-dot,
+.app-shell .status-dot--live {
+  background: var(--kitsunebi);
+  box-shadow: 0 0 0 0 var(--kitsunebi-glow);
+  animation: kz-live 2s ease-out infinite;
+}
+
+@keyframes kz-live {
+  0% { box-shadow: 0 0 0 0 var(--kitsunebi-glow); }
+  70% { box-shadow: 0 0 0 7px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+.app-shell .environment-card {
+  border: 1px dashed var(--line-strong);
+  border-radius: 14px;
+  background: transparent;
+}
+
+.app-shell .environment-card:hover {
+  border-color: var(--accent);
+  background: var(--accent-softer);
+}
+
+/* --- Верхняя панель ------------------------------------------------------ */
+.app-shell .topbar {
+  border-bottom: 1px solid transparent;
+  background: color-mix(in srgb, var(--canvas) 72%, transparent);
+  backdrop-filter: blur(16px) saturate(1.3);
+  transition: border-color var(--dur-2), background var(--dur-2);
+}
+
+.app-shell.is-scrolled .topbar {
+  border-bottom-color: var(--line);
+  background: color-mix(in srgb, var(--canvas) 86%, transparent);
+}
+
+.app-shell .command-trigger {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  transition: border-color var(--dur-1), box-shadow var(--dur-2);
+}
+
+.app-shell .command-trigger:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  box-shadow: 0 0 0 4px var(--accent-softer);
+}
+
+.app-shell .icon-button {
+  border-radius: 12px;
+  transition: background var(--dur-1), transform var(--dur-2) var(--ease-spring);
+}
+
+.app-shell .icon-button:active { transform: scale(0.92); }
+
+/* Переключатель палитры */
+.palette-toggle .palette-swatch {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: conic-gradient(from 210deg, var(--accent), var(--accent-2), var(--kitsunebi), var(--accent));
+  box-shadow: 0 0 0 2px var(--surface), 0 0 12px var(--accent-glow);
+  transition: transform var(--dur-3) var(--ease-spring);
+}
+
+.palette-toggle:hover .palette-swatch { transform: rotate(140deg) scale(1.08); }
+
+/* --- Заголовок страницы -------------------------------------------------- */
+.app-shell .page-heading {
+  position: relative;
+}
+
+.app-shell .page-heading h1 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: clamp(2.25rem, 3.4vw, 3.25rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+/* Под заголовком — мазок тушью в цветах палитры */
+.app-shell .page-heading h1::after {
+  display: block;
+  width: 72px;
+  height: 4px;
+  margin-top: 14px;
+  border-radius: 4px;
+  background: var(--accent-grad);
+  box-shadow: 0 0 14px var(--accent-glow);
+  content: "";
+  transform-origin: left;
+  animation: kz-grow-x 800ms var(--ease-ink) 200ms both;
+}
+
+.app-shell .page-heading .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 8px;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 999px;
+  background: var(--accent-softer);
+  color: var(--accent-text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.app-shell .page-heading .eyebrow::before {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+  content: "";
+}
+
+.app-shell .page-heading::before,
+.app-shell .page-heading__copy::before,
+.app-shell .page-heading__copy::after,
+.app-shell .nav-item.is-active::after { display: none; }
+
+/* --- Кнопки -------------------------------------------------------------- */
+.app-shell .button {
+  border-radius: 12px;
+  transition:
+    transform var(--dur-2) var(--ease-spring),
+    box-shadow var(--dur-2) var(--ease-out),
+    background var(--dur-1),
+    border-color var(--dur-1),
+    filter var(--dur-1);
+}
+
+.app-shell .button:active { transform: scale(0.97); }
+
+.app-shell .button--primary {
+  border-color: transparent;
+  background: var(--accent-grad);
+  box-shadow: 0 10px 26px -12px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  color: var(--primary-fg);
+}
+
+.app-shell .button--primary:hover {
+  background: var(--accent-grad);
+  box-shadow: 0 14px 34px -10px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+html[data-theme="light"][data-palette="obsidian"] .app-shell .button--primary {
+  background: var(--primary-bg);
+  color: var(--primary-fg);
+}
+
+.app-shell .button--danger {
+  border-color: color-mix(in srgb, var(--red) 40%, transparent);
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+/* --- Панели и карточки --------------------------------------------------- */
+.app-shell :is(.panel, .now-strip, .metric-card, .settings-card, .integration-card, .rail-card, .detail-section, .source-mode) {
+  border-color: var(--line);
+  border-radius: 20px;
+}
+
+.app-shell :is(.panel, .now-strip) {
+  position: relative;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--text) 3%, transparent), transparent 120px),
+    color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow: 0 24px 60px -40px rgba(0, 0, 0, 0.6);
+}
+
+html[data-theme="light"] .app-shell :is(.panel, .now-strip) {
+  box-shadow: 0 24px 60px -46px rgba(40, 20, 60, 0.3);
+}
+
+/* Тонкая световая кромка сверху */
+.app-shell :is(.panel, .now-strip)::before {
+  position: absolute;
+  top: -1px;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 70%, transparent), transparent);
+  content: "";
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.app-shell .panel-title,
+.app-shell .now-cell__title {
+  letter-spacing: -0.01em;
+}
+
+.app-shell .section-kicker {
+  color: var(--accent-text);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-weight: 600;
+}
+
+/* Подсветка за курсором (координаты ставит admin/app.js) */
+.app-shell [data-spotlight] {
+  --mx: 50%;
+  --my: 50%;
+}
+
+.app-shell [data-spotlight]::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(260px circle at var(--mx) var(--my), var(--accent-softer), transparent 70%);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-2);
+}
+
+.app-shell [data-spotlight]:hover::after { opacity: 1; }
+
+/* --- «Сейчас»: живая карточка с бегущей кромкой ------------------------ */
+.app-shell .now-cell--job {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--kitsunebi-soft), transparent 60%);
+}
+
+.app-shell .now-cell--job::before {
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--kz-angle, 0deg), transparent 0 70%, var(--kitsunebi) 82%, transparent 92%);
+  content: "";
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: kz-orbit 4s linear infinite;
+  pointer-events: none;
+}
+
+@property --kz-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes kz-orbit { to { --kz-angle: 360deg; } }
+
+/* Неопределённый прогресс: светящийся челнок */
+.app-shell .now-cell--job .progress-track,
+.app-shell .honest-progress i {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--kitsunebi) 14%, transparent);
+}
+
+.app-shell .now-cell--job .progress-value,
+.app-shell .honest-progress i::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 38%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, var(--kitsunebi), transparent);
+  box-shadow: 0 0 12px var(--kitsunebi-glow);
+  content: "";
+  animation: kz-shuttle 1.8s var(--ease-ink) infinite;
+}
+
+@keyframes kz-shuttle {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(290%); }
+}
+
+/* --- Очередь оператора --------------------------------------------------- */
+.app-shell .attention-card {
+  position: relative;
+  transition: background var(--dur-2), transform var(--dur-2) var(--ease-out);
+}
+
+.app-shell .attention-card:hover {
+  background: color-mix(in srgb, var(--surface-hover) 70%, transparent);
+}
+
+.app-shell .attention-card .attention-card__count {
+  font-family: var(--font-heading);
+}
+
+.app-shell .queue-breakdown,
+.app-shell .status-strip {
+  gap: 3px;
+  height: 6px;
+  background: transparent;
+}
+
+.app-shell :is(.queue-breakdown__segment, .status-strip__segment) {
+  border-radius: 999px;
+  transform-origin: left;
+  animation: kz-grow-x 900ms var(--ease-out) both;
+}
+
+.app-shell .queue-breakdown__segment--warning { background: linear-gradient(90deg, var(--amber), color-mix(in srgb, var(--amber) 70%, var(--accent-2))); }
+.app-shell .queue-breakdown__segment--danger { background: linear-gradient(90deg, var(--red), color-mix(in srgb, var(--red) 70%, var(--accent-2))); }
+
+@keyframes kz-grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* --- Метрики ------------------------------------------------------------- */
+.app-shell .metric-card {
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  transition: transform var(--dur-2) var(--ease-out), border-color var(--dur-2);
+}
+
+.app-shell .metric-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  transform: translateY(-2px);
+}
+
+.app-shell .metric-card strong {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.app-shell .metric-card :is(.metric-bar, .metric-card__bar) > * ,
+.app-shell .metric-card [class*="meter"] > * {
+  background: var(--accent-grad);
+}
+
+/* --- Новый график: столбцы с подсказкой ------------------------------- */
+.kz-chart {
+  display: grid;
+  grid-template-columns: repeat(var(--kz-cols, 7), minmax(0, 1fr));
+  align-items: end;
+  gap: clamp(8px, 2vw, 22px);
+  height: 260px;
+  padding: 24px 24px 8px;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 51px, color-mix(in srgb, var(--line) 60%, transparent) 51px 52px);
+}
+
+.kz-chart__col {
+  position: relative;
+  justify-items: center;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  height: 100%;
+  gap: 10px;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: default;
+}
+
+.kz-chart__stack {
+  display: flex;
+  flex-direction: column-reverse;
+  align-self: end;
+  width: min(100%, 64px);
+  height: var(--h);
+  min-height: 6px;
+  overflow: hidden;
+  border-radius: 10px 10px 4px 4px;
+  transform-origin: bottom;
+  animation: kz-grow-y 1100ms var(--ease-out) both;
+  animation-delay: calc(var(--i) * 70ms);
+  transition: filter var(--dur-2), transform var(--dur-2) var(--ease-out);
+}
+
+.kz-chart__col:hover .kz-chart__stack,
+.kz-chart__col:focus-visible .kz-chart__stack {
+  filter: brightness(1.15) drop-shadow(0 0 14px var(--accent-glow));
+}
+
+.kz-chart__seg--a {
+  height: var(--a);
+  background: linear-gradient(0deg, color-mix(in srgb, var(--accent) 70%, var(--canvas)), var(--accent));
+}
+
+.kz-chart__seg--b {
+  height: var(--b);
+  background: linear-gradient(0deg, color-mix(in srgb, var(--chart-2) 60%, var(--canvas)), var(--chart-2));
+}
+
+.kz-chart__label {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.kz-chart__tip {
+  position: absolute;
+  bottom: calc(var(--h) + 34px);
+  left: 50%;
+  z-index: 3;
+  min-width: 132px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-menu);
+  color: var(--text);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: left;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 6px);
+  transition: opacity var(--dur-1), transform var(--dur-2) var(--ease-out);
+}
+
+.kz-chart__tip b { font-family: var(--font-mono); font-weight: 500; }
+.kz-chart__tip i { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 2px; }
+
+.kz-chart__col:hover .kz-chart__tip,
+.kz-chart__col:focus-visible .kz-chart__tip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.kz-legend-swatch { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 3px; vertical-align: -1px; }
+.kz-legend-swatch--a { background: var(--accent); }
+.kz-legend-swatch--b { background: var(--chart-2); }
+
+@keyframes kz-grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+/* --- Таблицы ------------------------------------------------------------- */
+.app-shell .data-table th {
+  background: color-mix(in srgb, var(--surface-raised) 70%, transparent);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.app-shell .data-table tbody tr {
+  position: relative;
+  transition: background var(--dur-1);
+}
+
+.app-shell .data-table tbody tr:hover {
+  background: linear-gradient(90deg, var(--accent-soft), transparent 55%);
+}
+
+.app-shell .data-table tbody tr:hover td:first-child {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.app-shell .progress-track {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 9%, transparent);
+}
+
+.app-shell .progress-value {
+  border-radius: 999px;
+  background: var(--accent-grad);
+  box-shadow: 0 0 10px -2px var(--accent-glow);
+}
+
+/* --- Статусы ------------------------------------------------------------- */
+.app-shell .status-badge {
+  gap: 6px;
+  border: 1px solid color-mix(in srgb, currentColor 26%, transparent);
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.app-shell .status-badge::before {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.app-shell .status-badge--live::before { animation: kz-blink 1.6s ease-in-out infinite; }
+
+@keyframes kz-blink { 50% { opacity: 0.35; } }
+
+/* --- Поля, чипы, вкладки ------------------------------------------------- */
+.app-shell :is(input, select, textarea):not([type="checkbox"], [type="radio"], [type="range"]) {
+  border-radius: 12px;
+  transition: border-color var(--dur-1), box-shadow var(--dur-2);
+}
+
+.app-shell :is(input, select, textarea):not([type="checkbox"], [type="radio"], [type="range"]):focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.app-shell .filter-chip.is-active,
+.app-shell [role="tab"][aria-selected="true"] {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.app-shell .switch.is-on,
+.app-shell .switch[aria-checked="true"] {
+  background: var(--accent-grad);
+}
+
+/* --- Появление экрана ---------------------------------------------------- */
+.view-root.is-entering .view-enter > * {
+  animation: kz-rise 560ms var(--ease-out) both;
+}
+
+.view-root.is-entering .view-enter > *:nth-child(2) { animation-delay: 60ms; }
+.view-root.is-entering .view-enter > *:nth-child(3) { animation-delay: 120ms; }
+.view-root.is-entering .view-enter > *:nth-child(4) { animation-delay: 180ms; }
+.view-root.is-entering .view-enter > *:nth-child(5) { animation-delay: 240ms; }
+.view-root.is-entering .view-enter > *:nth-child(n + 6) { animation-delay: 300ms; }
+
+@keyframes kz-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* --- Диалоги, палитра команд, всплывающие окна ------------------------- */
+.app-shell ~ * dialog,
+dialog {
+  border-color: var(--line-strong);
+  border-radius: 22px;
+}
+
+dialog[open] {
+  animation: kz-pop 260ms var(--ease-out);
+}
+
+dialog::backdrop {
+  background: var(--overlay);
+  backdrop-filter: blur(6px);
+}
+
+@keyframes kz-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Палитра: круговая смена через View Transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html.kz-palette-switching::view-transition-new(root) {
+  animation: kz-reveal 700ms var(--ease-ink);
+}
+
+@keyframes kz-reveal {
+  from { clip-path: circle(0 at var(--kz-x, 50%) var(--kz-y, 0%)); }
+  to { clip-path: circle(150vmax at var(--kz-x, 50%) var(--kz-y, 0%)); }
+}
+
+/* --- Мобильная навигация ------------------------------------------------- */
+@media (max-width: 900px) {
+  .mobile-nav {
+    border-top: 1px solid var(--line);
+    background: color-mix(in srgb, var(--sidebar) 88%, transparent);
+    backdrop-filter: blur(16px) saturate(1.3);
+  }
+
+  .mobile-nav-item.is-active {
+    color: var(--accent-text);
+  }
+
+  .mobile-nav-item.is-active svg {
+    filter: drop-shadow(0 0 6px var(--accent-glow));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell::before,
+  .app-shell .now-cell--job::before,
+  .app-shell .now-cell--job .progress-value,
+  .app-shell .honest-progress i::after,
+  .app-shell :is(.nav-live, .live-dot, .status-dot--live),
+  .app-shell .status-badge--live::before,
+  .kz-chart__stack,
+  .view-root.is-entering .view-enter > *,
+  dialog[open],
+  .app-shell :is(.queue-breakdown__segment, .status-strip__segment) {
+    animation: none !important;
+  }
+
+  html.kz-palette-switching::view-transition-new(root) { animation: none; }
+}
+
+
+/* --- Мини-обложки в таблицах: ночная сцена из цветов тайтла ------------ */
+.app-shell .poster {
+  border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  border-radius: 9px;
+  background:
+    radial-gradient(circle at 68% 28%, var(--moon) 0 13%, transparent 14%),
+    radial-gradient(circle at 68% 28%, color-mix(in srgb, var(--poster-b, var(--accent)) 55%, transparent) 0, transparent 52%),
+    linear-gradient(180deg, color-mix(in srgb, var(--poster-a, var(--accent)) 35%, var(--canvas)) 0%, color-mix(in srgb, var(--poster-b, var(--accent-2)) 70%, var(--canvas)) 100%);
+  box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.7);
+}
+
+.app-shell .poster::before {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 48%;
+  background: color-mix(in srgb, var(--poster-a, var(--accent)) 30%, #000);
+  clip-path: polygon(0 45%, 22% 20%, 40% 52%, 62% 8%, 82% 40%, 100% 22%, 100% 100%, 0 100%);
+  content: "";
+  opacity: 0.9;
+}
+
+.app-shell .poster span {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* --- Длинные подписи в ячейках не наезжают на соседние колонки --------- */
+.app-shell .data-table .row-leading__copy { min-width: 0; }
+
+.app-shell .data-table :is(.row-leading__copy small, .cell-subline, .row-leading__copy span) {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Строки ресурсов мониторинга: отступы внутри панели ----------------- */
+.app-shell .panel .resource-row { padding-inline: 20px; }
+
+.app-shell .resource-track {
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 9%, transparent);
+}
+
+.app-shell .resource-track > * {
+  border-radius: inherit;
+  background: var(--accent-grad);
+  box-shadow: 0 0 10px -2px var(--accent-glow);
+  transform-origin: left;
+  animation: kz-grow-x 1000ms var(--ease-out) both;
+}
+
+/* --- Вкладки внутри экранов --------------------------------------------- */
+.app-shell :is(.section-bar, .segmented, .view-tabs) {
+  border-radius: 16px;
+}
+
+.app-shell [role="tab"] { border-radius: 10px; transition: background var(--dur-1), color var(--dur-1); }
+
+.app-shell .tab-count {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+}
+
+.app-shell [role="tab"][aria-selected="true"] .tab-count { background: var(--accent); color: var(--primary-fg); }
+
+/* --- Карточки модерации, источников, интеграций ------------------------- */
+.app-shell :is(.review-card, .moderation-card, .source-mode, .integration-card, .settings-card) {
+  transition: border-color var(--dur-2), transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2);
+}
+
+.app-shell :is(.review-card, .moderation-card, .source-mode, .integration-card, .settings-card):hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+  box-shadow: 0 20px 44px -30px var(--accent-glow);
+}
+
+.app-shell .truth-note {
+  border-radius: 14px;
+  border-color: color-mix(in srgb, var(--accent) 22%, var(--line));
+  background: linear-gradient(90deg, var(--accent-softer), transparent);
+}
+
+/* --- Редактор: шапка как стеклянная полоса ------------------------------ */
+.app-shell .editor-topline {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.app-shell .editor-topline h1 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.app-shell .editor-section,
+.app-shell .detail-section {
+  border-radius: 20px;
+}
+
+/* --- Аватары пользователей ---------------------------------------------- */
+.app-shell .avatar {
+  border: 0;
+  background: var(--accent-grad);
+  color: var(--primary-fg);
+  font-weight: 800;
+}
+
+/* --- Пагинация ------------------------------------------------------------ */
+.app-shell .table-footer button[aria-current="page"],
+.app-shell .table-footer .is-active {
+  border-color: transparent;
+  background: var(--accent-grad);
+  color: var(--primary-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell .page-heading h1::after,
+  .app-shell .resource-track > * { animation: none; }
+}
+
+.app-shell .editor-tabs {
+  border: 0;
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.app-shell .tabs--contained {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+}
+
+.app-shell .tabs--contained .is-active {
+  background: var(--accent-soft);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+/* --- Мобильные таблицы: строка становится карточкой целиком ------------- */
+@media (max-width: 720px) {
+  .app-shell .data-table.responsive tr {
+    height: auto;
+    margin-bottom: 10px;
+    padding: 14px;
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--surface-raised) 80%, transparent);
+  }
+
+  .app-shell .data-table.responsive tbody tr:hover td:first-child { box-shadow: none; }
+
+  .app-shell .data-table.responsive td { height: auto; min-height: 30px; }
+
+  .app-shell .data-table.responsive .check-cell + td {
+    display: block;
+    padding: 0 40px 10px 0;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .app-shell .data-table.responsive .check-cell + td::before { display: none; }
+
+  .app-shell .data-table.responsive td::before {
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+  }
+}

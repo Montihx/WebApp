@@ -31,14 +31,15 @@ for (const area of ['public', 'admin']) {
 }
 
 test('shared focus tokens cover both themes and restore a neutral keyboard ring', () => {
-  assert.equal((tokens.match(/--focus-ring: #[0-9a-f]{6};/g) || []).length, 2);
+  // Every palette and theme (Сакура, Обсидиан, light variants) defines its own ring.
+  assert.ok((tokens.match(/--focus-ring: #[0-9a-f]{6};/g) || []).length >= 2);
   assert.match(tokens, /html\[data-input-modality="keyboard"\][^{]+\{\s*outline: 2px solid var\(--focus-ring\)/);
   assert.match(tokens, /html\[data-input-modality="pointer"\] :focus-visible:not\(input, textarea, select, \[contenteditable="true"\]\)/);
   assert.match(tokens, /forced-colors: active/);
   assert.match(tokens, /@media \(forced-colors: active\)\s*\{\s*:root, html\[data-theme="light"\] \{ --focus-ring: Highlight;/);
   for (const area of ['public', 'admin']) {
     assert.match(read(`${area}/styles.css`), /:focus-visible\s*\{\s*outline: 2px solid var\(--focus-ring\)/);
-    assert.match(read(`${area}/index.html`), area === 'public' ? /app\.js\?v=kitsune-2/ : /app\.js\?v=kitsune-4/);
+    assert.match(read(`${area}/index.html`), /app\.js\?v=v3-1/);
   }
 });
 

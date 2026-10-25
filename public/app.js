@@ -99,7 +99,7 @@
     if (persist) storage.set("kitsu-theme", next);
 
     const meta = $('meta[name="theme-color"]');
-    if (meta) meta.content = next === "light" ? "#f4eee3" : "#0f0c0b";
+    if (meta) meta.content = getComputedStyle(root).getPropertyValue("--canvas").trim() || meta.content;
 
     $$('[data-theme-toggle]').forEach((control) => {
       const target = next === "light" ? "тёмную" : "светлую";
@@ -705,23 +705,228 @@
     });
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Kitsu v3: generated key art, ambient particles, poster tilt, palette switch.
+  // ---------------------------------------------------------------------------
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  function hashString(text) {
+    let h = 2166136261;
+    for (const ch of String(text)) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+
+  function seeded(seed) {
+    let a = seed || 1;
+    return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+
+  // Generated key art: a night scene unique to every title, used whenever a picture fails or hangs.
+  function keyArtUri(title, w, h, pal) {
+    const seed = hashString(title || "kitsu");
+    const rnd = seeded(seed);
+    // Hues stay inside the palette: Sakura 250–340 (violet to rose), Obsidian 5–48 (ember to amber) or a rare steel blue.
+    const hue = pal === "obsidian"
+      ? (rnd() < 0.2 ? 205 + Math.round(rnd() * 20) : 5 + Math.round(rnd() * 43))
+      : 250 + Math.round(rnd() * 90);
+    const hue2 = (hue + 12 + Math.round(rnd() * 22)) % 360;
+    const W = 300;
+    const H = Math.round((W * h) / w) || 450;
+    const hsl = (hh, ss, ll, a = 1) => `hsla(${hh},${ss}%,${ll}%,${a})`;
+    const scene = seed % 5;
+    const ridge = (base, amp, steps, fill) => {
+      let d = `M0 ${H} L0 ${base}`;
+      for (let i = 1; i <= steps; i += 1) {
+        const x = (i / steps) * W;
+        const y = base - rnd() * amp + amp / 2;
+        d += ` Q${(x - W / steps / 2).toFixed(1)} ${(y - amp * rnd() * 0.9).toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)}`;
+      }
+      return `<path d="${d} L${W} ${H} Z" fill="${fill}"/>`;
+    };
+    const stars = Array.from({ length: 34 }, () => `<circle cx="${(rnd() * W).toFixed(1)}" cy="${(rnd() * H * 0.55).toFixed(1)}" r="${(0.3 + rnd() * 1.1).toFixed(2)}" fill="${hsl(hue, 70, 94, 0.4 + rnd() * 0.6)}"/>`).join("");
+    const wide = W / H > 1.3;
+    const cx = wide ? W * (0.62 + rnd() * 0.22) : W * (0.3 + rnd() * 0.45);
+    const cy = H * (0.18 + rnd() * 0.16);
+    const r = W * (0.11 + rnd() * 0.09);
+    const moon = `<circle cx="${cx}" cy="${cy}" r="${r * 2.8}" fill="url(#g)"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="${hsl(hue2, 90, 92)}"/>`;
+    let body = "";
+    if (scene === 0) {
+      body = stars + moon + ridge(H * 0.62, H * 0.16, 5, hsl(hue, 34, 26)) + ridge(H * 0.74, H * 0.12, 7, hsl(hue2, 40, 16)) + ridge(H * 0.86, H * 0.08, 9, hsl(hue2, 46, 8));
+    } else if (scene === 1) {
+      const sy = H * 0.5;
+      const sr = W * 0.3;
+      const bands = Array.from({ length: 6 }, (_, i) => `<rect x="0" y="${(sy - sr * 0.1 + i * sr * 0.16).toFixed(1)}" width="${W}" height="${(2 + i * 1.6).toFixed(1)}" fill="${hsl(hue, 45, 10)}"/>`).join("");
+      const waves = Array.from({ length: 5 }, (_, i) => { const y = sy + 10 + i * (H - sy) / 5; return `<path d="M0 ${y} ${Array.from({ length: 7 }, (_, k) => `Q${k * 50 + 25} ${y - 8} ${k * 50 + 50} ${y}`).join(" ")} L${W} ${H} L0 ${H} Z" fill="${hsl(hue2, 50, 22 - i * 3)}"/>`; }).join("");
+      body = `<circle cx="${W / 2}" cy="${sy}" r="${sr * 2}" fill="url(#g)"/><circle cx="${W / 2}" cy="${sy}" r="${sr}" fill="url(#sun)"/>${bands}${waves}`;
+    } else if (scene === 2) {
+      const tx = wide ? W * 0.72 : W * 0.5;
+      const ty = H * (wide ? 0.82 : 0.74);
+      const tw = Math.min(W * (wide ? 0.34 : 0.62), H * 0.55);
+      const th = tw * 0.92;
+      const ink = hsl(hue2, 45, 6);
+      const post = tw * 0.07;
+      const lx = tx - tw * 0.32;
+      const rx = tx + tw * 0.32;
+      const top = ty - th;
+      const torii = `<g fill="${ink}"><path d="M${tx - tw * 0.62} ${top - tw * 0.06} Q${tx} ${top + tw * 0.06} ${tx + tw * 0.62} ${top - tw * 0.06} L${tx + tw * 0.56} ${top + tw * 0.05} Q${tx} ${top + tw * 0.14} ${tx - tw * 0.56} ${top + tw * 0.05} Z"/><rect x="${tx - tw * 0.5}" y="${top + tw * 0.11}" width="${tw}" height="${tw * 0.05}"/><rect x="${tx - tw * 0.47}" y="${top + tw * 0.3}" width="${tw * 0.94}" height="${tw * 0.06}"/><rect x="${tx - post * 0.4}" y="${top + tw * 0.15}" width="${post * 0.8}" height="${tw * 0.16}"/><path d="M${lx - post / 2} ${top + tw * 0.12} L${lx + post / 2} ${top + tw * 0.12} L${lx + post * 0.7} ${ty} L${lx - post * 0.7} ${ty} Z"/><path d="M${rx - post / 2} ${top + tw * 0.12} L${rx + post / 2} ${top + tw * 0.12} L${rx + post * 0.7} ${ty} L${rx - post * 0.7} ${ty} Z"/></g><ellipse cx="${tx}" cy="${ty + 2}" rx="${tw * 0.9}" ry="${tw * 0.06}" fill="${hsl(hue2, 60, 60, 0.12)}"/>`;
+      body = stars + moon + ridge(H * 0.7, H * 0.06, 4, hsl(hue, 30, 18)) + torii + `<rect x="0" y="${ty + 6}" width="${W}" height="${H}" fill="${hsl(hue2, 40, 7)}"/>`;
+    } else if (scene === 3) {
+      const city = Array.from({ length: 14 }, (_, i) => { const bw = W / 14; const bh = H * (0.12 + rnd() * 0.3); const x = i * bw; const y = H - bh - H * 0.06; const wins = Array.from({ length: 6 }, () => rnd() > 0.55 ? `<rect x="${(x + 3 + rnd() * (bw - 8)).toFixed(1)}" y="${(y + 4 + rnd() * (bh - 10)).toFixed(1)}" width="2.4" height="3" fill="${hsl(hue2, 90, 78, 0.85)}"/>` : "").join(""); return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw + 0.5).toFixed(1)}" height="${bh.toFixed(1)}" fill="${hsl(hue, 30, 10 + rnd() * 6)}"/>${wins}`; }).join("");
+      body = stars + moon + ridge(H * 0.72, H * 0.1, 6, hsl(hue, 30, 20)) + city + `<rect x="0" y="${H * 0.94}" width="${W}" height="${H}" fill="${hsl(hue2, 40, 6)}"/>`;
+    } else {
+      const arcs = Array.from({ length: 7 }, (_, row) => Array.from({ length: 9 }, (_, col) => { const x = col * 40 + (row % 2) * 20; const y = H * 0.55 + row * 26; return [24, 17, 10].map((rr, j) => `<path d="M${x - rr} ${y} a${rr} ${rr} 0 0 1 ${rr * 2} 0" fill="none" stroke="${hsl(hue2, 50, 40 - row * 3 - j * 4, 0.9)}" stroke-width="2"/>`).join(""); }).join("")).join("");
+      body = stars + moon + `<rect x="0" y="${H * 0.53}" width="${W}" height="${H}" fill="${hsl(hue, 40, 9)}"/>` + arcs;
+    }
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${hsl(hue, 45, 7)}"/><stop offset=".65" stop-color="${hsl(hue2, 42, 20)}"/><stop offset="1" stop-color="${hsl(hue2, 50, 30)}"/></linearGradient><radialGradient id="g"><stop offset="0" stop-color="${hsl(hue2, 90, 85, 0.55)}"/><stop offset=".5" stop-color="${hsl(hue2, 80, 70, 0.12)}"/><stop offset="1" stop-color="${hsl(hue2, 80, 60, 0)}"/></radialGradient><linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${hsl(hue2 + 20, 95, 82)}"/><stop offset="1" stop-color="${hsl(hue2 - 30, 85, 60)}"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#sky)"/>${body}</svg>`;
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  }
+
+  function paintImageArt(image, title) {
+    if (!image || image.dataset.kzArt === "on") return;
+    const box = image.getBoundingClientRect();
+    const host = image.closest(".feature-slide, .poster-frame, .continue-poster, .title-poster, .title-backdrop, .player-stage-art, .landscape-card, .episode-thumb");
+    const ref = box.width > 4 && box.height > 4 ? box : host?.getBoundingClientRect() || { width: 2, height: 3 };
+    image.dataset.kzArt = "on";
+    image.dataset.kzTitle = title;
+    image.dataset.kzRatio = `${Math.round(ref.width)}x${Math.round(ref.height) || Math.round(ref.width * 1.5)}`;
+    image.removeAttribute("srcset");
+    image.classList.remove("is-image-error");
+    image.src = keyArtUri(title, ref.width || 2, ref.height || 3, root.dataset.palette || "sakura");
+  }
+
+  function repaintArt() {
+    $$('img[data-kz-art="on"]').forEach((image) => {
+      const [w, h] = (image.dataset.kzRatio || "2x3").split("x").map(Number);
+      image.src = keyArtUri(image.dataset.kzTitle, w, h, root.dataset.palette || "sakura");
+    });
+  }
+
+  function initAmbient() {
+    const hero = $(".hero-section");
+    if (!hero || reducedMotion.matches) return;
+    const layer = document.createElement("div");
+    layer.className = "kz-ambient";
+    layer.setAttribute("aria-hidden", "true");
+    const rnd = seeded(7);
+    for (let i = 0; i < 18; i += 1) {
+      const p = document.createElement("span");
+      p.className = "kz-mote";
+      p.style.setProperty("--x", `${(rnd() * 100).toFixed(1)}%`);
+      p.style.setProperty("--delay", `${(-rnd() * 14).toFixed(2)}s`);
+      p.style.setProperty("--dur", `${(9 + rnd() * 9).toFixed(2)}s`);
+      p.style.setProperty("--drift", `${(rnd() * 120 - 60).toFixed(0)}px`);
+      p.style.setProperty("--s", (0.6 + rnd() * 0.9).toFixed(2));
+      layer.append(p);
+    }
+    hero.append(layer);
+  }
+
+  function initPosterTilt() {
+    if (reducedMotion.matches || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    document.addEventListener("pointermove", (event) => {
+      const frame = event.target.closest?.(".anime-card .poster-frame, .continue-poster");
+      if (!frame) return;
+      const r = frame.getBoundingClientRect();
+      const x = (event.clientX - r.left) / r.width;
+      const y = (event.clientY - r.top) / r.height;
+      frame.style.setProperty("--rx", `${((0.5 - y) * 9).toFixed(2)}deg`);
+      frame.style.setProperty("--ry", `${((x - 0.5) * 11).toFixed(2)}deg`);
+      frame.style.setProperty("--mx", `${(x * 100).toFixed(1)}%`);
+      frame.style.setProperty("--my", `${(y * 100).toFixed(1)}%`);
+    }, { passive: true });
+    document.addEventListener("pointerout", (event) => {
+      const frame = event.target.closest?.(".anime-card .poster-frame, .continue-poster");
+      if (frame && !frame.contains(event.relatedTarget)) {
+        frame.style.removeProperty("--rx");
+        frame.style.removeProperty("--ry");
+      }
+    });
+  }
+
+  function initScrollProgress() {
+    const header = $("#site-header");
+    if (!header) return;
+    const bar = document.createElement("span");
+    bar.className = "kz-scroll-progress";
+    bar.setAttribute("aria-hidden", "true");
+    header.append(bar);
+    const update = () => {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      bar.style.transform = `scaleX(${max > 0 ? Math.min(1, scrollY / max) : 0})`;
+    };
+    addEventListener("scroll", update, { passive: true });
+    update();
+  }
+
+  const paletteNames = { sakura: "Сакура", obsidian: "Обсидиан" };
+  function applyPalette(name) {
+    const next = paletteNames[name] ? name : "sakura";
+    if (next === "sakura") delete root.dataset.palette;
+    else root.dataset.palette = next;
+    const other = next === "sakura" ? "obsidian" : "sakura";
+    $$("[data-palette-toggle]").forEach((control) => {
+      control.setAttribute("aria-label", `Палитра: ${paletteNames[next]}. Переключить на «${paletteNames[other]}»`);
+      control.title = `Палитра: ${paletteNames[next]}`;
+      const label = control.querySelector("[data-palette-label]");
+      if (label) label.textContent = paletteNames[next];
+    });
+    const meta = $('meta[name="theme-color"]');
+    if (meta) meta.content = getComputedStyle(root).getPropertyValue("--canvas").trim() || meta.content;
+  }
+
+  function initPalette() {
+    applyPalette(root.dataset.palette || storage.get("kitsu-palette", "sakura"));
+    $$("[data-palette-toggle]").forEach((control) => {
+      control.addEventListener("click", (event) => {
+        const next = (root.dataset.palette || "sakura") === "sakura" ? "obsidian" : "sakura";
+        const swap = () => { applyPalette(next); storage.set("kitsu-palette", next); repaintArt(); };
+        if (document.startViewTransition && !reducedMotion.matches) {
+          root.style.setProperty("--kz-x", `${event.clientX || innerWidth - 40}px`);
+          root.style.setProperty("--kz-y", `${event.clientY || 30}px`);
+          root.classList.add("kz-palette-switching");
+          document.startViewTransition(swap).finished.finally(() => root.classList.remove("kz-palette-switching"));
+        } else swap();
+      });
+    });
+  }
+
   function initShared() {
     setTheme(root.dataset.theme || storage.get("kitsu-theme", "dark"), false);
+    initPalette();
+    initAmbient();
+    initPosterTilt();
+    initScrollProgress();
     refreshIcons();
     initRovingTabs();
     initTabIndicators();
 
-    // A failed image keeps its box; the frame shows the title on ink instead (see "Kitsune" in styles.css).
-    const markImageError = (image) => {
-      image.classList.add("is-image-error");
-      const frame = image.closest(".poster-frame, .continue-poster, .title-poster, .landscape-card, .episode-thumb");
-      const title = (image.alt.match(/«([^»]+)»/) || [])[1] || image.alt;
-      if (frame && title && !frame.dataset.fallbackTitle) frame.dataset.fallbackTitle = title;
-    };
+    // A failed or hanging image is replaced with generated key art for that title, so no box is ever empty.
+    // Seed by title when the alt names one, otherwise by the picture address, so every poster differs.
+    const titleFor = (image) => (image.alt.match(/«([^»]+)»/) || [])[1] || image.alt || image.closest(".feature-slide")?.querySelector("h2")?.textContent || image.getAttribute("src") || "kitsu";
+    const markImageError = (image) => paintImageArt(image, titleFor(image).trim());
     $$('img').forEach((image) => {
-      image.addEventListener("error", () => markImageError(image), { once: true });
-      if (image.complete && image.naturalWidth === 0) markImageError(image);
+      if (image.complete && image.naturalWidth === 0 && image.currentSrc) markImageError(image);
     });
+    document.addEventListener("error", (event) => {
+      if (event.target instanceof HTMLImageElement) markImageError(event.target);
+    }, true);
+    setTimeout(() => {
+      $$('img').forEach((image) => {
+        if (!image.complete && image.loading !== "lazy") markImageError(image);
+      });
+    }, 3500);
+    // Lazy images that hang: check each one a few seconds after it scrolls near the viewport.
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          io.unobserve(entry.target);
+          setTimeout(() => { if (!entry.target.complete || entry.target.naturalWidth === 0) markImageError(entry.target); }, 3500);
+        });
+      }, { rootMargin: "300px" });
+      $$('img[loading="lazy"]').forEach((image) => io.observe(image));
+    }
 
     $$('[data-theme-toggle]').forEach((control) => {
       control.addEventListener("click", () => {

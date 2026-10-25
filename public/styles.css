@@ -1,4 +1,4 @@
-@import url("../tokens.css?v=kitsune-2");
+@import url("../tokens.css?v=v3-1");
 
 @font-face {
   font-family: "Onest";
@@ -6633,7 +6633,7 @@ html[data-theme="light"] .brand-mark {
 }
 
 .feature-slide {
-  background: radial-gradient(70% 90% at 82% 24%, rgba(224, 71, 43, 0.14), transparent 70%), var(--media-ink);
+  background: radial-gradient(70% 90% at 82% 24%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%), var(--media-ink);
 }
 
 .feature-slide__backdrop { display: none; }
@@ -6665,8 +6665,8 @@ html[data-theme="light"] .brand-mark {
 
 .feature-slide__veil {
   background:
-    linear-gradient(90deg, var(--media-ink) 0%, rgba(15, 12, 11, 0.9) 26%, rgba(15, 12, 11, 0.42) 60%, rgba(15, 12, 11, 0.08) 100%),
-    linear-gradient(0deg, var(--media-ink) 0%, rgba(15, 12, 11, 0.74) 22%, transparent 56%);
+    linear-gradient(90deg, var(--media-ink) 0%, rgba(var(--media-ink-rgb), 0.9) 26%, rgba(var(--media-ink-rgb), 0.42) 60%, rgba(var(--media-ink-rgb), 0.08) 100%),
+    linear-gradient(0deg, var(--media-ink) 0%, rgba(var(--media-ink-rgb), 0.74) 22%, transparent 56%);
 }
 
 .feature-slider::before {
@@ -6702,9 +6702,9 @@ html[data-theme="light"] .brand-mark {
 .hero-kind-badge {
   min-height: 24px;
   padding: 0 10px;
-  border: 1px solid rgba(242, 235, 221, 0.34);
+  border: 1px solid rgba(var(--media-text-rgb), 0.34);
   border-radius: var(--radius-pill);
-  background: rgba(15, 12, 11, 0.5);
+  background: rgba(var(--media-ink-rgb), 0.5);
   color: var(--media-text);
 }
 
@@ -6740,15 +6740,15 @@ html[data-theme="light"] .brand-mark {
 
 .feature-slide .hero-tags a {
   padding: 5px 12px;
-  border: 1px solid rgba(242, 235, 221, 0.28);
+  border: 1px solid rgba(var(--media-text-rgb), 0.28);
   border-radius: var(--radius-pill);
-  background: rgba(15, 12, 11, 0.45);
+  background: rgba(var(--media-ink-rgb), 0.45);
   color: var(--media-text);
 }
 
 .feature-slide .hero-tags a:hover {
   border-color: var(--accent-strong);
-  background: rgba(224, 71, 43, 0.2);
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
   color: var(--media-text);
 }
 
@@ -6773,9 +6773,9 @@ html[data-theme="light"] .brand-mark {
 }
 
 .feature-slider__arrow {
-  border-color: rgba(242, 235, 221, 0.28);
+  border-color: rgba(var(--media-text-rgb), 0.28);
   border-radius: var(--radius-sm);
-  background: rgba(15, 12, 11, 0.6);
+  background: rgba(var(--media-ink-rgb), 0.6);
   color: var(--media-text);
 }
 
@@ -6783,7 +6783,7 @@ html[data-theme="light"] .brand-mark {
 
 .feature-slider__progress {
   height: 2px;
-  background: rgba(242, 235, 221, 0.18);
+  background: rgba(var(--media-text-rgb), 0.18);
 }
 
 .feature-slider__progress > span { background: var(--accent); }
@@ -6921,8 +6921,8 @@ html[data-theme="light"] .brand-mark {
   letter-spacing: 0.04em;
 }
 
-.ofuda--ongoing { box-shadow: inset 0 3px 0 #b8341c; }
-.ofuda--ongoing .ofuda__jp { color: #a32d16; }
+.ofuda--ongoing { box-shadow: inset 0 3px 0 var(--accent); }
+.ofuda--ongoing .ofuda__jp { color: var(--ofuda-fg); }
 .ofuda--announced { background: var(--ink); color: var(--paper); }
 
 .anime-card.is-bookmark-menu-open .ofuda { opacity: 0; }
@@ -6975,8 +6975,8 @@ html[data-theme="light"] .brand-mark {
 
   .feature-slide__veil {
     background:
-      linear-gradient(0deg, var(--media-ink) 0%, rgba(15, 12, 11, 0.92) 30%, rgba(15, 12, 11, 0.3) 66%, rgba(15, 12, 11, 0.12) 100%),
-      linear-gradient(90deg, rgba(15, 12, 11, 0.7), transparent 70%);
+      linear-gradient(0deg, var(--media-ink) 0%, rgba(var(--media-ink-rgb), 0.92) 30%, rgba(var(--media-ink-rgb), 0.3) 66%, rgba(var(--media-ink-rgb), 0.12) 100%),
+      linear-gradient(90deg, rgba(var(--media-ink-rgb), 0.7), transparent 70%);
   }
 
   .hero-copy {
@@ -7029,7 +7029,7 @@ html[data-theme="light"] .brand-mark {
 
 .continue-progress {
   height: 3px;
-  background: rgba(242, 235, 221, 0.24);
+  background: rgba(var(--media-text-rgb), 0.24);
 }
 
 .continue-progress > span { background: var(--accent); }
@@ -7057,7 +7057,7 @@ html[data-theme="light"] .brand-mark {
 
 :is(.continue-poster, .landscape-card, .episode-thumb):has(img.is-image-error) {
   background-color: var(--media-ink);
-  background-image: linear-gradient(rgba(15, 12, 11, 0.9), rgba(15, 12, 11, 0.9)), var(--grain-url);
+  background-image: linear-gradient(rgba(var(--media-ink-rgb), 0.9), rgba(var(--media-ink-rgb), 0.9)), var(--grain-url);
   background-size: auto, 220px 220px;
 }
 
@@ -7185,18 +7185,18 @@ html[data-theme="light"] .brand-mark {
 
 .player-stage-art::after {
   background:
-    linear-gradient(90deg, rgba(15, 12, 11, 0.95), rgba(15, 12, 11, 0.36) 72%, rgba(15, 12, 11, 0.76)),
-    linear-gradient(0deg, rgba(15, 12, 11, 0.92), transparent 55%);
+    linear-gradient(90deg, rgba(var(--media-ink-rgb), 0.95), rgba(var(--media-ink-rgb), 0.36) 72%, rgba(var(--media-ink-rgb), 0.76)),
+    linear-gradient(0deg, rgba(var(--media-ink-rgb), 0.92), transparent 55%);
 }
 
 .player-stage-copy strong { font-family: var(--font-heading); font-weight: 400; }
-.player-timeline { background: rgba(242, 235, 221, 0.24); }
+.player-timeline { background: rgba(var(--media-text-rgb), 0.24); }
 .player-timeline span { background: var(--accent); }
 
 /* ---- Mobile bottom navigation: ink surface, a short torii beam over the active item ---- */
 @media (max-width: 720px) {
   .mobile-bottom-nav {
-    border-top: 1px solid rgba(242, 235, 221, 0.12);
+    border-top: 1px solid rgba(var(--media-text-rgb), 0.12);
     background: var(--media-ink);
     box-shadow: none;
   }
@@ -7513,7 +7513,7 @@ html[data-input-modality="keyboard"] .player-stage :is(a, button, [tabindex]):fo
   min-width: 0;
   min-height: 0;
   padding: 0;
-  border: 4px solid rgba(242, 235, 221, 0.2);
+  border: 4px solid rgba(var(--media-text-rgb), 0.2);
   border-radius: 50%;
   background: var(--media-ink);
   color: var(--media-text);
@@ -8071,3 +8071,4 @@ html[data-input-modality="keyboard"] .player-stage :is(a, button, [tabindex]):fo
   outline: 1px solid var(--line);
   outline-offset: -1px;
 }
+

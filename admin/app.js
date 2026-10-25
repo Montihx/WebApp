@@ -567,27 +567,18 @@
       ["14 авг", 1248, 410],
       ["15 авг", 610, 155],
     ];
-    const rowCount = 16;
     const dayTotals = processedDays.map(([, kodik, shikimori]) => kodik + shikimori);
     const chartMaxTotal = Math.max(...dayTotals);
     const totalKodik = processedDays.reduce((sum, row) => sum + row[1], 0);
     const totalShikimori = processedDays.reduce((sum, row) => sum + row[2], 0);
     const trendColumns = processedDays
-      .map(([label, kodik, shikimori]) => {
+      .map(([label, kodik, shikimori], index) => {
         const total = kodik + shikimori;
-        const filled = Math.round((total / chartMaxTotal) * rowCount);
-        const kodikCells = filled ? Math.round((kodik / total) * filled) : 0;
-        const cells = [];
-        for (let i = 0; i < rowCount; i += 1) {
-          const posFromBottom = rowCount - 1 - i;
-          const tone =
-            posFromBottom < kodikCells ? "accent" : posFromBottom < filled ? "info" : "empty";
-          cells.push(`<span class="trend-cell trend-cell--${tone}"></span>`);
-        }
-        return `<div class="trend-column" data-tooltip="${label} · Kodik ${kodik.toLocaleString("ru-RU")} · Shikimori ${shikimori.toLocaleString("ru-RU")}"><div class="trend-column__cells">${cells.join("")}</div><span class="trend-column__label">${label.split(" ")[0]}</span></div>`;
+        const height = Math.max(4, Math.round((total / chartMaxTotal) * 100));
+        return `<button type="button" class="kz-chart__col" style="--i:${index};--h:${height}%;--a:${(kodik / total) * 100}%;--b:${(shikimori / total) * 100}%" aria-label="${label}: Kodik ${kodik.toLocaleString("ru-RU")}, Shikimori ${shikimori.toLocaleString("ru-RU")}"><span class="kz-chart__stack"><span class="kz-chart__seg kz-chart__seg--a"></span><span class="kz-chart__seg kz-chart__seg--b"></span></span><span class="kz-chart__label">${label.split(" ")[0]}</span><span class="kz-chart__tip" aria-hidden="true">${label}<br><i style="background:var(--accent)"></i>Kodik <b>${kodik.toLocaleString("ru-RU")}</b><br><i style="background:var(--chart-2)"></i>Shikimori <b>${shikimori.toLocaleString("ru-RU")}</b><br>Всего <b>${total.toLocaleString("ru-RU")}</b></span></button>`;
       })
       .join("");
-    const processedChart = `<section class="panel panel--flush trend-panel"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">Обработка источников</span><h2 class="panel-title">Обработано за 7 дней</h2><p class="panel-subtitle">Записи из Kodik и Shikimori · 9–15 августа</p></div><div class="chart-legend"><span class="legend-item"><i class="legend-mark"></i>Kodik · ${totalKodik.toLocaleString("ru-RU")}</span><span class="legend-item"><i class="legend-mark legend-mark--info"></i>Shikimori · ${totalShikimori.toLocaleString("ru-RU")}</span><span class="chart-summary">За неделю <strong>${(totalKodik + totalShikimori).toLocaleString("ru-RU")}</strong></span></div></header><div class="trend-grid" role="img" aria-label="Обработано за 7 дней: Kodik и Shikimori по дням">${trendColumns}</div></section>`;
+    const processedChart = `<section class="panel panel--flush trend-panel"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">Обработка источников</span><h2 class="panel-title">Обработано за 7 дней</h2><p class="panel-subtitle">Записи из Kodik и Shikimori · 9–15 августа</p></div><div class="chart-legend"><span class="legend-item"><i class="kz-legend-swatch kz-legend-swatch--a"></i>Kodik · ${totalKodik.toLocaleString("ru-RU")}</span><span class="legend-item"><i class="kz-legend-swatch kz-legend-swatch--b"></i>Shikimori · ${totalShikimori.toLocaleString("ru-RU")}</span><span class="chart-summary">За неделю <strong>${(totalKodik + totalShikimori).toLocaleString("ru-RU")}</strong></span></div></header><div class="kz-chart" style="--kz-cols:${processedDays.length}">${trendColumns}</div></section>`;
     const chartTable = `<table class="sr-only"><caption>Обработано за 7 дней: Kodik и Shikimori по дням</caption><thead><tr><th scope="col">День</th><th scope="col">Kodik</th><th scope="col">Shikimori</th></tr></thead><tbody>${processedDays.map(([label, kodik, shikimori]) => `<tr><th scope="row">${label}</th><td>${kodik}</td><td>${shikimori}</td></tr>`).join("")}</tbody></table>`;
     const attentionCards = decisionQueue
       .map(
@@ -1650,6 +1641,87 @@
   }
   // Numeric columns are right-aligned and monospaced; found by header so templates stay untouched.
   const NUMERIC_COLUMNS = new Set(["эпизоды", "оценка", "items", "просмотры", "лайки", "размер", "длительность", "время", "размер файла"]);
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  // v3: entrance, cursor spotlight and counting numbers for a freshly rendered screen.
+  function enhanceView(root) {
+    root.classList.remove("is-entering");
+    if (!reduceMotion.matches) {
+      void root.offsetWidth;
+      root.classList.add("is-entering");
+    }
+    root.querySelectorAll(".panel, .metric-card, .now-strip, .settings-card, .integration-card, .rail-card").forEach((card) => {
+      card.dataset.spotlight = "";
+    });
+    if (reduceMotion.matches) return;
+    root.querySelectorAll(".metric-card strong, .attention-card__count, .decision-count").forEach((node) => {
+      const text = node.textContent.trim();
+      const match = text.match(/^(\d[\d\s\u00a0]*)$/);
+      if (!match) return;
+      const target = Number(match[1].replace(/[\s\u00a0]/g, ""));
+      if (!Number.isFinite(target) || target < 2) return;
+      const started = performance.now();
+      const duration = 900;
+      const format = (value) => value.toLocaleString("ru-RU");
+      const tick = (now) => {
+        if (!node.isConnected) return;
+        const t = Math.min(1, (now - started) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        node.textContent = format(Math.round(target * eased));
+        if (t < 1) requestAnimationFrame(tick);
+        else node.textContent = text;
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+
+  document.addEventListener("pointermove", (event) => {
+    const card = event.target.closest?.("[data-spotlight]");
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    card.style.setProperty("--mx", `${event.clientX - rect.left}px`);
+    card.style.setProperty("--my", `${event.clientY - rect.top}px`);
+  }, { passive: true });
+
+  const shell = document.querySelector("#app-shell");
+  const onScroll = () => shell?.classList.toggle("is-scrolled", window.scrollY > 8);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  // v3: palette switch (Сакура ⇄ Обсидиан), shared with the public site via localStorage.
+  const paletteNames = { sakura: "Сакура", obsidian: "Обсидиан" };
+  function applyPalette(name) {
+    const next = paletteNames[name] ? name : "sakura";
+    if (next === "sakura") delete document.documentElement.dataset.palette;
+    else document.documentElement.dataset.palette = next;
+    document.querySelectorAll("[data-palette-toggle]").forEach((control) => {
+      const other = next === "sakura" ? "obsidian" : "sakura";
+      control.setAttribute("aria-label", `Палитра: ${paletteNames[next]}. Переключить на «${paletteNames[other]}»`);
+      control.dataset.tooltip = `Палитра: ${paletteNames[next]}`;
+    });
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = getComputedStyle(document.documentElement).getPropertyValue("--canvas").trim();
+    return next;
+  }
+  document.querySelectorAll("[data-palette-toggle]").forEach((control) => {
+    control.addEventListener("click", (event) => {
+      const current = document.documentElement.dataset.palette || "sakura";
+      const next = current === "sakura" ? "obsidian" : "sakura";
+      const swap = () => {
+        applyPalette(next);
+        try { localStorage.setItem("kitsu-palette", next); } catch (_) {}
+      };
+      if (document.startViewTransition && !reduceMotion.matches) {
+        const root = document.documentElement;
+        root.style.setProperty("--kz-x", `${event.clientX || window.innerWidth - 40}px`);
+        root.style.setProperty("--kz-y", `${event.clientY || 30}px`);
+        root.classList.add("kz-palette-switching");
+        document.startViewTransition(swap).finished.finally(() => root.classList.remove("kz-palette-switching"));
+      } else swap();
+    });
+  });
+  applyPalette(document.documentElement.dataset.palette || "sakura");
+
   function markNumericColumns(root) {
     root.querySelectorAll("table").forEach((table) => {
       [...table.querySelectorAll("thead th")].forEach((th, index) => {
@@ -1665,6 +1737,7 @@
     hideTooltip(true);
     viewRoot.innerHTML = `<div class="view-enter">${renderers[state.currentView]()}</div>`;
     markNumericColumns(viewRoot);
+    enhanceView(viewRoot);
     document.querySelector("#breadcrumb-current").textContent =
       viewMeta[state.currentView][0];
     document.title = `${viewMeta[state.currentView][0]} — Kitsu Enterprise Admin`;
@@ -2928,7 +3001,7 @@
       document.documentElement.dataset.theme = next;
       localStorage.setItem("kitsu-admin-theme", next);
       document.querySelector('meta[name="theme-color"]').content =
-        next === "light" ? "#f4eee3" : "#0f0c0b";
+        getComputedStyle(document.documentElement).getPropertyValue("--canvas").trim();
     };
     if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       document.startViewTransition(apply);
@@ -3063,7 +3136,7 @@
   if (savedTheme === "light" || savedTheme === "dark")
     document.documentElement.dataset.theme = savedTheme;
   document.querySelector('meta[name="theme-color"]').content =
-    document.documentElement.dataset.theme === "light" ? "#f4eee3" : "#0f0c0b";
+    getComputedStyle(document.documentElement).getPropertyValue("--canvas").trim();
   if (localStorage.getItem("kitsu-sidebar-collapsed") === "1")
     appShell.classList.add("is-collapsed");
   syncMobileSidebar();
