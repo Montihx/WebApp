@@ -118,7 +118,11 @@
     const region = $("#toast-region");
     if (!region) return;
 
-    while (region.children.length >= 3) closeToast(region.firstElementChild);
+    // Keep at most three toasts. Already-leaving ones are removed right away;
+    // closing an already-leaving toast is a no-op, so looping on it would never end.
+    region.querySelectorAll(".toast.is-leaving").forEach((item) => item.remove());
+    const active = [...region.children];
+    active.slice(0, Math.max(0, active.length - 2)).forEach((item) => closeToast(item));
 
     const toast = document.createElement("div");
     toast.className = `toast toast--${tone}`;
