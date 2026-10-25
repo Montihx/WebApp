@@ -51,6 +51,8 @@
   --kitsunebi: #8fd8ff;
   --kitsunebi-soft: rgba(143, 216, 255, 0.16);
   --kin: #d9a84e;
+  --kin-text: #d9a84e;
+  --kitsunebi-text: #8fd8ff;
   --ink: #150d09;
   --paper: #f2ebdd;
   --hanko-bg: #ede3cf;
@@ -138,6 +140,8 @@ html[data-theme="light"] {
   --kitsunebi: #0b6a99;
   --kitsunebi-soft: rgba(11, 106, 153, 0.12);
   --kin: #8a6112;
+  --kin-text: #6a490b;
+  --kitsunebi-text: #08587f;
   --grain-opacity: 0.06;
   --seigaiha-opacity: 0.05;
   --seigaiha-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='28' fill='none' stroke='%231c1613' stroke-width='1.2'%3E%3Cpath d='M-26 14a26 26 0 0 1 52 0M-19 14a19 19 0 0 1 38 0M-12 14a12 12 0 0 1 24 0M30 14a26 26 0 0 1 52 0M37 14a19 19 0 0 1 38 0M44 14a12 12 0 0 1 24 0M2 28a26 26 0 0 1 52 0M9 28a19 19 0 0 1 38 0M16 28a12 12 0 0 1 24 0'/%3E%3C/svg%3E");

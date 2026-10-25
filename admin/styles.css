@@ -1,4 +1,4 @@
-@import url("../tokens.css?v=kitsune-3");
+@import url("../tokens.css?v=kitsune-4");
 
 @font-face {
   font-family: "Onest";
@@ -11559,3 +11559,237 @@ code, kbd, time, .cell-muted, .timezone-chip { font-family: var(--font-mono); fo
   color: var(--text-muted);
   opacity: 1;
 }
+
+/* ==========================================================================
+   Overlays: dialog, palette, drawer, toasts. Entry via @starting-style and the
+   shared motion tokens; shadows only here and on menus.
+   ========================================================================== */
+.overlay { background: var(--overlay); animation: none; transition: opacity var(--dur-2) var(--ease-out); }
+@starting-style { .overlay { opacity: 0; } }
+
+.dialog,
+.command-dialog {
+  border-radius: var(--radius-md);
+  animation: none;
+  opacity: 1;
+  transition: opacity var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out);
+}
+
+.dialog { transform: translate(-50%, -50%) scale(1); }
+.command-dialog { transform: translateX(-50%) scale(1); }
+
+@starting-style {
+  .dialog { opacity: 0; transform: translate(-50%, -50%) scale(0.98); }
+  .command-dialog { opacity: 0; transform: translateX(-50%) scale(0.98); }
+}
+
+.detail-drawer {
+  animation: none;
+  transform: translateX(0);
+  transition: transform var(--dur-2) var(--ease-out);
+}
+
+@starting-style { .detail-drawer { transform: translateX(100%); } }
+
+.toast {
+  border-radius: var(--radius-md);
+  animation: toast-rise var(--dur-2) var(--ease-out);
+}
+
+.toast.is-leaving { animation: toast-sink var(--dur-1) var(--ease-out) forwards; }
+
+@keyframes toast-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toast-sink {
+  to { opacity: 0; transform: translateY(8px); }
+}
+
+.dialog-header h2,
+.drawer-header h2 { font-family: var(--font-heading); font-size: 18px; font-weight: 400; letter-spacing: 0; }
+
+.command-results [aria-selected="true"],
+.command-results .is-active { background: var(--surface-active); box-shadow: inset 2px 0 0 var(--accent); }
+
+/* Dangerous confirmation: the red is crimson and always has words next to it. */
+.button--danger { border-color: color-mix(in srgb, var(--red) 40%, transparent); background: var(--red-soft); color: var(--red); }
+.button--danger:hover { background: color-mix(in srgb, var(--red) 22%, transparent); }
+
+/* ---- Screen switch: only the work area crossfades ---- */
+.view-root { view-transition-name: workarea; }
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(workarea),
+  ::view-transition-new(workarea) {
+    animation-duration: var(--dur-2);
+    animation-timing-function: var(--ease-out);
+  }
+}
+
+.view-enter { animation: none; }
+
+/* ---- Forms: groups with kickers, hint and error under the field, dirty marker ---- */
+.editor-section > header .section-kicker,
+.form-section .section-kicker { color: var(--accent-text); letter-spacing: 0.14em; }
+
+.field > span:first-child { font-size: var(--type-ui); font-weight: 700; color: var(--text); }
+.field > small { color: var(--text-muted); font-size: var(--type-meta); line-height: 1.45; }
+.field input, .field select, .field textarea { border-radius: var(--radius-sm); }
+.field input:user-invalid, .field select:user-invalid, .field textarea:user-invalid { border-color: var(--red); }
+.field:has(:user-invalid) > small::after { content: " Проверьте значение."; color: var(--red); font-weight: 700; }
+
+.dirty-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-right: 4px;
+  color: var(--text-muted);
+  font-size: var(--type-meta);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dirty-state::before { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); content: ""; }
+.dirty-state.is-dirty { color: var(--kin); }
+.dirty-state.is-dirty::before { background: var(--kin); }
+
+.editor-topline h1 { font-family: var(--font-heading); font-size: clamp(1.25rem, 2vw, 1.75rem); font-weight: 400; letter-spacing: 0; }
+
+/* ---- States: calm skeletons, empty, error ---- */
+.skeleton,
+.skeleton-line {
+  display: block;
+  border-radius: var(--radius-xs);
+  background: var(--surface-hover);
+  animation: skeleton-breathe 1.8s ease-in-out infinite;
+}
+
+.skeleton-line { height: 12px; margin: 8px 0; }
+.skeleton-line--short { width: 38%; }
+
+@keyframes skeleton-breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+.is-refreshing .data-table tbody td > * { opacity: 0.35; }
+.is-refreshing .data-table tbody td { position: relative; }
+
+.empty-state { color: var(--text-secondary); }
+.empty-state h3 { font-family: var(--font-body); font-size: 16px; font-weight: 700; }
+.empty-state p { color: var(--text-muted); font-size: var(--type-ui); }
+
+.state-error {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+  border: 1px solid color-mix(in srgb, var(--red) 40%, transparent);
+  border-radius: var(--radius-md);
+  background: var(--red-soft);
+  color: var(--text);
+}
+
+.state-error strong { color: var(--red); }
+
+/* ---- Light theme: paper day ---- */
+html[data-theme="light"] .now-cell--job { background: linear-gradient(90deg, var(--kitsunebi-soft), transparent 70%); }
+html[data-theme="light"] .sidebar { background: var(--sidebar); box-shadow: none; border-right: 1px solid var(--line); }
+html[data-theme="light"] .panel, html[data-theme="light"] .now-strip, html[data-theme="light"] .attention-panel { box-shadow: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog, .command-dialog, .detail-drawer, .overlay { transition: none; }
+  .toast, .toast.is-leaving, .skeleton, .skeleton-line { animation: none; }
+}
+
+/* ---- Mobile: 44px targets, tables scroll inside their block ---- */
+@media (max-width: 720px) {
+  .button, .icon-button, .nav-item, .mobile-nav-item, .filter-chip, .filter-button, .tabs button,
+  .row-action, .panel-link { min-height: var(--control-touch-height); }
+  .icon-button, .row-action { min-width: var(--control-touch-height); }
+  .table-shell { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .editor-actions { flex-wrap: wrap; gap: 8px; }
+  .dirty-state { width: 100%; margin: 0 0 2px; }
+  .page-heading h1 { font-size: 1.75rem; }
+  .mobile-nav { background: var(--media-ink); border-top: 1px solid rgba(242, 235, 221, 0.12); }
+  .mobile-nav-item { color: var(--media-text-dim); }
+  .mobile-nav-item.is-active { color: var(--accent-on-ink); }
+  .mobile-nav-item.is-active::before {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 28px;
+    height: 4px;
+    margin-left: -14px;
+    background: var(--accent);
+    clip-path: polygon(0 0, 100% 0, 94% 100%, 6% 100%);
+    content: "";
+  }
+}
+
+.dialog-target {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--red) 36%, transparent);
+  border-radius: var(--radius-sm);
+  background: var(--red-soft);
+}
+
+.dialog-target span { color: var(--red); font-size: var(--type-meta); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.dialog-target code { overflow: hidden; color: var(--text); font-size: var(--type-ui); text-overflow: ellipsis; white-space: nowrap; }
+
+/* Mobile cards: a status chip hugs its text instead of stretching across the row. */
+@media (max-width: 720px) {
+  .data-table.responsive td > .status-badge { display: inline-flex; width: max-content; max-width: 100%; }
+}
+
+/* ---- Contrast on tinted chips: darker text tokens in the light theme ---- */
+.status-badge--warning,
+.queue-total,
+.nav-item .nav-badge--warning,
+.nav-item.is-active .nav-badge--warning,
+.dirty-state.is-dirty { color: var(--kin-text); }
+.attention-card--warning .attention-card__count,
+.attention-card--warning .attention-card__icon { color: var(--kin-text); }
+.status-badge--live { color: var(--kitsunebi-text); }
+.dirty-state.is-dirty::before { background: var(--kin); }
+
+/* Sidebar secondary text stays readable on the paper sidebar. */
+.sidebar .nav-caption,
+.sidebar .brand-copy small,
+.sidebar .environment-copy small,
+.sidebar .collapse-button,
+.sidebar .collapse-button span { color: var(--text-secondary); opacity: 1; }
+
+/* Initials sit on a dimmed swatch so they pass 4.5:1 on any poster colour. */
+.avatar { color: var(--accent-text); }
+.episode-symbol b { color: var(--accent-text); }
+
+/* Hit areas: switches and check boxes keep their look, the target grows to 44px. */
+.switch { width: 44px; height: 24px; }
+.switch::after { top: 3px; left: 3px; width: 18px; height: 18px; }
+.switch.is-on::after { transform: translateX(20px); }
+.check-control { width: 24px; height: 24px; }
+.check-cell { min-width: 44px; }
+.back-link { display: inline-flex; min-height: 44px; align-items: center; }
+
+/* ---- One row density, sticky header on wide screens ---- */
+.data-table tbody td { padding-block: 10px; }
+.data-table tbody tr { height: 56px; }
+.data-table th.num, .data-table td.num { white-space: nowrap; }
+
+@media (min-width: 901px) {
+  .table-shell { overflow-x: clip; }
+  .data-table thead th {
+    position: sticky;
+    z-index: 2;
+    top: var(--topbar-height, 64px);
+    background: var(--surface-raised);
+  }
+}
+
+.row-leading__copy { text-align: left; justify-items: start; }

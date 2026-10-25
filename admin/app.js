@@ -331,6 +331,7 @@
     editorTab: "main",
     commandIndex: 0,
     commandItems: [],
+    dirtyViews: new Set(),
   };
 
   function filteredAnime() {
@@ -751,7 +752,7 @@
   }
 
   function renderSiteSettingsReal() {
-    return `${heading({ eyebrow: "Система · SystemSetting", title: "Настройки сайта", description: "Только ключи, которые действительно читаются и сохраняются текущим backend.", actions: `${actionButton("История изменений", "settings-history", "history")}${actionButton("Сохранить", "save-settings", "save", true)}` })}<div class="settings-contract"><main class="settings-form"><section class="settings-card"><header><span class="settings-card__number">01</span><div><h2>Идентификация сайта</h2><p>Публичное название из ключа <code>site_name</code></p></div>${status("Редактируется", "neutral")}</header><label class="field field--prominent"><span>Название сайта <code>site_name</code></span><input value="Kitsu Enterprise" autocomplete="off"><small>При интеграции значение всегда берётся из GET /system/settings/site.</small></label></section><section class="settings-card settings-card--critical"><header><span class="settings-card__number">02</span><div><h2>Режим обслуживания</h2><p>Булевый ключ <code>maintenance_mode</code></p></div>${status("Выключен", "success")}</header><div class="maintenance-control"><div><span class="maintenance-icon">${icon("construction")}</span><div><strong>Пользовательский сайт доступен</strong><p>Backend хранит значение, но потребитель maintenance_mode в текущем коде не найден. Не обещать блокировку сайта до реализации и теста consumer.</p></div></div><button class="switch" data-action="toggle-switch" aria-label="Режим обслуживания"></button></div></section><section class="settings-card"><header><span class="settings-card__number">03</span><div><h2>Регистрация</h2><p>Булевый ключ <code>allow_registration</code></p></div>${status("Включена", "success")}</header><div class="maintenance-control"><div><span class="maintenance-icon">${icon("user-plus")}</span><div><strong>Новые аккаунты разрешены</strong><p>Backend хранит значение, но consumer allow_registration в текущем коде не найден. Регистрацию не блокировать только на клиенте.</p></div></div><button class="switch is-on" data-action="toggle-switch" aria-label="Разрешить регистрацию"></button></div></section><section class="settings-card"><header><span class="settings-card__number">04</span><div><h2>Акцентные цвета</h2><p>Ключи <code>accent_primary</code> и <code>accent_danger</code></p></div>${status("Редактируются", "neutral")}</header><div class="form-grid"><label class="field"><span>Основной акцент <code>accent_primary</code></span><div class="input-action"><input type="color" value="#381932" aria-label="Основной акцент"><input value="#381932" autocomplete="off"></div><small>Целевой токен redesign; при интеграции поле сначала показывает фактическое значение GET.</small></label><label class="field"><span>Опасное действие <code>accent_danger</code></span><div class="input-action"><input type="color" value="#b94155" aria-label="Опасный акцент"><input value="#b94155" autocomplete="off"></div><small>Целевой danger-токен; backend пока только хранит значение и не применяет его к UI автоматически.</small></label></div></section><div class="settings-savebar"><div><span class="status-dot status-dot--ok"></span><span><strong>Пять значений загружены</strong><small>GET возвращает map без actor и updated_at</small></span></div><button class="button button--primary" data-action="save-settings">${icon("save")}Сохранить 5 ключей</button></div></main><aside class="settings-context"><section class="panel"><span class="section-kicker">Контракт конфигурации</span><h2 class="aside-title">Область настроек</h2><dl class="definition-list"><dt>Seeded keys</dt><dd>5</dd><dt>Источник</dt><dd>SystemSetting API</dd><dt>Чтение Go</dt><dd>Напрямую из БД</dd><dt>PATCH</dt><dd>Только существующие ключи</dd></dl></section><section class="cache-card"><span class="cache-card__icon">${icon("database-zap")}</span><div><strong>Настройки читаются из БД</strong><p>После PATCH backend инвалидирует cache namespaces; отдельный cache-health здесь не возвращается.</p></div>${status("DB source", "neutral")}</section><section class="scope-note"><span>${icon("info")}</span><p>Public URL, язык, комментарии и timezone не добавлены: этих ключей нет в seeded contract. Регистрация и два accent-ключа включены ниже.</p></section></aside></div>`;
+    return `${heading({ eyebrow: "Система · SystemSetting", title: "Настройки сайта", description: "Только ключи, которые действительно читаются и сохраняются текущим backend.", actions: `${actionButton("История изменений", "settings-history", "history")}${actionButton("Сохранить", "save-settings", "save", true)}` })}<div class="settings-contract"><main class="settings-form"><section class="settings-card"><header><span class="settings-card__number">01</span><div><h2>Идентификация сайта</h2><p>Публичное название из ключа <code>site_name</code></p></div>${status("Редактируется", "neutral")}</header><label class="field field--prominent"><span>Название сайта <code>site_name</code></span><input value="Kitsu Enterprise" autocomplete="off"><small>При интеграции значение всегда берётся из GET /system/settings/site.</small></label></section><section class="settings-card settings-card--critical"><header><span class="settings-card__number">02</span><div><h2>Режим обслуживания</h2><p>Булевый ключ <code>maintenance_mode</code></p></div>${status("Выключен", "success")}</header><div class="maintenance-control"><div><span class="maintenance-icon">${icon("construction")}</span><div><strong>Пользовательский сайт доступен</strong><p>Backend хранит значение, но потребитель maintenance_mode в текущем коде не найден. Не обещать блокировку сайта до реализации и теста consumer.</p></div></div><button class="switch" data-action="toggle-switch" aria-label="Режим обслуживания"></button></div></section><section class="settings-card"><header><span class="settings-card__number">03</span><div><h2>Регистрация</h2><p>Булевый ключ <code>allow_registration</code></p></div>${status("Включена", "success")}</header><div class="maintenance-control"><div><span class="maintenance-icon">${icon("user-plus")}</span><div><strong>Новые аккаунты разрешены</strong><p>Backend хранит значение, но consumer allow_registration в текущем коде не найден. Регистрацию не блокировать только на клиенте.</p></div></div><button class="switch is-on" data-action="toggle-switch" aria-label="Разрешить регистрацию"></button></div></section><section class="settings-card"><header><span class="settings-card__number">04</span><div><h2>Акцентные цвета</h2><p>Ключи <code>accent_primary</code> и <code>accent_danger</code></p></div>${status("Редактируются", "neutral")}</header><div class="form-grid"><label class="field"><span>Основной акцент <code>accent_primary</code></span><div class="input-action"><input type="color" value="#e0472b" aria-label="Основной акцент"><input value="#e0472b" autocomplete="off"></div><small>Целевой токен redesign; при интеграции поле сначала показывает фактическое значение GET.</small></label><label class="field"><span>Опасное действие <code>accent_danger</code></span><div class="input-action"><input type="color" value="#ff6f93" aria-label="Опасный акцент"><input value="#ff6f93" autocomplete="off"></div><small>Целевой danger-токен; backend пока только хранит значение и не применяет его к UI автоматически.</small></label></div></section><div class="settings-savebar"><div><span class="status-dot status-dot--ok"></span><span><strong>Пять значений загружены</strong><small>GET возвращает map без actor и updated_at</small></span></div><button class="button button--primary" data-action="save-settings">${icon("save")}Сохранить 5 ключей</button></div></main><aside class="settings-context"><section class="panel"><span class="section-kicker">Контракт конфигурации</span><h2 class="aside-title">Область настроек</h2><dl class="definition-list"><dt>Seeded keys</dt><dd>5</dd><dt>Источник</dt><dd>SystemSetting API</dd><dt>Чтение Go</dt><dd>Напрямую из БД</dd><dt>PATCH</dt><dd>Только существующие ключи</dd></dl></section><section class="cache-card"><span class="cache-card__icon">${icon("database-zap")}</span><div><strong>Настройки читаются из БД</strong><p>После PATCH backend инвалидирует cache namespaces; отдельный cache-health здесь не возвращается.</p></div>${status("DB source", "neutral")}</section><section class="scope-note"><span>${icon("info")}</span><p>Public URL, язык, комментарии и timezone не добавлены: этих ключей нет в seeded contract. Регистрация и два accent-ключа включены ниже.</p></section></aside></div>`;
   }
 
   function renderBackupsReal() {
@@ -888,7 +889,7 @@
     const sources = `<section class="editor-section"><header><div><span class="section-kicker">Anime · внешние связи</span><h2>Источники и идентификаторы</h2><p>Изменение external ID требует non-mutating сравнения до PATCH.</p></div><button class="button" data-action="preview-source-identity">${icon("scan-search")}Сравнить через fetch-full</button></header><div class="form-grid form-grid--editor"><label class="field"><span>Kodik ID</span><input value="498912"></label><label class="field"><span>Kodik URL</span><input value="https://kodik.info/serial/498912"></label><label class="field"><span>Shikimori ID</span><input value="58567"></label><label class="field"><span>MyAnimeList ID</span><input value="58567"></label></div><div class="truth-note">${icon("git-compare-arrows")}<p><strong>Verdict не вычисляется из ID на клиенте.</strong><br>POST /dashboard/parsers/fetch-full возвращает объединённого кандидата; конфликт решается только через ParserConflict API.</p></div></section>`;
     const review = `<section class="editor-section"><header><div><span class="section-kicker">Anime · moderation</span><h2>Контроль карточки</h2><p>needs_moderation и moderation_reason показаны как явные условия решения.</p></div>${status("Нужна проверка", "warning")}</header><div class="moderation-reasons"><article class="is-resolved"><span>${icon("check")}</span><div><strong>poster_url</strong><p>Поле заполнено; server probe доступности отсутствует.</p></div>${status("Поле есть", "success")}</article><article class="is-resolved"><span>${icon("check")}</span><div><strong>description</strong><p>Непустое описание соответствует approve-rule.</p></div>${status("Поле есть", "success")}</article><article><span>${icon("video-off")}</span><div><strong>no_video</strong><p>Для released/ongoing нужен kodik_url. Announced можно одобрить без него.</p></div>${status("Блокирует", "danger")}</article></div><div class="approval-gate"><div><span>${icon("shield-alert")}</span><div><strong>Одобрение пока недоступно</strong><p>Добавьте kodik_url либо измените status на announced, если это действительно анонс.</p></div></div><button class="button" disabled>Одобрить карточку</button></div></section>`;
     const content = { main, media, sources, review }[state.editorTab] || main;
-    return `<div class="editor-shell editor-shell--real"><header class="editor-topline"><div class="editor-topline__copy"><button class="back-link" data-view="catalog">${icon("arrow-left")}Каталог аниме</button><div><h1>Поднятие уровня в одиночку 2</h1><p>anime:9253 · ongoing · needs_moderation · sample response</p></div></div><div class="editor-actions"><button class="button" data-action="preview-content">${icon("eye")}Сводка перед PATCH</button><button class="button button--primary" data-action="save-anime">${icon("save")}Сохранить Anime</button></div></header><div class="editor-tabs">${sectionTabs(
+    return `<div class="editor-shell editor-shell--real"><header class="editor-topline"><div class="editor-topline__copy"><button class="back-link" data-view="catalog">${icon("arrow-left")}Каталог аниме</button><div><h1>Поднятие уровня в одиночку 2</h1><p>anime:9253 · ongoing · needs_moderation · sample response</p></div></div><div class="editor-actions"><span class="dirty-state" data-dirty-state role="status">Изменений нет</span><button class="button" data-view="catalog" data-discard>Отмена</button><button class="button" data-action="preview-content">${icon("eye")}Сводка перед PATCH</button><button class="button button--primary" data-action="save-anime">${icon("save")}Сохранить Anime</button></div></header><div class="editor-tabs">${sectionTabs(
       [
         ["main", "Основное"],
         ["media", "Медиа"],
@@ -901,11 +902,11 @@
   }
 
   function renderEpisodeEditorReal() {
-    return `<div class="editor-shell editor-shell--real"><header class="editor-topline"><div class="editor-topline__copy"><button class="back-link" data-view="episodes">${icon("arrow-left")}Эпизоды</button><div><h1>Новый эпизод</h1><p>Episode form · временные метки сохраняются в UTC</p></div></div><div class="editor-actions"><button class="button" data-view="episodes">Отмена</button><button class="button button--primary" data-action="save-episode">${icon("save")}Сохранить Episode</button></div></header><div class="editor-layout editor-layout--compact"><main class="editor-main"><section class="editor-section"><header><div><span class="section-kicker">Episode · обязательные данные</span><h2>Эпизод и связь с аниме</h2><p>После успешного POST можно создать один или несколько Release.</p></div></header><div class="form-grid form-grid--editor"><label class="field field--full"><span>Аниме <b>*</b></span><div class="entity-select"><span class="poster poster--tiny" style="--poster-a:#381932;--poster-b:#9a587f"><span>SL</span></span><span><strong>Поднятие уровня в одиночку 2</strong><small>anime:9253 · tv · ongoing · sample response</small></span><button class="button button--small" data-action="choose-anime">Изменить</button></div></label><label class="field"><span>Сезон <b>*</b></span><input type="number" value="2" min="0"></label><label class="field"><span>Номер эпизода <b>*</b></span><input type="number" value="14" min="0" step="1"></label><label class="field field--full"><span>Название</span><input placeholder="Название эпизода, если известно"></label><label class="field"><span>Дата и время выхода</span><input type="datetime-local" value="2026-08-13T12:00"><small>aired_at · введено как Asia/Almaty UTC+5</small></label><label class="field"><span>Значение для API</span><input value="2026-08-13T07:00:00Z" readonly><small>Нормализовано в UTC</small></label><label class="field field--full"><span>Thumbnail URL</span><div class="input-action"><input placeholder="https://…"><button class="button" data-action="validate-url-local">${icon("scan-search")}Проверить формат</button></div><small>Локальная schema-проверка; server probe отсутствует.</small></label></div><div class="binary-options"><div class="switch-row"><span class="switch-copy"><strong>Филлер</strong><small>is_filler=true</small></span><button class="switch" data-action="toggle-switch"></button></div><div class="switch-row"><span class="switch-copy"><strong>Рекап</strong><small>is_recap=true</small></span><button class="switch" data-action="toggle-switch"></button></div></div></section></main><aside class="editor-rail"><section class="rail-card"><h3>Уникальность</h3><div class="source-check"><span class="status-dot status-dot--warning"></span><div><strong>Проверяется POST mutation</strong><p>season=2 · episode=14</p></div></div></section><section class="rail-card"><h3>После сохранения</h3><p>Релизы загружаются отдельным endpoint по episode_id.</p><button class="button button--small" data-view="release-editor">Создать Release</button></section><section class="rail-card rail-card--timezone"><h3>Часовой пояс</h3><strong>Asia/Almaty · UTC+5</strong><p>Backend timestamps интерпретируются и сохраняются как UTC.</p></section></aside></div></div>`;
+    return `<div class="editor-shell editor-shell--real"><header class="editor-topline"><div class="editor-topline__copy"><button class="back-link" data-view="episodes">${icon("arrow-left")}Эпизоды</button><div><h1>Новый эпизод</h1><p>Episode form · временные метки сохраняются в UTC</p></div></div><div class="editor-actions"><span class="dirty-state" data-dirty-state role="status">Изменений нет</span><button class="button" data-view="episodes" data-discard>Отмена</button><button class="button button--primary" data-action="save-episode">${icon("save")}Сохранить Episode</button></div></header><div class="editor-layout editor-layout--compact"><main class="editor-main"><section class="editor-section"><header><div><span class="section-kicker">Episode · обязательные данные</span><h2>Эпизод и связь с аниме</h2><p>После успешного POST можно создать один или несколько Release.</p></div></header><div class="form-grid form-grid--editor"><label class="field field--full"><span>Аниме <b>*</b></span><div class="entity-select"><span class="poster poster--tiny" style="--poster-a:#381932;--poster-b:#9a587f"><span>SL</span></span><span><strong>Поднятие уровня в одиночку 2</strong><small>anime:9253 · tv · ongoing · sample response</small></span><button class="button button--small" data-action="choose-anime">Изменить</button></div></label><label class="field"><span>Сезон <b>*</b></span><input type="number" value="2" min="0"></label><label class="field"><span>Номер эпизода <b>*</b></span><input type="number" value="14" min="0" step="1"></label><label class="field field--full"><span>Название</span><input placeholder="Название эпизода, если известно"></label><label class="field"><span>Дата и время выхода</span><input type="datetime-local" value="2026-08-13T12:00"><small>aired_at · введено как Asia/Almaty UTC+5</small></label><label class="field"><span>Значение для API</span><input value="2026-08-13T07:00:00Z" readonly><small>Нормализовано в UTC</small></label><label class="field field--full"><span>Thumbnail URL</span><div class="input-action"><input placeholder="https://…"><button class="button" data-action="validate-url-local">${icon("scan-search")}Проверить формат</button></div><small>Локальная schema-проверка; server probe отсутствует.</small></label></div><div class="binary-options"><div class="switch-row"><span class="switch-copy"><strong>Филлер</strong><small>is_filler=true</small></span><button class="switch" data-action="toggle-switch"></button></div><div class="switch-row"><span class="switch-copy"><strong>Рекап</strong><small>is_recap=true</small></span><button class="switch" data-action="toggle-switch"></button></div></div></section></main><aside class="editor-rail"><section class="rail-card"><h3>Уникальность</h3><div class="source-check"><span class="status-dot status-dot--warning"></span><div><strong>Проверяется POST mutation</strong><p>season=2 · episode=14</p></div></div></section><section class="rail-card"><h3>После сохранения</h3><p>Релизы загружаются отдельным endpoint по episode_id.</p><button class="button button--small" data-view="release-editor">Создать Release</button></section><section class="rail-card rail-card--timezone"><h3>Часовой пояс</h3><strong>Asia/Almaty · UTC+5</strong><p>Backend timestamps интерпретируются и сохраняются как UTC.</p></section></aside></div></div>`;
   }
 
   function renderReleaseEditorReal() {
-    return `<div class="editor-shell editor-shell--real"><header class="editor-topline"><div class="editor-topline__copy"><button class="back-link" data-view="releases">${icon("arrow-left")}Релизы</button><div><h1>Новый релиз</h1><p>Release form · источник, перевод и два URL-поля</p></div></div><div class="editor-actions"><button class="button" data-view="releases">Отмена</button><button class="button button--primary" data-action="save-release">${icon("save")}Сохранить Release</button></div></header><div class="editor-layout editor-layout--compact"><main class="editor-main"><section class="editor-section"><header><div><span class="section-kicker">Release · связи</span><h2>Аниме и эпизод</h2><p>Release сохраняет episode_id; Anime используется только для удобного выбора.</p></div></header><div class="form-grid form-grid--editor"><label class="field field--full"><span>Аниме</span><div class="entity-select"><span class="poster poster--tiny" style="--poster-a:#381932;--poster-b:#9a587f"><span>SL</span></span><span><strong>Поднятие уровня в одиночку 2</strong><small>sample response · вспомогательный выбор</small></span><button class="button button--small" data-action="choose-anime">Изменить</button></div></label><label class="field field--full"><span>Episode ID <b>*</b></span><select><option value="00000000-0000-4000-8000-000000008413">EP-8413 · S2E14</option><option value="00000000-0000-4000-8000-000000008412">EP-8412 · S2E13</option></select></label></div></section><section class="editor-section"><header><div><span class="section-kicker">Release · playback</span><h2>Источник воспроизведения</h2><p>url и embed_url сохраняются отдельно; backend не проверяет поток.</p></div><span class="unsupported-label">Без server validate/test-stream</span></header><div class="form-grid form-grid--editor"><label class="field"><span>Source <b>*</b></span><select><option>Kodik</option><option>Aniboom</option><option>Sibnet</option><option>other</option></select></label><label class="field"><span>Quality</span><select><option>1080p</option><option>720p</option><option>480p</option><option>auto</option></select></label><label class="field field--full"><span>URL <b>*</b></span><div class="input-action"><input value="https://kodik.info/video/498912/14"><button class="button" data-action="validate-url-local">Проверить формат</button></div></label><label class="field field--full"><span>Embed URL</span><div class="input-action"><input value="https://kodik.info/seria/498912/14"><button class="button" data-action="validate-url-local">Проверить формат</button></div></label><label class="field"><span>External ID</span><input value="498912:14:anilibria"></label><label class="field"><span>Verified</span><select><option>Да</option><option>Нет</option></select><small>is_verified — сохранённый boolean, не результат probe.</small></label></div></section><section class="editor-section"><header><div><span class="section-kicker">Release · translation</span><h2>Перевод</h2><p>Тип, команда и язык используются в выборе варианта плеера.</p></div></header><div class="form-grid form-grid--editor"><label class="field"><span>Translation type</span><select><option>voice</option><option>subtitles</option><option>raw</option></select></label><label class="field"><span>Translation language</span><input value="ru"></label><label class="field field--full"><span>Translation team</span><input value="AniLibria"></label></div><div class="switch-row"><span class="switch-copy"><strong>Активный релиз</strong><small>is_active=true · доступен как вариант плеера</small></span><button class="switch is-on" data-action="toggle-switch"></button></div></section></main><aside class="editor-rail"><section class="rail-card"><h3>Проверка URL</h3><div class="source-check"><span class="status-dot status-dot--warning"></span><div><strong>Только локальная URL schema</strong><p>Доступность источника неизвестна</p></div></div><dl class="definition-list"><dt>Source</dt><dd>Kodik</dd><dt>Quality</dt><dd>1080p</dd><dt>is_verified</dt><dd>true</dd></dl></section><section class="rail-card"><h3>Поля POST</h3><ul class="check-list"><li class="is-done">${icon("check")}episode_id</li><li class="is-done">${icon("check")}source + url</li><li class="is-done">${icon("check")}translation</li><li class="is-done">${icon("check")}is_active + is_verified</li></ul></section><section class="rail-card rail-card--success"><span>${icon("badge-check")}</span><div><strong>Форма заполнена</strong><p>Публичный плеер должен использовать только подтверждённую Release policy, а не собственные догадки.</p></div></section></aside></div></div>`;
+    return `<div class="editor-shell editor-shell--real"><header class="editor-topline"><div class="editor-topline__copy"><button class="back-link" data-view="releases">${icon("arrow-left")}Релизы</button><div><h1>Новый релиз</h1><p>Release form · источник, перевод и два URL-поля</p></div></div><div class="editor-actions"><span class="dirty-state" data-dirty-state role="status">Изменений нет</span><button class="button" data-view="releases" data-discard>Отмена</button><button class="button button--primary" data-action="save-release">${icon("save")}Сохранить Release</button></div></header><div class="editor-layout editor-layout--compact"><main class="editor-main"><section class="editor-section"><header><div><span class="section-kicker">Release · связи</span><h2>Аниме и эпизод</h2><p>Release сохраняет episode_id; Anime используется только для удобного выбора.</p></div></header><div class="form-grid form-grid--editor"><label class="field field--full"><span>Аниме</span><div class="entity-select"><span class="poster poster--tiny" style="--poster-a:#381932;--poster-b:#9a587f"><span>SL</span></span><span><strong>Поднятие уровня в одиночку 2</strong><small>sample response · вспомогательный выбор</small></span><button class="button button--small" data-action="choose-anime">Изменить</button></div></label><label class="field field--full"><span>Episode ID <b>*</b></span><select><option value="00000000-0000-4000-8000-000000008413">EP-8413 · S2E14</option><option value="00000000-0000-4000-8000-000000008412">EP-8412 · S2E13</option></select></label></div></section><section class="editor-section"><header><div><span class="section-kicker">Release · playback</span><h2>Источник воспроизведения</h2><p>url и embed_url сохраняются отдельно; backend не проверяет поток.</p></div><span class="unsupported-label">Без server validate/test-stream</span></header><div class="form-grid form-grid--editor"><label class="field"><span>Source <b>*</b></span><select><option>Kodik</option><option>Aniboom</option><option>Sibnet</option><option>other</option></select></label><label class="field"><span>Quality</span><select><option>1080p</option><option>720p</option><option>480p</option><option>auto</option></select></label><label class="field field--full"><span>URL <b>*</b></span><div class="input-action"><input value="https://kodik.info/video/498912/14"><button class="button" data-action="validate-url-local">Проверить формат</button></div></label><label class="field field--full"><span>Embed URL</span><div class="input-action"><input value="https://kodik.info/seria/498912/14"><button class="button" data-action="validate-url-local">Проверить формат</button></div></label><label class="field"><span>External ID</span><input value="498912:14:anilibria"></label><label class="field"><span>Verified</span><select><option>Да</option><option>Нет</option></select><small>is_verified — сохранённый boolean, не результат probe.</small></label></div></section><section class="editor-section"><header><div><span class="section-kicker">Release · translation</span><h2>Перевод</h2><p>Тип, команда и язык используются в выборе варианта плеера.</p></div></header><div class="form-grid form-grid--editor"><label class="field"><span>Translation type</span><select><option>voice</option><option>subtitles</option><option>raw</option></select></label><label class="field"><span>Translation language</span><input value="ru"></label><label class="field field--full"><span>Translation team</span><input value="AniLibria"></label></div><div class="switch-row"><span class="switch-copy"><strong>Активный релиз</strong><small>is_active=true · доступен как вариант плеера</small></span><button class="switch is-on" data-action="toggle-switch"></button></div></section></main><aside class="editor-rail"><section class="rail-card"><h3>Проверка URL</h3><div class="source-check"><span class="status-dot status-dot--warning"></span><div><strong>Только локальная URL schema</strong><p>Доступность источника неизвестна</p></div></div><dl class="definition-list"><dt>Source</dt><dd>Kodik</dd><dt>Quality</dt><dd>1080p</dd><dt>is_verified</dt><dd>true</dd></dl></section><section class="rail-card"><h3>Поля POST</h3><ul class="check-list"><li class="is-done">${icon("check")}episode_id</li><li class="is-done">${icon("check")}source + url</li><li class="is-done">${icon("check")}translation</li><li class="is-done">${icon("check")}is_active + is_verified</li></ul></section><section class="rail-card rail-card--success"><span>${icon("badge-check")}</span><div><strong>Форма заполнена</strong><p>Публичный плеер должен использовать только подтверждённую Release policy, а не собственные догадки.</p></div></section></aside></div></div>`;
   }
 
   function renderModerationReal() {
@@ -1581,12 +1582,42 @@
       control.setAttribute('aria-checked', String(!!draft.switches[i]));
     });
   }
+  // Unsaved-state marker for the editors: set by the first edit, cleared by "Отмена".
+  function syncDirtyState() {
+    const dirty = state.dirtyViews.has(state.currentView);
+    viewRoot.querySelectorAll("[data-dirty-state]").forEach((node) => {
+      node.classList.toggle("is-dirty", dirty);
+      node.textContent = dirty ? "Есть несохранённые изменения" : "Изменений нет";
+    });
+  }
+  ["input", "change"].forEach((type) =>
+    viewRoot.addEventListener(type, () => {
+      if (!viewRoot.dataset.draftKey) return;
+      state.dirtyViews.add(state.currentView);
+      syncDirtyState();
+    }),
+  );
+  viewRoot.addEventListener("click", (event) => {
+    if (event.target.closest?.(".switch") && viewRoot.dataset.draftKey) {
+      state.dirtyViews.add(state.currentView);
+      syncDirtyState();
+    }
+    if (event.target.closest?.("[data-discard]")) {
+      [...formDrafts.keys()]
+        .filter((key) => key.startsWith(`${state.currentView}:`))
+        .forEach((key) => formDrafts.delete(key));
+      state.dirtyViews.delete(state.currentView);
+      viewRoot.dataset.draftKey = "";
+    }
+  }, true);
+
   function hydrateFormDraft() {
     contracts.hydrate(viewRoot);
     const formView = ['anime-editor','episode-editor','release-editor','parser-settings','settings'].includes(state.currentView);
     const key = formView ? state.currentView + ':' + (state.currentView === 'anime-editor' ? state.editorTab : state.currentView === 'parser-settings' ? state.parserSettingsTab : '') : '';
     viewRoot.dataset.draftKey = key;
     restoreFormDraft(viewRoot, key);
+    syncDirtyState();
     const date = viewRoot.querySelector('[name="aired_on"]'), year = viewRoot.querySelector('[name="year"]');
     if (date && year) { const update=()=>{year.value=date.value.slice(0,4);};date.addEventListener('input',update);update(); }
     const localDate = viewRoot.querySelector('[name="aired_at"]'), utc = viewRoot.querySelector('input[readonly]:not([name])');
@@ -1617,10 +1648,23 @@
     const json=JSON.stringify(payload,null,2).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
     return openDrawer({eyebrow:'Локальная проверка · запрос не отправлен',title:'Поля перед сохранением',body:'<p>Показаны фактические значения формы, включая черновики других вкладок. Уникальность, права и доступность URL проверяются только API. Демонстрационные идентификаторы не являются production ID.</p><pre class="payload-preview">'+json+'</pre>'});
   }
+  // Numeric columns are right-aligned and monospaced; found by header so templates stay untouched.
+  const NUMERIC_COLUMNS = new Set(["эпизоды", "оценка", "items", "просмотры", "лайки", "размер", "длительность", "время", "размер файла"]);
+  function markNumericColumns(root) {
+    root.querySelectorAll("table").forEach((table) => {
+      [...table.querySelectorAll("thead th")].forEach((th, index) => {
+        if (!NUMERIC_COLUMNS.has(th.textContent.trim().toLowerCase())) return;
+        th.classList.add("num");
+        table.querySelectorAll(`tbody tr`).forEach((row) => row.children[index]?.classList.add("num"));
+      });
+    });
+  }
+
   function renderCurrent({ focus = false } = {}) {
     keepFormDraft();
     hideTooltip(true);
     viewRoot.innerHTML = `<div class="view-enter">${renderers[state.currentView]()}</div>`;
+    markNumericColumns(viewRoot);
     document.querySelector("#breadcrumb-current").textContent =
       viewMeta[state.currentView][0];
     document.title = `${viewMeta[state.currentView][0]} — Kitsu Enterprise Admin`;
@@ -1683,7 +1727,12 @@
     appShell.classList.remove("is-mobile-open");
     syncMobileSidebar();
     closeTransient();
-    renderCurrent({ focus: true });
+    // Progressive enhancement: crossfade the work area where View Transitions exist.
+    if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.startViewTransition(() => renderCurrent({ focus: true }));
+    } else {
+      renderCurrent({ focus: true });
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -1812,6 +1861,8 @@
     if (item.action) handleAction(item.action, {});
   }
 
+  let lastActionTarget = "";
+
   function openDialog({
     eyebrow = "Действие",
     title,
@@ -1822,7 +1873,11 @@
   }) {
     document.querySelector("#dialog-eyebrow").textContent = eyebrow;
     document.querySelector("#dialog-title").textContent = title;
-    document.querySelector("#dialog-body").innerHTML = body;
+    const targetLine =
+      danger && lastActionTarget
+        ? `<p class="dialog-target"><span>Объект</span><code>${lastActionTarget.replace(/[<>&]/g, "")}</code></p>`
+        : "";
+    document.querySelector("#dialog-body").innerHTML = targetLine + body;
     document.querySelector("#dialog-footer").innerHTML =
       `<button type="button" class="button" data-action="close-dialog">${icon("x")}Отмена</button><button type="button" class="button ${danger ? "button--danger" : "button--primary"}" data-action="${confirmAction}">${icon(danger ? "triangle-alert" : "check")}${confirm}</button>`;
     openOverlayFor(dialog);
@@ -2666,6 +2721,10 @@
         if(input) input.setAttribute('aria-invalid',String(!valid));
         toast(valid?'Формат URL корректен':'Некорректный URL',valid?'Доступность ресурса не проверялась.':relative?'Укажите HTTP(S) URL или локальный /путь.':'Укажите HTTP(S) URL.',valid?'warning':'danger'); return;
       }
+      // Remember what the action points at, so a dangerous confirmation can name it.
+      const holder = actionTarget.closest("tr, article, li, .moderation-card, .asset-card");
+      const named = holder?.querySelector("strong, h3, h2")?.textContent?.trim();
+      lastActionTarget = actionTarget.dataset.id || named || "";
       handleAction(actionTarget.dataset.action, actionTarget.dataset);
       return;
     }
@@ -2865,10 +2924,17 @@
   document.querySelector("#theme-toggle").addEventListener("click", () => {
     const next =
       document.documentElement.dataset.theme === "light" ? "dark" : "light";
-    document.documentElement.dataset.theme = next;
-    localStorage.setItem("kitsu-admin-theme", next);
-    document.querySelector('meta[name="theme-color"]').content =
-      next === "light" ? "#f5f4f2" : "#0d0d0f";
+    const apply = () => {
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("kitsu-admin-theme", next);
+      document.querySelector('meta[name="theme-color"]').content =
+        next === "light" ? "#f4eee3" : "#0f0c0b";
+    };
+    if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.startViewTransition(apply);
+    } else {
+      apply();
+    }
   });
   document
     .querySelector("#dialog-close")
@@ -2997,7 +3063,7 @@
   if (savedTheme === "light" || savedTheme === "dark")
     document.documentElement.dataset.theme = savedTheme;
   document.querySelector('meta[name="theme-color"]').content =
-    document.documentElement.dataset.theme === "light" ? "#f5f4f2" : "#0d0d0f";
+    document.documentElement.dataset.theme === "light" ? "#f4eee3" : "#0f0c0b";
   if (localStorage.getItem("kitsu-sidebar-collapsed") === "1")
     appShell.classList.add("is-collapsed");
   syncMobileSidebar();
