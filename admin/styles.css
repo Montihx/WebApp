@@ -1,4 +1,4 @@
-@import url("../tokens.css?v=v3-3");
+@import url("../tokens.css?v=v3-4");
 
 @font-face {
   font-family: "Onest";
@@ -12613,9 +12613,7 @@ html.kz-palette-switching::view-transition-new(root) {
 .app-shell .data-table :is(.row-leading__copy small, .cell-subline, .row-leading__copy span) {
   display: block;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 /* --- Строки ресурсов мониторинга: отступы внутри панели ----------------- */
@@ -12768,3 +12766,76 @@ html.kz-palette-switching::view-transition-new(root) {
 /* Метки и чипы без «таблеток» */
 .app-shell :is(.page-heading .eyebrow, .status-badge, .tab-count, .nav-badge, .filter-chip, .timezone-chip) { border-radius: 7px; }
 .app-shell :is([class*="badge"], [class*="chip"], [class*="count"]):not(.nav-live):not(.live-dot):not([class*="dot"]) { border-radius: 7px; }
+
+/* ==========================================================================
+   Адаптив и текст в админке
+   ========================================================================== */
+
+/* Боковая панель: меню прокручивается внутри и не уходит под нижний блок */
+.app-shell .sidebar { display: flex; flex-direction: column; }
+.app-shell .sidebar-nav { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.app-shell .sidebar-footer { flex: none; }
+.app-shell .brand-copy { gap: 2px; line-height: 1.15; }
+.app-shell .brand-copy strong { line-height: 1; }
+.app-shell .environment-copy strong { line-height: 1.25; }
+
+/* Кнопки, вкладки и чипы — в одну строку; ряды с ними переносятся целиком */
+.app-shell :is(.button, .filter-chip, .filter-button, [role="tab"], .nav-item > span, .panel-link, .back-link) { white-space: nowrap; }
+.app-shell :is(.heading-actions, .row-actions, .review-actions, .table-toolbar, .toolbar-leading, .editor-topline, .editor-topline__copy, .panel-header, .section-bar, .chip-row, .filter-row) { flex-wrap: wrap; }
+.app-shell .heading-actions { gap: 10px; }
+
+/* Длинные идентификаторы и подписи переносятся, а не наезжают */
+.app-shell :is(.panel-subtitle, .cell-subline, .truth-note, .definition-list dd, .drawer-hint, .dialog-copy, p, small) { overflow-wrap: anywhere; }
+.app-shell .data-table .row-leading { max-width: 100%; min-width: 0; }
+.app-shell .data-table td:has(> .row-leading) { max-width: 360px; }
+.app-shell .data-table .row-leading__copy > * { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+
+/* Заголовок страницы и описание: ровные отступы */
+.app-shell .page-heading { gap: 18px 24px; align-items: end; flex-wrap: wrap; }
+.app-shell .page-heading__copy { display: grid; gap: 10px; min-width: 0; }
+.app-shell .page-heading p { max-width: 68ch; margin: 0; }
+
+@media (max-width: 720px) {
+  .app-shell .page-heading h1 { font-size: clamp(1.875rem, 8.6vw, 2.5rem); }
+  .app-shell .heading-actions { width: 100%; }
+  .app-shell .heading-actions .button { flex: 1 1 auto; justify-content: center; }
+  .app-shell .button--small { padding-inline: 12px; }
+  .app-shell .editor-topline h1 { font-size: clamp(1.5rem, 7vw, 2rem); }
+  .app-shell :is(.panel-header, .now-cell, .attention-card) { padding-inline: 16px; }
+}
+
+/* Ряды с кнопками и метками всегда переносятся; текст внутри — нет */
+.app-shell .view-root :is(div, header, footer):has(> .button, > .status-badge, > .button--small) { flex-wrap: wrap; row-gap: 8px; }
+.app-shell .view-root .review-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.app-shell .view-root .review-actions > .button { flex: 1 1 auto; }
+html body .app-shell .view-root .button,
+html body .app-shell .view-root .filter-chip { white-space: nowrap; }
+.app-shell .panel-header__actions { flex-wrap: wrap; }
+.app-shell :is(.metric-card span, .services-list strong, .contract-row strong, .schedule-card h3, .honest-progress) { overflow-wrap: anywhere; min-width: 0; }
+.app-shell .honest-progress { white-space: normal; }
+
+@media (max-width: 720px) {
+  .app-shell .settings-contract { grid-template-columns: minmax(0, 1fr); }
+  .app-shell .settings-card > header { grid-template-columns: 38px minmax(0, 1fr); }
+  .app-shell .settings-card > header > :nth-child(n + 3) { grid-column: 1 / -1; justify-self: start; }
+  .app-shell .editor-topline .button { flex: 1 1 auto; }
+  .app-shell .view-root :is(.conflict-card, .schedule-card) :is(div, header):has(> .status-badge, > .button) { justify-content: flex-start; }
+}
+html body .app-shell .view-root .button { min-width: fit-content; flex-shrink: 0; }
+.app-shell .view-root :is(.contract-list, .contract-row, .service-row) strong { white-space: normal; overflow-wrap: anywhere; }
+@media (min-width: 721px) {
+  .app-shell .data-table td:has(> .row-leading) { min-width: 200px; }
+}
+.app-shell .audit-meta { white-space: normal; overflow-wrap: anywhere; }
+.app-shell .topbar-actions > * { flex-shrink: 0; }
+.app-shell :is(.site-link, .profile-button) { white-space: nowrap; }
+@media (max-width: 1240px) {
+  .app-shell .profile-button small,
+  .app-shell .site-link span { display: none; }
+  .app-shell .command-trigger { min-width: 0; flex-shrink: 1; }
+  .app-shell .command-trigger span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+.app-shell .view-root .cell-subline { white-space: normal; }
+.app-shell .view-root strong { overflow-wrap: anywhere; }
+
+.app-shell .page-heading .eyebrow { justify-self: start; width: max-content; max-width: 100%; }

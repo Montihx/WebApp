@@ -1508,3 +1508,120 @@
   border-radius: 7px;
 }
 :root :is([class*="badge"], [class*="chip"], [class*="pill"]):not([class*="dot"]) { border-radius: 7px; }
+
+/* ==========================================================================
+   Адаптив и текст: сетки, переносы, отступы
+   ========================================================================== */
+
+/* Сетка постеров сама подбирает число колонок: 2 на телефоне, 4 на планшете, 7 на широком */
+:root .anime-grid:not(.anime-grid--compact) {
+  grid-template-columns: repeat(auto-fill, minmax(clamp(148px, 24vw, 176px), 1fr));
+  gap: clamp(20px, 2.4vw, 28px) clamp(12px, 1.6vw, 20px);
+}
+
+/* Факты под карточкой: переносятся целиком, без многоточий */
+:root .card-facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 10px;
+  margin-top: 6px;
+}
+
+:root .card-facts > span { overflow: visible; text-overflow: clip; white-space: nowrap; }
+:root .card-title-row h3 { overflow-wrap: anywhere; hyphens: auto; }
+
+/* Заголовок и подзаголовок не слипаются */
+:root :is(.section-heading, .continue-heading, .schedule-head) h2 + p,
+:root .continue-heading h2 + p { margin-top: 10px; }
+:root .title-heading-row h1 + p { margin-top: 12px; }
+:root .title-heading-row h1 { line-height: 1.02; padding-bottom: 0.04em; }
+:root :is(.section-heading, .continue-heading, .schedule-head) h2 { line-height: 1.08; }
+
+/* Кнопки и метки не ломают текст на две строки */
+:root :is(.button, .section-link, .tab, .player-tab, .header-login, .genre-links a, .feature-slide .hero-tags a, .episode-chip, .title-description > button, .status-pill, .hero-kind-badge) {
+  white-space: nowrap;
+}
+
+:root :is(.hero-tags, .genre-links, .hero-actions, .title-poster-actions, .section-heading) { flex-wrap: wrap; }
+
+/* Длинные слова и идентификаторы не вылезают из блоков */
+:root :is(p, li, small, .schedule-item strong, .card-title-row h3, .title-description) { overflow-wrap: break-word; }
+
+/* Заголовок «Связанные аниме» на узком экране */
+@media (max-width: 520px) {
+  :root #watch-order-toggle { font-size: clamp(1.375rem, 6.4vw, 1.75rem); }
+  :root :is(.section-heading, .schedule-head, .continue-heading) h2 { font-size: clamp(1.5rem, 7vw, 1.875rem); }
+  :root .hero-copy h2 { font-size: clamp(2.125rem, 10.5vw, 2.75rem); }
+  :root .hero-copy { padding-bottom: 28px; }
+  :root .hero-description { font-size: 0.9375rem; }
+  :root .section-link { padding: 7px 12px; font-size: 0.875rem; }
+  :root .schedule-item { gap: 12px; padding: 10px 14px 10px 10px; }
+  :root .schedule-item img { width: 48px; height: 62px; }
+  :root .schedule-item time b,
+  :root .schedule-item time { font-size: 1rem; }
+  :root .tabs { overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+  :root .title-meta-list li { font-size: 0.9375rem; }
+  :root .player-toolbar { flex-wrap: wrap; gap: 8px; }
+  :root .player-now { order: 3; width: 100%; }
+}
+
+@media (max-width: 360px) {
+  :root .anime-grid:not(.anime-grid--compact) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 10px; }
+  :root .card-facts { font-size: 0.75rem; }
+}
+
+/* Списки расписания: название сжимается, время не наезжает */
+:root .schedule-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; }
+:root .schedule-item > span { min-width: 0; }
+:root .schedule-item > span > :is(strong, small) { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:root .schedule-item time { white-space: nowrap; text-align: right; }
+
+/* «Связанные аниме»: заголовок-кнопка в одну строку */
+:root #watch-order-toggle { white-space: nowrap; }
+@media (max-width: 520px) { :root #watch-order-toggle { font-size: clamp(1.125rem, 5.6vw, 1.5rem); } }
+:root .watch-order h2 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+:root .watch-order h2 > * { min-width: 0; }
+:root #watch-order-toggle { flex-wrap: wrap; row-gap: 6px; max-width: 100%; }
+
+/* Иконочные кнопки на телефоне: без рамок и подложек */
+:root :is(.icon-button, .mobile-menu-button, .title-mobile-toolbar__button, .episode-strip__nav, .rail-arrow),
+:root :is(.icon-button, .mobile-menu-button, .title-mobile-toolbar__button, .episode-strip__nav, .rail-arrow):hover {
+  border-color: transparent;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+:root .title-mobile-toolbar__button svg { filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8)); }
+:root :is(.icon-button, .mobile-menu-button, .title-mobile-toolbar__button):hover svg { color: var(--accent-text); }
+
+@media (max-width: 720px) {
+  :root .player-main-button { width: 64px; height: 64px; border-radius: 18px; }
+  :root .player-main-button::after { border-radius: 22px; }
+  :root .player-tabs { overflow-x: auto; scrollbar-width: none; }
+  :root .player-tab { flex: none; }
+}
+
+/* Большая кнопка воспроизведения — сама иконка, без подложки */
+:root .player-main-button,
+:root .player-main-button:hover {
+  width: auto;
+  height: auto;
+  padding: 8px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--media-text);
+}
+
+:root .player-main-button::after { display: none; }
+:root .player-main-button svg { width: 84px; height: 84px; fill: currentColor; filter: drop-shadow(0 0 22px var(--accent-glow)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6)); transition: transform var(--dur-3) var(--ease-spring), color var(--dur-1); }
+:root .player-main-button:hover svg { color: var(--accent-text); transform: scale(1.1); }
+@media (max-width: 720px) { :root .player-main-button svg { width: 56px; height: 56px; } }
+
+@media (max-width: 720px) {
+  :root .search-trigger:not(:has(span:not(.sr-only))),
+  :root .header-actions .search-trigger { border-color: transparent; background: none; box-shadow: none; }
+}
