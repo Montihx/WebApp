@@ -58,12 +58,12 @@ test('both title counters are wired to the shared saved-state style without a pe
 
 test('changed styles and scripts use a fresh cache version per area', () => {
   // Kitsu v3 (Сакура / Обсидиан) bumps both areas together.
-  const versions = { public: 'v3-2', admin: 'v3-2' };
+  const versions = { public: 'v3-3', admin: 'v3-3' };
   for (const page of ['public/index.html', 'public/anime.html', 'admin/index.html']) {
     const version = versions[page.split('/')[0]];
     assert.ok(read(page).includes(`./styles.css?v=${version}`), page);
     assert.ok(read(page).includes(`./app.js?v=${version}`), page);
   }
-  assert.ok(publicCss.includes('../tokens.css?v=v3-2'));
-  assert.ok(adminCss.includes('../tokens.css?v=v3-2'));
+  assert.ok(publicCss.includes('../tokens.css?v=v3-3'));
+  assert.ok(adminCss.includes('../tokens.css?v=v3-3'));
 });

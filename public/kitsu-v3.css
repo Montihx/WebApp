@@ -234,6 +234,7 @@
 
 /* Переключатель палитры */
 [data-palette-toggle] .palette-swatch {
+  border-radius: 5px !important;
   display: block;
   width: 18px;
   height: 18px;
@@ -1489,3 +1490,21 @@
   background: none;
   box-shadow: none;
 }
+
+/* Кнопки и ссылки-кнопки без круглых и «таблеточных» форм */
+:root :is(.feature-slide .hero-tags a, .hero-actions .button--primary, .section-link, .title-description > button, .genre-links a, .header-login, .button, .tab, .player-tab, .episode-chip, .day-tab) {
+  border-radius: 10px;
+}
+
+:root .player-main-button { border-radius: 22px; }
+:root .player-main-button::after { border-radius: 26px; }
+
+:root .theme-switch,
+:root .theme-switch span { border-radius: 6px; }
+:root .theme-switch span { border-radius: 4px; }
+
+/* Метки и чипы — тоже без «таблеток» */
+:root :is(.hero-kind-badge, .feature-slide .hero-score, .status-pill, .continue-progress-copy strong, .bookmark-status-bar, .section-count, #schedule-days .day-tab__count, .watch-order-score, .watch-order :is(.badge, .chip, [class*="pill"])) {
+  border-radius: 7px;
+}
+:root :is([class*="badge"], [class*="chip"], [class*="pill"]):not([class*="dot"]) { border-radius: 7px; }

@@ -1,4 +1,4 @@
-@import url("../tokens.css?v=v3-2");
+@import url("../tokens.css?v=v3-3");
 
 @font-face {
   font-family: "Onest";
@@ -12034,7 +12034,7 @@ html .app-shell .sidebar {
   display: block;
   width: 18px;
   height: 18px;
-  border-radius: 50%;
+  border-radius: 5px;
   background: conic-gradient(from 210deg, var(--accent), var(--accent-2), var(--kitsunebi), var(--accent));
   box-shadow: 0 0 0 2px var(--surface), 0 0 12px var(--accent-glow);
   transition: transform var(--dur-3) var(--ease-spring);
@@ -12759,3 +12759,12 @@ html.kz-palette-switching::view-transition-new(root) {
   background: none !important;
   box-shadow: none !important;
 }
+
+/* Переключатели без круглых форм */
+.app-shell .switch { border-radius: 7px; }
+.app-shell .switch::after,
+.app-shell .switch span { border-radius: 4px; }
+
+/* Метки и чипы без «таблеток» */
+.app-shell :is(.page-heading .eyebrow, .status-badge, .tab-count, .nav-badge, .filter-chip, .timezone-chip) { border-radius: 7px; }
+.app-shell :is([class*="badge"], [class*="chip"], [class*="count"]):not(.nav-live):not(.live-dot):not([class*="dot"]) { border-radius: 7px; }
