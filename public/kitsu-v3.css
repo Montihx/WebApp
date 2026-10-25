@@ -1647,3 +1647,15 @@
 :root .search-filter-toggle { border-radius: 8px; }
 :root .sheet-handle { border-radius: 2px; }
 :root .poster-bookmark-button { border-radius: 7px; }
+
+/* Иконочные кнопки при наведении: только цвет иконки */
+:root :is(button, a):not(:has(> span:not(.sr-only):not(:empty))):is(:hover, :active, [aria-expanded="true"]):has(> svg:only-child, > i:only-child) { background: none; box-shadow: none; border-color: transparent; }
+:root :is(.rail-arrow, .continue-nav button, .section-heading button, .title-community-action--notify, .episode-strip__nav),
+:root :is(.rail-arrow, .continue-nav button, .section-heading button, .title-community-action--notify, .episode-strip__nav):hover { background: none; box-shadow: none; border-color: transparent; }
+:root :is(.rail-arrow, .continue-nav button, .section-heading button, .title-community-action--notify, .episode-strip__nav):hover svg { color: var(--accent-text); }
+
+/* Поиск становится иконкой — без рамки */
+@media (max-width: 1100px) {
+  :root .search-trigger:not(:has(> span:not(.sr-only):not(:empty))),
+  :root .header-actions .search-trigger { border-color: transparent; background: none; box-shadow: none; }
+}

@@ -726,11 +726,10 @@
   function keyArtUri(title, w, h, pal) {
     const seed = hashString(title || "kitsu");
     const rnd = seeded(seed);
-    // Hues stay inside the palette: Sakura 250–340 (violet to rose), Obsidian 5–48 (ember to amber) or a rare steel blue.
-    const hue = pal === "obsidian"
-      ? (rnd() < 0.2 ? 205 + Math.round(rnd() * 20) : 5 + Math.round(rnd() * 43))
-      : 250 + Math.round(rnd() * 90);
-    const hue2 = (hue + 12 + Math.round(rnd() * 22)) % 360;
+    // Sakura: violet-to-rose night (250–340). Obsidian: blue-black night with an amber moon and lights.
+    const obs = pal === "obsidian";
+    const hue = obs ? 212 + Math.round(rnd() * 26) : 250 + Math.round(rnd() * 90);
+    const hue2 = obs ? 22 + Math.round(rnd() * 20) : (hue + 12 + Math.round(rnd() * 22)) % 360;
     const W = 300;
     const H = Math.round((W * h) / w) || 450;
     const hsl = (hh, ss, ll, a = 1) => `hsla(${hh},${ss}%,${ll}%,${a})`;

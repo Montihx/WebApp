@@ -270,7 +270,7 @@ html[data-theme="light"][data-palette="obsidian"] {
   --accent-softer: rgba(154, 91, 0, 0.05);
   --accent-glow: rgba(154, 91, 0, 0.2);
   --accent-2-glow: rgba(184, 116, 10, 0.16);
-  --accent-grad: linear-gradient(120deg, #8a4f00 0%, #a8650a 55%, #c9861c 100%);
+  --accent-grad: linear-gradient(120deg, #7a4300 0%, #8a4f00 50%, #9a5b00 100%);
   --primary-bg: #17150f;
   --primary-bg-hover: #2c2a22;
   --primary-fg: #ffffff;
