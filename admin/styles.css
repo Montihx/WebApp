@@ -1,4 +1,49 @@
-@import url("../tokens.css?v=quiet-controls-10");
+@import url("../tokens.css?v=kitsune-1");
+
+@font-face {
+  font-family: "Onest";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/onest-cyrillic-400-normal.woff2") format("woff2");
+  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-family: "Onest";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/onest-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF;
+}
+
+@font-face {
+  font-family: "Dela Gothic One";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/dela-gothic-one-cyrillic-400-normal.woff2") format("woff2");
+  unicode-range: U+0400-045F, U+0490-0491, U+2116;
+}
+
+@font-face {
+  font-family: "Dela Gothic One";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/dela-gothic-one-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+2010-2027, U+2212;
+}
+
+@font-face {
+  font-family: "Dela Gothic One";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/dela-gothic-one-japanese-400-normal.woff2") format("woff2");
+  unicode-range: U+30FB, U+30FC, U+3040-30FF, U+4E00-9FFF;
+}
 
 @font-face {
   font-family: "Onest";
@@ -141,78 +186,6 @@
   font-weight: 700;
   font-display: swap;
   src: url("./fonts/jetbrains-mono-latin-700-normal.woff2") format("woff2");
-  unicode-range: U+0000-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF;
-}
-
-@font-face {
-  font-family: "Manrope";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("./fonts/manrope-cyrillic-400-normal.woff2") format("woff2");
-  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-
-@font-face {
-  font-family: "Manrope";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("./fonts/manrope-latin-400-normal.woff2") format("woff2");
-  unicode-range: U+0000-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF;
-}
-
-@font-face {
-  font-family: "Manrope";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("./fonts/manrope-cyrillic-500-normal.woff2") format("woff2");
-  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-
-@font-face {
-  font-family: "Manrope";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("./fonts/manrope-latin-500-normal.woff2") format("woff2");
-  unicode-range: U+0000-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF;
-}
-
-@font-face {
-  font-family: "Manrope";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("./fonts/manrope-cyrillic-600-normal.woff2") format("woff2");
-  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-
-@font-face {
-  font-family: "Manrope";
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("./fonts/manrope-latin-600-normal.woff2") format("woff2");
-  unicode-range: U+0000-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF;
-}
-
-@font-face {
-  font-family: "Manrope";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("./fonts/manrope-cyrillic-700-normal.woff2") format("woff2");
-  unicode-range: U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-
-@font-face {
-  font-family: "Manrope";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("./fonts/manrope-latin-700-normal.woff2") format("woff2");
   unicode-range: U+0000-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF;
 }
 

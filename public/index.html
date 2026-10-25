@@ -3,12 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0d0d0f" />
+    <meta name="theme-color" content="#0f0c0b" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <title>Kitsu — главная · Anime Graphite</title>
+    <title>Kitsu — главная · Кицунэ</title>
     <meta
       name="description"
-      content="Интерактивный HTML-макет главной страницы Kitsu в единой дизайн-системе Anime Graphite"
+      content="Интерактивный HTML-макет главной страницы Kitsu в единой дизайн-системе Кицунэ"
     />
     <script>
       (() => {
@@ -24,7 +24,7 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=details-control-12" />
+    <link rel="stylesheet" href="./styles.css?v=kitsune-1" />
   </head>
   <body data-page="home">
     <a class="skip-link" href="#main-content">К основному содержимому</a>
@@ -32,7 +32,7 @@
     <header class="site-header" id="site-header">
       <div class="header-inner">
         <a class="brand" href="./index.html" aria-label="Kitsu — главная">
-          <span class="brand-mark" aria-hidden="true"><span>K</span></span>
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M1.5 6.2c9 2.6 20 2.6 29 0l-1.3 4.6c-8.6 2.2-17.8 2.2-26.4 0z"/><path d="M6 13.4h20v2.6H6z"/><path d="M8.2 11h3v17.5h-3zM20.8 11h3v17.5h-3z"/></svg>
           <span class="brand-word">KITSU<span>.</span></span>
         </a>
 
@@ -126,7 +126,7 @@
 
     <aside class="mobile-drawer" id="mobile-drawer" aria-label="Мобильное меню" aria-hidden="true">
       <div class="mobile-drawer-head">
-        <a class="brand" href="./index.html"><span class="brand-mark"><span>K</span></span><span class="brand-word">KITSU<span>.</span></span></a>
+        <a class="brand" href="./index.html"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M1.5 6.2c9 2.6 20 2.6 29 0l-1.3 4.6c-8.6 2.2-17.8 2.2-26.4 0z"/><path d="M6 13.4h20v2.6H6z"/><path d="M8.2 11h3v17.5h-3zM20.8 11h3v17.5h-3z"/></svg><span class="brand-word">KITSU<span>.</span></span></a>
         <button class="icon-button" type="button" id="mobile-menu-close" aria-label="Закрыть меню"><i data-lucide="x"></i></button>
       </div>
       <button class="drawer-search" type="button" data-open-search><i data-lucide="search"></i><span>Найти аниме</span></button>
@@ -171,6 +171,7 @@
                 <img class="feature-slide__backdrop" src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" />
                 <div class="feature-slide__veil" aria-hidden="true"></div>
                 <div class="feature-slide__art" aria-hidden="true"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div>
+                <span class="hero-jp" aria-hidden="true">モンスター</span>
                 <div class="hero-copy">
                   <div class="hero-eyebrow"><span class="hero-kind-badge">TV</span><span class="hero-score"><i data-lucide="star"></i>8.88</span><span>2004</span></div>
                   <h2>Монстр</h2><p class="hero-subtitle">Monster · モンスター</p>
@@ -197,6 +198,7 @@
                 <img class="feature-slide__backdrop" src="https://shikimori.one/system/animes/original/9253.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" />
                 <div class="feature-slide__veil" aria-hidden="true"></div>
                 <div class="feature-slide__art" aria-hidden="true"><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div>
+                <span class="hero-jp" aria-hidden="true">シュタインズ・ゲート</span>
                 <div class="hero-copy">
                   <div class="hero-eyebrow"><span class="hero-kind-badge">TV</span><span class="hero-score"><i data-lucide="star"></i>9.07</span><span>2011</span></div>
                   <h2>Врата Штейна</h2><p class="hero-subtitle">Steins;Gate</p>
@@ -235,7 +237,7 @@
       <section class="content-section" id="continue" aria-labelledby="continue-title">
         <div class="page-container">
           <div class="section-heading section-heading--continue">
-            <div class="continue-heading"><span class="continue-heading__icon" aria-hidden="true"><i data-lucide="clock-3"></i></span><div><h2 id="continue-title">Продолжить смотреть</h2><p>Продолжите с того места, где остановились</p></div></div>
+            <div class="continue-heading"><span class="continue-heading__icon" aria-hidden="true"><i data-lucide="clock-3"></i></span><div><p class="section-kicker">История просмотра</p><h2 id="continue-title">Продолжить смотреть</h2><p>Продолжите с того места, где остановились</p></div></div>
             <div class="continue-nav" aria-label="Прокрутка истории просмотра">
               <button type="button" data-continue-prev aria-label="Предыдущие тайтлы" disabled><i data-lucide="chevron-left"></i></button>
               <button type="button" data-continue-next aria-label="Следующие тайтлы"><i data-lucide="chevron-right"></i></button>
@@ -306,7 +308,7 @@
         <div class="page-container">
           <div class="catalog-main">
             <div class="section-heading section-heading--tabs">
-              <div><h2 id="catalog-title">Что посмотреть</h2></div>
+              <div><p class="section-kicker">Каталог</p><h2 id="catalog-title">Что посмотреть</h2></div>
               <div class="tabs" role="tablist" aria-label="Фильтр каталога" data-tabs="catalog">
                 <button class="tab is-active" type="button" role="tab" aria-selected="true" data-filter="all"><i data-lucide="list-video"></i>Все аниме</button>
                 <button class="tab" type="button" role="tab" aria-selected="false" tabindex="-1" data-filter="ongoing"><i data-lucide="radio"></i>Онгоинги</button>
@@ -325,7 +327,7 @@
                 <a class="poster-frame" href="./anime.html">
                   <img src="https://shikimori.one/system/animes/original/19.jpg" alt="Постер аниме «Монстр»" loading="lazy" referrerpolicy="no-referrer" />
                   <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
-                </a>
+                <span class="ofuda ofuda--released"><span class="ofuda__jp" aria-hidden="true">完結</span><span class="ofuda__ru">Завершён</span></span></a>
                 <div class="card-title-row"><a href="./anime.html"><h3>Монстр</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить «Монстр» в список"><i data-lucide="bookmark"></i></button></div>
                 <p class="card-facts"><span>74 / 74 эп.</span><b><i data-lucide="star"></i>8.9</b></p>
               </article>
@@ -333,7 +335,7 @@
                 <a class="poster-frame" href="./anime.html">
                   <img src="https://shikimori.one/system/animes/original/5114.jpg" alt="Постер «Стального алхимика»" loading="lazy" referrerpolicy="no-referrer" />
                   <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
-                </a>
+                <span class="ofuda ofuda--released"><span class="ofuda__jp" aria-hidden="true">完結</span><span class="ofuda__ru">Завершён</span></span></a>
                 <div class="card-title-row"><a href="./anime.html"><h3>Стальной алхимик: Братство</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
                 <p class="card-facts"><span>64 / 64 эп.</span><b><i data-lucide="star"></i>9.1</b></p>
               </article>
@@ -341,7 +343,7 @@
                 <a class="poster-frame" href="./anime.html">
                   <img src="https://shikimori.one/system/animes/original/9253.jpg" alt="Постер аниме «Врата Штейна»" loading="lazy" referrerpolicy="no-referrer" />
                   <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
-                </a>
+                <span class="ofuda ofuda--released"><span class="ofuda__jp" aria-hidden="true">完結</span><span class="ofuda__ru">Завершён</span></span></a>
                 <div class="card-title-row"><a href="./anime.html"><h3>Врата Штейна</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
                 <p class="card-facts"><span>24 / 24 эп.</span><b><i data-lucide="star"></i>9.1</b></p>
               </article>
@@ -349,7 +351,7 @@
                 <a class="poster-frame" href="./anime.html">
                   <img src="https://shikimori.one/system/animes/original/52991.jpg" alt="Постер аниме «Фрирен»" loading="lazy" referrerpolicy="no-referrer" />
                   <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
-                </a>
+                <span class="ofuda ofuda--released"><span class="ofuda__jp" aria-hidden="true">完結</span><span class="ofuda__ru">Завершён</span></span></a>
                 <div class="card-title-row"><a href="./anime.html"><h3>Провожающая в последний путь Фрирен</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
                 <p class="card-facts"><span>28 / 28 эп.</span><b><i data-lucide="star"></i>9.3</b></p>
               </article>
@@ -357,7 +359,7 @@
                 <a class="poster-frame" href="./anime.html">
                   <img src="https://shikimori.one/system/animes/original/40748.jpg" alt="Постер аниме «Магическая битва»" loading="lazy" referrerpolicy="no-referrer" />
                   <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
-                </a>
+                <span class="ofuda ofuda--released"><span class="ofuda__jp" aria-hidden="true">完結</span><span class="ofuda__ru">Завершён</span></span></a>
                 <div class="card-title-row"><a href="./anime.html"><h3>Магическая битва</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
                 <p class="card-facts"><span>47 / 47 эп.</span><b><i data-lucide="star"></i>8.6</b></p>
               </article>
@@ -365,14 +367,14 @@
                 <a class="poster-frame" href="./anime.html">
                   <img src="https://shikimori.one/system/animes/original/21.jpg" alt="Постер аниме «Ван-Пис»" loading="lazy" referrerpolicy="no-referrer" />
                   <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
-                </a>
+                <span class="ofuda ofuda--ongoing"><span class="ofuda__jp" aria-hidden="true">放送中</span><span class="ofuda__ru">Онгоинг</span></span></a>
                 <div class="card-title-row"><a href="./anime.html"><h3>Ван-Пис</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
                 <p class="card-facts"><span>1155 / ? эп.</span><b><i data-lucide="star"></i>8.7</b></p>
               </article>
               <article class="anime-card" data-status="announced" data-score="0">
                 <a class="poster-frame" href="./anime.html">
                   <img src="https://shikimori.one/system/animes/original/54857.jpg" alt="Постер аниме «Re:Zero 3»" loading="lazy" referrerpolicy="no-referrer" />
-                </a>
+                <span class="ofuda ofuda--announced"><span class="ofuda__jp" aria-hidden="true">予告</span><span class="ofuda__ru">Анонс</span></span></a>
                 <div class="card-title-row"><a href="./anime.html"><h3>Re:Zero 3</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
                 <p class="card-facts"><span>0 / ? эп.</span><b class="is-unrated"><i data-lucide="star"></i>N/A</b></p>
               </article>
@@ -386,12 +388,12 @@
         <div class="page-container"><p class="section-subtitle">Демонстрационные данные расписания и обновлений</p></div>
         <div class="page-container schedule-updates-grid">
           <aside class="schedule-card" aria-labelledby="schedule-title">
-            <div class="schedule-head"><h2 id="schedule-title">Расписание релизов</h2></div>
+            <div class="schedule-head"><p class="section-kicker">Эфир</p><h2 id="schedule-title">Расписание релизов</h2></div>
             <div class="day-tabs" id="schedule-days" role="tablist" aria-label="Даты расписания"></div>
             <div class="schedule-list" id="schedule-items" role="tabpanel" tabindex="0"></div>
           </aside>
           <aside class="schedule-card" aria-labelledby="updates-title">
-            <div class="schedule-head"><h2 id="updates-title">Обновления аниме</h2></div>
+            <div class="schedule-head"><p class="section-kicker">Новое</p><h2 id="updates-title">Обновления аниме</h2></div>
             <div class="schedule-list" id="update-items"></div>
           </aside>
         </div>
@@ -408,14 +410,14 @@
               <a class="poster-frame" href="./anime.html">
                 <img src="https://shikimori.one/system/animes/original/21.jpg" alt="Постер аниме «Ван-Пис»" loading="lazy" referrerpolicy="no-referrer" />
                 <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
-              </a>
+              <span class="ofuda ofuda--ongoing"><span class="ofuda__jp" aria-hidden="true">放送中</span><span class="ofuda__ru">Онгоинг</span></span></a>
               <div class="card-title-row"><a href="./anime.html"><h3>Ван-Пис</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
               <p class="card-facts"><span>1155 / ? эп.</span><b><i data-lucide="star"></i>8.7</b></p>
             </article>
             <article class="anime-card" data-status="announced">
               <a class="poster-frame" href="./anime.html">
                 <img src="https://shikimori.one/system/animes/original/54857.jpg" alt="Постер аниме «Re:Zero 3»" loading="lazy" referrerpolicy="no-referrer" />
-              </a>
+              <span class="ofuda ofuda--announced"><span class="ofuda__jp" aria-hidden="true">予告</span><span class="ofuda__ru">Анонс</span></span></a>
               <div class="card-title-row"><a href="./anime.html"><h3>Re:Zero 3</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
               <p class="card-facts"><span>0 / ? эп.</span><b class="is-unrated"><i data-lucide="star"></i>N/A</b></p>
             </article>
@@ -425,7 +427,7 @@
 
       <section class="content-section" id="stories" aria-labelledby="stories-title">
         <div class="page-container">
-          <div class="section-heading"><div><h2 id="stories-title">Выбор редакции</h2></div><a class="section-link" href="#stories">Показать все <i data-lucide="arrow-right"></i></a></div>
+          <div class="section-heading"><div><p class="section-kicker">Редакция</p><h2 id="stories-title">Выбор редакции</h2></div><a class="section-link" href="#stories">Показать все <i data-lucide="arrow-right"></i></a></div>
           <div class="landscape-grid">
             <a class="landscape-card" href="./anime.html"><img src="https://shikimori.one/system/animes/original/37521.jpg" alt="Постер «Саги о Винланде»" loading="lazy" referrerpolicy="no-referrer" /><span class="landscape-shade"></span><span class="landscape-copy"><small>Историческая драма</small><strong>Сага о Винланде</strong></span><span class="landscape-count"><i data-lucide="bookmark"></i>В списки</span></a>
             <a class="landscape-card" href="./anime.html"><img src="https://shikimori.one/system/animes/original/33352.jpg" alt="Постер «Вайолет Эвергарден»" loading="lazy" referrerpolicy="no-referrer" /><span class="landscape-shade"></span><span class="landscape-copy"><small>Драма</small><strong>Вайолет Эвергарден</strong></span><span class="landscape-count"><i data-lucide="bookmark"></i>В списки</span></a>
@@ -436,7 +438,7 @@
 
       <section class="content-section content-section--last" id="collections" aria-labelledby="collections-title">
         <div class="page-container">
-          <div class="section-heading"><div><h2 id="collections-title">Коллекции пользователей</h2></div><a class="section-link" href="#collections">Все коллекции <i data-lucide="arrow-right"></i></a></div>
+          <div class="section-heading"><div><p class="section-kicker">Сообщество</p><h2 id="collections-title">Коллекции пользователей</h2></div><a class="section-link" href="#collections">Все коллекции <i data-lucide="arrow-right"></i></a></div>
           <div class="collection-grid">
             <a class="collection-card" href="#collections"><div class="collection-stack"><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div><div><strong>Истории, которые остаются</strong><span><i data-lucide="layers"></i>12 тайтлов · открытая коллекция</span></div><i data-lucide="arrow-up-right"></i></a>
             <a class="collection-card" href="#collections"><div class="collection-stack"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/457.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/33352.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div><div><strong>Спокойное фэнтези</strong><span><i data-lucide="layers"></i>9 тайтлов · открытая коллекция</span></div><i data-lucide="arrow-up-right"></i></a>
@@ -447,7 +449,7 @@
 
     <footer class="site-footer">
       <div class="page-container footer-inner">
-        <div><a class="brand brand--footer" href="./index.html"><span class="brand-mark"><span>K</span></span><span class="brand-word">KITSU<span>.</span></span></a><p>Аниме, серии и ваши списки.</p></div>
+        <div><a class="brand brand--footer" href="./index.html"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M1.5 6.2c9 2.6 20 2.6 29 0l-1.3 4.6c-8.6 2.2-17.8 2.2-26.4 0z"/><path d="M6 13.4h20v2.6H6z"/><path d="M8.2 11h3v17.5h-3zM20.8 11h3v17.5h-3z"/></svg><span class="brand-word">KITSU<span>.</span></span></a><p>Аниме, серии и ваши списки.</p></div>
         <nav aria-label="Ссылки в подвале"><a href="#catalog">Каталог</a><a href="#schedule">Расписание</a><a href="#collections">Коллекции</a></nav>
       </div>
     </footer>
@@ -501,6 +503,6 @@
     <script src="./vendor/lucide.min.js"></script>
     <script src="./content-model.js?v=original-parity-11"></script>
     <script src="./content.js?v=original-parity-11"></script>
-    <script src="./app.js?v=original-parity-11"></script>
+    <script src="./app.js?v=kitsune-1"></script>
   </body>
 </html>

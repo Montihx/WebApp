@@ -100,7 +100,7 @@
     if (persist) storage.set("kitsu-theme", next);
 
     const meta = $('meta[name="theme-color"]');
-    if (meta) meta.content = next === "light" ? "#f5f4f2" : "#0d0d0f";
+    if (meta) meta.content = next === "light" ? "#f4eee3" : "#0f0c0b";
 
     $$('[data-theme-toggle]').forEach((control) => {
       const target = next === "light" ? "тёмную" : "светлую";
@@ -712,15 +712,37 @@
     initRovingTabs();
     initTabIndicators();
 
+    // A failed image keeps its box; the frame shows the title on ink instead (see "Kitsune" in styles.css).
+    const markImageError = (image) => {
+      image.classList.add("is-image-error");
+      const frame = image.closest(".poster-frame, .continue-poster, .title-poster, .landscape-card, .episode-thumb");
+      const title = (image.alt.match(/«([^»]+)»/) || [])[1] || image.alt;
+      if (frame && title && !frame.dataset.fallbackTitle) frame.dataset.fallbackTitle = title;
+    };
     $$('img').forEach((image) => {
-      image.addEventListener("error", () => image.classList.add("is-image-error"), { once: true });
-      if (image.complete && image.naturalWidth === 0) image.classList.add("is-image-error");
+      image.addEventListener("error", () => markImageError(image), { once: true });
+      if (image.complete && image.naturalWidth === 0) markImageError(image);
     });
 
     $$('[data-theme-toggle]').forEach((control) => {
       control.addEventListener("click", () => {
-        setTheme(root.dataset.theme === "light" ? "dark" : "light");
+        const next = root.dataset.theme === "light" ? "dark" : "light";
+        // Progressive enhancement: crossfade the palette where View Transitions exist.
+        if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          document.startViewTransition(() => setTheme(next));
+        } else {
+          setTheme(next);
+        }
       });
+    });
+
+    // Card -> title: name the clicked poster so the next page can morph it (see @view-transition).
+    document.addEventListener("click", (event) => {
+      const image = event.target.closest?.(".anime-card .poster-frame, .continue-poster")?.querySelector("img");
+      if (image) image.style.viewTransitionName = "title-poster";
+    });
+    window.addEventListener("pageshow", () => {
+      $$("img").forEach((image) => { image.style.viewTransitionName = ""; });
     });
 
     $("#category-trigger")?.addEventListener("click", (event) => {

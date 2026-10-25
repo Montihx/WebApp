@@ -82,7 +82,7 @@ const required = [
   "app.js",
   "vendor/lucide.min.js",
   "vendor/LUCIDE-LICENSE.txt",
-  "fonts/MANROPE-LICENSE.txt",
+  "fonts/DELA-GOTHIC-ONE-LICENSE.txt",
   "fonts/ONEST-LICENSE.txt",
   "fonts/JETBRAINS-MONO-LICENSE.txt",
   "MANIFEST.sha256",
@@ -315,34 +315,38 @@ add(
 // color pass — layered on the SAME pairs, not a separate color set, so
 // long-standing neutral tokens (e.g. --text-muted, ~4.9:1 by design) aren't
 // flaged against a bar they were never meant to clear.
-const darkSurface = "#19191c";
-const lightSurface = "#ffffff";
+const darkSurface = "#17120f";
+const lightSurface = "#fbf7f0";
 const baselinePairs = {
   dark: {
-    text: "#f3f2f4",
-    "text-secondary": "#b9b6bc",
-    "text-muted": "#8b8790",
-    "accent-text": "#d2c3f6",
+    text: "#f2ebdd",
+    "text-secondary": "#cfc4b2",
+    "text-muted": "#9c8f7e",
+    "accent-text": "#ff8a6e",
     green: "#56ad91",
     amber: "#d0a052",
-    red: "#ff7a7a",
+    red: "#ff6f93",
     info: "#7f9fbd",
+    kitsunebi: "#8fd8ff",
+    kin: "#d9a84e",
   },
   light: {
-    text: "#252225",
-    "text-secondary": "#5e5960",
-    "text-muted": "#746e74",
-    "accent-text": "#36255c",
+    text: "#1c1613",
+    "text-secondary": "#4f433a",
+    "text-muted": "#5e5145",
+    "accent-text": "#a32d16",
     green: "#166534",
     amber: "#854d0e",
-    red: "#b91c1c",
+    red: "#a8123e",
     info: "#1d4ed8",
+    kitsunebi: "#0b6a99",
+    kin: "#8a6112",
   },
 };
 const reinforcedTokens = ["accent-text", "green", "amber", "red", "info"];
 const primaryPairs = {
-  dark: { fg: "#171719", bg: "#eceaec" },
-  light: { fg: "#ffffff", bg: "#1f1d20" },
+  dark: { fg: "#150d09", bg: "#e0472b" },
+  light: { fg: "#fbf7f0", bg: "#b8341c" },
 };
 
 const contrastChecks = [];
@@ -360,6 +364,11 @@ for (const theme of ["dark", "light"]) {
   const primaryRatio = contrastRatio(primary.fg, primary.bg);
   contrastChecks.push({ theme, token: "primary-fg", foreground: primary.fg, background: primary.bg, ratio: primaryRatio, threshold: baselineMin, tier: "baseline" });
 }
+
+// The pairs above are copies; fail when tokens.css drifts away from them.
+const driftedTokens = [...new Set(contrastChecks.flatMap((c) => [c.foreground, c.background]))]
+  .filter((hex) => !css.toLowerCase().includes(hex));
+add("css.contrastSync", "CSS: эталоны контраста совпадают с tokens.css", driftedTokens.length === 0, driftedTokens.length ? `Нет в tokens.css/styles.css: ${driftedTokens.join(", ")}` : "все цвета проверяемых пар найдены в токенах");
 
 const contrastIssues = contrastChecks.filter((c) => c.ratio === null || Number.isNaN(c.ratio) || c.ratio < c.threshold);
 for (const theme of ["dark", "light"]) {
