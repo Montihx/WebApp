@@ -52,14 +52,18 @@
     section.hidden = list.length < 2;
     if (!list.length) return;
     $('#watch-order-count').textContent = `${list.length} тайтла`;
-    $('#watch-order-list').innerHTML = list.map(row => {
-      const content = `<img src="${esc(row.poster_url)}" alt="" width="68" height="96" loading="lazy" referrerpolicy="no-referrer"><span class="watch-order-copy"><strong>${esc(row.title)}</strong><span class="watch-order-meta"><span class="watch-relation${row.is_current ? ' is-current' : ''}">${row.is_current ? 'Вы здесь' : esc(M.relations[row.relation] || row.relation)}</span>${row.year ? `<span>${row.year}</span>` : ''}${row.kind ? `<span>${M.kindLabel(row.kind)}</span>` : ''}${row.episodes_total > 0 ? `<span>${row.episodes_total} эп.</span>` : ''}${row.score > 0 ? `<span>★ ${row.score}</span>` : ''}</span></span>`;
+    $('#watch-order-list').innerHTML = list.map((row, index) => {
+      const content = `<span class="watch-order-index" aria-hidden="true">${index + 1}</span><img src="${esc(row.poster_url)}" alt="" width="68" height="96" loading="lazy" referrerpolicy="no-referrer"><span class="watch-order-copy"><strong>${esc(row.title)}</strong><span class="watch-order-meta"><span class="watch-relation${row.is_current ? ' is-current' : ''}">${row.is_current ? 'Вы здесь' : esc(M.relations[row.relation] || row.relation)}</span>${row.year ? `<span>${row.year}</span>` : ''}${row.kind ? `<span>${M.kindLabel(row.kind)}</span>` : ''}${row.episodes_total > 0 ? `<span>${row.episodes_total} эп.</span>` : ''}${row.score > 0 ? `<span class="watch-order-score">★ ${row.score}</span>` : ''}</span></span>`;
       return `<li>${row.is_current ? `<div class="watch-order-row" aria-current="page">${content}</div>` : `<a class="watch-order-row" href="${href(row.slug)}">${content}</a>`}</li>`;
     }).join('');
+    // Decorative route over the same list: years above numbered stops, films as diamonds.
+    const currentIndex = list.findIndex(row => row.is_current);
+    $('#watch-order-path').innerHTML = list.map((row, index) => `<li class="watch-path__step${row.is_current ? ' is-current' : ''}${index <= currentIndex ? ' is-reached' : ''}${row.kind === 'movie' ? ' is-movie' : ''}"><span class="watch-path__label">${row.is_current ? 'Вы здесь' : (row.year || '—')}</span><span class="watch-path__node"><span>${index + 1}</span></span></li>`).join('');
     $('#watch-order-toggle').addEventListener('click', event => {
       const expanded = event.currentTarget.getAttribute('aria-expanded') !== 'true';
       event.currentTarget.setAttribute('aria-expanded', String(expanded));
       $('#watch-order-list').hidden = !expanded;
+      $('#watch-order-path').hidden = !expanded;
     });
   }
 

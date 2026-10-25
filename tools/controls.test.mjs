@@ -59,9 +59,9 @@ test('both title counters are wired to the shared saved-state style without a pe
 test('changed styles use a fresh cache version and unchanged scripts retain theirs', () => {
   for (const page of ['public/index.html', 'public/anime.html', 'admin/index.html']) {
     // The public script changed with the Kitsune art direction; the admin script did not.
-    const scriptVersion = page.startsWith('public/') ? 'kitsune-1' : 'original-parity-11';
-    assert.ok(read(page).includes('./styles.css?v=kitsune-1'), page);
+    const scriptVersion = page.startsWith('public/') ? 'kitsune-2' : 'original-parity-11';
+    assert.ok(read(page).includes('./styles.css?v=kitsune-2'), page);
     assert.ok(read(page).includes(`./app.js?v=${scriptVersion}`), page);
   }
-  for (const css of [publicCss, adminCss]) assert.ok(css.includes('../tokens.css?v=kitsune-1'));
+  for (const css of [publicCss, adminCss]) assert.ok(css.includes('../tokens.css?v=kitsune-2'));
 });
