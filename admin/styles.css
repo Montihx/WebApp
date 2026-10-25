@@ -1,4 +1,4 @@
-@import url("../tokens.css?v=v3-4");
+@import url("../tokens.css?v=v3-5");
 
 @font-face {
   font-family: "Onest";
@@ -261,7 +261,7 @@ svg {
 ::-webkit-scrollbar-thumb {
   background: var(--line-strong);
   border: 2px solid transparent;
-  border-radius: 99px;
+  border-radius: 8px;
   background-clip: padding-box;
 }
 
@@ -468,7 +468,7 @@ svg {
   min-width: 20px;
   padding: 2px 5px;
   border: 1px solid rgba(240, 109, 117, 0.2);
-  border-radius: 99px;
+  border-radius: 8px;
   background: var(--red-soft);
   color: var(--red);
   font-size: var(--type-meta);
@@ -487,7 +487,7 @@ svg {
 .nav-live {
   width: 7px;
   height: 7px;
-  border-radius: 50%;
+  border-radius: 3px;
   background: var(--green);
   box-shadow: none;
 }
@@ -566,7 +566,7 @@ svg {
   width: 6px;
   height: 6px;
   flex: 0 0 auto;
-  border-radius: 50%;
+  border-radius: 3px;
   background: var(--text-muted);
 }
 
@@ -789,7 +789,7 @@ kbd {
   width: 6px;
   height: 6px;
   border: 2px solid var(--canvas);
-  border-radius: 50%;
+  border-radius: 3px;
   background: var(--red);
   box-sizing: content-box;
 }
@@ -1359,7 +1359,7 @@ html[data-theme="light"] .theme-icon-dark {
 .legend-mark {
   width: 14px;
   height: 2px;
-  border-radius: 99px;
+  border-radius: 8px;
   background: var(--accent-strong);
 }
 
@@ -1648,7 +1648,7 @@ html[data-theme="light"] .theme-icon-dark {
   min-height: 22px;
   padding: 0 7px;
   border: 1px solid var(--line);
-  border-radius: 99px;
+  border-radius: 8px;
   background: var(--surface-raised);
   color: var(--text-secondary);
   font-size: var(--type-meta);
@@ -1659,7 +1659,7 @@ html[data-theme="light"] .theme-icon-dark {
 .status-badge::before {
   width: 5px;
   height: 5px;
-  border-radius: 50%;
+  border-radius: 3px;
   background: currentColor;
   content: "";
 }
@@ -1705,7 +1705,7 @@ html[data-theme="light"] .theme-icon-dark {
   height: 4px;
   flex: 1;
   overflow: hidden;
-  border-radius: 99px;
+  border-radius: 8px;
   background: var(--surface-hover);
 }
 
@@ -2025,7 +2025,7 @@ html[data-theme="light"] .theme-icon-dark {
   gap: 5px;
   padding: 0 8px;
   border: 1px solid var(--line);
-  border-radius: 99px;
+  border-radius: 8px;
   background: transparent;
   color: var(--text-muted);
   font-size: var(--type-meta);
@@ -2059,7 +2059,7 @@ html[data-theme="light"] .theme-icon-dark {
   width: 24px;
   height: 50px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 50%;
+  border-radius: 3px;
   content: "";
   transform: rotate(26deg);
 }
@@ -2350,7 +2350,7 @@ html[data-theme="light"] .log-console {
 .tabs .tab-count {
   margin-left: 5px;
   padding: 2px 5px;
-  border-radius: 99px;
+  border-radius: 8px;
   background: var(--surface-hover);
   color: var(--text-muted);
   font-size: var(--type-meta);
@@ -2472,7 +2472,7 @@ html[data-theme="light"] .log-console {
   height: 5px;
   margin-top: 11px;
   overflow: hidden;
-  border-radius: 99px;
+  border-radius: 8px;
   background: var(--surface-hover);
 }
 
@@ -2664,7 +2664,7 @@ html[data-theme="light"] .log-console {
   width: 34px;
   height: 19px;
   flex: 0 0 auto;
-  border-radius: 99px;
+  border-radius: 8px;
   background: var(--line-strong);
   transition: background var(--ease);
 }
@@ -2675,7 +2675,7 @@ html[data-theme="light"] .log-console {
   left: 3px;
   width: 13px;
   height: 13px;
-  border-radius: 50%;
+  border-radius: 3px;
   background: #fff;
   content: "";
   transition: transform var(--ease);
@@ -2756,7 +2756,7 @@ html[data-theme="light"] .log-console {
   width: 7px;
   height: 7px;
   border: 2px solid var(--surface);
-  border-radius: 50%;
+  border-radius: 3px;
   background: var(--green);
   box-shadow: 0 0 0 1px var(--line-strong);
   content: "";
@@ -3928,7 +3928,7 @@ svg {
   height: 20px;
   padding: 0 6px;
   border: 0;
-  border-radius: 999px;
+  border-radius: 8px;
   background: var(--surface-hover);
   color: var(--text-muted);
   font-family: var(--font-body);
@@ -4231,7 +4231,7 @@ svg {
   min-height: 23px;
   padding: 0 8px;
   border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
-  border-radius: 999px;
+  border-radius: 8px;
   background: transparent;
   font-size: var(--type-meta);
   font-weight: 700;
@@ -4648,7 +4648,7 @@ svg {
   width: 26px;
   height: 26px;
   place-items: center;
-  border-radius: 999px;
+  border-radius: 8px;
   background: var(--surface-hover);
   color: var(--text-secondary);
   font-size: var(--type-meta);
@@ -4844,7 +4844,7 @@ svg {
   height: 64px;
   place-items: center;
   border: 2px solid color-mix(in srgb, var(--asset-color) 55%, #fff 12%);
-  border-radius: 50%;
+  border-radius: 3px;
   background: color-mix(in srgb, var(--asset-color) 42%, var(--surface));
   color: #fff;
   font-family: var(--font-display);
@@ -5207,7 +5207,7 @@ svg {
 
 .role-card h3 span {
   padding: 3px 6px;
-  border-radius: 999px;
+  border-radius: 8px;
   background: var(--surface-hover);
   color: var(--text-muted);
   font-size: var(--type-meta);
@@ -5925,7 +5925,7 @@ svg {
   height: 26px;
   place-items: center;
   border: 1px solid var(--line);
-  border-radius: 50%;
+  border-radius: 3px;
   background: var(--surface);
 }
 
@@ -7579,7 +7579,7 @@ button:disabled {
   width: 7px;
   height: 7px;
   flex: 0 0 auto;
-  border-radius: 999px;
+  border-radius: 8px;
 }
 
 .queue-legend__item b {
@@ -7744,7 +7744,7 @@ button:disabled {
   position: relative;
   height: 7px;
   overflow: hidden;
-  border-radius: 999px;
+  border-radius: 8px;
   background: var(--surface-raised);
 }
 
@@ -8013,7 +8013,7 @@ button:disabled {
   width: 34px;
   height: 5px;
   overflow: hidden;
-  border-radius: 99px;
+  border-radius: 8px;
   background: linear-gradient(
     90deg,
     var(--accent),
@@ -8240,7 +8240,7 @@ button:disabled {
   left: 0;
   width: 4px;
   height: 4px;
-  border-radius: 50%;
+  border-radius: 3px;
   background: var(--text-muted);
   content: "";
 }
@@ -8565,7 +8565,7 @@ button:disabled {
   width: 34px;
   height: 34px;
   place-items: center;
-  border-radius: 50%;
+  border-radius: 3px;
   background: var(--amber-soft);
 }
 
@@ -9423,7 +9423,7 @@ button:disabled {
   width: 8px;
   height: 8px;
   margin-top: 3px;
-  border-radius: 50%;
+  border-radius: 3px;
 }
 
 .policy-dot--auto {
@@ -9539,7 +9539,7 @@ button:disabled {
   width: 10px;
   height: 10px;
   border: 3px solid color-mix(in srgb, var(--green) 30%, transparent);
-  border-radius: 50%;
+  border-radius: 3px;
   background: var(--green);
   box-shadow: none;
 }
@@ -9645,7 +9645,7 @@ button:disabled {
 .resource-track {
   height: 7px;
   overflow: hidden;
-  border-radius: 99px;
+  border-radius: 8px;
   background: var(--surface-raised);
 }
 
@@ -11241,7 +11241,7 @@ code, kbd, time, .cell-muted, .timezone-chip { font-family: var(--font-mono); fo
 }
 
 .nav-item kbd { font-family: var(--font-mono); }
-.nav-item .nav-badge { border-radius: var(--radius-pill); }
+.nav-item .nav-badge { border-radius: 8px; }
 .nav-item .nav-badge--warning,
 .nav-item.is-active .nav-badge--warning { background: color-mix(in srgb, var(--kin) 20%, transparent); color: var(--kin); }
 .nav-item.is-active .nav-badge:not(.nav-badge--warning) { background: var(--surface-hover); color: var(--text-secondary); }
@@ -11254,7 +11254,7 @@ code, kbd, time, .cell-muted, .timezone-chip { font-family: var(--font-mono); fo
   width: 7px;
   height: 7px;
   flex: 0 0 auto;
-  border-radius: 50%;
+  border-radius: 3px;
   background: var(--kitsunebi);
 }
 
@@ -11263,7 +11263,7 @@ code, kbd, time, .cell-muted, .timezone-chip { font-family: var(--font-mono); fo
 .status-dot--live::after {
   position: absolute;
   inset: -4px;
-  border-radius: 50%;
+  border-radius: 3px;
   background: radial-gradient(circle, var(--kitsunebi) 0%, transparent 70%);
   content: "";
   opacity: 0.6;
@@ -11394,7 +11394,7 @@ code, kbd, time, .cell-muted, .timezone-chip { font-family: var(--font-mono); fo
 
 .queue-total {
   padding: 4px 10px;
-  border-radius: var(--radius-pill);
+  border-radius: 8px;
   background: color-mix(in srgb, var(--kin) 16%, transparent);
   color: var(--kin);
   font-size: var(--type-meta);
@@ -11651,7 +11651,7 @@ code, kbd, time, .cell-muted, .timezone-chip { font-family: var(--font-mono); fo
   white-space: nowrap;
 }
 
-.dirty-state::before { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); content: ""; }
+.dirty-state::before { width: 7px; height: 7px; border-radius: 3px; background: var(--line-strong); content: ""; }
 .dirty-state.is-dirty { color: var(--kin); }
 .dirty-state.is-dirty::before { background: var(--kin); }
 
@@ -12076,7 +12076,7 @@ html .app-shell .sidebar {
   gap: 8px;
   padding: 4px 10px 4px 8px;
   border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-  border-radius: 999px;
+  border-radius: 8px;
   background: var(--accent-softer);
   color: var(--accent-text);
   font-size: 0.75rem;
@@ -12088,7 +12088,7 @@ html .app-shell .sidebar {
 .app-shell .page-heading .eyebrow::before {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: 3px;
   background: var(--accent);
   box-shadow: 0 0 8px var(--accent-glow);
   content: "";
@@ -12277,7 +12277,7 @@ html[data-theme="light"] .app-shell :is(.panel, .now-strip) {
 }
 
 .app-shell :is(.queue-breakdown__segment, .status-strip__segment) {
-  border-radius: 999px;
+  border-radius: 8px;
   transform-origin: left;
   animation: kz-grow-x 900ms var(--ease-out) both;
 }
@@ -12436,12 +12436,12 @@ html[data-theme="light"] .app-shell :is(.panel, .now-strip) {
 }
 
 .app-shell .progress-track {
-  border-radius: 999px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--text) 9%, transparent);
 }
 
 .app-shell .progress-value {
-  border-radius: 999px;
+  border-radius: 8px;
   background: var(--accent-grad);
   box-shadow: 0 0 10px -2px var(--accent-glow);
 }
@@ -12450,14 +12450,14 @@ html[data-theme="light"] .app-shell :is(.panel, .now-strip) {
 .app-shell .status-badge {
   gap: 6px;
   border: 1px solid color-mix(in srgb, currentColor 26%, transparent);
-  border-radius: 999px;
+  border-radius: 8px;
   font-weight: 600;
 }
 
 .app-shell .status-badge::before {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: 3px;
   background: currentColor;
   box-shadow: 0 0 8px currentColor;
 }
@@ -12621,7 +12621,7 @@ html.kz-palette-switching::view-transition-new(root) {
 
 .app-shell .resource-track {
   height: 6px;
-  border-radius: 999px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--text) 9%, transparent);
 }
 
@@ -12641,7 +12641,7 @@ html.kz-palette-switching::view-transition-new(root) {
 .app-shell [role="tab"] { border-radius: 10px; transition: background var(--dur-1), color var(--dur-1); }
 
 .app-shell .tab-count {
-  border-radius: 999px;
+  border-radius: 8px;
   background: color-mix(in srgb, var(--text) 10%, transparent);
 }
 
@@ -12839,3 +12839,26 @@ html body .app-shell .view-root .button { min-width: fit-content; flex-shrink: 0
 .app-shell .view-root strong { overflow-wrap: anywhere; }
 
 .app-shell .page-heading .eyebrow { justify-self: start; width: max-content; max-width: 100%; }
+
+/* Никаких круглых и «таблеточных» форм */
+.app-shell :is(.queue-total, .status-badge, .tab-count, .nav-badge, .eyebrow) { border-radius: 7px; }
+.app-shell :is(.progress-track, .progress-value, .indeterminate-track, .resource-track, .resource-track > *, .queue-breakdown__segment, .status-strip__segment, .honest-progress i, .honest-progress i::after) { border-radius: 2px; }
+.app-shell :is(.live-dot, .live-dot::after, .status-dot, .status-dot::after, .nav-live, .notification-dot, .queue-legend__dot, .status-pulse, .dirty-state::before, .eyebrow::before, .status-badge::before, [class*="dot"]) { border-radius: 2px; }
+.app-shell .view-root li::before { border-radius: 1px; }
+.app-shell .view-root i:is([class*="progress"], [class*="indeterminate"]),
+.app-shell .view-root i:is([class*="progress"], [class*="indeterminate"])::after { border-radius: 2px; }
+.notification-dot { border-radius: 2px; }
+.app-shell .live-dot::after,
+.app-shell .status-dot::after,
+.app-shell .status-dot--live::after,
+.app-shell .dirty-state::before,
+.app-shell .page-heading .eyebrow::before,
+.app-shell .status-badge::before,
+.app-shell .poster::before { border-radius: 2px; }
+.app-shell .page-heading .eyebrow::before { border-radius: 1px; }
+/* Оверлеи админки живут вне .app-shell */
+.indeterminate-track, .indeterminate-track > *, .drawer .progress-track, .drawer .progress-value { border-radius: 2px; }
+.status-badge, .tab-count { border-radius: 7px; }
+.status-badge::before { border-radius: 2px; }
+.sheet-handle { border-radius: 2px; }
+.avatar { border-radius: 10px; }

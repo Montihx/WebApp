@@ -99,7 +99,7 @@
   --radius-md: 10px;
   --radius-lg: 14px;
   --radius-xl: 18px;
-  --radius-pill: 999px;
+  --radius-pill: 8px;
 
   /* Shared bookmark colors from the profile statistics reference. */
   --bookmark-planned: #3b82f6;
