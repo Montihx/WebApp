@@ -2348,3 +2348,4 @@
   :root .title-hero { --title-poster-width: min(46vw, 200px, 30dvh); }
   :root .related-rail { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: clamp(108px, 30vw, 132px); }
 }
+:root .poster-action { display: none !important; }
