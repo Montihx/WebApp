@@ -1659,3 +1659,603 @@
   :root .search-trigger:not(:has(> span:not(.sr-only):not(:empty))),
   :root .header-actions .search-trigger { border-color: transparent; background: none; box-shadow: none; }
 }
+
+/* ==========================================================================
+   Проработка блоков: эфир и обновления, уведомления, комментарии,
+   связанные аниме, выпадающие списки
+   ========================================================================== */
+
+/* --- Эфир и обновления: две стеклянные панели одной высоты --------------- */
+:root .schedule-updates-grid { align-items: stretch; gap: clamp(20px, 3vw, 32px); }
+
+:root .schedule-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  padding: clamp(20px, 2.4vw, 28px);
+  border: 1px solid var(--glass-line);
+  border-radius: 24px;
+  background:
+    radial-gradient(120% 70% at 100% 0%, var(--accent-softer), transparent 60%),
+    color-mix(in srgb, var(--surface) 70%, transparent);
+  box-shadow: 0 30px 70px -50px var(--accent-glow);
+}
+
+/* Световая кромка панели */
+:root .schedule-card::before {
+  position: absolute;
+  top: 0;
+  right: 28px;
+  left: 28px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 70%, transparent), transparent);
+  content: "";
+  pointer-events: none;
+}
+
+:root .schedule-card .schedule-head { margin-bottom: 18px; }
+
+/* Дни: лента без обрезки, с мягким краем и прокруткой */
+:root #schedule-days {
+  display: flex;
+  gap: 8px;
+  margin: 0 -4px 18px;
+  padding: 12px 24px 8px 4px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent);
+}
+
+:root #schedule-days::-webkit-scrollbar { display: none; }
+
+:root #schedule-days .day-tab {
+  flex: 0 0 64px;
+  min-height: 84px;
+  gap: 2px;
+  padding: 10px 4px;
+  scroll-snap-align: start;
+  border-radius: 14px;
+}
+
+:root #schedule-days .day-tab__num { font-size: 1.5rem; line-height: 1.1; }
+:root #schedule-days .day-tab__dow { font-size: 0.6875rem; }
+:root #schedule-days .day-tab__mon { font-size: 0.625rem; opacity: 0.8; }
+
+:root #schedule-days .day-tab.is-today:not(.is-active)::after {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent-grad);
+  content: "";
+  transform: translateX(-50%);
+}
+
+:root #schedule-days .day-tab__count {
+  top: -8px;
+  right: -6px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border: 2px solid var(--surface);
+  border-radius: 6px;
+}
+
+/* Строки: обложка, текст, время; линия-«таймлайн» слева */
+:root .schedule-card .schedule-list {
+  position: relative;
+  display: grid;
+  flex: 1 1 auto;
+  gap: 10px;
+  align-content: start;
+  max-height: 460px;
+  margin-right: -8px;
+  padding-right: 8px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 45%, transparent) transparent;
+  -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - 40px), transparent);
+  mask-image: linear-gradient(180deg, #000 calc(100% - 40px), transparent);
+  padding-bottom: 32px;
+}
+
+:root .schedule-card .schedule-list::-webkit-scrollbar { width: 4px; }
+:root .schedule-card .schedule-list::-webkit-scrollbar-track { background: transparent; }
+:root .schedule-card .schedule-list::-webkit-scrollbar-thumb { border-radius: 2px; background: color-mix(in srgb, var(--accent) 45%, transparent); }
+
+:root .schedule-card .schedule-item {
+  position: relative;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  gap: 16px;
+  min-height: 92px;
+  padding: 10px 18px 10px 10px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface-raised) 55%, transparent);
+  transition: background var(--dur-2), border-color var(--dur-2), transform var(--dur-2) var(--ease-out);
+}
+
+:root .schedule-card .schedule-item + .schedule-item { border-top-color: transparent; }
+
+:root .schedule-card .schedule-item:hover {
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  background: linear-gradient(90deg, var(--accent-soft), color-mix(in srgb, var(--surface-raised) 55%, transparent) 70%);
+  transform: translateX(4px);
+}
+
+:root .schedule-card .schedule-item img {
+  width: 56px;
+  height: 72px;
+  border-radius: 10px;
+  outline: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  box-shadow: 0 10px 20px -12px rgba(0, 0, 0, 0.8);
+}
+
+:root .schedule-card .schedule-item > span { display: grid; gap: 3px; }
+:root .schedule-card .schedule-item strong { font-size: 1rem; line-height: 1.3; }
+:root .schedule-card .schedule-item small { font-size: 0.8125rem; line-height: 1.4; }
+
+/* Обратный отсчёт: акцентная строка с иконкой часов, без плашки */
+:root .schedule-card .schedule-countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--kitsunebi-text);
+  font-weight: 700;
+}
+
+:root .schedule-card .schedule-countdown::before {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  background: currentColor;
+  content: "";
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Скорая серия: строка светится «лисьим огнём» */
+:root .schedule-card .schedule-item:has(.schedule-countdown) {
+  border-color: color-mix(in srgb, var(--kitsunebi) 35%, transparent);
+  background: linear-gradient(90deg, var(--kitsunebi-soft), color-mix(in srgb, var(--surface-raised) 55%, transparent) 65%);
+}
+
+:root .schedule-card .schedule-item:has(.schedule-countdown)::before {
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  left: -1px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--kitsunebi);
+  box-shadow: 0 0 12px var(--kitsunebi-glow);
+  content: "";
+}
+
+/* Время */
+:root .schedule-card .schedule-item time { display: grid; justify-items: end; gap: 2px; font-size: 1.375rem; line-height: 1; }
+:root .schedule-card .schedule-item time > span { font-size: 0.75rem; letter-spacing: 0.02em; }
+:root .schedule-card .schedule-item time > b { font-size: 1.375rem; }
+
+/* Большое число выбранного дня — водяной знак панели эфира */
+:root .schedule-card:has(#schedule-days)::after {
+  position: absolute;
+  right: -8px;
+  bottom: -0.28em;
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  content: var(--kz-day, "");
+  font-family: var(--font-heading);
+  font-size: clamp(7rem, 12vw, 11rem);
+  line-height: 1;
+  opacity: 0.07;
+  pointer-events: none;
+}
+
+/* --- Уведомления --------------------------------------------------------- */
+:root .notification-popover {
+  width: min(400px, calc(100vw - 32px));
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--glass-line);
+  border-radius: 20px;
+  background:
+    radial-gradient(120% 60% at 100% 0%, var(--accent-softer), transparent 60%),
+    color-mix(in srgb, var(--surface-raised) 94%, transparent);
+  backdrop-filter: blur(22px) saturate(1.3);
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.7), 0 0 0 1px var(--glass-hi) inset;
+}
+
+:root .notification-popover::before {
+  position: absolute;
+  top: 0;
+  right: 24px;
+  left: 24px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 70%, transparent), transparent);
+  content: "";
+}
+
+:root .popover-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--glass-line);
+}
+
+:root .popover-head strong { font-family: var(--font-heading); font-size: 1.125rem; font-weight: 400; }
+
+:root .popover-head button {
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--accent-text);
+  font-weight: 700;
+  transition: background var(--dur-1);
+}
+
+:root .popover-head button:hover { background: var(--accent-softer); }
+
+:root .notification-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 14px;
+  padding: 16px 20px;
+  color: var(--text);
+  transition: background var(--dur-1);
+}
+
+:root .notification-item + .notification-item { border-top: 1px solid var(--glass-line); }
+:root .notification-item:hover { background: var(--accent-softer); }
+
+:root .notification-item::before {
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--accent-grad);
+  content: "";
+  opacity: 0;
+  transition: opacity var(--dur-1);
+}
+
+:root .notification-item:hover::before { opacity: 1; }
+
+:root .notification-icon { display: grid; place-items: start center; padding-top: 2px; color: var(--accent-text); }
+:root .notification-icon svg { width: 20px; height: 20px; }
+:root .notification-icon--success { color: var(--green); }
+:root .notification-item > span:not(.notification-icon) { display: grid; gap: 3px; min-width: 0; }
+:root .notification-item strong { font-size: 0.9375rem; font-weight: 700; }
+:root .notification-item small { color: var(--text-muted); font-size: 0.8125rem; line-height: 1.45; }
+:root .notification-item time { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.75rem; white-space: nowrap; padding-top: 3px; }
+
+/* --- Комментарии ---------------------------------------------------------- */
+:root .comments-layout { gap: clamp(24px, 4vw, 48px); }
+
+:root .login-comment-box {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--glass-line);
+  border-radius: 20px;
+  background:
+    linear-gradient(90deg, var(--accent-softer), transparent 60%),
+    color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+:root .login-comment-box .avatar-placeholder {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 0;
+  border-radius: 12px;
+  background: var(--accent-grad);
+  box-shadow: 0 10px 24px -12px var(--accent-glow);
+  color: var(--primary-fg);
+  font-family: var(--font-heading);
+}
+
+:root .login-comment-box .avatar-placeholder svg { display: none; }
+:root .login-comment-box .avatar-placeholder::after { content: "?"; font-size: 1.125rem; }
+
+:root .login-comment-box strong { font-size: 1rem; }
+:root .login-comment-box p { margin: 2px 0 0; color: var(--text-muted); font-size: 0.875rem; }
+
+:root .login-comment-box .button {
+  border: 0;
+  background: var(--accent-grad);
+  box-shadow: 0 12px 28px -14px var(--accent-glow);
+  color: var(--primary-fg);
+}
+
+:root .comments-empty {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: clamp(36px, 6vw, 64px) 24px;
+  overflow: hidden;
+  border: 1px solid var(--glass-line);
+  border-radius: 24px;
+  background:
+    radial-gradient(60% 90% at 50% 0%, var(--accent-soft), transparent 70%),
+    color-mix(in srgb, var(--surface) 60%, transparent);
+  text-align: center;
+}
+
+/* Сэйгайха снизу — тихий фон пустого состояния */
+:root .comments-empty::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 60%;
+  background: var(--seigaiha-url) 0 0 / 56px 28px;
+  content: "";
+  opacity: 0.06;
+  -webkit-mask-image: linear-gradient(0deg, #000, transparent);
+  mask-image: linear-gradient(0deg, #000, transparent);
+  pointer-events: none;
+}
+
+:root .comments-empty > span { color: var(--accent-text); filter: drop-shadow(0 0 18px var(--accent-glow)); }
+:root .comments-empty > span svg { width: 40px; height: 40px; }
+:root .comments-empty strong { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 400; }
+:root .comments-empty p { max-width: 38ch; margin: 0; color: var(--text-muted); }
+
+/* Правила обсуждения: иконка внутри карточки, рядом с заголовком */
+:root .discussion-rules {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--glass-line);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+:root .discussion-rules > div { padding: 0; border: 0; background: none; display: grid; gap: 6px; }
+:root .discussion-rules > svg { width: 22px; height: 22px; color: var(--accent-text); margin-top: 1px; }
+:root .discussion-rules strong { font-size: 1rem; line-height: 1.35; }
+:root .discussion-rules p { color: var(--text-muted); font-size: 0.875rem; line-height: 1.6; }
+
+:root .section-count { min-width: 32px; text-align: center; }
+
+/* --- Связанные аниме ------------------------------------------------------ */
+:root .watch-path {
+  position: relative;
+  margin: 28px 0 20px;
+  padding: 4px 4px 8px;
+}
+
+:root .watch-path__step + .watch-path__step::before {
+  bottom: 21px;
+  border-top: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: repeating-linear-gradient(90deg, var(--line-strong) 0 6px, transparent 6px 12px);
+}
+
+:root .watch-path__step.is-reached + .watch-path__step.is-reached::before { background: var(--accent-grad); }
+
+:root .watch-path__label {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+:root .watch-path__node {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--glass-line);
+  border-radius: 12px;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  transition: transform var(--dur-2) var(--ease-spring), border-color var(--dur-2);
+}
+
+:root .watch-path__step:hover .watch-path__node { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+:root .watch-path__step.is-movie:hover .watch-path__node { transform: rotate(45deg) translateY(-2px); }
+
+:root .watch-path__step.is-current .watch-path__node {
+  border-color: transparent;
+  background: var(--accent-grad);
+  box-shadow: 0 0 0 6px var(--accent-softer), 0 14px 30px -10px var(--accent-glow);
+  color: var(--primary-fg);
+}
+
+:root .watch-path__step.is-movie .watch-path__node { border-radius: 8px; }
+
+:root #watch-order-list { display: grid; gap: 10px; margin-top: 8px; }
+:root #watch-order-list li + li { border-top: 0; }
+
+:root .watch-order-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px 60px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 12px 20px 12px 14px;
+  border: 1px solid var(--glass-line);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface) 65%, transparent);
+  transition: border-color var(--dur-2), background var(--dur-2), transform var(--dur-2) var(--ease-out);
+}
+
+:root a.watch-order-row:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: linear-gradient(90deg, var(--accent-softer), color-mix(in srgb, var(--surface) 65%, transparent) 60%);
+  transform: translateX(4px);
+}
+
+/* Стрелка перехода — иконка без подложки, появляется при наведении */
+:root a.watch-order-row::after {
+  width: 18px;
+  height: 18px;
+  background: var(--accent-text);
+  content: "";
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity var(--dur-2), transform var(--dur-2) var(--ease-out);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+:root a.watch-order-row:hover::after { opacity: 1; transform: none; }
+
+:root .watch-order-row[aria-current="page"] {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background:
+    linear-gradient(90deg, var(--accent-soft), transparent 70%),
+    color-mix(in srgb, var(--surface) 70%, transparent);
+  box-shadow: 0 20px 44px -30px var(--accent-glow);
+}
+
+:root .watch-order-row[aria-current="page"]::before {
+  position: absolute;
+  top: 16px;
+  bottom: 16px;
+  left: -1px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--accent-grad);
+  box-shadow: 0 0 12px var(--accent-glow);
+  content: "";
+}
+
+:root .watch-order-index {
+  color: color-mix(in srgb, var(--text-muted) 70%, transparent);
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+:root .watch-order-row[aria-current="page"] .watch-order-index {
+  background: var(--accent-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+:root .watch-order-row > img {
+  width: 60px;
+  height: 84px;
+  border-radius: 10px;
+  outline: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+  box-shadow: 0 12px 24px -14px rgba(0, 0, 0, 0.8);
+}
+
+:root .watch-order-copy { display: grid; gap: 8px; min-width: 0; }
+:root .watch-order-copy > strong { font-size: 1.0625rem; line-height: 1.3; }
+:root .watch-order-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 0.875rem; }
+:root .watch-order-meta > span:not(.watch-relation):not(.watch-order-score) + span:not(.watch-relation)::before { margin-right: 12px; color: var(--line-strong); content: "/"; }
+
+:root .watch-relation { padding: 3px 10px; border-color: var(--glass-line); background: color-mix(in srgb, var(--text) 4%, transparent); color: var(--text-secondary); }
+:root .watch-relation.is-current { border-color: transparent; background: var(--accent-grad); color: var(--primary-fg); }
+:root .watch-order-score { display: inline-flex; align-items: center; gap: 4px; color: var(--kin-text); }
+
+@media (max-width: 720px) {
+  :root .watch-order-row { grid-template-columns: 24px 48px minmax(0, 1fr); gap: 12px; padding: 10px 12px 10px 8px; }
+  :root .watch-order-row > img { width: 48px; height: 68px; }
+  :root a.watch-order-row::after { display: none; }
+  :root .watch-order-index { font-size: 1.125rem; }
+  :root .schedule-card .schedule-item { grid-template-columns: 48px minmax(0, 1fr) auto; gap: 12px; min-height: 80px; }
+  :root .schedule-card .schedule-item img { width: 48px; height: 62px; }
+  :root .schedule-card .schedule-list { max-height: 400px; }
+  :root .login-comment-box { grid-template-columns: auto minmax(0, 1fr); }
+  :root .login-comment-box .button { grid-column: 1 / -1; justify-content: center; }
+}
+
+/* --- Выпадающие списки: тёмные, в цветах палитры ------------------------ */
+:root select { color-scheme: dark; }
+:root[data-theme="light"] select { color-scheme: light; }
+:root select option { background: var(--surface-raised); color: var(--text); }
+:root select option:checked { background: var(--accent-soft); color: var(--text); }
+
+@supports (appearance: base-select) {
+  :root .player-voice select,
+  :root .catalog-sort-select select,
+  :root .select-wrap select { appearance: base-select; }
+
+  :root :is(.player-voice, .catalog-sort-select, .select-wrap) select::picker(select) {
+    appearance: base-select;
+    margin-top: 6px;
+    padding: 6px;
+    border: 1px solid var(--glass-line);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--surface-raised) 96%, transparent);
+    box-shadow: var(--shadow-menu);
+    color: var(--text);
+  }
+
+  :root :is(.player-voice, .catalog-sort-select, .select-wrap) select option {
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: none;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  :root :is(.player-voice, .catalog-sort-select, .select-wrap) select option:hover { background: var(--accent-softer); }
+  :root :is(.player-voice, .catalog-sort-select, .select-wrap) select option:checked { background: var(--accent-soft); color: var(--accent-text); }
+  :root :is(.player-voice, .catalog-sort-select, .select-wrap) select option::checkmark { color: var(--accent-text); }
+  :root :is(.player-voice, .catalog-sort-select, .select-wrap) select::picker-icon { display: none; }
+  :root :is(.player-voice, .catalog-sort-select, .select-wrap) select { display: inline-flex; align-items: center; align-self: stretch; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root .schedule-card .schedule-item,
+  :root .watch-order-row,
+  :root .watch-path__node { transition: none; }
+}
+
+/* Фильм на маршруте — ромб; цифра внутри стоит прямо */
+:root .watch-path__step.is-movie .watch-path__node { width: 34px; height: 34px; margin: 5px 0; border-radius: 6px; transform: rotate(45deg); }
+:root .watch-path__step.is-movie .watch-path__node > span { display: block; transform: rotate(-45deg); line-height: 1; }
+
+/* Аватар гостя — просто иконка, без плитки */
+:root .login-comment-box .avatar-placeholder { width: 28px; height: 28px; background: none; box-shadow: none; color: var(--accent-text); }
+:root .login-comment-box .avatar-placeholder svg { display: block; width: 24px; height: 24px; }
+:root .login-comment-box .avatar-placeholder::after { content: none; }
+/* Мета связанных: без разделителей, чтобы перенос не начинал строку со знака */
+:root .watch-order-meta > span:not(.watch-relation):not(.watch-order-score) + span:not(.watch-relation)::before { content: none; }
+:root .watch-order-meta { gap: 6px 14px; }
+:root .schedule-card .schedule-item time { gap: 5px; line-height: 1.15; border-radius: 0; }
+:root .schedule-card .schedule-item time > span { line-height: 1.2; }
+:root .schedule-card .schedule-item time > b { line-height: 1.1; }
+
+@media (max-width: 440px) {
+  :root .schedule-card { padding: 16px; border-radius: 20px; }
+  :root .schedule-card .schedule-item { grid-template-columns: 44px minmax(0, 1fr) auto; gap: 10px; padding: 8px 12px 8px 8px; }
+  :root .schedule-card .schedule-item img { width: 44px; height: 58px; }
+  :root .schedule-card .schedule-item > span > strong {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal;
+    text-overflow: clip;
+    font-size: 0.9375rem;
+  }
+  :root .schedule-card .schedule-item time,
+  :root .schedule-card .schedule-item time > b { font-size: 1.0625rem; }
+  :root .schedule-card .schedule-item time > span { font-size: 0.6875rem; }
+}

@@ -890,8 +890,18 @@
     });
   }
 
+  // Watermark of the selected day in the schedule panel.
+  function syncScheduleDay() {
+    const panel = $("#schedule-days")?.closest(".schedule-card");
+    const num = $("#schedule-days .day-tab.is-active .day-tab__num")?.textContent.trim();
+    if (panel && num) panel.style.setProperty("--kz-day", `"${num}"`);
+  }
+
   function initShared() {
     setTheme(root.dataset.theme || storage.get("kitsu-theme", "dark"), false);
+    syncScheduleDay();
+    setTimeout(syncScheduleDay, 400);
+    document.addEventListener("click", (event) => { if (event.target.closest?.("#schedule-days .day-tab")) requestAnimationFrame(syncScheduleDay); });
     initPalette();
     initAmbient();
     initPosterTilt();
