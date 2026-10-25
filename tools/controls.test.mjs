@@ -56,12 +56,14 @@ test('both title counters are wired to the shared saved-state style without a pe
   assert.match(rules(publicCss, '.title-mobile-count').join('\n'), /background:\s*transparent/);
 });
 
-test('changed styles use a fresh cache version and unchanged scripts retain theirs', () => {
+test('changed styles and scripts use a fresh cache version per area', () => {
+  // Public shipped with the Kitsune art direction (kitsune-2); the admin pass bumps only the admin files (kitsune-3).
+  const versions = { public: 'kitsune-2', admin: 'kitsune-3' };
   for (const page of ['public/index.html', 'public/anime.html', 'admin/index.html']) {
-    // The public script changed with the Kitsune art direction; the admin script did not.
-    const scriptVersion = page.startsWith('public/') ? 'kitsune-2' : 'original-parity-11';
-    assert.ok(read(page).includes('./styles.css?v=kitsune-2'), page);
-    assert.ok(read(page).includes(`./app.js?v=${scriptVersion}`), page);
+    const version = versions[page.split('/')[0]];
+    assert.ok(read(page).includes(`./styles.css?v=${version}`), page);
+    assert.ok(read(page).includes(`./app.js?v=${version}`), page);
   }
-  for (const css of [publicCss, adminCss]) assert.ok(css.includes('../tokens.css?v=kitsune-2'));
+  assert.ok(publicCss.includes('../tokens.css?v=kitsune-2'));
+  assert.ok(adminCss.includes('../tokens.css?v=kitsune-3'));
 });

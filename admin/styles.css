@@ -1,4 +1,4 @@
-@import url("../tokens.css?v=kitsune-2");
+@import url("../tokens.css?v=kitsune-3");
 
 @font-face {
   font-family: "Onest";
@@ -11173,4 +11173,389 @@ html[data-theme="dark"] .button--primary {
 }
 @media (max-width: 720px) {
   .button { min-height: var(--control-touch-height); }
+}
+
+/* ==========================================================================
+   Kitsune — admin layer. Quiet work surface: vermilion is the logo, the main
+   button of a screen and the active menu item; fox fire means "happening now";
+   gold means "needs the operator". One brand device: the torii beam.
+   ========================================================================== */
+
+:root { --chart-kodik: var(--accent); --chart-shiki: var(--text-secondary); }
+
+/* Mono for identifiers, clocks and counters */
+code, kbd, time, .cell-muted, .timezone-chip { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* ---- Shell ---- */
+.brand-mark {
+  display: block;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--accent);
+  fill: currentColor;
+}
+
+.brand-copy strong {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.nav-caption {
+  color: var(--text-muted);
+  font-size: var(--type-meta);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.nav-item { border-radius: var(--radius-sm); }
+.nav-item.is-active { background: var(--surface-active); color: var(--text); }
+.nav-item.is-active svg { color: var(--accent-text); }
+
+/* Torii beam at the left edge of the active item */
+.nav-item.is-active::before {
+  position: absolute;
+  top: calc(50% - 7px);
+  left: -10px;
+  width: 10px;
+  height: 4px;
+  border-radius: 0;
+  background: var(--accent);
+  clip-path: polygon(0 0, 100% 0, 92% 100%, 8% 100%);
+  content: "";
+}
+
+.nav-item.is-active::after {
+  position: absolute;
+  top: calc(50% - 1px);
+  left: -9px;
+  width: 8px;
+  height: 2px;
+  background: var(--accent);
+  content: "";
+}
+
+.nav-item kbd { font-family: var(--font-mono); }
+.nav-item .nav-badge { border-radius: var(--radius-pill); }
+.nav-item .nav-badge--warning,
+.nav-item.is-active .nav-badge--warning { background: color-mix(in srgb, var(--kin) 20%, transparent); color: var(--kin); }
+.nav-item.is-active .nav-badge:not(.nav-badge--warning) { background: var(--surface-hover); color: var(--text-secondary); }
+
+.nav-live,
+.live-dot,
+.status-dot--live {
+  position: relative;
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--kitsunebi);
+}
+
+.nav-live::after,
+.live-dot::after,
+.status-dot--live::after {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--kitsunebi) 0%, transparent 70%);
+  content: "";
+  opacity: 0.6;
+  animation: kitsunebi-flicker 3s ease-in-out infinite;
+}
+
+@keyframes kitsunebi-flicker {
+  0%, 100% { opacity: 0.7; }
+  38% { opacity: 0.35; }
+  52% { opacity: 0.6; }
+  70% { opacity: 0.42; }
+}
+
+.command-trigger { border-radius: var(--radius-sm); }
+.command-trigger kbd,
+.command-footer kbd,
+.command-input-row kbd,
+.dialog kbd {
+  padding: 1px 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font-size: var(--type-meta);
+}
+
+/* ---- Page heading: kicker, H1 under a torii, description, action on the right ---- */
+.page-heading__copy { position: relative; padding-top: 20px; }
+
+.page-heading__copy::before,
+.page-heading__copy::after {
+  position: absolute;
+  left: 0;
+  background: var(--accent);
+  content: "";
+}
+
+.page-heading__copy::before {
+  top: 0;
+  width: 44px;
+  height: 4px;
+  clip-path: polygon(0 0, 100% 0, 96% 100%, 4% 100%);
+}
+
+.page-heading__copy::after { top: 7px; left: 6px; width: 32px; height: 2px; }
+
+.eyebrow { color: var(--accent-text); letter-spacing: 0.14em; }
+
+.page-heading h1 {
+  margin-top: 8px;
+  font-family: var(--font-heading);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+/* ---- Status tones: one palette for every indicator ---- */
+.status-badge--live {
+  border-color: color-mix(in srgb, var(--kitsunebi) 30%, transparent);
+  background: var(--kitsunebi-soft);
+  color: var(--kitsunebi);
+}
+
+.status-badge--info {
+  border-color: color-mix(in srgb, var(--info) 28%, transparent);
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.status-badge--warning {
+  border-color: color-mix(in srgb, var(--kin) 32%, transparent);
+  background: color-mix(in srgb, var(--kin) 14%, transparent);
+  color: var(--kin);
+}
+
+.status-badge--live::before { animation: kitsunebi-flicker 3s ease-in-out infinite; }
+
+.job-glyph--running { color: var(--kitsunebi); }
+.status-strip__segment--live,
+.queue-legend__dot.status-strip__segment--live { background: var(--kitsunebi); }
+.status-strip__segment--warning, .queue-breakdown__segment--warning { background: var(--kin); }
+
+/* ---- Overview: now strip, operator queue, KPIs ---- */
+.now-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(0, 1fr));
+  gap: 0;
+  margin-bottom: var(--space-8);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.now-cell {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 18px 20px;
+}
+
+.now-cell + .now-cell { border-left: 1px solid var(--line); }
+
+.now-cell--job { background: linear-gradient(90deg, var(--kitsunebi-soft), transparent 70%); border-radius: var(--radius-md) 0 0 var(--radius-md); }
+
+.now-cell__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: var(--type-meta);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.now-cell__label svg { width: 14px; height: 14px; }
+.now-cell__title { font-size: 18px; font-weight: 700; line-height: 1.2; }
+.now-cell__meta { color: var(--text-muted); font-size: var(--type-ui); }
+.now-cell__note { margin: 0; color: var(--text-muted); font-size: var(--type-meta); }
+.now-cell .panel-link { justify-self: start; margin-top: 4px; }
+.now-cell__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.now-cell--job .indeterminate-track { margin-top: 6px; background: var(--surface-raised); }
+.now-cell--job .indeterminate-track > span { background: var(--kitsunebi); }
+
+.attention-panel { margin-bottom: var(--space-8); }
+
+.queue-total {
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--kin) 16%, transparent);
+  color: var(--kin);
+  font-size: var(--type-meta);
+  font-weight: 700;
+}
+
+.attention-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+
+.attention-card {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 18px 20px 16px;
+  text-align: left;
+  transition: background var(--dur-1) var(--ease-out);
+}
+
+.attention-card + .attention-card { border-left: 1px solid var(--line); }
+.attention-card:hover { background: var(--surface-hover); }
+
+.attention-card__top { display: flex; align-items: center; justify-content: space-between; }
+
+.attention-card__code {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.attention-card__icon svg { width: 18px; height: 18px; }
+.attention-card--warning .attention-card__icon { color: var(--kin); }
+.attention-card--danger .attention-card__icon { color: var(--red); }
+
+.attention-card__count {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 3.4vw, 2.75rem);
+  line-height: 1;
+}
+
+.attention-card--warning .attention-card__count { color: var(--kin); }
+.attention-card--danger .attention-card__count { color: var(--red); }
+
+.attention-card__copy { display: grid; gap: 3px; }
+.attention-card__copy strong { font-size: var(--type-ui); line-height: 1.3; }
+.attention-card__copy small { color: var(--text-muted); font-size: var(--type-meta); line-height: 1.4; }
+
+.attention-card__go {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: var(--type-meta);
+  font-weight: 700;
+}
+
+.attention-card__go svg { width: 14px; height: 14px; }
+
+.metric-grid--secondary { margin-bottom: var(--space-8); }
+.metric-grid--secondary .metric-card strong { font-family: var(--font-heading); font-size: clamp(1.5rem, 2.4vw, 2rem); font-weight: 400; }
+
+.metric-card strong,
+.stat-tile__value,
+.kpi-value {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* ---- Chart: Kodik in vermilion, Shikimori in paper ---- */
+.trend-cell--accent { background: var(--chart-kodik); }
+.trend-cell--info { background: var(--chart-shiki); }
+.legend-mark { background: var(--chart-kodik); }
+.legend-mark--info { background: var(--chart-shiki); }
+.trend-column__label { font-family: var(--font-mono); }
+.trend-cell { border-radius: 1px; }
+
+.health-ribbon strong { font-family: var(--font-mono); font-size: 14px; }
+
+/* ---- Tables ---- */
+.data-table th {
+  color: var(--text-muted);
+  font-size: var(--type-meta);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.data-table tbody tr { transition: background var(--dur-1) var(--ease-out); }
+.data-table tbody tr:hover { background: var(--surface-hover); }
+.data-table td.num, .data-table th.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* ---- Motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .nav-live::after, .live-dot::after, .status-dot--live::after,
+  .status-badge--live::before { animation: none; }
+}
+
+@media (max-width: 900px) {
+  .now-strip { grid-template-columns: minmax(0, 1fr); }
+  .now-cell + .now-cell { border-top: 1px solid var(--line); border-left: 0; }
+  .now-cell--job { border-radius: var(--radius-md) var(--radius-md) 0 0; }
+  .attention-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .attention-card:nth-child(3) { border-left: 0; }
+  .attention-card:nth-child(n + 3) { border-top: 1px solid var(--line); }
+}
+
+/* Unknown progress: a fox-fire sliver sliding on a transform, never a fake percentage. */
+.honest-progress i {
+  position: relative;
+  background: var(--surface-active);
+  animation: none;
+}
+
+.honest-progress i::after {
+  position: absolute;
+  inset: 0;
+  width: 45%;
+  border-radius: inherit;
+  background: var(--kitsunebi);
+  content: "";
+  animation: indeterminate 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .honest-progress i::after { animation: none; transform: translateX(40%); }
+}
+
+/* ---- Parser center: source cards read top-down; the running job is marked with fox fire ---- */
+.source-mode__head {
+  grid-template-columns: 32px minmax(0, 1fr);
+  row-gap: 10px;
+}
+
+.source-mode__head > .status-badge { grid-column: 2; justify-self: start; }
+.source-mode__head strong { font-size: var(--type-ui); }
+.source-mode__head > span:first-child { font-family: var(--font-mono); letter-spacing: 0.04em; }
+.source-mode { border-radius: var(--radius-md); }
+
+.data-table tbody tr:has(.job-glyph--running) { box-shadow: inset 3px 0 0 var(--kitsunebi); }
+
+/* ---- Summary tiles in secondary position ---- */
+.moderation-summary strong,
+.moderation-summary b,
+[class*="-summary"] > article > strong {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* ---- Disabled primary actions stay readable ---- */
+.button--primary:disabled,
+.button--primary[disabled] {
+  border-color: var(--line);
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  opacity: 1;
 }
