@@ -814,7 +814,7 @@
     const isNew = !ep;
     ep = ep || { season: 1, episode: "", is_filler: false, is_recap: false };
     const rels = isNew ? [] : D.releases.filter(r => r.anime === ep.anime && r.episode === ep.episode);
-    const body = `<form data-form="episode" novalidate><div class="form-grid">
+    const body = `<form data-form="episode" data-id="${ep.id || ""}" novalidate><div class="form-grid">
         ${isNew ? field("Тайтл (anime_id)", "anime_id", "", { wide: true, mono: true, req: true, placeholder: "UUID тайтла", hint: "Проще открыть тайтл и добавить серию оттуда." }) : ""}
         ${field("Сезон", "season", ep.season, { type: "number", min: 0 })}
         ${field("Номер серии", "episode", ep.episode, { type: "number", min: 0, req: true })}
@@ -832,7 +832,7 @@
   function releaseDrawer(rel) {
     const isNew = !rel;
     rel = rel || { source: "kodik", translation_language: "ru", is_active: true, is_verified: false };
-    const body = `<form data-form="release" novalidate><div class="form-grid">
+    const body = `<form data-form="release" data-id="${rel.id || ""}" novalidate><div class="form-grid">
       ${isNew ? field("Серия (episode_id)", "episode_id", "", { wide: true, mono: true, req: true, placeholder: "UUID серии" }) : ""}
       ${field("Источник", "source", rel.source, { req: true })}
       ${field("Качество", "quality", rel.quality, { placeholder: "1080p" })}
@@ -902,7 +902,7 @@
     const role = roleByName(u.role);
     const access = C.effectiveAccess(u, role);
     const body = `<div class="tabs" role="tablist"><button type="button" role="tab" data-tab="profile" aria-selected="true">Профиль</button><button type="button" role="tab" data-tab="access" aria-selected="false">Доступ</button><button type="button" role="tab" data-tab="security" aria-selected="false">Пароль</button></div>
-      <form data-form="user" novalidate>
+      <form data-form="user" data-id="${u.id}" novalidate>
         <div data-panel="profile" class="form-grid">
           ${field("Имя", "username", u.username, { req: true })}
           ${field("Email", "email", u.email, { type: "email", req: true })}
@@ -930,7 +930,7 @@
     const isNew = !item;
     item = item || { title: "", is_active: true, category: "default" };
     const isAvatar = kind === "avatar";
-    const body = `<form data-form="${kind}" novalidate><div class="form-grid">
+    const body = `<form data-form="${kind}" data-id="${item.id || ""}" novalidate><div class="form-grid">
       <div class="wide" style="display:flex;gap:16px;align-items:center"><div class="tile-art" style="width:96px">${artTile(isAvatar ? item.title || "new" : `d${item.title || "new"}`)}</div><div style="display:grid;gap:8px"><button type="button" class="button s" ${request(isAvatar ? "avatars.upload" : "decorations.upload", { id: item.id || "", name: item.title || "новый" })} ${isNew ? 'disabled title="Сначала сохраните, потом загрузите картинку"' : ""}>${icon("upload")}Загрузить картинку</button><span class="hint muted" style="font-size:12px">${isNew ? "Картинку можно загрузить после создания" : "Или укажите ссылку ниже"}</span></div></div>
       ${field("Название", "title", item.title, { req: true, wide: true })}
       ${field("Ссылка на картинку", "image_url", isNew ? "" : `/media/${isAvatar ? "avatars" : "decorations"}/${item.id}.webp`, { req: true, wide: true, mono: true })}
@@ -1197,6 +1197,7 @@
       const initial = JSON.parse(form.dataset.initial || "{}");
       body = Object.fromEntries(Object.entries(payload).filter(([key, value]) => JSON.stringify(value) !== JSON.stringify(initial[key])));
       if (!Object.keys(body).length) { toast("Нет изменений", "Форма совпадает с тем, что уже сохранено.", "info", "check"); return; }
+      body = { ...body, __id: form.dataset.id };
     }
     confirmDialog({ title: "Сохранить изменения", requestKey, body, icon: "save", ok: "Сохранить", onOk: () => { state.dirty = false; closeDrawer(true); mockDone(requestKey); } });
   }

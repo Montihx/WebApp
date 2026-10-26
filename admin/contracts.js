@@ -105,18 +105,24 @@
     return { level: items.length ? "partial" : "none", items };
   }
 
-  /* --- Время: API отдаёт наивный UTC, показываем Asia/Almaty (UTC+5, без перехода на летнее). */
+  /* --- Время: API отдаёт наивный UTC, показываем Asia/Almaty. Сейчас это UTC+5,
+     но до 1 марта 2024 было UTC+6: для прошлых дат смещение берётся из базы часовых поясов. */
   const OFFSET_H = 5;
+  const ZONE = "Asia/Almaty";
+  const zoneFormat = new Intl.DateTimeFormat("en-GB", { timeZone: ZONE, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
   function parseUtc(value) {
     if (!value) return null;
+    if (value instanceof Date) return value;
     const stamp = Date.parse(/[zZ]|[+-]\d\d:?\d\d$/.test(value) ? value : `${value}Z`);
     return Number.isFinite(stamp) ? new Date(stamp) : null;
   }
+  function zoneParts(stamp) {
+    const p = Object.fromEntries(zoneFormat.formatToParts(new Date(stamp)).map(part => [part.type, part.value]));
+    return { y: +p.year, mo: +p.month - 1, d: +p.day, h: +p.hour, mi: +p.minute, s: +p.second };
+  }
   function localParts(value) {
     const date = parseUtc(value);
-    if (!date) return null;
-    const shifted = new Date(date.getTime() + OFFSET_H * 3600000);
-    return { y: shifted.getUTCFullYear(), mo: shifted.getUTCMonth(), d: shifted.getUTCDate(), h: shifted.getUTCHours(), mi: shifted.getUTCMinutes() };
+    return date ? zoneParts(date.getTime()) : null;
   }
   const MONTHS = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
   const pad = n => String(n).padStart(2, "0");
@@ -250,16 +256,19 @@
     });
     return payload;
   }
-  /* Время Алматы из поля формы → наивный UTC для API. */
+  /* Время Алматы из поля формы → наивный UTC для API. Несуществующее время — null. */
   function localToUtc(value) {
     if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return null;
-    const stamp = Date.parse(`${value}:00Z`) - OFFSET_H * 3600000;
-    return new Date(stamp).toISOString().slice(0, 19);
+    const wall = Date.parse(`${value}:00Z`);
+    if (!Number.isFinite(wall) || new Date(wall).toISOString().slice(0, 16) !== value) return null;
+    const asWall = stamp => { const p = zoneParts(stamp); return Date.UTC(p.y, p.mo, p.d, p.h, p.mi, p.s); };
+    const offsets = new Set([-86400000, 0, 86400000].map(delta => asWall(wall + delta) - (wall + delta)));
+    const hits = [...offsets].map(offset => wall - offset).filter(stamp => asWall(stamp) === wall).sort((a, b) => a - b);
+    return hits.length ? new Date(hits[0]).toISOString().slice(0, 19) : null;
   }
   function utcToLocalInput(value) {
-    const date = parseUtc(value);
-    if (!date) return "";
-    return new Date(date.getTime() + OFFSET_H * 3600000).toISOString().slice(0, 16);
+    const p = localParts(value);
+    return p ? `${p.y}-${pad(p.mo + 1)}-${pad(p.d)}T${pad(p.h)}:${pad(p.mi)}` : "";
   }
 
   function errors(kind, payload) {

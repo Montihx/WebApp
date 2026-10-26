@@ -96,6 +96,9 @@ test('time helpers read naive UTC and show Asia/Almaty', () => {
   assert.equal(C.localToUtc('2026-10-26T09:00'), '2026-10-26T04:00:00');
   assert.equal(C.utcToLocalInput('2026-10-26T04:00:00'), '2026-10-26T09:00');
   assert.equal(C.localToUtc('bad'), null);
+  assert.equal(C.localToUtc('2026-02-30T10:00'), null);
+  assert.equal(C.fmtTime('2023-12-28T14:56:00'), '20:56', 'до марта 2024 Алматы жила по UTC+6');
+  assert.equal(C.localToUtc('2023-12-28T20:56'), '2023-12-28T14:56:00');
 });
 
 test('effective access mirrors authmw: only content.edit and comments.moderate are ever checked', () => {
