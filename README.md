@@ -39,7 +39,7 @@ npm run build
 
 ## Оформление
 
-Цвета, шрифты, радиусы и интервалы определены в `tokens.css`. Описание изменений и проверки: [docs/DESIGN_REFINEMENT.md](docs/DESIGN_REFINEMENT.md).
+Цвета, шрифты, радиусы и интервалы определены в `tokens.css`. Палитры «Сакура» и «Обсидиан» и правила оформления — в [docs/ART_DIRECTION.md](docs/ART_DIRECTION.md) и `.claude/skills/kitsu-design/SKILL.md`. Снимки экранов — `docs/screenshots/v3` (публичная часть) и `docs/screenshots/v4` (админка). Перенос админки — [admin/docs/HANDOFF.md](admin/docs/HANDOFF.md).
 
 `tools/visual-review.html` — вспомогательная страница для проверки ширин 375, 390, 768 и 1440 px через iframe. Она доступна при разработке и не входит в сборку.
 

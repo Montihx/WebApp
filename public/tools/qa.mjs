@@ -649,7 +649,7 @@ add("pages.linkSafety", "Pages: относительные пути и реги�
 const failed = results.filter((result) => result.status === "fail");
 const report = {
   schema_version: 2,
-  project: "Kitsu public template · Anime Graphite",
+  project: "Kitsu public template v3 · Сакура и Обсидиан",
   generated_at: new Date().toISOString(),
   summary: {
     status: failed.length ? "fail" : "pass",
