@@ -340,24 +340,46 @@
       { category: "player", title: "Плеер", fields: ["primary_source", "fallback_source", "default_quality", "auto_next", "skip_opening"], note: "Автопереход и пропуск опенинга — настройки зрителя (user_anime_preferences), а не сайта." },
     ],
     real: [
-      { title: "Расписание задач", where: "Парсер, «Расписание»", how: "Таблица scheduled_parser_jobs. Пульс воркера читает её раз в 15 минут.", icon: "calendar-clock", route: "parser/schedule" },
-      { title: "Исключения из импорта", where: "Парсер, «Исключения»", how: "Таблица parser_anime_blacklist, импорт и синхронизация её проверяют.", icon: "ban", route: "parser/blacklist" },
-      { title: "Роли и права", where: "Люди, «Доступ»", how: "Роль пользователя и флаг суперпользователя. Проверяются только два права.", icon: "key-round", route: "people/access" },
+      { title: "Расписание задач", where: "Парсер, «Расписание»", how: "Когда задачи запускаются сами. Работает: воркер проверяет расписание раз в 15 минут.", icon: "calendar-clock", route: "parser/schedule" },
+      { title: "Исключения из импорта", where: "Парсер, «Исключения»", how: "Тайтлы, которые импорт и синхронизация никогда не добавят. Работает.", icon: "ban", route: "parser/blacklist" },
+      { title: "Роли и права", where: "Люди, «Доступ»", how: "Кто что может в админке. На деле сервер различает только два права.", icon: "key-round", route: "people/access" },
       { title: "Оформление профилей", where: "Люди, «Оформление»", how: "Коллекция аватаров и рамок, их выбирают пользователи.", icon: "sparkles", route: "people/cosmetics" },
     ],
     env: [
-      { name: "Ключ Kodik", value: "KODIK_API_KEY", note: "Только в окружении. Монитор проверяет, что он не утёк в логи." },
-      { name: "Почта для писем", value: "SMTP_HOST · EMAILS_FROM_EMAIL", note: "Подтверждение email и сброс пароля" },
-      { name: "Суточный бэкап", value: "00:00 UTC (05:00 Алматы)", note: "Константа в cmd/worker. Не перезапускать воркер в 00:00–00:05 UTC." },
-      { name: "Пульс расписания", value: "каждые 15 мин", note: "Задачи чаще 15 минут невозможны, даже если cron просит" },
-      { name: "Слот очереди парсеров", value: "1 задача одновременно", note: "Долгая задача задерживает остальные, а также пульс и бэкап" },
-      { name: "Лимиты входа", value: "5 в минуту, регистрация 3 в час", note: "Middleware ratelimit в api-go" },
+      { name: "Ключ Kodik", value: "Задан, скрыт", note: "Хранится только на сервере. Монитор следит, чтобы он не попал в журналы." },
+      { name: "Почта для писем", value: "Настроена на сервере", note: "Письма с подтверждением почты и сбросом пароля" },
+      { name: "Суточная резервная копия", value: "Каждый день в 05:00", note: "Не перезапускать воркер с 05:00 до 05:05: копия оборвётся." },
+      { name: "Проверка расписания", value: "Раз в 15 минут", note: "Поэтому задачи не запускаются чаще, чем раз в 15 минут" },
+      { name: "Очередь парсера", value: "1 задача одновременно", note: "Долгая задача задерживает остальные и резервную копию" },
+      { name: "Защита от перебора", value: "Вход — 5 попыток в минуту, регистрация — 3 в час", note: "С одного адреса" },
     ],
+  };
+
+
+  /* Текущие значения parser_settings.config по категориям (GET /dashboard/parsers/settings).
+     Значения по умолчанию взяты из вкладок текущего дашборда (frontend/components/dashboard/parsers/tabs). */
+  const parserConfig = {
+    general: { shikimori_api_domain: "https://shikimori.io/", proxy_enabled: false, proxy_address: "", proxy_port: "", user_agent: "KitsuEngine/2.0" },
+    grabbing: {
+      source_mode: "shikimori", kodik_types: "anime,anime-serial", min_score: 6, if_camrip: false, if_lgbt: true,
+      year_start: 1995, year_end: 2026, kinds_allowed: ["tv", "movie", "ova", "ona"],
+      allowed_countries: "", blocked_countries: "", unblocked_countries: "", allowed_years: "", blocked_years: "",
+      allowed_genres: "", blocked_genres: "хентай, яой, юри", mpaa_rating: "", audio_type: "any", voice_kind: "", sort_order: "year_desc",
+      cron_auto_add: "*/30 * * * *", cron_release_updates: "0 * * * *",
+    },
+    updates: { auto_update: true, update_frequency: "hourly", detect_episode_change: true, detect_metadata_change: false, force_shikimori_score: true, notify_on_fail: true },
+    images: { localize_images: true, optimize_webp: true, quality_percent: 100, max_width: 1200, enable_watermark: false, watermark_text: "KITSU" },
+    fields: { tpl_title: "{title} / {title_en}", tpl_description: "{description}", tpl_meta_keywords: "{genres}, {studios}, anime {year}", custom_tag_prefix: "kitsu_" },
+    categories: { auto_assign_genres: true, create_missing_studios: true, sync_franchise_taxonomy: true },
+    blacklist: { banned_genres: "хентай", banned_keywords: "camrip, ts" },
+    notifications: { email_notifications: false, admin_email: "", webhook_enabled: false, webhook_url: "" },
+    advanced: { async_semaphores: 5, request_delay_ms: 200 },
+    player: { primary_source: "kodik", fallback_source: "aniboom", default_quality: "1080p", auto_next: true, skip_opening: false },
   };
 
   window.KitsuAdminData = {
     NOW, operations, anime, moderation, conflicts, comments, jobs, jobLogs, schedules, stack, monitor, checks, health,
     overview, charts, popular, genres, kodikStats, episodes, releases, collections, roles, users, avatars, decorations,
-    backups, audit, blacklist, kodikSearch, settings,
+    backups, audit, blacklist, kodikSearch, settings, parserConfig,
   };
 })();

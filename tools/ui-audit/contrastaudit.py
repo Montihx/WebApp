@@ -16,6 +16,8 @@ for(const el of document.querySelectorAll('body *')){
  // walk up for background; stop (unknown) on images/gradients
  let bgs=[],unknown=false;
  for(let p=el;p&&p!==document.body&&p!==document.documentElement;p=p.parentElement){const pc=getComputedStyle(p); if(pc.position==='fixed'&&false)break; if(pc.backgroundImage!=='none'&&!pc.backgroundImage.startsWith('url("data:image/svg+xml')){unknown=true;break} const b=parse(pc.backgroundColor); if(b&&b.a>0){bgs.push(b); if(b.a>=0.99)break}}
+ // Active tab text sits on the sliding .tab-indicator (a gradient sibling), not on its ancestors.
+ if(el.closest('.tab.is-active')&&el.closest('.tab.is-active').parentElement.querySelector(':scope > .tab-indicator'))unknown=true;
  if(unknown)continue;
  const cv=getComputedStyle(document.documentElement).getPropertyValue('--canvas').trim(); const hx=cv.replace('#',''); let bg={r:parseInt(hx.slice(0,2),16),g:parseInt(hx.slice(2,4),16),b:parseInt(hx.slice(4,6),16),a:1};
  for(let i=bgs.length-1;i>=0;i--) bg=blend(bgs[i],bg);

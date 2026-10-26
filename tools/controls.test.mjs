@@ -57,13 +57,13 @@ test('both title counters are wired to the shared saved-state style without a pe
 });
 
 test('changed styles and scripts use a fresh cache version per area', () => {
-  // Админка v4 версионируется отдельно от публичной части.
-  const versions = { public: 'v3-12', admin: 'v4-1' };
+  // Админка v5 версионируется отдельно от публичной части.
+  const versions = { public: 'v3-13', admin: 'v5-1' };
   for (const page of ['public/index.html', 'public/anime.html', 'admin/index.html']) {
     const version = versions[page.split('/')[0]];
     assert.ok(read(page).includes(`./styles.css?v=${version}`), page);
     assert.ok(read(page).includes(`./app.js?v=${version}`), page);
   }
-  assert.ok(publicCss.includes('../tokens.css?v=v3-12'));
-  assert.ok(adminCss.includes('../tokens.css?v=v4-1'));
+  assert.ok(publicCss.includes('../tokens.css?v=v3-13'));
+  assert.ok(adminCss.includes('../tokens.css?v=v5-1'));
 });

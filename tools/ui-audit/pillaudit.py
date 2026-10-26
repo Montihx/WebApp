@@ -10,6 +10,8 @@ const check=(el,pseudo)=>{const c=getComputedStyle(el,pseudo); if(pseudo&&(c.con
  const rad=parseFloat(c.borderTopLeftRadius)||0; const rr=c.borderTopLeftRadius;
  const round = rr.includes('%')? parseFloat(rr)>=40 : rad>=Math.min(w,h)/2-1.5 && rad>=8;
  if(!round)return;
+ // a petal or leaf (two sharp corners) is not a circle or a pill
+ if(parseFloat(c.borderTopRightRadius)===0||parseFloat(c.borderBottomLeftRadius)===0)return;
  const key=(el.tagName.toLowerCase()+'.'+(el.getAttribute('class')||'').trim().split(/\s+/).slice(0,2).join('.')+(pseudo||'')).slice(0,70);
  out.set(key, Math.round(w)+'x'+Math.round(h)+' r='+rr);};
 for(const el of document.querySelectorAll('body *')){ if(el.closest('svg'))continue; check(el,null); check(el,'::before'); check(el,'::after'); }

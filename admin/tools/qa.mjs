@@ -216,7 +216,7 @@ add("assets.fontInventory", "Ассеты: набор шрифтов", fontFiles
 
 // --- JS: hash routing wiring --------------------------------------------------
 const js = read("app.js");
-const routingTokens = ["location.hash", "hashchange", "routeFromHash"];
+const routingTokens = ["location.hash", "hashchange", "parseHash"];
 const missingRouting = routingTokens.filter((token) => !js.includes(token));
 add("js.hashRouting", "JS: адресация экранов по хешу", missingRouting.length === 0, missingRouting.length ? `Не найдены: ${missingRouting.join(", ")}` : "маршрут читается из хеша при загрузке и на hashchange; переходы — обычные ссылки #/раздел/страница");
 add("js.storage", "JS: локальные предпочтения", js.includes("localStorage") && js.includes("kitsu-admin-theme"), "тема сохраняется локально");
@@ -272,7 +272,7 @@ add("pages.linkSafety", "Pages: относительные пути и реги�
 const failed = results.filter((result) => result.status === "fail");
 const report = {
   schema_version: 2,
-  project: "Kitsu admin template v4 · Пульт лисьего огня",
+  project: "Kitsu admin template v5 · Пульт лисьего огня",
   generated_at: new Date().toISOString(),
   summary: {
     status: failed.length ? "fail" : "pass",

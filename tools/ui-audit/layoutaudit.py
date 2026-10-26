@@ -22,15 +22,15 @@ for(const el of scope.querySelectorAll('*')){
   if(hasText && el.scrollWidth>el.clientWidth+2 && c.overflowX==='visible' && c.textOverflow!=='ellipsis' && !/(auto|scroll)/.test(c.overflowX) && c.display!=='inline') issues.push('TEXT-OVERFLOW '+name(el)+' '+el.scrollWidth+'>'+el.clientWidth);
   // clipped text: overflow hidden w/o ellipsis and content larger
   if(hasText && c.overflow==='hidden' && c.textOverflow!=='ellipsis' && !c.webkitLineClamp?.match(/\d/) && (el.scrollWidth>el.clientWidth+2||el.scrollHeight>el.clientHeight+3) && !el.closest('.sr-only')) issues.push('CLIPPED '+name(el)+' '+el.scrollWidth+'x'+el.scrollHeight+' in '+el.clientWidth+'x'+el.clientHeight);
-  // buttons wrapping: a single text node breaking onto 2+ lines
+  // buttons wrapping: a single text node breaking onto 2+ lines (a <small> description inside a choice card may wrap)
   if((el.tagName==='BUTTON'||el.matches('a.button,.button,[role=tab],a.section-link,.genre-links a,.hero-tags a'))){
     for(const n of el.querySelectorAll('*')) {}
     const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT); let n;
-    while((n=walker.nextNode())){ if(n.textContent.trim().length<2)continue; const range=document.createRange(); range.selectNodeContents(n); const tops=new Set([...range.getClientRects()].filter(x=>x.width>1).map(x=>Math.round(x.top))); if(tops.size>1){issues.push('BTN-WRAP '+name(el)+' «'+n.textContent.trim().slice(0,24)+'» w='+Math.round(r.width)); break;} }
+    while((n=walker.nextNode())){ if(n.textContent.trim().length<2||n.parentElement.closest('small'))continue; const range=document.createRange(); range.selectNodeContents(n); const tops=new Set([...range.getClientRects()].filter(x=>x.width>1).map(x=>Math.round(x.top))); if(tops.size>1){issues.push('BTN-WRAP '+name(el)+' «'+n.textContent.trim().slice(0,24)+'» w='+Math.round(r.width)); break;} }
   }
 }
 // overlapping text leaves
-const isFixed=el=>{for(let p=el;p&&p!==document.body&&p!==scope;p=p.parentElement){if(getComputedStyle(p).position==='fixed')return true}return false};
+const isFixed=el=>{for(let p=el;p&&p!==document.body&&p!==scope;p=p.parentElement){if(getComputedStyle(p).position==='fixed'||p.matches('.topbar'))return true}return false};
 // Text rects are clipped by every ancestor that clips overflow (ellipsis, scrollers), so an intentionally truncated label is not reported.
 const clip=(el,r)=>{let L=r.left,T=r.top,R=r.right,B=r.bottom;for(let p=el;p&&p!==document.body;p=p.parentElement){const c=getComputedStyle(p);if(c.overflowX!=='visible'||c.overflowY!=='visible'){const q=p.getBoundingClientRect();L=Math.max(L,q.left);T=Math.max(T,q.top);R=Math.min(R,q.right);B=Math.min(B,q.bottom);}}return {left:L,top:T,right:R,bottom:B,width:R-L,height:B-T}};
 const leaves=[...scope.querySelectorAll('h1,h2,h3,h4,p,span,strong,small,b,a,button,time,label,li')].filter(el=>visible(el)&&!hiddenByAncestor(el)&&!isFixed(el)&&[...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())&&!el.closest('.sr-only,[aria-hidden="true"]'));

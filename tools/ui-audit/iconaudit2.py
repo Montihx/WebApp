@@ -2,7 +2,7 @@ import asyncio
 from playwright.async_api import async_playwright
 JS=r"""()=>{const out=new Set();const vis=c=>c&&c!=='rgba(0, 0, 0, 0)'&&c!=='transparent';
 for(const el of document.querySelectorAll('button,a')){const r=el.getBoundingClientRect(); if(r.width<8)continue; const c=getComputedStyle(el); if(c.display==='none'||c.visibility==='hidden')continue;
- const txt=(el.innerText||'').trim(); if(txt.length>0)continue; if(!el.querySelector('svg'))continue;
+ const txt=(el.innerText||'').trim(); if(txt.length>0)continue; const svg=el.querySelector('svg'); if(!svg)continue; const sr=svg.getBoundingClientRect(); if(sr.width>=48&&sr.height>=48)continue; /* artwork (poster art), not an icon */
  const painted=vis(c.backgroundColor)||c.backgroundImage!=='none'||(parseFloat(c.borderTopWidth)>0&&vis(c.borderTopColor));
  if(painted) out.add((el.tagName+'.'+(el.getAttribute('class')||'')).slice(0,60))}
 return [...out]}"""
