@@ -82,6 +82,8 @@ const required = [
   "index.html",
   "styles.css",
   "app.js",
+  "data.js",
+  "contracts.js",
   "vendor/lucide.min.js",
   "vendor/LUCIDE-LICENSE.txt",
   "fonts/DELA-GOTHIC-ONE-LICENSE.txt",
@@ -111,9 +113,10 @@ add("css.structure", "CSS: синтаксическая структура", str
 add("css.themes", "CSS: две темы", /:root\s*{/.test(css) && /html\[data-theme="light"\]/.test(css), "тёмные и светлые токены присутствуют");
 add("css.a11y", "CSS: доступность", css.includes(":focus-visible") && css.includes("prefers-reduced-motion"), "focus-visible и reduced-motion присутствуют");
 
-// Breakpoint sprawl: at most 4 distinct max-width values, prefers-* excluded.
+// Breakpoint sprawl: at most 5 distinct max-width values, prefers-* excluded
+// (v4: 1360 сворачивает поиск, 1180 прячет подменю, 900/760 — планшет и телефон, 420 — узкие телефоны).
 const breakpointValues = [...new Set([...css.matchAll(/@media \(max-width: (\d+)px\)/g)].map((m) => Number(m[1])))].sort((a, b) => b - a);
-add("css.breakpoints", "CSS: число контрольных точек", breakpointValues.length > 0 && breakpointValues.length <= 4, `${breakpointValues.length} точек: ${breakpointValues.join("/")}px`);
+add("css.breakpoints", "CSS: число контрольных точек", breakpointValues.length > 0 && breakpointValues.length <= 5, `${breakpointValues.length} точек: ${breakpointValues.join("/")}px`);
 
 const fontUrls = [...css.matchAll(/url\(["']?(\.\/fonts\/[^)"']+)/g)].map((match) => match[1]);
 const missingFonts = fontUrls.filter((reference) => !existsSync(resolve(root, reference)));
@@ -130,43 +133,43 @@ add("css.tabularNums", "CSS: tabular-nums на числовых колонках
 // not a different set of colors — mixing the two would either falsely fail
 // long-standing neutral text tokens (e.g. --text-muted, ~4.9:1 by design,
 // always was, not part of this pass) or under-check the colors that matter.
-const darkSurface = "#17120f";
-const lightSurface = "#fbf7f0";
+const darkSurface = "#15111b";
+const lightSurface = "#ffffff";
 
 const baselinePairs = {
   dark: {
-    text: "#f2ebdd",
-    "text-secondary": "#cfc4b2",
-    "text-muted": "#9c8f7e",
-    "accent-text": "#ff8a6e",
-    green: "#56ad91",
-    amber: "#d0a052",
-    red: "#ff6f93",
-    info: "#7f9fbd",
-    kitsunebi: "#8fd8ff",
-    kin: "#d9a84e",
-    "kin-text": "#d9a84e",
-    "kitsunebi-text": "#8fd8ff",
+    text: "#f6f1f7",
+    "text-secondary": "#cbc1d2",
+    "text-muted": "#a197ab",
+    "accent-text": "#d8bbff",
+    green: "#5be3a8",
+    amber: "#ffcb70",
+    red: "#ff5c7a",
+    info: "#9cb4ff",
+    kitsunebi: "#7de3ff",
+    kin: "#ffcb70",
+    "kin-text": "#ffcb70",
+    "kitsunebi-text": "#7de3ff",
   },
   light: {
-    text: "#1c1613",
-    "text-secondary": "#4f433a",
-    "text-muted": "#5e5145",
-    "accent-text": "#a32d16",
-    green: "#166534",
-    amber: "#854d0e",
-    red: "#a8123e",
-    info: "#1d4ed8",
+    text: "#1d1524",
+    "text-secondary": "#4d4157",
+    "text-muted": "#625670",
+    "accent-text": "#5a31ab",
+    green: "#12704a",
+    amber: "#8a5600",
+    red: "#b4123e",
+    info: "#2546c4",
     kitsunebi: "#0b6a99",
-    kin: "#8a6112",
-    "kin-text": "#6a490b",
+    kin: "#8a5600",
+    "kin-text": "#6e4500",
     "kitsunebi-text": "#08587f",
   },
 };
 const reinforcedTokens = ["accent-text", "green", "amber", "red", "info"];
 const primaryPairs = {
-  dark: { fg: "#150d09", bg: "#e0472b" },
-  light: { fg: "#fbf7f0", bg: "#b8341c" },
+  dark: { fg: "#1c0f2b", bg: "#c4a1ff" },
+  light: { fg: "#ffffff", bg: "#6b3fc4" },
 };
 
 const contrastChecks = [];
@@ -213,9 +216,9 @@ add("assets.fontInventory", "Ассеты: набор шрифтов", fontFiles
 
 // --- JS: hash routing wiring --------------------------------------------------
 const js = read("app.js");
-const routingTokens = ["location.hash", "hashchange", "popstate", "pushState", "history.replaceState"];
+const routingTokens = ["location.hash", "hashchange", "routeFromHash"];
 const missingRouting = routingTokens.filter((token) => !js.includes(token));
-add("js.hashRouting", "JS: адресация экранов по хешу", missingRouting.length === 0, missingRouting.length ? `Не найдены: ${missingRouting.join(", ")}` : "чтение хеша при загрузке, hashchange/popstate и pushState на переходах присутствуют");
+add("js.hashRouting", "JS: адресация экранов по хешу", missingRouting.length === 0, missingRouting.length ? `Не найдены: ${missingRouting.join(", ")}` : "маршрут читается из хеша при загрузке и на hashchange; переходы — обычные ссылки #/раздел/страница");
 add("js.storage", "JS: локальные предпочтения", js.includes("localStorage") && js.includes("kitsu-admin-theme"), "тема сохраняется локально");
 
 // --- Pages link safety (step 6.4) --------------------------------------------
@@ -262,14 +265,14 @@ function checkPagesLinks(filesToScan) {
   return problems;
 }
 
-const pagesLinkProblems = checkPagesLinks(["index.html", "styles.css", "app.js"]);
+const pagesLinkProblems = checkPagesLinks(["index.html", "styles.css", "app.js", "data.js", "contracts.js"]);
 add("pages.linkSafety", "Pages: относительные пути и регистр", pagesLinkProblems.length === 0, pagesLinkProblems.length ? pagesLinkProblems.join("; ") : "нет ведущих слэшей, все относительные пути существуют с совпадающим регистром");
 
 // --- report -------------------------------------------------------------------
 const failed = results.filter((result) => result.status === "fail");
 const report = {
   schema_version: 2,
-  project: "Kitsu enterprise admin template · Anime Graphite",
+  project: "Kitsu admin template v4 · Пульт лисьего огня",
   generated_at: new Date().toISOString(),
   summary: {
     status: failed.length ? "fail" : "pass",

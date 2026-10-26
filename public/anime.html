@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0f0c0b" />
+    <meta name="theme-color" content="#0e0b12" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <title>Монстр — Kitsu · Кицунэ</title>
     <meta
@@ -13,6 +13,7 @@
     <script>
       (() => {
         try {
+          if (localStorage.getItem("kitsu-palette") === "obsidian") document.documentElement.dataset.palette = "obsidian";
           const saved = localStorage.getItem("kitsu-theme");
           if (saved === "light" || saved === "dark") {
             document.documentElement.dataset.theme = saved;
@@ -24,7 +25,8 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=kitsune-2" />
+    <link rel="stylesheet" href="./styles.css?v=v3-12" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-12" />
   </head>
   <body data-page="anime">
     <a class="skip-link" href="#main-content">К основному содержимому</a>
@@ -45,6 +47,7 @@
           <button class="search-trigger" type="button" data-open-search aria-label="Открыть поиск" aria-expanded="false" aria-controls="search-dialog">
             <i data-lucide="search"></i><span>Найти аниме</span><kbd>/</kbd>
           </button>
+          <button class="icon-button palette-toggle" type="button" data-palette-toggle aria-label="Сменить палитру"><span class="palette-swatch" aria-hidden="true"></span></button>
           <button class="icon-button" type="button" data-theme-toggle aria-label="Включить светлую тему">
             <i data-lucide="sun" class="theme-icon theme-icon--sun"></i>
             <i data-lucide="moon" class="theme-icon theme-icon--moon"></i>
@@ -77,7 +80,7 @@
         <a href="#episodes"><i data-lucide="list-video"></i><span>Серии</span></a>
         <a href="#comments"><i data-lucide="message-circle"></i><span>Комментарии</span></a>
       </nav>
-      <div class="drawer-theme-row"><span><i data-lucide="palette"></i>Оформление</span><button class="theme-switch" type="button" data-theme-toggle aria-label="Переключить тему"><span></span></button></div>
+      <div class="drawer-theme-row"><span><i data-lucide="palette"></i>Оформление</span><button class="theme-switch" type="button" data-theme-toggle aria-label="Переключить тему"><span></span></button></div><div class="drawer-theme-row drawer-palette-row"><span><i data-lucide="flower-2"></i>Палитра</span><button type="button" data-palette-toggle aria-label="Сменить палитру"><span class="palette-swatch" aria-hidden="true"></span><span data-palette-label>Сакура</span></button></div>
     </aside>
     <div class="drawer-scrim" id="drawer-scrim" hidden></div>
 
@@ -222,10 +225,10 @@
         <div class="page-container">
           <div class="section-heading"><div><p class="section-kicker">Похожее</p><h2 id="related-title">Высокая оценка</h2></div><a class="section-link" href="./index.html#catalog">В каталог <i data-lucide="arrow-right"></i></a></div>
           <div class="related-rail">
-            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="Постер аниме «Врата Штейна»" loading="lazy" referrerpolicy="no-referrer" /><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a><div class="card-title-row"><a href="./anime.html"><h3>Врата Штейна</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p class="card-facts"><span>24 / 24 эп.</span><b><i data-lucide="star"></i>9.1</b></p></article>
-            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="Постер аниме «Ковбой Бибоп»" loading="lazy" referrerpolicy="no-referrer" /><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a><div class="card-title-row"><a href="./anime.html"><h3>Ковбой Бибоп</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p class="card-facts"><span>26 / 26 эп.</span><b><i data-lucide="star"></i>8.8</b></p></article>
-            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="Постер «Стального алхимика»" loading="lazy" referrerpolicy="no-referrer" /><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a><div class="card-title-row"><a href="./anime.html"><h3>Стальной алхимик: Братство</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p class="card-facts"><span>64 / 64 эп.</span><b><i data-lucide="star"></i>9.1</b></p></article>
-            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/457.jpg" alt="Постер аниме «Мастер муси»" loading="lazy" referrerpolicy="no-referrer" /><span class="poster-action"><i data-lucide="play"></i><b>Открыть</b></span></a><div class="card-title-row"><a href="./anime.html"><h3>Мастер муси</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p class="card-facts"><span>26 / 26 эп.</span><b><i data-lucide="star"></i>8.7</b></p></article>
+            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="Постер аниме «Врата Штейна»" loading="lazy" referrerpolicy="no-referrer" /></a><div class="card-title-row"><a href="./anime.html"><h3>Врата Штейна</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p class="card-facts"><span>24 / 24 эп.</span><b><i data-lucide="star"></i>9.1</b></p></article>
+            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="Постер аниме «Ковбой Бибоп»" loading="lazy" referrerpolicy="no-referrer" /></a><div class="card-title-row"><a href="./anime.html"><h3>Ковбой Бибоп</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p class="card-facts"><span>26 / 26 эп.</span><b><i data-lucide="star"></i>8.8</b></p></article>
+            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="Постер «Стального алхимика»" loading="lazy" referrerpolicy="no-referrer" /></a><div class="card-title-row"><a href="./anime.html"><h3>Стальной алхимик: Братство</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p class="card-facts"><span>64 / 64 эп.</span><b><i data-lucide="star"></i>9.1</b></p></article>
+            <article class="anime-card"><a class="poster-frame" href="./anime.html"><img src="https://shikimori.one/system/animes/original/457.jpg" alt="Постер аниме «Мастер муси»" loading="lazy" referrerpolicy="no-referrer" /></a><div class="card-title-row"><a href="./anime.html"><h3>Мастер муси</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div><p class="card-facts"><span>26 / 26 эп.</span><b><i data-lucide="star"></i>8.7</b></p></article>
           </div>
         </div>
       </section>
@@ -382,7 +385,7 @@
     <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
     <script src="./vendor/lucide.min.js"></script>
     <script src="./content-model.js?v=original-parity-11"></script>
-    <script src="./content.js?v=kitsune-2"></script>
-    <script src="./app.js?v=kitsune-2"></script>
+    <script src="./content.js?v=v3-12"></script>
+    <script src="./app.js?v=v3-12"></script>
   </body>
 </html>

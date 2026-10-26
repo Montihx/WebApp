@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0f0c0b" />
+    <meta name="theme-color" content="#0e0b12" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <title>Kitsu — главная · Кицунэ</title>
     <meta
@@ -13,6 +13,7 @@
     <script>
       (() => {
         try {
+          if (localStorage.getItem("kitsu-palette") === "obsidian") document.documentElement.dataset.palette = "obsidian";
           const saved = localStorage.getItem("kitsu-theme");
           if (saved === "light" || saved === "dark") {
             document.documentElement.dataset.theme = saved;
@@ -24,7 +25,8 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=kitsune-2" />
+    <link rel="stylesheet" href="./styles.css?v=v3-12" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-12" />
   </head>
   <body data-page="home">
     <a class="skip-link" href="#main-content">К основному содержимому</a>
@@ -82,6 +84,7 @@
             <span>Найти аниме</span>
             <kbd>/</kbd>
           </button>
+          <button class="icon-button palette-toggle" type="button" data-palette-toggle aria-label="Сменить палитру"><span class="palette-swatch" aria-hidden="true"></span></button>
           <button class="icon-button" type="button" data-theme-toggle aria-label="Включить светлую тему">
             <i data-lucide="sun" class="theme-icon theme-icon--sun"></i>
             <i data-lucide="moon" class="theme-icon theme-icon--moon"></i>
@@ -140,6 +143,7 @@
         <span><i data-lucide="palette"></i>Оформление</span>
         <button class="theme-switch" type="button" data-theme-toggle aria-label="Переключить тему"><span></span></button>
       </div>
+      <div class="drawer-theme-row drawer-palette-row"><span><i data-lucide="flower-2"></i>Палитра</span><button type="button" data-palette-toggle aria-label="Сменить палитру"><span class="palette-swatch" aria-hidden="true"></span><span data-palette-label>Сакура</span></button></div>
     </aside>
     <div class="drawer-scrim" id="drawer-scrim" hidden></div>
 
@@ -326,7 +330,6 @@
               <article class="anime-card" data-status="released top" data-score="8.9">
                 <a class="poster-frame" href="./anime.html">
                   <img src="https://shikimori.one/system/animes/original/19.jpg" alt="Постер аниме «Монстр»" loading="lazy" referrerpolicy="no-referrer" />
-                  <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
                 <span class="ofuda ofuda--released"><span class="ofuda__jp" aria-hidden="true">完結</span><span class="ofuda__ru">Завершён</span></span></a>
                 <div class="card-title-row"><a href="./anime.html"><h3>Монстр</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить «Монстр» в список"><i data-lucide="bookmark"></i></button></div>
                 <p class="card-facts"><span>74 / 74 эп.</span><b><i data-lucide="star"></i>8.9</b></p>
@@ -334,7 +337,6 @@
               <article class="anime-card" data-status="released top" data-score="9.1">
                 <a class="poster-frame" href="./anime.html">
                   <img src="https://shikimori.one/system/animes/original/5114.jpg" alt="Постер «Стального алхимика»" loading="lazy" referrerpolicy="no-referrer" />
-                  <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
                 <span class="ofuda ofuda--released"><span class="ofuda__jp" aria-hidden="true">完結</span><span class="ofuda__ru">Завершён</span></span></a>
                 <div class="card-title-row"><a href="./anime.html"><h3>Стальной алхимик: Братство</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
                 <p class="card-facts"><span>64 / 64 эп.</span><b><i data-lucide="star"></i>9.1</b></p>
@@ -342,7 +344,6 @@
               <article class="anime-card" data-status="released top" data-score="9.1">
                 <a class="poster-frame" href="./anime.html">
                   <img src="https://shikimori.one/system/animes/original/9253.jpg" alt="Постер аниме «Врата Штейна»" loading="lazy" referrerpolicy="no-referrer" />
-                  <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
                 <span class="ofuda ofuda--released"><span class="ofuda__jp" aria-hidden="true">完結</span><span class="ofuda__ru">Завершён</span></span></a>
                 <div class="card-title-row"><a href="./anime.html"><h3>Врата Штейна</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
                 <p class="card-facts"><span>24 / 24 эп.</span><b><i data-lucide="star"></i>9.1</b></p>
@@ -350,7 +351,6 @@
               <article class="anime-card" data-status="released top" data-score="9.3">
                 <a class="poster-frame" href="./anime.html">
                   <img src="https://shikimori.one/system/animes/original/52991.jpg" alt="Постер аниме «Фрирен»" loading="lazy" referrerpolicy="no-referrer" />
-                  <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
                 <span class="ofuda ofuda--released"><span class="ofuda__jp" aria-hidden="true">完結</span><span class="ofuda__ru">Завершён</span></span></a>
                 <div class="card-title-row"><a href="./anime.html"><h3>Провожающая в последний путь Фрирен</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
                 <p class="card-facts"><span>28 / 28 эп.</span><b><i data-lucide="star"></i>9.3</b></p>
@@ -358,7 +358,6 @@
               <article class="anime-card" data-status="released top" data-score="8.6">
                 <a class="poster-frame" href="./anime.html">
                   <img src="https://shikimori.one/system/animes/original/40748.jpg" alt="Постер аниме «Магическая битва»" loading="lazy" referrerpolicy="no-referrer" />
-                  <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
                 <span class="ofuda ofuda--released"><span class="ofuda__jp" aria-hidden="true">完結</span><span class="ofuda__ru">Завершён</span></span></a>
                 <div class="card-title-row"><a href="./anime.html"><h3>Магическая битва</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
                 <p class="card-facts"><span>47 / 47 эп.</span><b><i data-lucide="star"></i>8.6</b></p>
@@ -366,7 +365,6 @@
               <article class="anime-card" data-status="ongoing" data-score="8.7">
                 <a class="poster-frame" href="./anime.html">
                   <img src="https://shikimori.one/system/animes/original/21.jpg" alt="Постер аниме «Ван-Пис»" loading="lazy" referrerpolicy="no-referrer" />
-                  <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
                 <span class="ofuda ofuda--ongoing"><span class="ofuda__jp" aria-hidden="true">放送中</span><span class="ofuda__ru">Онгоинг</span></span></a>
                 <div class="card-title-row"><a href="./anime.html"><h3>Ван-Пис</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
                 <p class="card-facts"><span>1155 / ? эп.</span><b><i data-lucide="star"></i>8.7</b></p>
@@ -409,7 +407,6 @@
             <article class="anime-card" data-status="ongoing">
               <a class="poster-frame" href="./anime.html">
                 <img src="https://shikimori.one/system/animes/original/21.jpg" alt="Постер аниме «Ван-Пис»" loading="lazy" referrerpolicy="no-referrer" />
-                <span class="poster-action"><i data-lucide="play"></i><b>Смотреть</b></span>
               <span class="ofuda ofuda--ongoing"><span class="ofuda__jp" aria-hidden="true">放送中</span><span class="ofuda__ru">Онгоинг</span></span></a>
               <div class="card-title-row"><a href="./anime.html"><h3>Ван-Пис</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить в список"><i data-lucide="bookmark"></i></button></div>
               <p class="card-facts"><span>1155 / ? эп.</span><b><i data-lucide="star"></i>8.7</b></p>
@@ -502,7 +499,7 @@
 
     <script src="./vendor/lucide.min.js"></script>
     <script src="./content-model.js?v=original-parity-11"></script>
-    <script src="./content.js?v=kitsune-2"></script>
-    <script src="./app.js?v=kitsune-2"></script>
+    <script src="./content.js?v=v3-12"></script>
+    <script src="./app.js?v=v3-12"></script>
   </body>
 </html>

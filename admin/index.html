@@ -1,426 +1,75 @@
 <!doctype html>
-<html lang="ru" data-theme="light">
+<html lang="ru" data-theme="dark">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
-    <meta name="theme-color" content="#f5f4f2" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0e0b12" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <title>Kitsu Enterprise Admin — интерактивный макет</title>
-    <meta
-      name="description"
-      content="Адаптивный интерактивный макет административной панели Kitsu Enterprise"
-    />
+    <title>Kitsu — пульт управления</title>
+    <meta name="description" content="Шаблон админки Kitsu: каталог, очереди, парсер, стенд, люди и честные настройки" />
     <script>
       (() => {
         try {
+          if (localStorage.getItem("kitsu-palette") === "obsidian") document.documentElement.dataset.palette = "obsidian";
           const saved = localStorage.getItem("kitsu-admin-theme");
-          if (saved === "light" || saved === "dark") {
-            document.documentElement.dataset.theme = saved;
-          } else if (
-            window.matchMedia("(prefers-color-scheme: dark)").matches
-          ) {
-            document.documentElement.dataset.theme = "dark";
-          } else if (
-            window.matchMedia("(prefers-color-scheme: light)").matches
-          ) {
-            document.documentElement.dataset.theme = "light";
-          }
+          if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=kitsune-4" />
+    <link rel="stylesheet" href="./styles.css?v=v4-1" />
   </head>
   <body>
-    <div class="app-shell" id="app-shell">
-      <aside class="sidebar" id="sidebar" aria-label="Основная навигация">
-        <div class="brand-row">
-          <button
-            type="button"
-            class="brand"
-            data-view="overview"
-            aria-label="Перейти к обзору"
-          >
-            <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M1.5 6.2c9 2.6 20 2.6 29 0l-1.3 4.6c-8.6 2.2-17.8 2.2-26.4 0z"/><path d="M6 13.4h20v2.6H6z"/><path d="M8.2 11h3v17.5h-3zM20.8 11h3v17.5h-3z"/></svg>
-            <span class="brand-copy">
-              <strong>KITSU</strong>
-              <small>Управление сайтом</small>
-            </span>
+    <a class="skip-link" href="#main">К содержимому</a>
+    <div class="shell" id="shell">
+      <nav class="rail" id="rail" aria-label="Разделы">
+        <a class="rail-brand" href="#/pult" aria-label="Kitsu — пульт">
+          <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M1.5 6.2c9 2.6 20 2.6 29 0l-1.3 4.6c-8.6 2.2-17.8 2.2-26.4 0z"/><path d="M6 13.4h20v2.6H6z"/><path d="M8.2 11h3v17.5h-3zM20.8 11h3v17.5h-3z"/></svg>
+        </a>
+        <div class="rail-list" id="rail-list"></div>
+        <div class="rail-foot">
+          <button type="button" class="rail-item" data-action="palette" aria-label="Сменить палитру">
+            <i data-lucide="palette"></i><span data-palette-label>Сакура</span>
           </button>
-          <button
-            type="button"
-            class="icon-button sidebar-close"
-            id="sidebar-close"
-            aria-label="Закрыть меню"
-          >
-            <i data-lucide="x"></i>
+          <button type="button" class="rail-item" data-action="theme" aria-label="Сменить тему">
+            <i data-lucide="sun-moon"></i><span data-theme-label>Тёмная</span>
           </button>
         </div>
+      </nav>
 
-        <nav class="sidebar-nav" aria-label="Разделы управления">
-          <div class="nav-section">
-            <button
-              type="button"
-              class="nav-item is-active"
-              data-view="overview"
-            >
-              <i data-lucide="layout-dashboard"></i>
-              <span>Обзор</span>
-              <kbd>1</kbd>
-            </button>
-          </div>
+      <aside class="subnav" id="subnav" aria-label="Страницы раздела"></aside>
 
-          <div class="nav-section">
-            <p class="nav-caption">Контент</p>
-            <button type="button" class="nav-item" data-view="catalog">
-              <i data-lucide="clapperboard"></i><span>Аниме</span>
-            </button>
-            <button type="button" class="nav-item" data-view="episodes">
-              <i data-lucide="play-square"></i><span>Эпизоды</span>
-            </button>
-            <button type="button" class="nav-item" data-view="releases">
-              <i data-lucide="languages"></i><span>Релизы</span>
-            </button>
-            <button type="button" class="nav-item" data-view="collections">
-              <i data-lucide="library"></i><span>Коллекции</span>
-            </button>
-            <button type="button" class="nav-item" data-view="assets">
-              <i data-lucide="shapes"></i><span>Декорации и аватары</span>
-            </button>
-          </div>
-
-          <div class="nav-section">
-            <p class="nav-caption">Потоки данных</p>
-            <button type="button" class="nav-item" data-view="parsers">
-              <i data-lucide="waypoints"></i><span>Парсер-центр</span>
-              <span class="nav-live" title="Есть активная задача"></span>
-            </button>
-            <button type="button" class="nav-item" data-view="imports">
-              <i data-lucide="search-code"></i><span>Поиск и импорт</span>
-            </button>
-            <button type="button" class="nav-item" data-view="conflicts">
-              <i data-lucide="git-compare-arrows"></i><span>Конфликты</span>
-              <span class="nav-badge nav-badge--warning">5</span>
-            </button>
-            <button type="button" class="nav-item" data-view="scheduler">
-              <i data-lucide="calendar-clock"></i><span>Планировщик</span>
-            </button>
-            <button type="button" class="nav-item" data-view="parser-settings">
-              <i data-lucide="sliders-horizontal"></i
-              ><span>Настройки парсера</span>
-            </button>
-            <button type="button" class="nav-item" data-view="moderation">
-              <i data-lucide="shield-check"></i><span>Контроль качества</span>
-              <span class="nav-badge">12</span>
-            </button>
-          </div>
-
-          <div class="nav-section">
-            <p class="nav-caption">Управление</p>
-            <button type="button" class="nav-item" data-view="users">
-              <i data-lucide="users"></i><span>Пользователи</span>
-            </button>
-            <button type="button" class="nav-item" data-view="monitoring">
-              <i data-lucide="activity"></i><span>Мониторинг</span>
-            </button>
-          </div>
-
-          <div class="nav-section">
-            <p class="nav-caption">Система</p>
-            <button type="button" class="nav-item" data-view="settings">
-              <i data-lucide="settings-2"></i><span>Настройки сайта</span>
-            </button>
-            <button type="button" class="nav-item" data-view="backups">
-              <i data-lucide="database-backup"></i><span>Резервные копии</span>
-            </button>
-            <button type="button" class="nav-item" data-view="audit">
-              <i data-lucide="scroll-text"></i><span>Журнал аудита</span>
-            </button>
-          </div>
-        </nav>
-
-        <div class="sidebar-footer">
-          <button type="button" class="environment-card" data-view="monitoring">
-            <span class="environment-icon"><i data-lucide="server"></i></span>
-            <span class="environment-copy">
-              <strong>Демонстрационная версия</strong>
-              <small>Данные для примера</small>
-            </span>
-            <i data-lucide="chevron-right" class="environment-arrow"></i>
-          </button>
-          <button
-            type="button"
-            class="collapse-button"
-            id="collapse-button"
-            aria-label="Свернуть боковое меню"
-          >
-            <i data-lucide="panel-left-close"></i><span>Свернуть меню</span>
-          </button>
-        </div>
-      </aside>
-
-      <div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true"></div>
-
-      <main class="workspace">
+      <div class="main-col">
         <header class="topbar">
-          <div class="topbar-left">
-            <button
-              type="button"
-              class="icon-button menu-button"
-              id="menu-button"
-              aria-label="Открыть меню"
-              aria-expanded="false"
-              aria-controls="sidebar"
-            >
-              <i data-lucide="menu"></i>
-            </button>
-            <nav class="breadcrumbs" aria-label="Хлебные крошки">
-              <span>Kitsu</span><i data-lucide="chevron-right"></i
-              ><strong id="breadcrumb-current">Обзор</strong>
-            </nav>
-          </div>
-
-          <div class="topbar-actions">
-            <button
-              type="button"
-              class="command-trigger"
-              id="command-trigger"
-              aria-haspopup="dialog"
-              aria-controls="command-dialog"
-            >
-              <i data-lucide="search"></i>
-              <span>Раздел, задача или anime ID</span>
-              <kbd><span class="desktop-command">⌘</span>K</kbd>
-            </button>
-            <button
-              type="button"
-              class="icon-button topbar-search-mobile"
-              id="mobile-search"
-              aria-label="Поиск"
-            >
-              <i data-lucide="search"></i>
-            </button>
-            <button
-              type="button"
-              class="icon-button"
-              id="theme-toggle"
-              aria-label="Переключить тему"
-            >
-              <i data-lucide="sun" class="theme-icon-light"></i>
-              <i data-lucide="moon" class="theme-icon-dark"></i>
-            </button>
-            <div class="popover-anchor">
-              <button
-                type="button"
-                class="icon-button has-indicator"
-                id="notifications-trigger"
-                aria-label="Уведомления"
-                aria-controls="notification-popover"
-                aria-expanded="false"
-              >
-                <i data-lucide="bell"></i><span class="notification-dot"></span>
-              </button>
-              <div
-                class="notification-popover"
-                id="notification-popover"
-                role="dialog"
-                aria-label="Уведомления"
-                hidden
-              >
-                <div class="popover-header">
-                  <div>
-                    <strong>Уведомления</strong><small>3 новых события</small>
-                  </div>
-                  <span
-                    class="text-button"
-                    aria-label="Уведомления доступны только для чтения"
-                    >Только чтение</span
-                  >
-                </div>
-                <div class="notification-list">
-                  <button
-                    type="button"
-                    class="notification-row"
-                    data-view="parsers"
-                  >
-                    <span class="event-icon event-icon--success"
-                      ><i data-lucide="check"></i
-                    ></span>
-                    <span
-                      ><strong>Kodik sync завершён</strong
-                      ><small
-                        >Обновлено 1 248 релизов · 2 мин назад</small
-                      ></span
-                    >
-                  </button>
-                  <button
-                    type="button"
-                    class="notification-row"
-                    data-view="conflicts"
-                  >
-                    <span class="event-icon event-icon--warning"
-                      ><i data-lucide="git-compare-arrows"></i
-                    ></span>
-                    <span
-                      ><strong>Новые конфликты identity</strong
-                      ><small
-                        >5 записей требуют решения · 18 мин назад</small
-                      ></span
-                    >
-                  </button>
-                  <button
-                    type="button"
-                    class="notification-row"
-                    data-view="monitoring"
-                  >
-                    <span class="event-icon event-icon--info"
-                      ><i data-lucide="database"></i
-                    ></span>
-                    <span
-                      ><strong>Backup database + media готов</strong
-                      ><small>2 артефакта · сегодня в 04:00</small></span
-                    >
-                  </button>
-                </div>
-              </div>
-            </div>
-            <button type="button" class="site-link" data-action="open-site">
-              <i data-lucide="external-link"></i><span>Открыть сайт</span>
-            </button>
-            <button
-              type="button"
-              class="profile-button"
-              id="profile-button"
-              data-action="profile-menu"
-              aria-label="Меню администратора"
-            >
-              <span class="avatar avatar--admin">DM</span>
-              <span class="profile-copy"
-                ><strong>Montihx</strong><small>Суперадминистратор</small></span
-              >
-              <i data-lucide="chevrons-up-down"></i>
-            </button>
+          <button type="button" class="icon-btn topbar-menu" data-action="subnav" aria-label="Открыть меню раздела" aria-controls="subnav" aria-expanded="false">
+            <i data-lucide="panel-left"></i>
+          </button>
+          <nav class="crumbs" id="crumbs" aria-label="Где вы"></nav>
+          <div class="topbar-spacer"></div>
+          <a class="live-chip" id="live-chip" href="#/parser/jobs" hidden></a>
+          <button type="button" class="search-trigger" data-action="cmdk" aria-label="Поиск и команды">
+            <i data-lucide="search"></i><span>Найти тайтл, страницу, действие</span>
+            <span class="kbd"><i data-lucide="command"></i>K</span>
+          </button>
+          <div class="me">
+            <span class="me-avatar" aria-hidden="true">A</span>
+            <div><strong>admin</strong><small>суперпользователь</small></div>
           </div>
         </header>
+        <main id="main" tabindex="-1"></main>
+      </div>
 
-        <div class="view-root" id="view-root" tabindex="-1"></div>
-      </main>
+      <nav class="mobile-nav" id="mobile-nav" aria-label="Разделы"></nav>
     </div>
 
-    <nav class="mobile-nav" aria-label="Мобильная навигация">
-      <button
-        type="button"
-        class="mobile-nav-item is-active"
-        data-view="overview"
-      >
-        <i data-lucide="layout-dashboard"></i><span>Обзор</span>
-      </button>
-      <button type="button" class="mobile-nav-item" data-view="catalog">
-        <i data-lucide="clapperboard"></i><span>Контент</span>
-      </button>
-      <button type="button" class="mobile-nav-item" data-view="parsers">
-        <i data-lucide="waypoints"></i><span>Парсер</span>
-      </button>
-      <button type="button" class="mobile-nav-item" data-view="monitoring">
-        <i data-lucide="activity"></i><span>Система</span>
-      </button>
-      <button type="button" class="mobile-nav-item" id="mobile-more">
-        <i data-lucide="menu"></i><span>Ещё</span>
-      </button>
-    </nav>
-
-    <div class="overlay" id="overlay" hidden></div>
-
-    <section
-      class="command-dialog"
-      id="command-dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="command-title"
-      hidden
-    >
-      <h2 class="sr-only" id="command-title">Быстрый поиск</h2>
-      <div class="command-input-row">
-        <i data-lucide="search"></i>
-        <input
-          id="command-input"
-          type="search"
-          aria-label="Поиск разделов и действий"
-          placeholder="Перейти к разделу или выполнить действие…"
-          autocomplete="off"
-        />
-        <kbd>Esc</kbd>
-      </div>
-      <div class="command-results" id="command-results"></div>
-      <footer class="command-footer">
-        <span><kbd>↑</kbd><kbd>↓</kbd> выбор</span
-        ><span><kbd>Enter</kbd> открыть</span>
-      </footer>
-    </section>
-
-    <section
-      class="dialog"
-      id="dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="dialog-title"
-      hidden
-    >
-      <header class="dialog-header">
-        <div>
-          <span class="eyebrow" id="dialog-eyebrow">Действие</span>
-          <h2 id="dialog-title">Заголовок</h2>
-        </div>
-        <button
-          type="button"
-          class="icon-button"
-          id="dialog-close"
-          aria-label="Закрыть окно"
-        >
-          <i data-lucide="x"></i>
-        </button>
-      </header>
-      <div class="dialog-body" id="dialog-body"></div>
-      <footer class="dialog-footer" id="dialog-footer"></footer>
-    </section>
-
-    <aside
-      class="detail-drawer"
-      id="detail-drawer"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="drawer-title"
-      hidden
-    >
-      <header class="drawer-header">
-        <div>
-          <span class="eyebrow" id="drawer-eyebrow">Детали</span>
-          <h2 id="drawer-title">Запись</h2>
-        </div>
-        <button
-          type="button"
-          class="icon-button"
-          id="drawer-close"
-          aria-label="Закрыть панель"
-        >
-          <i data-lucide="x"></i>
-        </button>
-      </header>
-      <div class="drawer-content" id="drawer-content"></div>
-    </aside>
-
-    <div
-      class="toast-region"
-      id="toast-region"
-      aria-live="polite"
-      aria-atomic="true"
-    ></div>
-    <div class="ui-tooltip" id="ui-tooltip" role="tooltip" hidden></div>
+    <div class="scrim" id="scrim"></div>
+    <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden></aside>
+    <dialog class="dialog" id="confirm" aria-labelledby="confirm-title"></dialog>
+    <dialog class="dialog cmdk" id="cmdk" aria-label="Поиск и команды"></dialog>
+    <div class="toast-region" id="toasts" role="status" aria-live="polite"></div>
 
     <script src="./vendor/lucide.min.js"></script>
-    <script src="./contracts.js?v=original-parity-11"></script>
-    <script src="./app.js?v=kitsune-4"></script>
+    <script src="./data.js?v=v4-1"></script>
+    <script src="./contracts.js?v=v4-1"></script>
+    <script src="./app.js?v=v4-1"></script>
   </body>
 </html>

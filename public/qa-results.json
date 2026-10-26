@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template · Anime Graphite",
-  "generated_at": "2026-10-25T10:47:22.476Z",
+  "generated_at": "2026-10-25T22:57:38.535Z",
   "summary": {
     "status": "pass",
     "total": 49,
@@ -31,7 +31,7 @@
       "id": "index.html.references",
       "label": "index.html: локальные ссылки",
       "status": "pass",
-      "detail": "51 локальных ссылок разрешены"
+      "detail": "52 локальных ссылок разрешены"
     },
     {
       "id": "index.html.aria",
@@ -73,7 +73,7 @@
       "id": "anime.html.references",
       "label": "anime.html: локальные ссылки",
       "status": "pass",
-      "detail": "39 локальных ссылок разрешены"
+      "detail": "40 локальных ссылок разрешены"
     },
     {
       "id": "anime.html.aria",
@@ -103,7 +103,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "1362 блоков, структура сбалансирована"
+      "detail": "1364 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -187,13 +187,13 @@
       "id": "css.contrast.dark",
       "label": "CSS: контраст токенов — тёмная тема",
       "status": "pass",
-      "detail": "13 пар посчитаны, минимум 4.67:1"
+      "detail": "13 пар посчитаны, минимум 6.26:1"
     },
     {
       "id": "css.contrast.light",
       "label": "CSS: контраст токенов — светлая тема",
       "status": "pass",
-      "detail": "13 пар посчитаны, минимум 5.18:1"
+      "detail": "13 пар посчитаны, минимум 5.94:1"
     },
     {
       "id": "css.fonts",
@@ -308,189 +308,189 @@
     {
       "theme": "dark",
       "token": "text",
-      "foreground": "#f2ebdd",
-      "background": "#17120f",
-      "ratio": 15.668310077114798,
+      "foreground": "#f6f1f7",
+      "background": "#15111b",
+      "ratio": 16.707068179567596,
       "threshold": 4.5,
       "tier": "baseline"
     },
     {
       "theme": "dark",
       "token": "text-secondary",
-      "foreground": "#cfc4b2",
-      "background": "#17120f",
-      "ratio": 10.790723151779101,
+      "foreground": "#cbc1d2",
+      "background": "#15111b",
+      "ratio": 10.726132190359774,
       "threshold": 4.5,
       "tier": "baseline"
     },
     {
       "theme": "dark",
       "token": "text-muted",
-      "foreground": "#9c8f7e",
-      "background": "#17120f",
-      "ratio": 5.880273934516585,
+      "foreground": "#a197ab",
+      "background": "#15111b",
+      "ratio": 6.676271493843199,
       "threshold": 4.5,
       "tier": "baseline"
     },
     {
       "theme": "dark",
       "token": "accent-text",
-      "foreground": "#ff8a6e",
-      "background": "#17120f",
-      "ratio": 8.06525861472885,
+      "foreground": "#d8bbff",
+      "background": "#15111b",
+      "ratio": 11.057723543369715,
       "threshold": 6,
       "tier": "reinforced"
     },
     {
       "theme": "dark",
       "token": "green",
-      "foreground": "#56ad91",
-      "background": "#17120f",
-      "ratio": 6.887610825220374,
+      "foreground": "#5be3a8",
+      "background": "#15111b",
+      "ratio": 11.52406123384912,
       "threshold": 6,
       "tier": "reinforced"
     },
     {
       "theme": "dark",
       "token": "amber",
-      "foreground": "#d0a052",
-      "background": "#17120f",
-      "ratio": 7.817077038747872,
+      "foreground": "#ffcb70",
+      "background": "#15111b",
+      "ratio": 12.437669132554033,
       "threshold": 6,
       "tier": "reinforced"
     },
     {
       "theme": "dark",
       "token": "red",
-      "foreground": "#ff6f93",
-      "background": "#17120f",
-      "ratio": 7.033745933211819,
+      "foreground": "#ff5c7a",
+      "background": "#15111b",
+      "ratio": 6.262911678436651,
       "threshold": 6,
       "tier": "reinforced"
     },
     {
       "theme": "dark",
       "token": "info",
-      "foreground": "#7f9fbd",
-      "background": "#17120f",
-      "ratio": 6.723432774907887,
+      "foreground": "#9cb4ff",
+      "background": "#15111b",
+      "ratio": 9.208407558101394,
       "threshold": 6,
       "tier": "reinforced"
     },
     {
       "theme": "dark",
       "token": "kitsunebi",
-      "foreground": "#8fd8ff",
-      "background": "#17120f",
-      "ratio": 11.89029489579668,
+      "foreground": "#7de3ff",
+      "background": "#15111b",
+      "ratio": 12.681738645806421,
       "threshold": 4.5,
       "tier": "baseline"
     },
     {
       "theme": "dark",
       "token": "kin",
-      "foreground": "#d9a84e",
-      "background": "#17120f",
-      "ratio": 8.55103703778497,
+      "foreground": "#ffcb70",
+      "background": "#15111b",
+      "ratio": 12.437669132554033,
       "threshold": 4.5,
       "tier": "baseline"
     },
     {
       "theme": "dark",
       "token": "kin-text",
-      "foreground": "#d9a84e",
-      "background": "#17120f",
-      "ratio": 8.55103703778497,
+      "foreground": "#ffcb70",
+      "background": "#15111b",
+      "ratio": 12.437669132554033,
       "threshold": 4.5,
       "tier": "baseline"
     },
     {
       "theme": "dark",
       "token": "kitsunebi-text",
-      "foreground": "#8fd8ff",
-      "background": "#17120f",
-      "ratio": 11.89029489579668,
+      "foreground": "#7de3ff",
+      "background": "#15111b",
+      "ratio": 12.681738645806421,
       "threshold": 4.5,
       "tier": "baseline"
     },
     {
       "theme": "dark",
       "token": "primary-fg",
-      "foreground": "#150d09",
-      "background": "#e0472b",
-      "ratio": 4.669505461055367,
+      "foreground": "#1c0f2b",
+      "background": "#c4a1ff",
+      "ratio": 8.57990578485062,
       "threshold": 4.5,
       "tier": "baseline"
     },
     {
       "theme": "light",
       "token": "text",
-      "foreground": "#1c1613",
-      "background": "#fbf7f0",
-      "ratio": 16.756449921338547,
+      "foreground": "#1d1524",
+      "background": "#ffffff",
+      "ratio": 17.72176895968046,
       "threshold": 4.5,
       "tier": "baseline"
     },
     {
       "theme": "light",
       "token": "text-secondary",
-      "foreground": "#4f433a",
-      "background": "#fbf7f0",
-      "ratio": 8.952965629195985,
+      "foreground": "#4d4157",
+      "background": "#ffffff",
+      "ratio": 9.505278457166265,
       "threshold": 4.5,
       "tier": "baseline"
     },
     {
       "theme": "light",
       "token": "text-muted",
-      "foreground": "#5e5145",
-      "background": "#fbf7f0",
-      "ratio": 7.179822841853936,
+      "foreground": "#625670",
+      "background": "#ffffff",
+      "ratio": 6.808411565212795,
       "threshold": 4.5,
       "tier": "baseline"
     },
     {
       "theme": "light",
       "token": "accent-text",
-      "foreground": "#a32d16",
-      "background": "#fbf7f0",
-      "ratio": 6.678927643000108,
+      "foreground": "#5a31ab",
+      "background": "#ffffff",
+      "ratio": 8.529263325328733,
       "threshold": 5.5,
       "tier": "reinforced"
     },
     {
       "theme": "light",
       "token": "green",
-      "foreground": "#166534",
-      "background": "#fbf7f0",
-      "ratio": 6.676824312799588,
+      "foreground": "#12704a",
+      "background": "#ffffff",
+      "ratio": 6.100624919865862,
       "threshold": 5.5,
       "tier": "reinforced"
     },
     {
       "theme": "light",
       "token": "amber",
-      "foreground": "#854d0e",
-      "background": "#fbf7f0",
-      "ratio": 6.415371939013438,
+      "foreground": "#8a5600",
+      "background": "#ffffff",
+      "ratio": 6.155162664852463,
       "threshold": 5.5,
       "tier": "reinforced"
     },
     {
       "theme": "light",
       "token": "red",
-      "foreground": "#a8123e",
-      "background": "#fbf7f0",
-      "ratio": 6.970601070193239,
+      "foreground": "#b4123e",
+      "background": "#ffffff",
+      "ratio": 6.7813198573797395,
       "threshold": 5.5,
       "tier": "reinforced"
     },
     {
       "theme": "light",
       "token": "info",
-      "foreground": "#1d4ed8",
-      "background": "#fbf7f0",
-      "ratio": 6.2753973106233705,
+      "foreground": "#2546c4",
+      "background": "#ffffff",
+      "ratio": 7.63128270198288,
       "threshold": 5.5,
       "tier": "reinforced"
     },
@@ -498,26 +498,26 @@
       "theme": "light",
       "token": "kitsunebi",
       "foreground": "#0b6a99",
-      "background": "#fbf7f0",
-      "ratio": 5.56147649512859,
+      "background": "#ffffff",
+      "ratio": 5.939208527180629,
       "threshold": 4.5,
       "tier": "baseline"
     },
     {
       "theme": "light",
       "token": "kin",
-      "foreground": "#8a6112",
-      "background": "#fbf7f0",
-      "ratio": 5.175842159395476,
+      "foreground": "#8a5600",
+      "background": "#ffffff",
+      "ratio": 6.155162664852463,
       "threshold": 4.5,
       "tier": "baseline"
     },
     {
       "theme": "light",
       "token": "kin-text",
-      "foreground": "#6a490b",
-      "background": "#fbf7f0",
-      "ratio": 7.649483614637398,
+      "foreground": "#6e4500",
+      "background": "#ffffff",
+      "ratio": 8.352397766187273,
       "threshold": 4.5,
       "tier": "baseline"
     },
@@ -525,17 +525,17 @@
       "theme": "light",
       "token": "kitsunebi-text",
       "foreground": "#08587f",
-      "background": "#fbf7f0",
-      "ratio": 7.2490817576002895,
+      "background": "#ffffff",
+      "ratio": 7.74143489173799,
       "threshold": 4.5,
       "tier": "baseline"
     },
     {
       "theme": "light",
       "token": "primary-fg",
-      "foreground": "#fbf7f0",
-      "background": "#b8341c",
-      "ratio": 5.545464376677791,
+      "foreground": "#ffffff",
+      "background": "#6b3fc4",
+      "ratio": 6.702269289715798,
       "threshold": 4.5,
       "tier": "baseline"
     }

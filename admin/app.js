@@ -1,3071 +1,1386 @@
+/* Kitsu Admin v4 — интерактивный шаблон. Запросы не отправляются: каждая
+   кнопка с последствиями показывает точный запрос (метод, путь, тело) и
+   честно сообщает, что это макет. Данные — admin/data.js, контракты — admin/contracts.js. */
 (() => {
   "use strict";
 
-  function initInputModality() {
-    const root = document.documentElement;
-    document.addEventListener("pointerdown", () => {
-      root.dataset.inputModality = "pointer";
-    }, { capture: true, passive: true });
-    document.addEventListener("keydown", (event) => {
-      if (["Tab", "Enter", " ", "Escape", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
-        root.dataset.inputModality = "keyboard";
+  const D = window.KitsuAdminData;
+  const C = window.KitsuAdminContracts;
+  const NOW = D.NOW;
+  const root = document.documentElement;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  /* ---------- Утилиты ---------- */
+  const $ = (selector, scope = document) => scope.querySelector(selector);
+  const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)];
+  const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  const icon = (name, cls = "") => `<i data-lucide="${name}"${cls ? ` class="${cls}"` : ""}></i>`;
+  const num = value => (value == null ? "—" : Number(value).toLocaleString("ru-RU"));
+  const tag = (text, tone = "neutral", ic = "") => `<span class="tag" data-tone="${tone}">${ic ? icon(ic) : ""}${esc(text)}</span>`;
+  const dot = tone => `<span class="dot" data-tone="${tone}" aria-hidden="true"></span>`;
+  const hash = value => [...String(value)].reduce((acc, ch) => (Math.imul(acc ^ ch.charCodeAt(0), 16777619) >>> 0), 2166136261);
+  const at = value => C.fmtDateTime(value, NOW);
+  const ago = value => C.fmtAgo(value, NOW);
+
+  /* Единственный источник тона и подписи статуса. */
+  const STATUS = {
+    running: ["live", "Выполняется"], pending: ["info", "В очереди"], completed: ["success", "Готово"], failed: ["danger", "Ошибка"], cancelled: ["neutral", "Остановлена"],
+    ok: ["success", "В норме"], warn: ["warning", "Внимание"], fail: ["danger", "Сбой"], waiting: ["info", "Ждёт стенд"], unknown: ["neutral", "Неизвестно"], no_sample: ["warning", "Нет выборки"], stale: ["warning", "Устарело"],
+    online: ["success", "Работает"], offline: ["danger", "Не отвечает"], connection_fault: ["danger", "Нет связи"], unreachable: ["danger", "Недоступна"],
+    ongoing: ["live", "Выходит"], released: ["success", "Вышел"], announced: ["info", "Анонс"], anons: ["info", "Анонс"], cancelled_title: ["neutral", "Отменён"], hiatus: ["warning", "Пауза"],
+    pending_conflict: ["warning", "Ждёт решения"], auto_accepted: ["info", "Принят автоматически"], resolved: ["success", "Закрыт"],
+    INFO: ["info", "INFO"], WARNING: ["warning", "WARN"], ERROR: ["danger", "ERROR"],
+  };
+  const toneForStatus = status => (STATUS[status] || ["neutral"])[0];
+  const labelForStatus = status => (STATUS[status] || [null, status])[1];
+  const statusTag = (status, ic = "") => tag(labelForStatus(status), toneForStatus(status), ic);
+
+  const KIND = { tv: "Сериал", movie: "Фильм", ova: "OVA", ona: "ONA", special: "Спешл" };
+  const REASON = { poster_url: "Нет постера", description: "Нет описания", no_video: "Нет видео" };
+  const JOB_TITLE = {
+    "kodik:incremental": "Новые серии и озвучки", "kodik:incremental_sync": "Новые серии и озвучки", "kodik:full_sync": "Полный обход Kodik",
+    "kodik:episodes_recompute": "Пересчёт серий", "kodik:episodes_recompute_dry": "Пересчёт серий · пробный", "kodik:episodes_zero_fix": "Нулевой сезон в первый", "kodik:episodes_zero_fix_dry": "Нулевой сезон в первый · пробный",
+    "shikimori:shikimori_related_refresh": "Связанные тайтлы и названия", "shikimori:calendar_snapshot": "Календарь выхода", "shikimori:incremental": "Инкремент Shikimori", "shikimori:full_sync": "Полная Shikimori",
+  };
+  const jobTitle = job => JOB_TITLE[`${job.parser_name}:${job.job_type}`] || `${job.parser_name} · ${job.job_type}`;
+  /* Какие задачи пишут прогресс по ходу (parserworker: recompute и related_refresh), а какие только в конце. */
+  function progressKind(job) {
+    const op = D.operations.find(o => o.parser === job.parser_name && [o.job_type, o.dry].includes(job.job_type));
+    return op?.progress || "end";
+  }
+  function liveBar(job, extra = "") {
+    if (progressKind(job) !== "live") return `<span class="muted" style="font-size:12px">Процент появится в конце</span>`;
+    return `<span class="progress live${extra}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${state.live.progress}" aria-label="Прогресс"><i style="--p:${state.live.progress}%" data-live-bar></i></span>`;
+  }
+  /* Расписание: подпись по тому, что реально запустит пульс (asynqtasks.ModeForScheduled). */
+  const SPECIAL = ["shikimori:shikimori_related_refresh", "shikimori:calendar_snapshot", "shikimori:full_sync", "kodik:episodes_recompute", "kodik:episodes_recompute_dry", "kodik:episodes_zero_fix", "kodik:episodes_zero_fix_dry"];
+  function scheduleTitle(s) {
+    const key = `${s.parser_name}:${s.job_type}`;
+    if (s.parser_name === "kodik" && !SPECIAL.includes(key)) return s.job_type.startsWith("incremental") ? "Новые серии и озвучки" : `Новые серии и озвучки · строка «${s.job_type}»`;
+    return jobTitle(s);
+  }
+
+  /* Генеративная обложка: ночное небо, луна, гряда. Вместо пустой картинки. */
+  function posterUri(title, w = 72, h = 104) {
+    const seed = hash(title);
+    const obs = root.dataset.palette === "obsidian";
+    const hue = obs ? 210 + (seed % 30) : 250 + (seed % 90);
+    const hue2 = obs ? 28 + (seed % 18) : (hue + 24) % 360;
+    const mx = 18 + (seed % 36), my = 18 + ((seed >> 3) % 18), r = 9 + ((seed >> 5) % 6);
+    const ridge = (base, amp, fill, k) => {
+      let d = `M0 ${h} L0 ${base}`;
+      for (let i = 1; i <= 5; i += 1) d += ` L${(i / 5) * w} ${base - (((seed >> (i + k)) % amp) - amp / 2)}`;
+      return `<path d="${d} L${w} ${h} Z" fill="${fill}"/>`;
+    };
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="hsl(${hue},45%,14%)"/><stop offset="1" stop-color="hsl(${hue2},55%,30%)"/></linearGradient></defs><rect width="${w}" height="${h}" fill="url(#s)"/><circle cx="${mx}" cy="${my}" r="${r}" fill="hsl(${hue2},90%,88%)" opacity=".92"/>${ridge(h * 0.68, 14, `hsl(${hue},30%,22%)`, 1)}${ridge(h * 0.82, 10, `hsl(${hue2},40%,10%)`, 3)}</svg>`;
+    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  }
+  const thumb = item => item.poster === false || item.poster_url === null
+    ? `<span class="thumb missing" title="Нет постера"><img src="${posterUri(item.title)}" alt="" loading="lazy" /><span class="sr-only">Нет постера</span></span>`
+    : `<span class="thumb"><img src="${posterUri(item.title)}" alt="" loading="lazy" /></span>`;
+  const artTile = (title, square = true) => {
+    const seed = hash(title), hue = 250 + (seed % 100);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="hsl(${hue},40%,18%)"/><circle cx="${30 + (seed % 40)}" cy="${30 + ((seed >> 4) % 30)}" r="${18 + (seed % 10)}" fill="hsl(${(hue + 40) % 360},80%,72%)" opacity=".85"/><path d="M0 100 L0 ${70 + (seed % 10)} L35 ${58 + ((seed >> 2) % 12)} L70 ${72 + ((seed >> 5) % 10)} L100 ${60 + ((seed >> 7) % 14)} L100 100 Z" fill="hsl(${hue},45%,9%)"/></svg>`;
+    return square ? svg : svg;
+  };
+
+  /* ---------- Разделы ---------- */
+  const sections = [
+    { id: "pult", label: "Пульт", icon: "gauge", kana: "操縦", lede: "Состояние стенда за сутки и всё, что ждёт решения.", pages: [{ id: "pult", title: "Пульт" }] },
+    { id: "catalog", label: "Каталог", icon: "clapperboard", kana: "目録", lede: "Тайтлы, серии и источники видео.", pages: [
+      { id: "catalog/titles", title: "Тайтлы", count: () => D.kodikStats.local_total },
+      { id: "catalog/import", title: "Добавить из Kodik" },
+      { id: "catalog/episodes", title: "Серии и источники" },
+      { id: "catalog/collections", title: "Коллекции" },
+    ] },
+    { id: "queues", label: "Очереди", icon: "inbox", kana: "待機", lede: "То, что синхронизация не смогла решить сама.", pages: [
+      { id: "queues/moderation", title: "Модерация", count: () => D.moderation.length, tone: "warn" },
+      { id: "queues/conflicts", title: "Конфликты", count: () => D.conflicts.filter(c => c.status === "pending").length, tone: "warn" },
+      { id: "queues/comments", title: "Комментарии" },
+    ] },
+    { id: "parser", label: "Парсер", icon: "radar", kana: "収集", lede: "Запуск синхронизаций, очередь, расписание.", pages: [
+      { id: "parser/run", title: "Запуск" },
+      { id: "parser/jobs", title: "Задачи", count: () => D.jobs.filter(j => ["running", "pending"].includes(j.status)).length, tone: "live" },
+      { id: "parser/schedule", title: "Расписание" },
+      { id: "parser/logs", title: "Журнал парсера" },
+      { id: "parser/blacklist", title: "Исключения" },
+    ] },
+    { id: "stand", label: "Стенд", icon: "server", kana: "基盤", lede: "Проверки, ресурсы, резервные копии.", pages: [
+      { id: "stand/checks", title: "Проверки", count: () => D.checks.filter(c => ["warn", "fail", "stale"].includes(c.state)).length, tone: "warn" },
+      { id: "stand/resources", title: "Ресурсы" },
+      { id: "stand/backups", title: "Резервные копии" },
+      { id: "stand/audit", title: "Журнал действий" },
+    ] },
+    { id: "people", label: "Люди", icon: "users", kana: "人々", lede: "Пользователи, доступ, оформление профилей.", pages: [
+      { id: "people/users", title: "Пользователи" },
+      { id: "people/access", title: "Доступ" },
+      { id: "people/cosmetics", title: "Оформление" },
+    ] },
+    { id: "settings", label: "Настройки", icon: "sliders-horizontal", kana: "設定", lede: "Где на самом деле живёт каждая настройка.", pages: [{ id: "settings", title: "Настройки" }] },
+  ];
+  const pages = Object.fromEntries(sections.flatMap(section => section.pages.map(page => [page.id, { ...page, section }])));
+
+  /* ---------- Состояние ---------- */
+  const state = {
+    route: "pult",
+    titles: { q: "", filter: "all", selected: new Set(), page: 1 },
+    moderation: { selected: new Set() },
+    conflicts: { status: "pending" },
+    jobs: { status: "all" },
+    logs: { level: "all" },
+    checks: { state: "all" },
+    users: { q: "" },
+    importQ: "фармацевт",
+    live: { progress: D.jobs.find(j => j.status === "running")?.progress ?? 0 },
+    dirty: false,
+  };
+
+  /* ---------- Каркас ---------- */
+  function currentSection() { return pages[state.route]?.section || sections[0]; }
+  function railItem(section, mobile = false) {
+    const active = currentSection().id === section.id;
+    const first = section.pages[0].id;
+    const attention = section.pages.reduce((sum, page) => sum + (page.tone === "warn" && page.count ? page.count() : 0), 0);
+    return `<a class="rail-item" href="#/${first}" data-section="${section.id}" aria-current="${active}" ${mobile ? "" : `title="${esc(section.label)}"`}>
+      ${icon(section.icon)}<span>${esc(section.label)}</span>${attention ? `<b class="rail-badge" aria-label="${attention} требуют внимания">${attention}</b>` : ""}</a>`;
+  }
+  function renderChrome() {
+    $("#rail-list").innerHTML = sections.map(s => railItem(s)).join("");
+    const mobileIds = ["pult", "catalog", "queues", "parser"];
+    $("#mobile-nav").innerHTML = sections.filter(s => mobileIds.includes(s.id)).map(s => railItem(s, true)).join("") +
+      `<button type="button" class="rail-item" data-action="subnav" aria-current="${!mobileIds.includes(currentSection().id)}" aria-controls="subnav">${icon("layout-grid")}<span>Ещё</span></button>`;
+    const section = currentSection();
+    const stackUp = D.stack.alive;
+    const running = D.jobs.find(j => j.status === "running");
+    $("#subnav").innerHTML = `
+      <div class="subnav-head"><span class="subnav-kana" aria-hidden="true">${section.kana}</span><h2>${esc(section.label)}</h2><p>${esc(section.lede)}</p></div>
+      <div class="subnav-list">${section.pages.map(page => {
+        const n = page.count ? page.count() : null;
+        const cls = page.tone === "warn" ? "warn" : "";
+        return `<a class="subnav-link" href="#/${page.id}" aria-current="${state.route === page.id ? "page" : "false"}"><span>${esc(page.title)}</span>${n ? `<span class="count ${cls}">${num(n)}</span>` : ""}</a>`;
+      }).join("")}</div>
+      <div class="subnav-list subnav-all" data-mobile-only>${sections.filter(s => s.id !== section.id).map(s => `<a class="subnav-link" href="#/${s.pages[0].id}"><span>${esc(s.label)}</span></a>`).join("")}</div>
+      <div class="subnav-foot">
+        <div class="stack-line">${dot(stackUp ? "success" : "danger")}<span>Стенд <strong>${stackUp ? "в работе" : "не отвечает"}</strong> с ${C.fmtTime(D.stack.up_since)}</span></div>
+        ${running ? `<div class="stack-line">${dot("live")}<span>${esc(jobTitle(running))}${progressKind(running) === "live" ? ` · <strong class="mono" data-live-pct>${state.live.progress}%</strong>` : ""}</span></div>` : ""}
+        <div class="stack-line">${icon("map-pin", "icon-s")}<span>Время — Алматы, UTC+5</span></div>
+      </div>`;
+    const page = pages[state.route];
+    $("#crumbs").innerHTML = page.section.pages.length > 1
+      ? `<a href="#/${page.section.pages[0].id}">${esc(page.section.label)}</a>${icon("chevron-right")}<b>${esc(page.title)}</b>`
+      : `<b>${esc(page.title)}</b>`;
+    const chip = $("#live-chip");
+    if (running) {
+      chip.hidden = false;
+      const live = progressKind(running) === "live";
+      chip.innerHTML = `${dot("live")}<span class="label">${esc(jobTitle(running))}</span>${live ? `<span class="progress live thin"><i style="--p:${state.live.progress}%"></i></span><span class="mono" data-live-pct>${state.live.progress}%</span>` : ""}`;
+      chip.setAttribute("aria-label", `Выполняется: ${jobTitle(running)}, ${state.live.progress}%`);
+    } else chip.hidden = true;
+    $("[data-palette-label]").textContent = root.dataset.palette === "obsidian" ? "Обсидиан" : "Сакура";
+    $("[data-theme-label]").textContent = root.dataset.theme === "light" ? "Светлая" : "Тёмная";
+  }
+
+  function pageHead(title, lede, actions = "") {
+    return `<header class="page-head"><div><div class="page-title"><span class="beam" aria-hidden="true"></span><h1>${esc(title)}</h1></div>${lede ? `<p class="lede">${lede}</p>` : ""}</div>${actions ? `<div class="page-actions">${actions}</div>` : ""}</header>`;
+  }
+  const note = (tone, ic, html) => `<div class="note" data-tone="${tone}">${icon(ic)}<div>${html}</div></div>`;
+  const empty = (ic, title, text, action = "") => `<div class="empty">${icon(ic)}<strong>${esc(title)}</strong><p>${text}</p>${action}</div>`;
+  const seg = (name, value, options) => `<div class="seg" role="group" aria-label="Фильтр">${options.map(([v, label, n]) => `<button type="button" data-seg="${name}" data-value="${v}" aria-pressed="${v === value}">${esc(label)}${n != null ? `<span class="count">${n}</span>` : ""}</button>`).join("")}</div>`;
+  const request = (key, extra = {}) => `data-request="${key}" ${Object.entries(extra).map(([k, v]) => `data-${k}="${esc(v)}"`).join(" ")}`;
+
+  /* ==========================================================================
+     Пульт
+     ========================================================================== */
+  function timeline() {
+    const from = C.parseUtc(D.stack.window_from).getTime(), to = C.parseUtc(D.stack.window_to).getTime();
+    const pos = value => Math.max(0, Math.min(100, ((C.parseUtc(value).getTime() - from) / (to - from)) * 100));
+    const scale = Array.from({ length: 9 }, (_, i) => {
+      const stamp = new Date(from + i * 3 * 3600000).toISOString().slice(0, 19);
+      return `<span style="left:${(i * 3 / 24) * 100}%">${C.fmtTime(stamp)}</span>`;
+    }).join("");
+    const gaps = D.stack.gaps.map(gap => {
+      const l = pos(gap.from), r = pos(gap.to);
+      const hours = ((C.parseUtc(gap.to) - C.parseUtc(gap.from)) / 3600000).toFixed(1).replace(".", ",");
+      return `<div class="tl-gap" style="left:${l}%;width:${r - l}%" title="Стенд выключен ${C.fmtTime(gap.from)}–${C.fmtTime(gap.to)}"><span>выключен ${hours} ч</span></div>`;
+    }).join("");
+    const jobs = D.stack.long_jobs.map(job => {
+      const l = pos(job.from), r = pos(job.to);
+      return `<div class="tl-job${job.tone === "live" ? " is-live" : ""}" style="left:${l}%;width:${r - l}%" title="${esc(job.label)} ${C.fmtTime(job.from)}–${C.fmtTime(job.to)}"><span>${esc(job.label)}</span></div>`;
+    }).join("");
+    const isDown = t => D.stack.gaps.some(g => t >= C.parseUtc(g.from).getTime() && t < C.parseUtc(g.to).getTime());
+    const ticks = [];
+    for (let t = Math.ceil(from / 1800000) * 1800000; t < to; t += 1800000) if (!isDown(t)) ticks.push(`<i class="tl-tick" style="left:${((t - from) / (to - from)) * 100}%"></i>`);
+    return `<div class="timeline" aria-label="Сутки стенда: включён ${String(D.stack.uptime_24h_hours).replace(".", ",")} ч из 24">
+      <div class="tl-scale" aria-hidden="true">${scale}</div>
+      <div class="tl-track"><div class="tl-up-glow"></div>${gaps}${jobs}${ticks.join("")}<div class="tl-now" style="left:calc(100% - 1px)"></div></div>
+      <div class="tl-legend"><span><i class="up"></i>Стенд работал</span><span><i class="down"></i>Выключен</span><span><i class="job"></i>Долгая задача держала очередь</span><span><i class="job live"></i>Идёт сейчас</span><span><i class="tick"></i>Синхронизация новинок</span></div>
+    </div>`;
+  }
+  function attentionItems() {
+    const items = [];
+    const failing = D.checks.filter(c => ["fail", "warn", "stale", "no_sample"].includes(c.state));
+    if (failing.length) items.push({ tone: failing.some(c => c.state === "fail") ? "danger" : "warning", icon: "shield-alert", n: failing.length, title: "Проверки стенда требуют внимания", text: failing.slice(0, 2).map(c => c.name).join(" · "), href: "#/stand/checks" });
+    const pending = D.conflicts.filter(c => c.status === "pending").length;
+    if (pending) items.push({ tone: "warning", icon: "git-compare-arrows", n: pending, title: "Конфликты сопоставления с Shikimori", text: "Строгая проверка не узнала тайтл. Нужен взгляд человека", href: "#/queues/conflicts" });
+    if (D.moderation.length) items.push({ tone: "warning", icon: "image-off", n: D.moderation.length, title: "Тайтлы ждут модерации", text: "Нет постера, описания или видео. На сайте их не видно", href: "#/queues/moderation" });
+    const failed = D.jobs.filter(j => j.status === "failed").length;
+    if (failed) items.push({ tone: "danger", icon: "bug", n: failed, title: "Задачи с ошибкой за сутки", text: "Последняя: «Инкремент Shikimori» не перенесён в Go", href: "#/parser/jobs" });
+    return items;
+  }
+  function renderPult() {
+    const running = D.jobs.find(j => j.status === "running");
+    const gapH = D.stack.gaps.reduce((s, g) => s + (C.parseUtc(g.to) - C.parseUtc(g.from)) / 3600000, 0);
+    const kpis = [
+      ["users", "Пользователи", D.overview.audience],
+      ["clapperboard", "Тайтлы", D.overview.catalog],
+      ["film", "Источники видео", D.overview.assets],
+    ];
+    const max = Math.max(...D.charts.map(d => d.kodik + d.shikimori));
+    const DAY = { Mon: "Пн", Tue: "Вт", Wed: "Ср", Thu: "Чт", Fri: "Пт", Sat: "Сб", Sun: "Вс" };
+    const gmax = D.genres[0].value;
+    const pmax = D.popular[0].views;
+    const attn = attentionItems();
+    return `${pageHead("Пульт", "Сутки стенда, текущая работа и всё, что ждёт решения. Числа обновляются при входе на страницу.", `<a class="button" href="#/stand/checks">${icon("shield-check")}Проверки</a><a class="button primary" href="#/parser/run">${icon("play")}Запустить задачу</a>`)}
+    <section class="hero reveal" aria-labelledby="hero-title">
+      <div class="hero-top">
+        <div class="hero-state">
+          <span class="eyebrow">${dot("success")}Стенд в работе</span>
+          <h2 id="hero-title">Работает с ${C.fmtTime(D.stack.up_since)}, за сутки был выключен ${gapH.toFixed(1).replace(".", ",")}\u00a0ч</h2>
+          <p>Монитор пересчитал проверки ${ago(D.monitor.last_tick_at)}, следующий подсчёт в ${C.fmtTime(new Date(C.parseUtc(D.monitor.last_tick_at).getTime() + 900000).toISOString().slice(0, 19))}.</p>
+        </div>
+        <div class="hero-figures">
+          <div class="figure"><b data-count="${D.stack.uptime_24h_hours}" data-decimals="1">${String(D.stack.uptime_24h_hours).replace(".", ",")}</b><span>часов работы из 24</span></div>
+          <div class="figure"><b data-count="${D.checks.filter(c => c.state === "ok").length}">${D.checks.filter(c => c.state === "ok").length}</b><span>из ${D.checks.length} проверок в норме</span></div>
+          <div class="figure"><b data-count="${D.kodikStats.local_total}">${num(D.kodikStats.local_total)}</b><span>тайтлов в каталоге</span></div>
+        </div>
+      </div>
+      ${timeline()}
+    </section>
+
+    <div class="grid split reveal">
+      <section class="card" aria-labelledby="attn-title">
+        <div class="card-head"><h2 id="attn-title">${icon("bell-ring")}Требует внимания</h2><span class="card-meta">${attn.length ? `${attn.length} ${C.plural(attn.length, "пункт", "пункта", "пунктов")}` : "всё спокойно"}</span></div>
+        <div class="card-body flush attention">${attn.length ? attn.map(item => `<a class="attn" data-tone="${item.tone}" href="${item.href}">${icon(item.icon)}<div><strong>${esc(item.title)}</strong><small>${esc(item.text)}</small></div><span class="big">${item.n}</span></a>`).join("") : empty("check-check", "Ничего не ждёт", "Очереди пусты, проверки в норме.")}</div>
+      </section>
+      <section class="card glow" aria-labelledby="live-title">
+        <div class="card-head"><h2 id="live-title">${icon("activity")}Сейчас</h2><a class="link-btn" href="#/parser/jobs">Все задачи${icon("arrow-right")}</a></div>
+        <div class="card-body">${running ? `<div class="live-job">
+            <div class="live-job-head"><div><strong>${esc(jobTitle(running))}</strong><div class="muted">${esc(running.source)} · старт ${C.fmtTime(running.started_at)}</div></div>${statusTag("running")}</div>
+            <div style="display:flex;align-items:center;gap:12px">${liveBar(running)}<span class="mono" data-live-pct>${state.live.progress}%</span></div>
+            <div class="live-stats"><div><b>${num(running.items_processed)}</b><span>из ${num(running.total)} строк</span></div><div><b>${num(running.items_updated)}</b><span>обновлено</span></div><div><b>${num(running.items_skipped)}</b><span>без изменений</span></div><div><b>${num(running.items_failed)}</b><span>в конфликты</span></div></div>
+            ${D.jobs.filter(j => j.status === "pending").map(j => note("info", "hourglass", `<strong>Ждёт очереди с ${C.fmtTime(j.created_at)}:</strong> ${esc(jobTitle(j))}. Очередь парсера одна, поэтому плановые задачи и суточный бэкап стоят, пока идёт эта.`)).join("")}
+          </div>` : empty("moon-star", "Очередь пуста", "Следующий запуск по расписанию — в 22:00.")}</div>
+      </section>
+    </div>
+
+    <div class="grid cols-3 kpis reveal">
+      ${kpis.map(([ic, label, k]) => `<section class="card kpi"><span class="kpi-label">${icon(ic)}${label}</span><span class="kpi-value" data-count="${k.value}">${num(k.value)}</span><span class="kpi-foot"><span class="trend ${k.trend < 0 ? "down" : ""}">${icon(k.trend < 0 ? "trending-down" : "trending-up")}${k.trend > 0 ? "+" : ""}${String(k.trend).replace(".", ",")}%</span>рост за 30 дней</span></section>`).join("")}
+    </div>
+
+    <div class="grid split reveal">
+      <section class="card" aria-labelledby="chart-title">
+        <div class="card-head"><h2 id="chart-title">${icon("bar-chart-3")}Обработано парсерами за неделю</h2><div class="legend"><span><i class="a"></i>Kodik</span><span><i class="b"></i>Shikimori</span></div></div>
+        <div class="card-body"><div class="bars" style="--n:${D.charts.length}" role="img" aria-label="Записей обработано по дням">${D.charts.map((d, i) => `<div class="bar" title="${DAY[d.name]}: Kodik ${num(d.kodik)}, Shikimori ${num(d.shikimori)}"><div class="bar-stack"><i class="a" style="height:${(d.kodik / max) * 100}%;--i:${i}"></i>${d.shikimori ? `<i class="b" style="height:${(d.shikimori / max) * 100}%;--i:${i}"></i>` : ""}</div><span>${DAY[d.name]}</span></div>`).join("")}</div></div>
+      </section>
+      <section class="card" aria-labelledby="pop-title">
+        <div class="card-head"><h2 id="pop-title">${icon("flame")}Самое смотримое</h2></div>
+        <div class="card-body"><ol class="rank">${D.popular.map((p, i) => `<li><span class="n">${String(i + 1).padStart(2, "0")}</span><span class="name">${esc(p.title)}</span><span class="v">${num(p.views)}</span><span class="hbar"><i style="--p:${(p.views / pmax) * 100}%"></i></span></li>`).join("")}</ol></div>
+      </section>
+    </div>
+    <div class="grid split-even reveal">
+      <section class="card" aria-labelledby="gen-title">
+        <div class="card-head"><h2 id="gen-title">${icon("tags")}Жанры каталога</h2></div>
+        <div class="card-body"><ol class="rank">${D.genres.map((g, i) => `<li><span class="n">${String(i + 1).padStart(2, "0")}</span><span class="name">${esc(g.name)}</span><span class="v">${num(g.value)}</span><span class="hbar"><i style="--p:${(g.value / gmax) * 100}%"></i></span></li>`).join("")}</ol></div>
+      </section>
+      <section class="card" aria-labelledby="cov-title">
+        <div class="card-head"><h2 id="cov-title">${icon("database")}Покрытие Kodik</h2></div>
+        <div class="card-body"><div class="gauge" style="padding:0"><div class="gauge-top"><strong>Тайтлов с видео из всего Kodik</strong><b>${String(D.kodikStats.coverage_pct).replace(".", ",")}%</b></div><div class="progress"><i style="--p:${D.kodikStats.coverage_pct}%"></i></div>
+        <dl class="kv" style="margin-top:12px"><dt>Всего в Kodik</dt><dd class="mono">${num(D.kodikStats.kodik_total)}</dd><dt>В каталоге</dt><dd class="mono">${num(D.kodikStats.local_total)}</dd><dt>С видео Kodik</dt><dd class="mono">${num(D.kodikStats.local_with_kodik)}</dd><dt>Выходят сейчас</dt><dd class="mono">${num(D.kodikStats.local_ongoing)}</dd></dl></div></div>
+      </section>
+    </div>`;
+  }
+
+  /* ==========================================================================
+     Каталог
+     ========================================================================== */
+  function filteredTitles() {
+    const { q, filter } = state.titles;
+    return D.anime.filter(item => {
+      if (q && !`${item.title} ${item.title_en} ${item.title_romaji || ""} ${item.slug}`.toLowerCase().includes(q.toLowerCase())) return false;
+      if (filter === "moderation") return item.needs_moderation;
+      if (filter === "novideo") return !item.kodik_id;
+      if (filter === "ongoing") return item.status === "ongoing";
+      if (filter === "announced") return item.status === "announced";
+      return true;
+    });
+  }
+  function titleRows() {
+    const list = filteredTitles();
+    if (!list.length) return `<tr><td colspan="7">${empty("search-x", "Ничего не нашлось", "Поиск идёт по русскому, английскому названию, ромадзи и slug.")}</td></tr>`;
+    return list.map(item => {
+      const selected = state.titles.selected.has(item.id);
+      return `<tr class="${selected ? "is-selected" : ""}">
+        <td class="check"><input class="box-check" type="checkbox" data-select="titles" value="${item.id}" ${selected ? "checked" : ""} aria-label="Выбрать «${esc(item.title)}»" /></td>
+        <td class="lead"><div class="cell-title">${thumb(item)}<div><strong>${esc(item.title)}</strong><small>${esc(item.title_en || "")}${item.aired_on ? ` · ${item.aired_on.slice(0, 4)}` : ""}</small></div></div></td>
+        <td class="opt" data-label="Тип">${esc(KIND[item.kind] || item.kind)}</td>
+        <td data-label="Статус">${statusTag(item.status)}${item.needs_moderation ? ` ${tag("Модерация", "warning")}` : ""}</td>
+        <td class="num" data-label="Серии">${item.episodes_aired}${item.episodes_total ? ` / ${item.episodes_total}` : ""}</td>
+        <td class="num opt" data-label="Оценка">${item.score ? String(item.score).replace(".", ",") : "—"}</td>
+        <td class="num opt" data-label="Обновлён">${at(item.updated_at)}</td>
+        <td class="actions"><button type="button" class="icon-btn s" data-action="edit-title" data-id="${item.id}" aria-label="Редактировать «${esc(item.title)}»">${icon("pencil")}</button><button type="button" class="icon-btn s" data-action="title-menu" data-id="${item.id}" aria-label="Ещё действия">${icon("more-horizontal")}</button></td>
+      </tr>`;
+    }).join("");
+  }
+  function renderTitles() {
+    const all = D.anime;
+    const n = key => ({ all: all.length, moderation: all.filter(i => i.needs_moderation).length, novideo: all.filter(i => !i.kodik_id).length, ongoing: all.filter(i => i.status === "ongoing").length, announced: all.filter(i => i.status === "announced").length }[key]);
+    return `${pageHead("Тайтлы", `В каталоге ${num(D.kodikStats.local_total)} тайтлов. Большую часть полей пишет синхронизация; руками правят то, что она не знает или знает неверно.`, `<a class="button" href="#/catalog/import">${icon("download")}Из Kodik</a><button type="button" class="button primary" data-action="new-title">${icon("plus")}Новый тайтл</button>`)}
+    <div class="toolbar">
+      <label class="search grow">${icon("search")}<span class="sr-only">Поиск</span><input class="input" type="search" data-input="titles-q" value="${esc(state.titles.q)}" placeholder="Название, ромадзи или slug" /></label>
+      ${seg("titles", state.titles.filter, [["all", "Все", n("all")], ["ongoing", "Выходят", n("ongoing")], ["announced", "Анонсы", n("announced")], ["moderation", "На модерации", n("moderation")], ["novideo", "Без видео", n("novideo")]])}
+    </div>
+    <section class="card">
+      <div class="table-wrap"><table class="data cards"><thead><tr><th class="check"><input class="box-check" type="checkbox" data-select-all="titles" aria-label="Выбрать все" /></th><th>Тайтл</th><th class="opt">Тип</th><th>Статус</th><th class="num">Серии</th><th class="num opt">Оценка</th><th class="num opt">Обновлён</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody id="title-rows">${titleRows()}</tbody></table></div>
+      <div class="pager"><span>Показано ${filteredTitles().length} из ${num(D.kodikStats.local_total)} · страницы по 50</span><span class="page-actions" style="width:auto"><button type="button" class="button s" disabled>${icon("chevron-left")}Назад</button><button type="button" class="button s">Дальше${icon("chevron-right")}</button></span></div>
+    </section>
+    <div id="bulk-slot">${bulkBar()}</div>`;
+  }
+  function bulkBar() {
+    const n = state.titles.selected.size;
+    if (!n) return "";
+    const ids = [...state.titles.selected].join(",");
+    return `<div class="bulkbar" role="region" aria-label="Действия с выбранным"><strong>${n} ${C.plural(n, "тайтл выбран", "тайтла выбрано", "тайтлов выбрано")}</strong>
+      <label class="sr-only" for="bulk-status">Новый статус</label>
+      <select class="select" id="bulk-status" style="width:auto"><option value="ongoing">Выходит</option><option value="released">Вышел</option><option value="anons">Анонс (запишется как anons)</option><option value="hiatus">Пауза</option><option value="cancelled">Отменён</option></select>
+      <button type="button" class="button s" ${request("bulk.anime", { ids, action: "update_status" })}>${icon("refresh-ccw")}Сменить статус</button>
+      <button type="button" class="button s danger" ${request("bulk.anime", { ids, action: "delete" })}>${icon("trash-2")}Удалить</button>
+      <button type="button" class="icon-btn s" data-action="clear-selection" aria-label="Снять выбор">${icon("x")}</button></div>`;
+  }
+
+  function renderImport() {
+    const q = state.importQ.trim().toLowerCase();
+    const results = q ? D.kodikSearch.filter(r => `${r.title} ${r.title_orig}`.toLowerCase().includes(q) || q.length < 3) : [];
+    return `${pageHead("Добавить из Kodik", "Найдите тайтл в Kodik и заберите его вместе с данными Shikimori. Для уже добавленных тайтлов импорт обновит поля.")}
+    <div class="steps reveal">
+      <section class="card step"><span class="step-n" aria-hidden="true">01</span><strong>Найдите в Kodik</strong><p>Поиск по названию. В выдаче видно, сколько серий и озвучек уже есть.</p></section>
+      <section class="card step"><span class="step-n" aria-hidden="true">02</span><strong>Импортируйте</strong><p>Kodik даёт видео, Shikimori — описание, жанры, постер. Если чего-то нет, тайтл уйдёт на модерацию.</p></section>
+      <section class="card step"><span class="step-n" aria-hidden="true">03</span><strong>Проверьте результат</strong><p>Ответ скажет: создан, обновлён или пропущен, и каких полей не хватает.</p></section>
+    </div>
+    <section class="card">
+      <div class="import-hero">
+        <form class="import-row" data-form="import-search">
+          <label class="search">${icon("search")}<span class="sr-only">Название</span><input class="input" type="search" name="q" value="${esc(state.importQ)}" placeholder="Например: фармацевт" /></label>
+          <button type="submit" class="button primary">${icon("search")}Найти в Kodik</button>
+        </form>
+        <p class="muted" style="font-size:12px">Запрос: <code>GET /dashboard/parsers/kodik/search?q=…</code>. Сервер сам убирает дубликаты и отмечает <code>already_exists</code>. В макете ищется по четырём заготовленным результатам.</p>
+      </div>
+      <div class="results">${results.length ? results.map(r => `<div class="result">
+          ${thumb({ title: r.title })}
+          <div><h4>${esc(r.title)}</h4><div class="meta"><span>${esc(r.title_orig)}</span><span class="mono">${r.year}</span><span>${r.type === "anime" ? "Фильм" : "Сериал"} · ${r.episodes} ${C.plural(r.episodes, "серия", "серии", "серий")}</span><span>${r.translations} ${C.plural(r.translations, "озвучка", "озвучки", "озвучек")}</span><span class="mono">${esc(r.kodik_id)}</span>${r.shikimori_id ? `<span class="mono">shikimori ${r.shikimori_id}</span>` : tag("Нет Shikimori ID", "warning")}</div></div>
+          <div class="op-actions">${r.in_catalog ? `${tag("Уже в каталоге", "success", "check")}<button type="button" class="button s" ${request("import.single", { shikimori: r.shikimori_id ?? "", kodik: r.kodik_id })}>${icon("refresh-cw")}Обновить</button>` : `<button type="button" class="button s primary" ${request("import.single", { shikimori: r.shikimori_id ?? "", kodik: r.kodik_id })}>${icon("download")}Импортировать</button>`}</div>
+        </div>`).join("") : empty("telescope", "Введите название", "Поиск идёт по русскому и оригинальному названию.")}</div>
+    </section>`;
+  }
+
+  function renderEpisodes() {
+    return `${pageHead("Серии и источники", "Серии и источники видео создаёт синхронизация Kodik. Руками правят номер, сезон, отметки «филлер» и «рекап», а также неработающие источники.", `<button type="button" class="button primary" data-action="new-episode">${icon("plus")}Новая серия</button>`)}
+    ${note("info", "lightbulb", "Поиска по тайтлу у списка серий на сервере нет: <code>GET /episodes/with-anime</code> принимает только <code>skip</code> и <code>limit</code>. Чтобы найти серии конкретного тайтла, откройте тайтл: там список из <code>GET /anime/{id}/episodes</code>.")}
+    <section class="card">
+      <div class="table-wrap"><table class="data cards"><thead><tr><th>Тайтл и серия</th><th class="num opt">Сезон</th><th>Отметки</th><th class="num opt">Источников</th><th class="num">Вышла</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody>
+      ${D.episodes.map(e => `<tr>
+        <td class="lead"><div class="cell-title"><div><strong>${esc(e.anime)} · ${e.episode} серия</strong><small>${esc(e.title || "Без названия")}</small></div></div></td>
+        <td class="num opt" data-label="Сезон">${e.season}</td>
+        <td data-label="Отметки">${e.is_filler ? tag("Филлер", "warning") : ""}${e.is_recap ? tag("Рекап", "info") : ""}${!e.is_filler && !e.is_recap ? '<span class="muted">—</span>' : ""}</td>
+        <td class="num opt" data-label="Источников">${e.releases}</td>
+        <td class="num" data-label="Вышла">${at(e.aired_at)}</td>
+        <td class="actions"><button type="button" class="button s" data-action="open-episode" data-id="${e.id}">${icon("list-video")}Открыть</button></td>
+      </tr>`).join("")}</tbody></table></div>
+      <div class="pager"><span>Свежие серии сверху · страницы по 100</span></div>
+    </section>`;
+  }
+
+  function renderCollections() {
+    return `${pageHead("Коллекции", "Подборки пользователей. Создавать, править и отмечать их как «избранные» из админки сейчас нельзя: в API есть только чтение.")}
+    ${note("warning", "lock", "Поле <code>is_featured</code> в базе есть, а эндпоинта, который его меняет, нет. Если подборки на главной нужны, это задача для бэкенда.")}
+    <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th>Подборка</th><th>Видимость</th><th class="num">Тайтлов</th><th class="num">Просмотры</th><th class="num opt">Лайки</th><th class="num">Обновлена</th></tr></thead><tbody>
+    ${D.collections.map(c => `<tr><td class="lead"><div class="cell-title"><div><strong>${esc(c.title)}</strong><small>${esc(c.user)}</small></div></div></td><td data-label="Видимость">${c.is_public ? tag("Публичная", "success") : tag("Личная", "neutral")}${c.is_featured ? ` ${tag("Избранная", "info")}` : ""}</td><td class="num" data-label="Тайтлов">${c.items_count}</td><td class="num" data-label="Просмотры">${num(c.views_count)}</td><td class="num opt" data-label="Лайки">${c.likes_count}</td><td class="num" data-label="Обновлена">${at(c.updated_at)}</td></tr>`).join("")}
+    </tbody></table></div></section>`;
+  }
+
+  /* ==========================================================================
+     Очереди
+     ========================================================================== */
+  function eligible(item) {
+    if (item.moderation_reason === "no_video") return item.status === "announced" || !!item.kodik_url;
+    return !!item.poster_url && !!item.description;
+  }
+  function renderModeration() {
+    const list = D.moderation;
+    const ok = list.filter(eligible);
+    return `${pageHead("Модерация", "Синхронизация ставит тайтл сюда, если у него нет постера, описания или видео. Пока тайтл здесь, на сайте его не видно.", `<button type="button" class="button primary" ${request("moderation.approve", { ids: ok.map(i => i.id).join(",") })} ${ok.length ? "" : "disabled"}>${icon("check-check")}Одобрить готовые · ${ok.length}</button>`)}
+    ${note("info", "lightbulb", "Сервер сам проверяет каждый тайтл: без постера или описания одобрить нельзя, тайтл без видео — только если это анонс или есть ссылка Kodik. Неподходящие вернутся в <code>skipped_ids</code>. Если поправить постер и описание в редакторе, тайтл уйдёт из очереди сам.")}
+    ${list.some(i => i.moderation_reason === "no_video") ? note("neutral", "archive", "Причину «Нет видео» ставила старая Python-синхронизация. Go-код её больше не ставит: тайтл без видео он просто не импортирует. Такие строки могли остаться в базе.") : ""}
+    <section class="card"><div class="mod-list">
+    ${list.map(item => {
+      const okay = eligible(item);
+      const reasons = String(item.moderation_reason || "").split(",").filter(Boolean);
+      return `<div class="mod-item">
+        <input class="box-check" type="checkbox" data-select="moderation" value="${item.id}" ${okay ? "" : "disabled"} aria-label="Выбрать «${esc(item.title)}»" />
+        ${thumb({ title: item.title, poster_url: item.poster_url })}
+        <div><h4>${esc(item.title)}</h4><div class="why">${reasons.map(r => tag(REASON[r] || r, "warning", r === "no_video" ? "video-off" : r === "poster_url" ? "image-off" : "file-x")).join("")}${statusTag(item.status)}<span class="muted" style="font-size:12px">${ago(item.updated_at)}</span></div></div>
+        <div class="mod-actions">${okay ? `<button type="button" class="button s" ${request("moderation.approve", { ids: item.id })}>${icon("check")}Одобрить</button>` : `<span class="muted" style="font-size:12px;align-self:center">Сначала заполните</span>`}<button type="button" class="button s ${okay ? "ghost" : "primary"}" data-action="edit-title" data-slug="${item.slug}">${icon("pencil")}Заполнить</button></div>
+      </div>`;
+    }).join("")}</div></section>`;
+  }
+
+  function renderConflicts() {
+    const status = state.conflicts.status;
+    const counts = s => D.conflicts.filter(c => c.status === s).length;
+    const list = D.conflicts.filter(c => c.status === status);
+    const why = { season_mismatch: "Сезоны не совпали", no_match: "Названия не совпали", metadata: "Принят по году и числу серий" };
+    return `${pageHead("Конфликты", "Проход «Связанные тайтлы» сверяет каждый тайтл с Shikimori. Если строгая проверка не уверена, что это тот же тайтл, данные не пишутся, а строка попадает сюда.")}
+    ${note("warning", "triangle-alert", "<strong>Кнопка «Применить данные Shikimori» в текущем дашборде ничего не меняет в тайтле.</strong> У этого типа конфликта входящие поля (<code>russian</code>, <code>name</code>, <code>id</code>…) не входят в список разрешённых колонок, поэтому любая стратегия только закрывает конфликт. Здесь действия названы честно: «Верно, закрыть» или «Исправить Shikimori ID» в редакторе тайтла.")}
+    <div class="toolbar">${seg("conflicts", status, [["pending", "Ждут решения", counts("pending")], ["auto_accepted", "Приняты автоматически", counts("auto_accepted")], ["resolved", "Закрыты", counts("resolved")]])}</div>
+    <section class="card">${list.length ? list.map(c => {
+      const ex = c.existing_data, inc = c.incoming_data;
+      const seasonMismatch = ex.season_number != null && inc.season_number != null && ex.season_number !== inc.season_number;
+      return `<article class="conflict">
+        <div class="conflict-head"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${tag(why[c.reason] || c.reason, c.reason === "metadata" ? "info" : "warning")}<span class="muted mono" style="font-size:12px">shikimori ${esc(c.external_id)} · ${at(c.created_at)}</span></div>
+        <div class="conflict-actions">${c.status === "pending" ? `<button type="button" class="button s ghost" data-action="edit-title" data-slug="${esc(ex.slug)}">${icon("pencil")}Исправить Shikimori ID</button><button type="button" class="button s" ${request("conflicts.resolve", { id: c.id, strategy: "keep" })}>${icon("check")}Верно, закрыть</button>` : c.status === "auto_accepted" ? `<button type="button" class="button s ghost" data-action="edit-title" data-slug="${esc(ex.slug)}">${icon("pencil")}Открыть тайтл</button>` : ""}</div></div>
+        <div class="diff">
+          <div class="diff-side"><h5>${icon("home", "icon-s")}У нас</h5><div class="t">${esc(ex.title)}</div><div class="s">${esc(ex.title_en || "")}</div>
+            <dl class="kv"><dt>Shikimori ID</dt><dd class="mono">${esc(ex.shikimori_id)}</dd>${ex.season_number !== undefined ? `<dt>Сезон</dt><dd class="mono ${seasonMismatch ? "mismatch" : ""}">${ex.season_number ?? "не найден"}</dd>` : ""}${ex.aired_on_year ? `<dt>Год / серий</dt><dd class="mono">${ex.aired_on_year} / ${ex.episodes_total}</dd>` : ""}<dt>slug</dt><dd class="mono">${esc(ex.slug)}</dd></dl></div>
+          <div class="diff-mid${seasonMismatch ? " is-mismatch" : ""}" aria-hidden="true">${icon(seasonMismatch ? "equal-not" : "arrow-left-right")}</div>
+          <div class="diff-side"><h5>${icon("cloud", "icon-s")}Shikimori</h5><div class="t">${esc(inc.russian)}</div><div class="s">${esc(inc.english || inc.name || "")}</div>
+            <dl class="kv"><dt>ID</dt><dd class="mono">${esc(inc.id)}</dd>${inc.season_number !== undefined ? `<dt>Сезон</dt><dd class="mono ${seasonMismatch ? "mismatch" : ""}">${inc.season_number ?? "не найден"}</dd>` : ""}${inc.aired_on_year ? `<dt>Год / серий</dt><dd class="mono">${inc.aired_on_year} / ${inc.episodes}</dd>` : ""}</dl></div>
+        </div>
+      </article>`;
+    }).join("") : empty("check-check", "Пусто", "В этом состоянии конфликтов нет.")}</section>`;
+  }
+
+  function renderComments() {
+    return `${pageHead("Комментарии", "Лента всех комментариев, свежие сверху. Удалить комментарий может только суперпользователь; текст станет «[удалено]».")}
+    ${note("warning", "eye-off", "<strong>Очередь «на проверку» всегда пуста.</strong> В API нет действия «скрыть», и новые комментарии создаются видимыми, поэтому кнопке «Одобрить» нечего одобрять. Модератор (<code>comments.moderate</code>) может только читать эту ленту: удалить чужой комментарий он не может.")}
+    <section class="card">${D.comments.map(c => `<article class="comment ${c.is_deleted ? "is-deleted" : ""}">
+      <span class="letter" aria-hidden="true">${esc(c.user[0].toUpperCase())}</span>
+      <div><div class="comment-meta"><strong style="color:var(--text)">${esc(c.user)}</strong><span>${esc(c.anime)} · ${c.episode} серия</span><span>${at(c.created_at)}</span><span>${icon("heart", "icon-s")} ${c.likes_count}</span><span>ответов ${c.replies_count}</span></div><p>${esc(c.content)}</p></div>
+      <div>${c.is_deleted ? tag("Удалён", "neutral") : `<button type="button" class="icon-btn s danger" ${request("comments.delete", { id: c.id, name: `комментарий ${c.user}` })} aria-label="Удалить комментарий ${esc(c.user)}">${icon("trash-2")}</button>`}</div>
+    </article>`).join("")}</section>`;
+  }
+
+  /* ==========================================================================
+     Парсер
+     ========================================================================== */
+  function lastRunOf(op) {
+    const types = [op.job_type, op.dry, op.job_type === "incremental" ? "incremental_sync" : null].filter(Boolean);
+    return D.jobs.filter(j => j.parser_name === op.parser && types.includes(j.job_type)).sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0];
+  }
+  function opCard(op) {
+    const last = lastRunOf(op);
+    const running = last?.status === "running", queued = last?.status === "pending";
+    const facts = op.works ? [
+      tag(op.duration, "neutral", "hourglass"),
+      op.blocks ? tag("Занимает очередь", "warning", "lock") : tag("Не мешает очереди", "success", "zap"),
+      op.schedulable ? tag("Можно по расписанию", "info", "calendar-check") : tag("Только вручную", "neutral", "hand"),
+    ].join("") : tag("Не перенесено в Go", "danger", "ban");
+    const dry = op.dry ? `<div class="seg" role="group" aria-label="Режим запуска"><button type="button" data-dry="${op.key}" data-value="dry" aria-pressed="true">Пробный</button><button type="button" data-dry="${op.key}" data-value="real" aria-pressed="false">Настоящий</button></div>` : "";
+    return `<article class="card op-card ${op.works ? "" : "is-off"}">
+      <div class="op-card-head">${icon(op.icon)}<div><h4>${esc(op.title)}</h4><small>${esc(op.parser)} · ${esc(op.dry || op.job_type)}</small></div></div>
+      <p>${esc(op.summary)}</p>
+      <div class="op-facts">${facts}</div>
+      ${op.guard ? note("info", "shield", esc(op.guard)) : ""}
+      ${op.dry ? note("info", "flask-conical", "Сначала запустите пробный прогон: он ничего не пишет, а в журнале покажет, что изменится.") : ""}
+      <div class="op-actions">${op.works ? `${dry}<button type="button" class="button ${op.danger ? "" : "primary"}" ${request("jobs.trigger", { parser: op.parser, type: op.dry || op.job_type, op: op.key })} ${running || queued ? "disabled" : ""}>${icon(running ? "loader" : queued ? "hourglass" : "play")}${running ? "Уже идёт" : queued ? "В очереди" : "Запустить"}</button>` : `<button type="button" class="button" disabled>${icon("ban")}Недоступно</button>`}
+        <span class="op-last">${last ? `Последний раз: ${at(last.created_at)} · ${esc(labelForStatus(last.status)).toLowerCase()}` : "Ещё не запускали"}</span></div>
+    </article>`;
+  }
+  function renderRun() {
+    const running = D.jobs.find(j => j.status === "running");
+    const groups = [["daily", "Регулярные"], ["long", "Долгие проходы"], ["repair", "Починка данных"], ["missing", "Есть в старом дашборде, но не работают"]];
+    return `${pageHead("Запуск", "Каждая операция описана так, чтобы было понятно, что она сделает, сколько займёт и кому помешает. Список операций в шаблоне живёт в одном месте и при переносе должен приходить с сервера.")}
+    ${running ? `<section class="card glow queue-banner">${dot("live")}<strong>Сейчас выполняется: ${esc(jobTitle(running))}</strong>${liveBar(running)}<span class="mono" data-live-pct>${state.live.progress}%</span><a class="link-btn" href="#/parser/jobs">Открыть${icon("arrow-right")}</a></section>` : ""}
+    <div class="op-groups">${groups.map(([id, title]) => `<section class="op-group"><h3>${esc(title)}</h3><div class="op-grid reveal">${D.operations.filter(op => op.group === id).map(opCard).join("")}</div></section>`).join("")}</div>`;
+  }
+
+  function renderJobs() {
+    const st = state.jobs.status;
+    const list = D.jobs.filter(j => st === "all" || j.status === st);
+    const n = s => D.jobs.filter(j => j.status === s).length;
+    return `${pageHead("Задачи", "Очередь и история запусков. Источник запуска («Расписание», «Вручную», «kitsu-admin») в базе пока не хранится — в шаблоне он показан, чтобы было видно, где ему место.", `<button type="button" class="button" ${request("jobs.clear", { status: "completed" })}>${icon("eraser")}Очистить готовые</button>`)}
+    <div class="toolbar">${seg("jobs", st, [["all", "Все", D.jobs.length], ["running", "Идут", n("running")], ["pending", "Ждут", n("pending")], ["completed", "Готово", n("completed")], ["failed", "Ошибки", n("failed")], ["cancelled", "Остановлены", n("cancelled")]])}</div>
+    <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th>Задача</th><th>Статус</th><th class="opt">Прогресс</th><th class="num">Обработано</th><th class="num opt">Длительность</th><th class="num">Создана</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody>
+    ${list.length ? list.map(j => `<tr>
+      <td class="lead"><div class="cell-title"><div><strong>${esc(jobTitle(j))}</strong><small>${esc(j.source)} · <span class="mono">${esc(j.parser_name)}/${esc(j.job_type)}</span></small></div></div></td>
+      <td data-label="Статус">${statusTag(j.status)}</td>
+      <td class="opt" data-label="Прогресс" style="min-width:120px">${j.status === "running" ? liveBar(j) : j.status === "pending" ? `<span class="muted" style="font-size:12px">Ждёт свободного слота</span>` : j.error_message ? `<span class="${j.status === "failed" ? "" : "muted"}" style="font-size:12px;color:${j.status === "failed" ? "var(--red)" : ""}">${esc(j.error_message)}</span>` : `<span class="progress"><i style="--p:${j.progress}%"></i></span>`}</td>
+      <td class="num" data-label="Обработано">${num(j.items_processed)}${j.items_failed ? ` <span style="color:var(--red)">· ${j.items_failed} ош.</span>` : ""}</td>
+      <td class="num opt" data-label="Длительность">${C.fmtDuration(j.duration_seconds)}</td>
+      <td class="num" data-label="Создана">${at(j.created_at)}</td>
+      <td class="actions"><button type="button" class="icon-btn s" data-action="open-job" data-id="${j.id}" aria-label="Подробно: ${esc(jobTitle(j))}" title="Подробно">${icon("scroll-text")}</button></td>
+    </tr>`).join("") : `<tr><td colspan="7">${empty("inbox", "Пусто", "Задач с таким статусом нет.")}</td></tr>`}
+    </tbody></table></div></section>
+    ${note("warning", "triangle-alert", "Мониторинг считает отказы и запаздывание расписания по истории задач. Очистка истории стирает эти следы: проверки на время станут «нет выборки».")}`;
+  }
+
+  function daymap() {
+    const rows = D.schedules.map(s => {
+      const minutes = C.fireMinutes(s.cron_expression);
+      return `<div class="daymap-row"><b title="${esc(scheduleTitle(s))}">${esc(scheduleTitle(s))}</b><div class="daymap-track" aria-label="${esc(C.describeCron(s.cron_expression).text)}">${minutes.map(m => `<i style="left:${(m / 1440) * 100}%"></i>`).join("")}</div></div>`;
+    });
+    rows.push(`<div class="daymap-row"><b>Суточный бэкап</b><div class="daymap-track" aria-label="Каждый день в 05:00"><i class="backup" style="left:${(300 / 1440) * 100}%"></i></div></div>`);
+    const scale = Array.from({ length: 9 }, (_, i) => `<span style="left:${(i / 8) * 100}%">${String(i * 3).padStart(2, "0")}:00</span>`).join("");
+    return `<div class="daymap">${rows.join("")}<div class="daymap-scale"><div></div><div aria-hidden="true">${scale}</div></div></div>`;
+  }
+  function renderSchedule() {
+    return `${pageHead("Расписание", "Когда задачи запускаются сами. Время — по Алматы; сервер хранит cron в UTC, его видно мелко под каждой строкой.", `<button type="button" class="button primary" data-action="new-schedule">${icon("plus")}Новое расписание</button>`)}
+    <section class="card reveal"><div class="card-head"><h2>${icon("calendar-range")}Карта суток</h2><span class="card-meta">Когда что срабатывает, по Алматы</span></div><div class="card-body">${daymap()}</div></section>
+    <section class="card"><div class="sched-list">
+    ${D.schedules.map(s => {
+      const d = C.describeCron(s.cron_expression);
+      return `<div class="sched">
+        <div class="sched-title"><strong>${esc(scheduleTitle(s))}</strong><small>${esc(s.parser_name)}/${esc(s.job_type)} · cron <span>${esc(s.cron_expression)}</span>${d.utc ? ` (${esc(d.utc)})` : ""}</small></div>
+        <div class="sched-when"><strong>${esc(d.text)}</strong><small>Следующий: ${at(s.next_run_at)} · прошлый: ${at(s.last_run_at)}</small></div>
+        <div class="sched-actions">
+          <label class="switch" title="Включено"><input type="checkbox" ${s.is_active ? "checked" : ""} ${request("schedule.update", { id: s.id, field: "is_active" })} aria-label="Включено" /><span class="track"></span></label>
+          <button type="button" class="icon-btn s" ${request("schedule.runNow", { id: s.id, name: scheduleTitle(s) })} aria-label="Запустить сейчас">${icon("play")}</button>
+          <button type="button" class="icon-btn s" data-action="edit-schedule" data-id="${s.id}" aria-label="Изменить">${icon("pencil")}</button>
+          <button type="button" class="icon-btn s danger" ${request("schedule.delete", { id: s.id, name: scheduleTitle(s) })} aria-label="Удалить">${icon("trash-2")}</button>
+        </div>
+        ${s.trap ? note("warning", "triangle-alert", esc(s.trap)) : ""}
+      </div>`;
+    }).join("")}</div></section>
+    <div class="grid cols-3">
+      ${note("info", "hourglass", "<strong>Шаг — 15 минут.</strong> Пульс воркера проверяет расписание раз в 15 минут, поэтому задача может стартовать с опозданием до 15 минут.")}
+      ${note("info", "lock", "<strong>Одна очередь.</strong> Пока идёт долгая задача, плановые ждут. Это видно на пульте как запаздывание.")}
+      ${note("warning", "calendar-x", "<strong>Правка cron не сдвигает ближайший запуск.</strong> Сервер не пересчитывает <code>next_run_at</code>: новое время начнёт действовать после ближайшего старого запуска.")}
+    </div>`;
+  }
+
+  function renderLogs() {
+    const lv = state.logs.level;
+    const list = D.jobLogs.filter(l => lv === "all" || l.level === lv).sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+    return `${pageHead("Журнал парсера", "Сообщения всех задач. Чтобы видеть одну задачу, откройте её в «Задачах».")}
+    <div class="toolbar">${seg("logs", lv, [["all", "Все"], ["INFO", "Инфо"], ["WARNING", "Предупреждения"], ["ERROR", "Ошибки"]])}</div>
+    <section class="card"><div class="log">${list.length ? list.map(l => `<div class="log-row" data-tone="${toneForStatus(l.level)}"><span class="mono muted">${C.fmtTime(l.created_at)}</span><span class="lvl">${esc(labelForStatus(l.level))}</span><span class="msg">${esc(l.message)}</span><span class="job">${esc(l.job)}</span></div>`).join("") : empty("inbox", "Пусто", "Сообщений этого уровня нет.")}</div></section>`;
+  }
+
+  function renderBlacklist() {
+    return `${pageHead("Исключения", "Тайтлы, которые синхронизация и импорт никогда не добавят. Достаточно одного признака: Shikimori ID, Kodik ID или slug.")}
+    <section class="card"><div class="card-body"><form class="form-grid bl-form" data-form="blacklist">
+      <label class="field"><span>Shikimori ID</span><input class="input mono" name="shikimori_id" type="number" min="1" inputmode="numeric" placeholder="33352" /></label>
+      <label class="field"><span>Kodik ID</span><input class="input mono" name="kodik_id" placeholder="serial-77120" /></label>
+      <label class="field"><span>slug</span><input class="input mono" name="slug" placeholder="test-title" /></label>
+      <button type="submit" class="button primary">${icon("plus")}Добавить</button>
+    </form></div></section>
+    <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th>Признак</th><th>Зачем</th><th class="num">Добавлен</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody>
+    ${D.blacklist.map(b => `<tr><td class="lead mono">${b.shikimori_id ? `shikimori ${b.shikimori_id}` : b.kodik_id ? esc(b.kodik_id) : `slug ${esc(b.slug)}`}</td><td data-label="Зачем" class="secondary">${esc(b.note)}</td><td class="num" data-label="Добавлен">${at(b.created_at)}</td><td class="actions"><button type="button" class="icon-btn s danger" ${request("blacklist.delete", { id: b.id, name: b.shikimori_id || b.kodik_id || b.slug })} aria-label="Убрать из исключений">${icon("trash-2")}</button></td></tr>`).join("")}
+    </tbody></table></div></section>
+    ${note("info", "lightbulb", "Колонки «зачем» в таблице <code>parser_anime_blacklist</code> нет. В шаблоне она показана как пожелание: через полгода никто не вспомнит, почему тайтл исключён.")}`;
+  }
+
+  /* ==========================================================================
+     Стенд
+     ========================================================================== */
+  const UNITS = { hours: ["ч", "ч", "ч"], days: ["день", "дня", "дней"], minutes: ["мин", "мин", "мин"], rows: ["строка", "строки", "строк"], jobs: ["задача", "задачи", "задач"], problems: ["проблема", "проблемы", "проблем"], probes_broken: ["сломана", "сломаны", "сломано"] };
+  function checkValue(c) {
+    if (c.value == null) return "—";
+    if (c.unit === "ratio") return `${Math.round(c.value * 100)}<span class="u">%</span>`;
+    const forms = UNITS[c.unit];
+    const shown = String(c.value).replace(".", ",");
+    return forms ? `${shown} <span class="u">${Number.isInteger(c.value) ? C.plural(c.value, ...forms) : forms[1]}</span>` : `${shown} <span class="u">${esc(c.unit)}</span>`;
+  }
+  const checkName = name => esc(name).replace(/\(([0-9*\/ ,-]+)\)/, '(<span class="mono">$1</span>)');
+  function renderChecks() {
+    const st = state.checks.state;
+    const states = ["fail", "warn", "stale", "no_sample", "waiting", "unknown", "ok"];
+    const n = s => D.checks.filter(c => c.state === s).length;
+    const list = D.checks.filter(c => st === "all" || c.state === st);
+    return `${pageHead("Проверки", "Монитор в воркере раз в 15 минут считает проверки и сохраняет результат. Страница только показывает ответ сервера: свои пороги и список проверок ей знать нельзя.")}
+    <section class="card reveal"><div class="card-body" style="display:grid;gap:14px">
+      <div style="display:flex;gap:10px 22px;flex-wrap:wrap;align-items:center"><span>${dot(D.monitor.state === "ok" ? "success" : "danger")} Монитор: последний такт <strong>${at(D.monitor.last_tick_at)}</strong></span><span>${dot("success")} Стенд в работе с <strong>${C.fmtTime(D.stack.up_since)}</strong>, за сутки ${String(D.stack.uptime_24h_hours).replace(".", ",")} ч</span></div>
+      <div class="states">${states.filter(n).map(s => tag(`${labelForStatus(s)} · ${n(s)}`, toneForStatus(s))).join("")}</div>
+    </div></section>
+    <div class="toolbar">${seg("checks", st, [["all", "Все", D.checks.length], ...states.filter(n).map(s => [s, labelForStatus(s), n(s)])])}</div>
+    <section class="card"><div class="check-list">${list.map(c => `<div class="check-row">${statusTag(c.state)}<div><strong>${checkName(c.name)}</strong><small>${esc(c.evidence || "")}</small></div><div class="val">${checkValue(c)}${c.threshold ? `<small>порог ${esc(c.threshold)}</small>` : ""}</div><span class="muted mono" style="font-size:12px">${C.fmtTime(c.last_run_at)}</span></div>`).join("")}</div></section>
+    <section class="card"><div class="card-head"><h2>${icon("book-open")}Как читать состояния</h2></div><div class="card-body"><dl class="kv">
+      <dt>${statusTag("ok")}</dt><dd>Условие выполнено.</dd>
+      <dt>${statusTag("warn")}</dt><dd>Стоит посмотреть, но сайт работает.</dd>
+      <dt>${statusTag("fail")}</dt><dd>Условие не выполнено, хотя стенд проработал достаточно, чтобы успеть.</dd>
+      <dt>${statusTag("waiting")}</dt><dd>Срок прошёл, пока стенд был выключен. Это не поломка.</dd>
+      <dt>${statusTag("no_sample")}</dt><dd>Путь не записал ни одной строки за окно. Если это длится долго — сигнал, что путь не работает.</dd>
+      <dt>${statusTag("unknown")}</dt><dd>Судить не по чему: истории ещё мало или проверка не подключена.</dd>
+      <dt>${statusTag("stale")}</dt><dd>Результат старше трёх тактов при работающем стенде: монитор, похоже, встал.</dd>
+    </dl></div></section>`;
+  }
+
+  function renderResources() {
+    const h = D.health;
+    const gauge = (label, ic, value, unit = "%", hint = "") => `<section class="card gauge"><div class="gauge-top"><strong>${icon(ic)}${label}</strong><b>${String(value).replace(".", ",")}${unit}</b></div><div class="progress"><i style="--p:${Math.min(100, value)}%"></i></div>${hint ? `<small>${hint}</small>` : ""}</section>`;
+    return `${pageHead("Ресурсы", "Снимок процесса api-go и его контейнера. Это не весь стенд: база, воркер и nginx меряются отдельно, в «Проверках».", `<button type="button" class="button" data-action="refresh">${icon("refresh-cw")}Обновить</button>`)}
+    <div class="grid cols-4 kpis reveal">
+      ${gauge("Процессор", "cpu", h.resources.cpu_percent)}
+      ${gauge("Память", "memory-stick", h.resources.memory_percent, "%", `Сам api-go: ${String(h.resources.memory_app_mb).replace(".", ",")} МБ`)}
+      ${gauge("Диск", "hard-drive", h.resources.disk_percent, "%", "Корень контейнера api-go")}
+      <section class="card gauge"><div class="gauge-top"><strong>${icon("gauge")}Нагрузка</strong><b class="mono" style="font-family:var(--font-mono);font-size:20px">${h.resources.load_avg.map(v => v.toFixed(2).replace(".", ",")).join(" · ")}</b></div><small>За 1, 5 и 15 минут</small></section>
+    </div>
+    <section class="card"><div class="card-head"><h2>${icon("network")}Службы</h2><span class="card-meta">api-go работает ${esc(D.overview.uptime.replace("d", " дн").replace("h", " ч").replace("m", " мин"))}</span></div><div class="card-body flush">
+      <div class="svc">${icon("database")}<div><strong>База данных</strong><small>Ответ на SELECT 1 за ${String(h.services.database.latency_ms).replace(".", ",")} мс</small></div>${statusTag(h.services.database.status)}</div>
+      <div class="svc">${icon("cog")}<div><strong>Воркер</strong><small>Серверов asynq: ${h.services.worker.count}</small></div>${statusTag(h.services.worker.status)}</div>
+      <div class="svc">${icon("layers")}<div><strong>Кэш Redis</strong><small>Сервер всегда отвечает «online»: на самом деле состояние не проверяется</small></div>${tag("Не измеряется", "neutral")}</div>
+    </div></section>`;
+  }
+
+  function renderBackups() {
+    return `${pageHead("Резервные копии", "Каждый запуск даёт два файла: дамп базы и архив медиа. Автоматический запуск — каждый день в 05:00 по Алматы (00:00 UTC).", `<button type="button" class="button primary" ${request("backups.create")}>${icon("archive")}Сделать копию сейчас</button>`)}
+    ${note("info", "shield", "Восстановления из админки нет и не будет: это делается по инструкции <code>09_backup_restore_runbook.md</code> на сервере. Здесь — только создать, скачать и удалить.")}
+    <section class="card">${D.backups.map(run => `<div class="run">
+      <div class="run-when"><strong>${at(run.run)}</strong><small>${run.type === "auto" ? "Автоматически" : "Вручную"}</small></div>
+      <div class="run-files">${run.items.map(f => `<div class="file">${icon(f.kind === "database" ? "database" : "images")}<div><strong>${esc(f.filename)}</strong><small>${f.kind === "database" ? "База данных" : "Медиа"} · ${C.fmtBytes(f.size)}</small>${f.failure_reason ? `<small class="fail">${esc(f.failure_reason)}</small>` : ""}</div>${statusTag(f.status)}<div class="file-actions">${f.status === "completed" ? `<button type="button" class="icon-btn s" ${request("backups.download", { id: f.id, name: f.filename })} aria-label="Скачать ${esc(f.filename)}">${icon("download")}</button>` : ""}<button type="button" class="icon-btn s danger" ${request("backups.delete", { id: f.id, name: f.filename })} aria-label="Удалить ${esc(f.filename)}">${icon("trash-2")}</button></div></div>`).join("")}</div>
+    </div>`).join("")}</section>`;
+  }
+
+  function renderAudit() {
+    const ACT = { update: "Изменил", trigger: "Запустил", import: "Импортировал", resolve_conflict: "Закрыл конфликт", create: "Создал", ban: "Забанил", delete: "Удалил" };
+    return `${pageHead("Журнал действий", "Кто, что и когда менял через админку. Одобрение модерации и смена настроек парсера сюда не попадают: сервер их не записывает.")}
+    <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th class="num">Когда</th><th>Кто</th><th>Действие</th><th>Объект</th><th>Результат</th></tr></thead><tbody>
+    ${D.audit.map(a => `<tr><td class="num lead">${at(a.created_at)}</td><td data-label="Кто"><strong>${esc(a.actor)}</strong> <span class="muted mono opt" style="font-size:12px">${esc(a.actor_ip)}</span></td><td data-label="Действие">${esc(ACT[a.action] || a.action)} <span class="muted">${esc(a.resource_type)}</span></td><td data-label="Объект">${esc(a.resource)}</td><td data-label="Результат">${a.success ? tag("Успешно", "success") : tag(a.error_message || "Отказ", "danger")}</td></tr>`).join("")}
+    </tbody></table></div><div class="pager"><span>Страницы по 100, свежие сверху</span></div></section>`;
+  }
+
+  /* ==========================================================================
+     Люди
+     ========================================================================== */
+  const roleByName = name => D.roles.find(r => r.name === name);
+  function accessTag(user) {
+    const access = C.effectiveAccess(user, roleByName(user.role));
+    if (access.level === "full") return tag("Полный доступ", "live", "crown");
+    if (access.level === "none") return tag("Как у зрителя", "neutral");
+    const perms = roleByName(user.role)?.permissions || [];
+    const series = C.satisfies(perms, "content.edit"), comments = C.satisfies(perms, "comments.moderate");
+    return tag(series && comments ? "Серии и комментарии" : series ? "Только серии" : "Только комментарии", "info");
+  }
+  function renderUsers() {
+    const q = state.users.q.toLowerCase();
+    const list = D.users.filter(u => !q || `${u.username} ${u.email}`.toLowerCase().includes(q));
+    return `${pageHead("Пользователи", "Поиск по имени и почте. Создавать пользователей из админки нельзя: только регистрация на сайте.")}
+    <div class="toolbar"><label class="search grow">${icon("search")}<span class="sr-only">Поиск</span><input class="input" type="search" data-input="users-q" value="${esc(state.users.q)}" placeholder="Имя или email" /></label></div>
+    <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th>Пользователь</th><th class="opt">Роль</th><th>Доступ в админке</th><th>Состояние</th><th class="num opt">Был</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody id="user-rows">
+    ${list.map(u => `<tr><td class="lead"><div class="cell-title"><span class="letter" aria-hidden="true">${esc(u.username[0].toUpperCase())}</span><div><strong>${esc(u.username)}</strong><small>${esc(u.email)}</small></div></div></td>
+      <td class="opt" data-label="Роль"><span class="mono">${esc(u.role || "без роли")}</span></td>
+      <td data-label="Доступ">${accessTag(u)}</td>
+      <td data-label="Состояние">${u.is_active ? (u.is_verified ? tag("Активен", "success") : tag("Почта не подтверждена", "warning")) : tag("Забанен", "danger")}</td>
+      <td class="num opt" data-label="Был">${at(u.last_seen_at)}</td>
+      <td class="actions"><button type="button" class="button s" data-action="open-user" data-id="${u.id}">${icon("user-cog")}Открыть</button></td></tr>`).join("")}
+    </tbody></table></div></section>`;
+  }
+
+  function renderAccess() {
+    const effects = Object.entries(C.permissionEffects);
+    return `${pageHead("Доступ", "Что на самом деле даёт каждая роль. В ролях записано много прав, но сервер проверяет только два. Всё остальное открыто одному суперпользователю.")}
+    ${note("warning", "key-round", "<strong>Права <code>users.view</code>, <code>users.edit</code>, <code>parsers.*</code>, <code>analytics.view</code> ни на что не влияют.</strong> Роль «admin» без флага суперпользователя не откроет ни парсер, ни пользователей — только серии и источники. Менять сами роли через API нельзя, только назначать.")}
+    <div class="role-grid reveal">
+      <section class="card role-card"><h3>Суперпользователь</h3><p class="muted" style="font-size:13px">Флаг <code>is_superuser</code>, не роль</p><ul><li>${icon("check")}Всё в админке: парсер, бэкапы, пользователи, настройки</li><li>${icon("check")}Удаление чужих комментариев</li></ul></section>
+      ${D.roles.map(role => {
+        const items = effects.map(([perm, list]) => ({ on: C.satisfies(role.permissions, perm), perm, list }));
+        return `<section class="card role-card"><h3>${esc(role.name)}</h3><p class="muted" style="font-size:13px">${esc(role.description)}</p>
+          <ul>${items.flatMap(i => i.list.map(text => `<li class="${i.on ? "" : "off"}">${icon(i.on ? "check" : "minus")}${esc(text)}</li>`)).join("")}</ul>
+          <p class="muted" style="font-size:12.5px">Остальные разделы открываются только флагом суперпользователя.</p>
+          <div class="perm-list">${role.permissions.map(p => `<code>${esc(p)}</code>`).join("")}</div></section>`;
+      }).join("")}
+    </div>`;
+  }
+
+  function renderCosmetics() {
+    return `${pageHead("Оформление", "Аватары и рамки, из которых пользователи собирают профиль. Выключенные не видны в выборе, но у тех, кто уже выбрал, остаются.", `<button type="button" class="button" data-action="new-cosmetic" data-kind="decoration">${icon("plus")}Рамка</button><button type="button" class="button primary" data-action="new-cosmetic" data-kind="avatar">${icon("plus")}Аватар</button>`)}
+    <section class="card"><div class="card-head"><h2>${icon("image")}Аватары</h2><span class="card-meta">${D.avatars.length} в коллекции</span></div><div class="card-body"><div class="gallery">
+      ${D.avatars.map(a => `<div class="tile ${a.is_active ? "" : "is-off"}"><div class="tile-art">${artTile(a.title)}</div><strong>${esc(a.title)}</strong><div class="tile-foot"><span class="tag">${esc(a.category)}</span><button type="button" class="icon-btn s" data-action="edit-cosmetic" data-kind="avatar" data-id="${a.id}" aria-label="Изменить ${esc(a.title)}">${icon("pencil")}</button></div></div>`).join("")}
+    </div></div></section>
+    <section class="card"><div class="card-head"><h2>${icon("frame")}Рамки профиля</h2></div><div class="card-body"><div class="gallery">
+      ${D.decorations.map(d => `<div class="tile ${d.is_active ? "" : "is-off"}"><div class="tile-art">${artTile(`d${d.title}`)}</div><strong>${esc(d.title)}</strong><div class="tile-foot">${d.is_active ? tag("Включена", "success") : tag("Выключена", "neutral")}<button type="button" class="icon-btn s" data-action="edit-cosmetic" data-kind="decoration" data-id="${d.id}" aria-label="Изменить ${esc(d.title)}">${icon("pencil")}</button></div></div>`).join("")}
+    </div></div></section>`;
+  }
+
+  /* ==========================================================================
+     Настройки
+     ========================================================================== */
+  function renderSettings() {
+    const S = D.settings;
+    const fields = S.parserArchive.reduce((sum, c) => sum + c.fields.length, 0);
+    return `${pageHead("Настройки", "Раньше здесь было 10 вкладок и около 60 полей. Проверка кода показала: ни одно из них не влияет на работу сайта. Ниже — где на самом деле живёт каждая настройка.")}
+    <section class="card glow reveal"><div class="card-body" style="display:grid;gap:12px">
+      <div style="display:flex;gap:14px;align-items:flex-start">${icon("search-check", "icon-l")}<div><strong style="font-size:16px">Что показала сверка с кодом</strong><p class="secondary" style="margin-top:4px">Настройки парсера (${S.parserArchive.length} ${C.plural(S.parserArchive.length, "категория", "категории", "категорий")}, ${fields} ${C.plural(fields, "поле", "поля", "полей")}) и настройки сайта (${S.site.length} ${C.plural(S.site.length, "ключ", "ключа", "ключей")}) сохраняются в базу, но текущий Go-бэкенд их не читает. Python-воркер, который читал часть из них, больше не запускается. Пункт меню «Настройки» в дашборде ведёт на несуществующую страницу.</p></div></div>
+    </div></section>
+
+    <h2 class="sr-only">Что работает</h2>
+    <div class="truth">${S.real.map(r => `<a class="card truth-card" href="#/${r.route}">${icon(r.icon)}<strong>${esc(r.title)}</strong><small>${esc(r.where)}</small><p>${esc(r.how)}</p></a>`).join("")}</div>
+
+    <div class="grid split-even">
+      <section class="card"><div class="card-head"><h2>${icon("app-window")}Сайт</h2>${tag("Не подключено", "warning", "unplug")}</div><div class="card-body">
+        ${S.site.map(s => `<div class="setting"><div><strong>${esc(s.label)}</strong><small><code>${esc(s.key)}</code></small></div>
+          ${s.type === "boolean" ? `<label class="switch"><input type="checkbox" ${s.value ? "checked" : ""} ${request("site.update", { key: s.key })} aria-label="${esc(s.label)}" /><span class="track"></span></label>` : s.type === "color" ? `<span class="swatch-row"><span class="swatch" style="background:${esc(s.value)}" aria-hidden="true"></span><span class="mono secondary">${esc(s.value)}</span></span>` : `<span class="mono secondary">${esc(s.value)}</span>`}
+          <div class="tags">${s.retire ? tag("Предлагаю убрать: цвета задаёт тема", "neutral") : tag("Сайт не читает это значение", "warning")}</div></div>`).join("")}
+        ${note("info", "lightbulb", "Если подключать, то начать с «Регистрация открыта»: это одна проверка в <code>POST /auth/register</code>. «Режим обслуживания» требует решения, что видят зрители и кто проходит мимо.")}
+      </div></section>
+      <section class="card"><div class="card-head"><h2>${icon("terminal")}Задано на сервере</h2><span class="card-meta">Меняется только деплоем</span></div><div class="card-body flush env-list">
+        ${S.env.map(e => `<div class="env"><strong>${esc(e.name)}</strong><code>${esc(e.value)}</code><small>${esc(e.note)}</small></div>`).join("")}
+      </div></section>
+    </div>
+
+    <section class="card"><div class="card-head"><h2>${icon("archive")}Архив старых настроек парсера</h2><button type="button" class="button s" ${request("parserSettings.list")}>${icon("file-json")}Выгрузить JSON</button></div>
+      <div class="card-body flush archive">${S.parserArchive.map(c => `<details><summary>${icon("chevron-right")}<strong>${esc(c.title)}</strong><span class="count">${c.fields.length}</span><code>${esc(c.category)}</code></summary><div class="inner">${c.note ? note("info", "lightbulb", esc(c.note)) : ""}<div class="field-chips">${c.fields.map(f => `<code>${esc(f)}</code>`).join("")}</div></div></details>`).join("")}</div>
+    </section>`;
+  }
+
+  /* ==========================================================================
+     Панель справа (drawer)
+     ========================================================================== */
+  let drawerReturn = null;
+  function openDrawer(html) {
+    const drawer = $("#drawer");
+    drawerReturn = document.activeElement;
+    drawer.innerHTML = html;
+    drawer.hidden = false;
+    state.dirty = false;
+    refreshIcons(drawer);
+    const form = $("form[data-form]", drawer);
+    if (form) form.dataset.initial = JSON.stringify(C.readForm(form));
+    requestAnimationFrame(() => { drawer.classList.add("is-open"); $("#scrim").classList.add("is-open"); });
+    document.body.style.overflow = "hidden";
+    setTimeout(() => ($("[autofocus]", drawer) || $(".drawer-head h2", drawer))?.focus?.(), 60);
+  }
+  function closeDrawer(force = false) {
+    const drawer = $("#drawer");
+    if (drawer.hidden) return;
+    if (state.dirty && !force) {
+      confirmDialog({ title: "Закрыть без сохранения?", tone: "warning", icon: "triangle-alert", text: "Изменения в форме пропадут.", ok: "Закрыть", onOk: () => closeDrawer(true) });
+      return;
+    }
+    drawer.classList.remove("is-open");
+    $("#scrim").classList.remove("is-open");
+    document.body.style.overflow = "";
+    setTimeout(() => { drawer.hidden = true; drawer.innerHTML = ""; }, reduceMotion.matches ? 0 : 240);
+    drawerReturn?.focus?.();
+  }
+  const drawerShell = (title, sub, body, foot) => `<div class="drawer-head"><div><h2 id="drawer-title" tabindex="-1">${esc(title)}</h2>${sub ? `<p>${sub}</p>` : ""}<div class="dirty" data-dirty hidden>${icon("pencil-line", "icon-s")}Есть несохранённые изменения</div></div><button type="button" class="icon-btn" data-action="close-drawer" aria-label="Закрыть">${icon("x")}</button></div><div class="drawer-body">${body}</div><div class="drawer-foot">${foot}</div>`;
+  const field = (label, name, value, opts = {}) => `<label class="field ${opts.wide ? "wide" : ""}"><span>${esc(label)}${opts.req ? ' <b class="req" aria-hidden="true">*</b>' : ""} <code>${esc(name)}</code></span>${opts.textarea ? `<textarea class="textarea" name="${name}" ${opts.req ? "required" : ""}>${esc(value ?? "")}</textarea>` : opts.options ? `<select class="select" name="${name}">${opts.options.map(([v, l]) => `<option value="${esc(v)}" ${String(v) === String(value ?? "") ? "selected" : ""}>${esc(l)}</option>`).join("")}</select>` : `<input class="input ${opts.mono ? "mono" : ""}" name="${name}" type="${opts.type || "text"}" value="${esc(value ?? "")}" ${opts.req ? "required" : ""} ${opts.readonly ? 'readonly data-readonly="true"' : ""} ${opts.list ? 'data-list="true"' : ""} ${opts.step ? `step="${opts.step}"` : ""} ${opts.min != null ? `min="${opts.min}"` : ""} ${opts.placeholder ? `placeholder="${esc(opts.placeholder)}"` : ""} />`}${opts.hint ? `<span class="hint">${opts.hint}</span>` : ""}<span class="error" data-error-for="${name}" hidden></span></label>`;
+
+  function titleEditor(item) {
+    const isNew = !item;
+    item = item || { title: "", slug: "", status: "announced", kind: "tv", genres: [], studios: [], synonyms: [], episodes_aired: 0 };
+    const body = `<div class="tabs" role="tablist">${[["main", "Основное"], ["release", "Выход"], ["ids", "Связи и ID"], ["media", "Медиа"], ["sync", "Из синхронизации"]].map(([id, label], i) => `<button type="button" role="tab" data-tab="${id}" aria-selected="${i === 0}">${label}</button>`).join("")}</div>
+      <form data-form="anime" data-id="${item.id || ""}" novalidate>
+        <div data-panel="main" class="form-grid">
+          ${field("Название", "title", item.title, { req: true, wide: true })}
+          ${field("slug", "slug", item.slug, { req: true, mono: true, hint: "Адрес страницы: /anime/slug. Смена ломает старые ссылки." })}
+          ${field("Тип", "kind", item.kind, { options: [["tv", "Сериал"], ["movie", "Фильм"], ["ova", "OVA"], ["ona", "ONA"], ["special", "Спешл"]] })}
+          ${field("Английское название", "title_en", item.title_en)}
+          ${field("Японское название", "title_jp", item.title_jp)}
+          ${field("Описание", "description", item.description ? "Наследник богатой семьи соглашается помочь странной девушке… (демонстрационный текст)" : "", { textarea: true, wide: true, hint: item.description ? "" : "Пустое описание держит тайтл на модерации." })}
+          ${field("Жанры", "genres", (item.genres || []).join(", "), { list: true, wide: true, hint: "Через запятую." })}
+          ${field("Студии", "studios", (item.studios || []).join(", "), { list: true, wide: true })}
+        </div>
+        <div data-panel="release" class="form-grid" hidden>
+          ${field("Статус", "status", item.status, { options: [["announced", "Анонс"], ["ongoing", "Выходит"], ["released", "Вышел"]], hint: "Синхронизация пишет announced. Массовая смена статуса пишет anons — это другое значение." })}
+          ${field("Возрастной рейтинг", "rating", item.rating, { options: [["", "—"], ["g", "G"], ["pg", "PG"], ["pg_13", "PG-13"], ["r", "R-17"], ["r_plus", "R+"], ["rx", "Rx"]] })}
+          ${field("Дата начала", "aired_on", item.aired_on, { type: "date" })}
+          ${field("Следующая серия", "next_episode_at", C.utcToLocalInput(item.next_episode_at), { type: "datetime-local", hint: "По Алматы. В API уйдёт в UTC." })}
+          ${field("Серий вышло", "episodes_aired", item.episodes_aired, { type: "number", min: 0 })}
+          ${field("Серий всего", "episodes_total", item.episodes_total, { type: "number", min: 0 })}
+          ${field("Оценка", "score", item.score, { type: "number", step: "0.01", min: 0 })}
+        </div>
+        <div data-panel="ids" class="form-grid" hidden>
+          ${note("warning", "triangle-alert", "Неверный Shikimori ID — главная причина конфликтов: проход «Связанные тайтлы» сверяет по нему название и сезон.")}
+          ${field("Shikimori ID", "shikimori_id", item.shikimori_id, { type: "number", min: 0, mono: true })}
+          ${field("MyAnimeList ID", "mal_id", item.mal_id, { type: "number", min: 0, mono: true })}
+          ${field("Kodik ID", "kodik_id", item.kodik_id, { mono: true })}
+          ${field("Shikimori ID по данным Kodik", "kodik_shikimori_id", item.kodik_shikimori_id, { type: "number", min: 0, mono: true, hint: "Что Kodik считает правильным ID. Расхождение с полем выше — повод проверить." })}
+          ${field("Ссылка Kodik", "kodik_url", item.kodik_id ? `https://kodik.info/serial/${item.kodik_id}` : "", { wide: true, mono: true })}
+        </div>
+        <div data-panel="media" class="form-grid" hidden>
+          ${field("Постер", "poster_url", item.poster !== false && item.slug ? `/media/posters/${item.slug}.webp` : "", { wide: true, mono: true, hint: "Ссылка http(s) или локальный путь /media/…" })}
+          ${field("Обложка", "cover_url", "", { wide: true, mono: true })}
+          ${!isNew ? `<div class="wide" style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="button s" ${request("anime.refreshPoster", { slug: item.slug, name: item.title })}>${icon("image-down")}Взять постер из Shikimori</button><button type="button" class="button s" ${request("anime.refresh", { slug: item.slug, name: item.title })}>${icon("refresh-cw")}Перечитать из Kodik</button></div>` : ""}
+        </div>
+        <div data-panel="sync" hidden>
+          ${note("info", "lock", "Эти поля пишет только синхронизация, через API их не изменить.")}
+          <dl class="kv" style="margin-top:14px"><dt>Ромадзи</dt><dd>${esc(item.title_romaji || "—")}</dd><dt>Синонимы</dt><dd>${esc((item.synonyms || []).join(", ") || "—")}</dd><dt>Связанных тайтлов</dt><dd class="mono">${item.related ?? 0}</dd><dt>Просмотры</dt><dd class="mono">${num(item.views_count)}</dd><dt>В избранном</dt><dd class="mono">${num(item.favorites_count)}</dd></dl>
+        </div>
+      </form>`;
+    const foot = `${!isNew ? `<button type="button" class="button danger left" ${request("anime.delete", { id: item.id, name: item.title })}>${icon("trash-2")}Удалить</button><a class="button ghost" href="../public/anime.html" target="_blank" rel="noopener">${icon("external-link")}На сайте</a>` : ""}<button type="button" class="button" data-action="close-drawer">Отмена</button><button type="button" class="button primary" data-action="save-form" data-kind="anime" data-request-key="${isNew ? "anime.create" : "anime.update"}">${icon("save")}${isNew ? "Создать" : "Сохранить"}</button>`;
+    openDrawer(drawerShell(isNew ? "Новый тайтл" : item.title, isNew ? "Обычно тайтлы добавляет импорт из Kodik. Вручную — для того, чего в Kodik нет." : `${statusTag(item.status)} ${item.needs_moderation ? tag("На модерации", "warning") : ""} <span class="mono">${esc(item.slug)}</span>`, body, foot));
+  }
+
+  function episodeDrawer(ep) {
+    const isNew = !ep;
+    ep = ep || { season: 1, episode: "", is_filler: false, is_recap: false };
+    const rels = isNew ? [] : D.releases.filter(r => r.anime === ep.anime && r.episode === ep.episode);
+    const body = `<form data-form="episode" data-id="${ep.id || ""}" novalidate><div class="form-grid">
+        ${isNew ? field("Тайтл (anime_id)", "anime_id", "", { wide: true, mono: true, req: true, placeholder: "UUID тайтла", hint: "Проще открыть тайтл и добавить серию оттуда." }) : ""}
+        ${field("Сезон", "season", ep.season, { type: "number", min: 0 })}
+        ${field("Номер серии", "episode", ep.episode, { type: "number", min: 0, req: true })}
+        ${field("Название", "title", ep.title, { wide: true })}
+        ${field("Дата выхода", "aired_at", C.utcToLocalInput(ep.aired_at), { type: "datetime-local", hint: "По Алматы" })}
+        ${field("Превью", "thumbnail_url", "", { mono: true })}
+        <div class="wide" style="display:flex;gap:18px;flex-wrap:wrap"><label class="switch"><input type="checkbox" name="is_filler" ${ep.is_filler ? "checked" : ""} /><span class="track"></span>Филлер</label><label class="switch"><input type="checkbox" name="is_recap" ${ep.is_recap ? "checked" : ""} /><span class="track"></span>Рекап</label></div>
+      </div></form>
+      ${isNew ? "" : `<h3 style="margin:22px 0 10px;font-size:14px;display:flex;align-items:center;gap:8px">${icon("film")}Источники видео · ${rels.length}</h3>
+      <div style="display:grid;gap:8px">${rels.length ? rels.map(r => `<div class="file">${icon("play")}<div><strong>${esc(r.translation_team)} · ${r.translation_type === "voice" ? "озвучка" : "субтитры"}</strong><small>${esc(r.source)} · ${esc(r.quality || "")} · ${esc(r.translation_language)}</small></div>${r.is_active ? (r.is_verified ? tag("Проверен", "success") : tag("Активен", "info")) : tag("Выключен", "neutral")}<div class="file-actions"><button type="button" class="icon-btn s" data-action="edit-release" data-id="${r.id}" aria-label="Изменить источник">${icon("pencil")}</button><button type="button" class="icon-btn s danger" ${request("releases.delete", { id: r.id, name: `${r.translation_team}, серия ${r.episode}` })} aria-label="Удалить источник">${icon("trash-2")}</button></div></div>`).join("") : `<p class="muted">Источников в таблице нет. Плеер на сайте берёт видео из живого плейлиста Kodik, поэтому серия может работать и без них.</p>`}</div>
+      <button type="button" class="button s" style="margin-top:10px" data-action="edit-release">${icon("plus")}Добавить источник</button>`}`;
+    const foot = `${!isNew ? `<button type="button" class="button danger left" ${request("episodes.delete", { id: ep.id, name: `${ep.anime}, серия ${ep.episode}` })}>${icon("trash-2")}Удалить</button>` : ""}<button type="button" class="button" data-action="close-drawer">Отмена</button><button type="button" class="button primary" data-action="save-form" data-kind="episode" data-request-key="${isNew ? "episodes.create" : "episodes.update"}">${icon("save")}${isNew ? "Создать" : "Сохранить"}</button>`;
+    openDrawer(drawerShell(isNew ? "Новая серия" : `${ep.anime} · ${ep.episode} серия`, "Нужно право <code>content.edit</code> или флаг суперпользователя.", body, foot));
+  }
+  function releaseDrawer(rel) {
+    const isNew = !rel;
+    rel = rel || { source: "kodik", translation_language: "ru", is_active: true, is_verified: false };
+    const body = `<form data-form="release" data-id="${rel.id || ""}" novalidate><div class="form-grid">
+      ${isNew ? field("Серия (episode_id)", "episode_id", "", { wide: true, mono: true, req: true, placeholder: "UUID серии" }) : ""}
+      ${field("Источник", "source", rel.source, { req: true })}
+      ${field("Качество", "quality", rel.quality, { placeholder: "1080p" })}
+      ${field("Тип перевода", "translation_type", rel.translation_type, { options: [["voice", "Озвучка"], ["subtitles", "Субтитры"]] })}
+      ${field("Команда", "translation_team", rel.translation_team)}
+      ${field("Язык", "translation_language", rel.translation_language, { mono: true })}
+      ${field("Внешний ID", "external_id", rel.external_id, { mono: true })}
+      ${field("Ссылка", "url", rel.url, { req: true, wide: true, mono: true })}
+      ${field("Ссылка для встраивания", "embed_url", rel.embed_url, { wide: true, mono: true })}
+      <div class="wide" style="display:flex;gap:18px;flex-wrap:wrap"><label class="switch"><input type="checkbox" name="is_active" ${rel.is_active ? "checked" : ""} /><span class="track"></span>Активен</label><label class="switch"><input type="checkbox" name="is_verified" ${rel.is_verified ? "checked" : ""} /><span class="track"></span>Проверен</label></div>
+    </div></form>`;
+    openDrawer(drawerShell(isNew ? "Новый источник" : `${rel.translation_team} · ${rel.episode} серия`, esc(rel.anime || ""), body, `<button type="button" class="button" data-action="close-drawer">Отмена</button><button type="button" class="button primary" data-action="save-form" data-kind="release" data-request-key="${isNew ? "releases.create" : "releases.update"}">${icon("save")}Сохранить</button>`));
+  }
+
+  function jobDrawer(job) {
+    const logs = D.jobLogs.filter(l => job.id.startsWith(l.job));
+    const isLive = job.status === "running" || job.status === "pending";
+    const body = `<dl class="kv"><dt>Статус</dt><dd>${statusTag(job.status)}</dd><dt>Тип</dt><dd class="mono">${esc(job.parser_name)}/${esc(job.job_type)}</dd><dt>Источник</dt><dd>${esc(job.source)} ${tag("в базе не хранится", "neutral")}</dd><dt>Создана</dt><dd>${at(job.created_at)}</dd><dt>Старт</dt><dd>${at(job.started_at)}</dd><dt>Конец</dt><dd>${at(job.completed_at)}</dd><dt>Длительность</dt><dd>${C.fmtDuration(job.duration_seconds)}</dd>${job.waited ? `<dt>Ожидание</dt><dd>${esc(job.waited)}</dd>` : ""}${job.error_message ? `<dt>Ошибка</dt><dd style="color:var(--red)">${esc(job.error_message)}</dd>` : ""}<dt>ID</dt><dd class="mono" style="font-size:12px">${esc(job.id)}</dd></dl>
+      <div class="live-stats" style="margin-top:16px"><div><b>${num(job.items_processed)}</b><span>просмотрено</span></div><div><b>${num(job.items_updated)}</b><span>обновлено</span></div><div><b>${num(job.items_created)}</b><span>создано</span></div><div><b>${num(job.items_failed)}</b><span>ошибок</span></div></div>
+      ${job.job_type === "incremental" && job.parser_name === "shikimori" ? note("danger", "ban", "Этот тип не перенесён в Go-воркер и всегда падает. Запускать его не нужно.") : ""}
+      <h3 style="margin:22px 0 10px;font-size:14px;display:flex;align-items:center;gap:8px">${icon("scroll-text")}Журнал задачи ${isLive ? tag("обновляется вживую", "live") : ""}</h3>
+      <div class="card"><div class="log">${logs.length ? logs.map(l => `<div class="log-row" data-tone="${toneForStatus(l.level)}"><span class="mono muted">${C.fmtTime(l.created_at)}</span><span class="lvl">${esc(labelForStatus(l.level))}</span><span class="msg">${esc(l.message)}</span><span></span></div>`).join("") : `<p class="muted" style="padding:14px">Сообщений нет.</p>`}</div></div>`;
+    const foot = `${isLive ? `<button type="button" class="button danger left" ${request("jobs.stop", { id: job.id, name: jobTitle(job) })}>${icon("square")}Остановить</button>` : `<button type="button" class="button ghost left" ${request("jobs.delete", { id: job.id, name: jobTitle(job) })}>${icon("trash-2")}Удалить из истории</button>`}<button type="button" class="button" data-action="close-drawer">Закрыть</button>`;
+    openDrawer(drawerShell(jobTitle(job), `${statusTag(job.status)}`, body, foot));
+  }
+
+  function scheduleDrawer(s) {
+    const isNew = !s;
+    const schedulable = D.operations.filter(op => op.works && op.schedulable);
+    const cron = s ? s.cron_expression : "0 4 * * *";
+    const d = C.describeCron(cron);
+    const kind = d.kind === "every" ? "every" : d.kind === "weekly" ? "weekly" : "daily";
+    const body = `<form data-form="schedule" novalidate style="display:grid;gap:18px">
+      <label class="field"><span>Что запускать</span><select class="select" name="operation" ${isNew ? "" : "disabled"}>${schedulable.map(op => `<option value="${op.key}" ${s && `${s.parser_name}:${s.job_type}` === op.key ? "selected" : ""}>${esc(op.title)}</option>`).join("")}${s && !schedulable.some(op => `${s.parser_name}:${s.job_type}` === op.key) ? `<option selected>${esc(scheduleTitle(s))}</option>` : ""}</select><span class="hint">В списке только операции, которые имеет смысл планировать.</span></label>
+      <div class="field"><span>Как часто</span><div class="preset-grid">
+        <button type="button" class="preset" data-preset="every" aria-pressed="${kind === "every"}"><strong>Каждые N минут</strong><small>Для новинок</small></button>
+        <button type="button" class="preset" data-preset="daily" aria-pressed="${kind === "daily"}"><strong>Раз в день</strong><small>В выбранное время</small></button>
+        <button type="button" class="preset" data-preset="weekly" aria-pressed="${kind === "weekly"}"><strong>Раз в неделю</strong><small>День и время</small></button>
+      </div></div>
+      <div class="form-grid">
+        <label class="field" data-show="every" ${kind === "every" ? "" : "hidden"}><span>Интервал</span><select class="select" data-cron="minutes">${[15, 30, 60].map(m => `<option value="${m}" ${d.n === m ? "selected" : ""}>Каждые ${m} минут</option>`).join("")}</select></label>
+        <label class="field" data-show="weekly" ${kind === "weekly" ? "" : "hidden"}><span>День</span><select class="select" data-cron="weekday">${["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"].map((n, i) => `<option value="${i}" ${i === 1 ? "selected" : ""}>${n}</option>`).join("")}</select></label>
+        <label class="field" data-show="daily weekly" ${kind === "every" ? "hidden" : ""}><span>Время по Алматы</span><input class="input mono" type="time" data-cron="local" value="${d.local || "09:00"}" /></label>
+      </div>
+      <div class="cron-preview" aria-live="polite" data-cron-preview></div>
+      <label class="switch"><input type="checkbox" name="is_active" ${!s || s.is_active ? "checked" : ""} /><span class="track"></span>Включено сразу</label>
+      ${isNew ? note("info", "lightbulb", "Сервер ставит первый запуск через час после создания, независимо от выбранного времени. Дальше — по расписанию.") : note("warning", "calendar-x", "Ближайший запуск останется прежним: сервер не пересчитывает его при смене cron.")}
+    </form>`;
+    openDrawer(drawerShell(isNew ? "Новое расписание" : scheduleTitle(s), "Время вводится по Алматы, сервер получит cron в UTC.", body, `<button type="button" class="button" data-action="close-drawer">Отмена</button><button type="button" class="button primary" data-action="save-schedule" data-id="${s?.id || ""}">${icon("save")}Сохранить</button>`));
+    updateCronPreview();
+  }
+  function cronFromForm() {
+    const drawer = $("#drawer");
+    const kind = $(".preset[aria-pressed='true']", drawer)?.dataset.preset || "daily";
+    return C.buildCron({ kind, minutes: +($("[data-cron='minutes']", drawer)?.value || 30), local: $("[data-cron='local']", drawer)?.value || "09:00", weekday: +($("[data-cron='weekday']", drawer)?.value || 1) });
+  }
+  function updateCronPreview() {
+    const box = $("[data-cron-preview]");
+    if (!box) return;
+    const cron = cronFromForm();
+    const d = C.describeCron(cron);
+    box.innerHTML = `${icon("calendar-clock")}<strong>${esc(d.text)}</strong><span class="muted">cron для сервера:</span><code>${esc(cron)}</code>${d.utc ? `<span class="muted">(${esc(d.utc)})</span>` : ""}${d.note ? `<span style="color:var(--kin-text);font-size:12px">${esc(d.note)}</span>` : ""}`;
+    refreshIcons(box);
+  }
+
+  function userDrawer(u) {
+    const role = roleByName(u.role);
+    const access = C.effectiveAccess(u, role);
+    const body = `<div class="tabs" role="tablist"><button type="button" role="tab" data-tab="profile" aria-selected="true">Профиль</button><button type="button" role="tab" data-tab="access" aria-selected="false">Доступ</button><button type="button" role="tab" data-tab="security" aria-selected="false">Пароль</button></div>
+      <form data-form="user" data-id="${u.id}" novalidate>
+        <div data-panel="profile" class="form-grid">
+          ${field("Имя", "username", u.username, { req: true })}
+          ${field("Email", "email", u.email, { type: "email", req: true })}
+          ${field("Пол", "gender", "", { options: [["", "Не указан"], ["male", "Мужской"], ["female", "Женский"]] })}
+          ${field("О себе", "bio", "", { textarea: true, wide: true })}
+          <div class="wide"><div class="switch-row"><div><strong>Почта подтверждена</strong><small>Можно отметить вручную, если письмо не дошло</small></div><label class="switch"><input type="checkbox" name="is_verified" ${u.is_verified ? "checked" : ""} aria-label="Почта подтверждена" /><span class="track"></span></label></div></div>
+        </div>
+        <div data-panel="access" hidden style="display:grid;gap:16px">
+          <label class="field"><span>Роль <code>role_id</code></span><select class="select" name="role_id" data-role-select>${[["", "Без роли"], ...D.roles.map(r => [r.id, r.name])].map(([v, l]) => `<option value="${v}" ${role?.id === v ? "selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
+          <div class="switch-row"><div><strong>Суперпользователь</strong><small>Полный доступ ко всему. Забанить суперпользователя нельзя</small></div><label class="switch"><input type="checkbox" name="is_superuser" ${u.is_superuser ? "checked" : ""} aria-label="Суперпользователь" data-role-select /><span class="track"></span></label></div>
+          <div class="card" data-access-preview>${accessPreview(access)}</div>
+        </div>
+        <div data-panel="security" hidden style="display:grid;gap:14px">
+          ${field("Новый пароль", "password", "", { type: "password", hint: "Пусто — пароль не меняется. Старые сессии пользователя этим не завершаются." })}
+        </div>
+      </form>`;
+    const ban = u.is_active
+      ? `<button type="button" class="button danger left" ${request("users.ban", { id: u.id, name: u.username })} ${u.is_superuser ? 'disabled title="Суперпользователя забанить нельзя"' : ""}>${icon("ban")}Забанить</button>`
+      : `<button type="button" class="button left" ${request("users.unban", { id: u.id, name: u.username })}>${icon("undo-2")}Разбанить</button>`;
+    openDrawer(drawerShell(u.username, `${esc(u.email)} · с ${C.fmtDate(u.created_at)}`, body, `${ban}<button type="button" class="button" data-action="close-drawer">Отмена</button><button type="button" class="button primary" data-action="save-form" data-kind="user" data-request-key="users.update">${icon("save")}Сохранить</button>`));
+  }
+  const accessPreview = access => `<div class="card-body" style="display:grid;gap:8px"><strong style="display:flex;gap:8px;align-items:center">${icon("eye")}Что увидит в админке</strong>${access.items.length ? `<ul style="margin:0;padding-left:18px;color:var(--text-secondary)">${access.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : `<p class="muted">Ничего: вход в админку закрыт.</p>`}</div>`;
+
+  function cosmeticDrawer(kind, item) {
+    const isNew = !item;
+    item = item || { title: "", is_active: true, category: "default" };
+    const isAvatar = kind === "avatar";
+    const body = `<form data-form="${kind}" data-id="${item.id || ""}" novalidate><div class="form-grid">
+      <div class="wide" style="display:flex;gap:16px;align-items:center"><div class="tile-art" style="width:96px">${artTile(isAvatar ? item.title || "new" : `d${item.title || "new"}`)}</div><div style="display:grid;gap:8px"><button type="button" class="button s" ${request(isAvatar ? "avatars.upload" : "decorations.upload", { id: item.id || "", name: item.title || "новый" })} ${isNew ? 'disabled title="Сначала сохраните, потом загрузите картинку"' : ""}>${icon("upload")}Загрузить картинку</button><span class="hint muted" style="font-size:12px">${isNew ? "Картинку можно загрузить после создания" : "Или укажите ссылку ниже"}</span></div></div>
+      ${field("Название", "title", item.title, { req: true, wide: true })}
+      ${field("Ссылка на картинку", "image_url", isNew ? "" : `/media/${isAvatar ? "avatars" : "decorations"}/${item.id}.webp`, { req: true, wide: true, mono: true })}
+      ${isAvatar ? field("Категория", "category", item.category, { mono: true }) : ""}
+      <div class="wide"><label class="switch"><input type="checkbox" name="is_active" ${item.is_active ? "checked" : ""} /><span class="track"></span>Доступно для выбора</label></div>
+    </div></form>`;
+    const base = isAvatar ? "avatars" : "decorations";
+    openDrawer(drawerShell(isNew ? (isAvatar ? "Новый аватар" : "Новая рамка") : item.title, "", body, `${!isNew ? `<button type="button" class="button danger left" ${request(`${base}.delete`, { id: item.id, name: item.title })}>${icon("trash-2")}Удалить</button>` : ""}<button type="button" class="button" data-action="close-drawer">Отмена</button><button type="button" class="button primary" data-action="save-form" data-kind="${kind}" data-request-key="${base}.${isNew ? "create" : "update"}">${icon("save")}Сохранить</button>`));
+  }
+
+  /* ==========================================================================
+     Подтверждение и уведомления
+     ========================================================================== */
+  function confirmDialog({ title, text, tone = "info", icon: ic = "lightbulb", requestKey, body, ok = "Подтвердить", onOk, danger = false }) {
+    const dlg = $("#confirm");
+    const ep = requestKey ? C.endpoints[requestKey] : null;
+    const path = ep ? ep[1].replace(/\{(\w+)\}/g, (_, k) => (body && body[`__${k}`]) || `{${k}}`) : "";
+    const visibleBody = body ? Object.fromEntries(Object.entries(body).filter(([k]) => !k.startsWith("__"))) : null;
+    dlg.innerHTML = `<div class="dialog-body" data-tone="${tone}"><h2 id="confirm-title">${icon(ic)}${esc(title)}</h2>${text ? `<p>${text}</p>` : ""}
+      ${ep ? `<div class="request"><div><b>${ep[0]}</b> /api/v1${esc(path)}</div>${visibleBody && Object.keys(visibleBody).length ? `<div>${esc(JSON.stringify(visibleBody))}</div>` : ""}<span>Доступ: ${esc(ep[2])}${ep[3] ? ` · ${esc(ep[3])}` : ""}</span></div>` : ""}</div>
+      <div class="dialog-foot"><button type="button" class="button" data-dialog="cancel">Отмена</button><button type="button" class="button ${danger ? "danger" : "primary"}" data-dialog="ok">${esc(ok)}</button></div>`;
+    refreshIcons(dlg);
+    dlg.onclick = event => {
+      const btn = event.target.closest("[data-dialog]");
+      if (event.target === dlg) { dlg.close(); return; }
+      if (!btn) return;
+      dlg.close();
+      if (btn.dataset.dialog === "ok") onOk?.();
+    };
+    dlg.showModal();
+    $("[data-dialog='ok']", dlg).focus();
+  }
+  function toast(title, text = "", tone = "info", ic = "lightbulb") {
+    const region = $("#toasts");
+    const node = document.createElement("div");
+    node.className = "toast";
+    node.dataset.tone = tone;
+    node.innerHTML = `${icon(ic)}<div><strong>${esc(title)}</strong>${text ? `<small>${text}</small>` : ""}</div>`;
+    region.append(node);
+    refreshIcons(node);
+    while (region.children.length > 3) region.firstElementChild.remove();
+    setTimeout(() => { node.classList.add("is-leaving"); setTimeout(() => node.remove(), 260); }, 4200);
+  }
+  const mockDone = key => toast("Макет: запрос не отправлен", `При переносе здесь будет ${esc(C.endpoints[key][0])} /api/v1${esc(C.endpoints[key][1])}, а результат покажется только после ответа сервера.`, "info", "flask-conical");
+
+  /* Подписи и последствия для каждого запроса. */
+  function describeRequest(el) {
+    const key = el.dataset.request, d = el.dataset;
+    const name = d.name ? `«${d.name}»` : "";
+    const ids = d.ids ? d.ids.split(",").filter(Boolean) : [];
+    const op = d.op ? D.operations.find(o => o.key === d.op) : null;
+    const dryChoice = op?.dry ? ($(`[data-dry="${op.key}"][aria-pressed="true"]`)?.dataset.value || "dry") : null;
+    const map = {
+      "bulk.anime": d.action === "delete"
+        ? { title: `Удалить ${ids.length} ${C.plural(ids.length, "тайтл", "тайтла", "тайтлов")}?`, text: "Тайтлы, их серии, источники, комментарии, избранное и места в коллекциях пропадут навсегда. Отменить нельзя. Если тайтл просто не нужен в синхронизации, лучше добавить его в исключения.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить навсегда", body: { ids, action: "delete" } }
+        : { title: `Сменить статус у ${ids.length} ${C.plural(ids.length, "тайтла", "тайтлов", "тайтлов")}`, text: "Внимание: значение «Анонс» запишется как <code>anons</code>, а синхронизация и модерация понимают только <code>announced</code>.", body: { ids, action: "update_status", new_status: $("#bulk-status")?.value } },
+      "import.single": { title: "Импортировать из Kodik", text: "Данные возьмутся из Kodik и Shikimori. Если не хватит постера или описания, тайтл уйдёт на модерацию.", icon: "download", ok: "Импортировать", body: { shikimori_id: d.shikimori ? Number(d.shikimori) : null, kodik_id: d.kodik } },
+      "moderation.approve": { title: `Одобрить ${ids.length} ${C.plural(ids.length, "тайтл", "тайтла", "тайтлов")}`, text: "Одобренные появятся на сайте. Сервер ещё раз проверит каждый и пропустит неготовые.", icon: "check-check", ok: "Одобрить", body: { anime_ids: ids } },
+      "conflicts.resolve": { title: "Закрыть конфликт как «верно»", text: "Тайтл не изменится: конфликт просто уйдёт из очереди. Если Shikimori ID неверный, исправьте его в редакторе тайтла.", icon: "check", ok: "Закрыть", body: { strategy: "keep", __id: d.id } },
+      "comments.delete": { title: `Удалить ${name}?`, text: "Текст заменится на «[удалено]», ответы останутся.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
+      "jobs.trigger": op ? (() => {
+        const type = op.dry && dryChoice === "real" ? op.job_type : (op.dry || op.job_type);
+        return { title: `Запустить: ${op.title}${op.dry ? (dryChoice === "real" ? " (настоящий)" : " (пробный)") : ""}`, text: `${esc(op.summary)}${op.blocks ? ` <strong>Займёт очередь на ${esc(op.duration)}:</strong> плановые задачи и бэкап будут ждать.` : ""}`, icon: op.danger ? "triangle-alert" : "play", tone: op.danger ? "warning" : "info", ok: "Запустить", body: { parser_name: op.parser, job_type: type } };
+      })() : {},
+      "jobs.stop": { title: `Остановить ${name}?`, text: "Сделанное до остановки сохранится. Остальное подхватит следующий запуск.", danger: true, tone: "danger", icon: "square", ok: "Остановить", body: { __id: d.id } },
+      "jobs.delete": { title: `Удалить ${name} из истории?`, text: "Мониторинг считает отказы по истории задач.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
+      "jobs.clear": { title: "Очистить готовые задачи?", text: "Удалятся все строки со статусом «Готово». Проверки «запаздывание расписания» и «отказы за сутки» на время потеряют данные.", danger: true, tone: "warning", icon: "eraser", ok: "Очистить", body: { status: "completed" } },
+      "schedule.runNow": { title: `Запустить сейчас: ${name}`, text: "Задача встанет в общую очередь.", icon: "play", ok: "Запустить", body: { __id: d.id } },
+      "schedule.delete": { title: `Удалить расписание ${name}?`, text: "Задача перестанет запускаться сама. Монитор перестанет её проверять.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
+      "schedule.update": { title: el.checked ? "Включить расписание" : "Выключить расписание", text: el.checked ? "Задача снова будет запускаться сама." : "Задача перестанет запускаться сама, пока её не включат.", icon: "calendar-clock", ok: el.checked ? "Включить" : "Выключить", body: { is_active: el.checked, __id: d.id } },
+      "blacklist.delete": { title: `Убрать ${name} из исключений?`, text: "Следующая синхронизация сможет снова добавить этот тайтл.", danger: true, tone: "warning", icon: "trash-2", ok: "Убрать", body: { __id: d.id } },
+      "backups.create": { title: "Сделать резервную копию сейчас", text: "Запрос держится 1–2 минуты: сначала дамп базы, потом архив медиа. Не запускайте около 05:00 по Алматы — в это время идёт автоматическая копия.", icon: "archive", ok: "Сделать копию" },
+      "backups.download": { title: `Скачать ${name}`, text: "Файл отдаётся по пути из базы, а не по имени из ссылки.", icon: "download", ok: "Скачать", body: { __id: d.id } },
+      "backups.delete": { title: `Удалить ${name}?`, text: "Файл и строка в базе удалятся навсегда. Если это последняя годная копия, проверка бэкапов покраснеет.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
+      "users.ban": { title: `Забанить ${name}?`, text: "Пользователь не сможет войти. Комментарии останутся.", danger: true, tone: "danger", icon: "ban", ok: "Забанить", body: { __id: d.id } },
+      "users.unban": { title: `Разбанить ${name}?`, text: "Пользователь снова сможет войти.", icon: "undo-2", ok: "Разбанить", body: { __id: d.id } },
+      "anime.delete": { title: `Удалить ${name}?`, text: "Тайтл, его серии, источники, комментарии, избранное и места в коллекциях пропадут навсегда.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить навсегда", body: { __id: d.id } },
+      "anime.refresh": { title: `Перечитать ${name} из Kodik`, text: "Серии и озвучки обновятся по Kodik. Ручные правки в полях, которые пишет Kodik, перезапишутся.", icon: "refresh-cw", ok: "Перечитать", body: { __slug: d.slug } },
+      "anime.refreshPoster": { title: `Постер для ${name}`, text: "Постер скачается из Shikimori и заменит текущий.", icon: "image-down", ok: "Взять постер", body: { __slug: d.slug } },
+      "episodes.delete": { title: `Удалить ${name}?`, text: "Серия, её источники, комментарии к ней и прогресс просмотра пропадут.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
+      "releases.delete": { title: `Удалить источник ${name}?`, text: "", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
+      "avatars.delete": { title: `Удалить аватар ${name}?`, text: "У пользователей, которые его выбрали, аватар сбросится.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
+      "decorations.delete": { title: `Удалить рамку ${name}?`, text: "У пользователей, которые её выбрали, рамка сбросится.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
+      "avatars.upload": { title: "Загрузить картинку", text: "Файл уходит полем <code>file</code> в multipart-запросе.", icon: "upload", ok: "Выбрать файл", body: { __id: d.id } },
+      "decorations.upload": { title: "Загрузить картинку", text: "Файл уходит полем <code>file</code> в multipart-запросе.", icon: "upload", ok: "Выбрать файл", body: { __id: d.id } },
+      "site.update": { title: "Изменить настройку сайта", text: "Значение сохранится в базе, <strong>но сайт его не читает</strong>: ничего не поменяется, пока бэкенд не начнёт его учитывать.", tone: "warning", icon: "unplug", ok: "Всё равно сохранить", body: { [d.key]: el.checked } },
+      "parserSettings.list": { title: "Выгрузить старые настройки", text: "Сохраните как память о том, что было. После выгрузки вкладки можно удалять из интерфейса.", icon: "file-json", ok: "Выгрузить" },
+    };
+    return { requestKey: key, ...(map[key] || { title: "Отправить запрос" }) };
+  }
+
+  /* ==========================================================================
+     Палитра команд
+     ========================================================================== */
+  function cmdItems() {
+    const out = [];
+    sections.forEach(s => s.pages.forEach(p => out.push({ group: "Страницы", icon: s.icon, label: p.title, hint: s.label, run: () => go(p.id) })));
+    D.anime.forEach(a => out.push({ group: "Тайтлы", icon: "clapperboard", label: a.title, hint: a.slug, run: () => { go("catalog/titles"); setTimeout(() => titleEditor(a), 60); } }));
+    D.operations.filter(o => o.works).forEach(o => out.push({ group: "Запустить", icon: "play", label: o.title, hint: o.duration, run: () => { go("parser/run"); setTimeout(() => $(`[data-op="${o.key}"]`)?.click(), 120); } }));
+    D.users.forEach(u => out.push({ group: "Люди", icon: "user", label: u.username, hint: u.email, run: () => { go("people/users"); setTimeout(() => userDrawer(u), 60); } }));
+    out.push({ group: "Вид", icon: "palette", label: "Сменить палитру", hint: "Сакура / Обсидиан", run: togglePalette });
+    out.push({ group: "Вид", icon: "sun-moon", label: "Сменить тему", hint: "Тёмная / светлая", run: toggleTheme });
+    return out;
+  }
+  function openCmdk() {
+    const dlg = $("#cmdk");
+    const items = cmdItems();
+    let active = 0, shown = items;
+    dlg.innerHTML = `<div class="cmdk-input">${icon("search")}<input type="text" placeholder="Страница, тайтл, задача, человек" aria-label="Что найти" role="combobox" aria-expanded="true" aria-controls="cmdk-list" autocomplete="off" /><span class="kbd">Esc</span></div><div class="cmdk-list" id="cmdk-list" role="listbox"></div>`;
+    const input = $("input", dlg), list = $(".cmdk-list", dlg);
+    const draw = () => {
+      let group = "";
+      list.innerHTML = shown.length ? shown.slice(0, 40).map((item, i) => `${item.group !== group ? `<div class="cmdk-group">${esc(group = item.group)}</div>` : ""}<button type="button" class="cmdk-item" role="option" data-index="${i}" aria-selected="${i === active}">${icon(item.icon)}<span>${esc(item.label)}</span><small>${esc(item.hint || "")}</small></button>`).join("") : `<p class="muted" style="padding:14px">Ничего не нашлось</p>`;
+      refreshIcons(list);
+      $(".cmdk-item[aria-selected='true']", list)?.scrollIntoView({ block: "nearest" });
+    };
+    input.addEventListener("input", () => {
+      const q = input.value.trim().toLowerCase();
+      shown = q ? items.filter(i => `${i.label} ${i.hint} ${i.group}`.toLowerCase().includes(q)) : items;
+      active = 0; draw();
+    });
+    input.addEventListener("keydown", e => {
+      if (e.key === "ArrowDown") { active = Math.min(active + 1, Math.min(shown.length, 40) - 1); draw(); e.preventDefault(); }
+      if (e.key === "ArrowUp") { active = Math.max(active - 1, 0); draw(); e.preventDefault(); }
+      if (e.key === "Enter" && shown[active]) { dlg.close(); shown[active].run(); }
+    });
+    list.addEventListener("click", e => { const b = e.target.closest(".cmdk-item"); if (b) { dlg.close(); shown[+b.dataset.index].run(); } });
+    dlg.onclick = e => { if (e.target === dlg) dlg.close(); };
+    draw();
+    refreshIcons(dlg);
+    dlg.showModal();
+    input.focus();
+  }
+
+  /* ==========================================================================
+     Маршрутизация и отрисовка
+     ========================================================================== */
+  const renderers = {
+    pult: renderPult,
+    "catalog/titles": renderTitles, "catalog/import": renderImport, "catalog/episodes": renderEpisodes, "catalog/collections": renderCollections,
+    "queues/moderation": renderModeration, "queues/conflicts": renderConflicts, "queues/comments": renderComments,
+    "parser/run": renderRun, "parser/jobs": renderJobs, "parser/schedule": renderSchedule, "parser/logs": renderLogs, "parser/blacklist": renderBlacklist,
+    "stand/checks": renderChecks, "stand/resources": renderResources, "stand/backups": renderBackups, "stand/audit": renderAudit,
+    "people/users": renderUsers, "people/access": renderAccess, "people/cosmetics": renderCosmetics,
+    settings: renderSettings,
+  };
+  function routeFromHash() {
+    const key = location.hash.replace(/^#\/?/, "").split("?")[0];
+    return renderers[key] ? key : "pult";
+  }
+  function go(route) { if (location.hash !== `#/${route}`) location.hash = `#/${route}`; else render(); }
+
+  function refreshIcons(scope = document) {
+    if (!window.lucide) return;
+    window.lucide.createIcons({ attrs: { "aria-hidden": "true", "stroke-width": 1.8 }, nameAttr: "data-lucide", root: scope });
+  }
+  function countUp(scope) {
+    if (reduceMotion.matches) return;
+    $$("[data-count]", scope).forEach(el => {
+      const target = parseFloat(el.dataset.count), decimals = +(el.dataset.decimals || 0);
+      const start = performance.now(), dur = 900;
+      const step = now => {
+        const t = Math.min(1, (now - start) / dur), eased = 1 - Math.pow(1 - t, 3);
+        el.textContent = (target * eased).toLocaleString("ru-RU", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
+  }
+  function render() {
+    const next = routeFromHash();
+    const changed = next !== state.route;
+    state.route = next;
+    const swap = () => {
+      renderChrome();
+      const main = $("#main");
+      main.innerHTML = `<div class="page">${renderers[state.route]()}</div>`;
+      refreshIcons(document);
+      countUp(main);
+      document.title = `${pages[state.route].title} — Kitsu`;
+    };
+    if (changed && document.startViewTransition && !reduceMotion.matches) {
+      root.classList.add("is-routing");
+      document.startViewTransition(swap).finished.finally(() => root.classList.remove("is-routing"));
+    } else swap();
+    if (changed) { window.scrollTo({ top: 0, behavior: "instant" }); $("#main").focus({ preventScroll: true }); }
+    closeSubnav();
+  }
+  function rerenderMain() {
+    const y = window.scrollY;
+    const main = $("#main");
+    main.innerHTML = `<div class="page">${renderers[state.route]()}</div>`;
+    $$(".reveal", main).forEach(el => el.classList.remove("reveal"));
+    refreshIcons(main);
+    renderChrome();
+    refreshIcons($("#shell"));
+    window.scrollTo(0, y);
+  }
+
+  /* ---------- Вид ---------- */
+  function applyThemeColor() {
+    const meta = $('meta[name="theme-color"]');
+    if (meta) meta.content = getComputedStyle(root).getPropertyValue("--canvas").trim() || "#0e0b12";
+  }
+  function withTransition(fn, origin) {
+    if (document.startViewTransition && !reduceMotion.matches) document.startViewTransition(fn);
+    else fn();
+  }
+  function togglePalette() {
+    withTransition(() => {
+      if (root.dataset.palette === "obsidian") delete root.dataset.palette; else root.dataset.palette = "obsidian";
+      try { localStorage.setItem("kitsu-palette", root.dataset.palette === "obsidian" ? "obsidian" : "sakura"); } catch (_) {}
+      rerenderMain();
+      applyThemeColor();
+    });
+  }
+  function toggleTheme() {
+    withTransition(() => {
+      root.dataset.theme = root.dataset.theme === "light" ? "dark" : "light";
+      try { localStorage.setItem("kitsu-admin-theme", root.dataset.theme); } catch (_) {}
+      renderChrome();
+      refreshIcons($("#shell"));
+      applyThemeColor();
+    });
+  }
+  function openSubnav() {
+    $("#subnav").classList.add("is-open");
+    $("#scrim").classList.add("is-open");
+    $$("[data-action='subnav']").forEach(b => b.setAttribute("aria-expanded", "true"));
+    $(".subnav-link", $("#subnav"))?.focus();
+  }
+  function closeSubnav() {
+    const sub = $("#subnav");
+    if (!sub.classList.contains("is-open")) return;
+    sub.classList.remove("is-open");
+    if ($("#drawer").hidden) $("#scrim").classList.remove("is-open");
+    $$("[data-action='subnav']").forEach(b => b.setAttribute("aria-expanded", "false"));
+  }
+
+  /* ---------- Формы ---------- */
+  function validateAndSave(kind, requestKey) {
+    const form = $(`#drawer form[data-form]`);
+    const payload = C.readForm(form);
+    const errs = C.errors(kind, payload);
+    $$("[data-error-for]", form).forEach(node => { node.hidden = true; node.textContent = ""; });
+    $$("[aria-invalid]", form).forEach(node => node.removeAttribute("aria-invalid"));
+    if (errs.length) {
+      errs.forEach(err => {
+        const node = $(`[data-error-for="${err.field}"]`, form), input = $(`[name="${err.field}"]`, form);
+        if (node) { node.hidden = false; node.textContent = err.text; }
+        input?.setAttribute("aria-invalid", "true");
+      });
+      const first = $(`[name="${errs[0].field}"]`, form);
+      const panel = first?.closest("[data-panel]");
+      if (panel?.hidden) $(`[data-tab="${panel.dataset.panel}"]`)?.click();
+      first?.focus();
+      toast("Проверьте форму", `${errs.length} ${C.plural(errs.length, "поле требует", "поля требуют", "полей требуют")} внимания`, "danger", "triangle-alert");
+      return;
+    }
+    if (kind === "user" && payload.password === null) delete payload.password;
+    let body = payload;
+    if (requestKey.endsWith(".update")) {
+      /* PATCH меняет только присланные поля: отправляем лишь изменённое, иначе пустые поля затрут данные. */
+      const initial = JSON.parse(form.dataset.initial || "{}");
+      body = Object.fromEntries(Object.entries(payload).filter(([key, value]) => JSON.stringify(value) !== JSON.stringify(initial[key])));
+      if (!Object.keys(body).length) { toast("Нет изменений", "Форма совпадает с тем, что уже сохранено.", "info", "check"); return; }
+      body = { ...body, __id: form.dataset.id };
+    }
+    confirmDialog({ title: "Сохранить изменения", requestKey, body, icon: "save", ok: "Сохранить", onOk: () => { state.dirty = false; closeDrawer(true); mockDone(requestKey); } });
+  }
+
+  /* ---------- События ---------- */
+  function handleAction(el, event) {
+    const a = el.dataset.action;
+    const find = (list, key = "id") => list.find(item => String(item[key]) === String(el.dataset[key]));
+    switch (a) {
+      case "palette": togglePalette(); break;
+      case "theme": toggleTheme(); break;
+      case "cmdk": openCmdk(); break;
+      case "subnav": $("#subnav").classList.contains("is-open") ? closeSubnav() : openSubnav(); break;
+      case "close-drawer": closeDrawer(); break;
+      case "refresh": toast("Макет: данные не обновляются", "При переносе кнопка повторит GET /monitoring/health.", "info", "refresh-cw"); break;
+      case "new-title": titleEditor(null); break;
+      case "edit-title": titleEditor(el.dataset.id ? find(D.anime) : D.anime.find(x => x.slug === el.dataset.slug) || { title: D.moderation.find(m => m.slug === el.dataset.slug)?.title || el.dataset.slug, slug: el.dataset.slug, status: "ongoing", kind: "tv", poster: false, description: false, genres: [], studios: [], needs_moderation: true, id: "demo" }); break;
+      case "title-menu": {
+        const item = find(D.anime);
+        confirmDialog({ title: item.title, icon: "more-horizontal", text: `<div style="display:grid;gap:8px"><button type="button" class="button" data-sub="refresh">${icon("refresh-cw")}Перечитать из Kodik</button><button type="button" class="button" data-sub="poster">${icon("image-down")}Взять постер из Shikimori</button><a class="button" href="../public/anime.html" target="_blank" rel="noopener">${icon("external-link")}Открыть на сайте</a></div>`, ok: "Закрыть" });
+        $("#confirm").addEventListener("click", e => {
+          const sub = e.target.closest("[data-sub]");
+          if (!sub) return;
+          $("#confirm").close();
+          const fake = document.createElement("button");
+          fake.dataset.request = sub.dataset.sub === "refresh" ? "anime.refresh" : "anime.refreshPoster";
+          fake.dataset.slug = item.slug; fake.dataset.name = item.title;
+          runRequest(fake);
+        }, { once: true });
+        break;
       }
-    }, true);
+      case "clear-selection": state.titles.selected.clear(); rerenderMain(); break;
+      case "new-episode": episodeDrawer(null); break;
+      case "open-episode": episodeDrawer(find(D.episodes)); break;
+      case "edit-release": releaseDrawer(el.dataset.id ? find(D.releases) : null); break;
+      case "open-job": jobDrawer(find(D.jobs)); break;
+      case "new-schedule": scheduleDrawer(null); break;
+      case "edit-schedule": scheduleDrawer(find(D.schedules)); break;
+      case "save-schedule": {
+        const cron = cronFromForm();
+        const form = $("#drawer form");
+        const op = D.operations.find(o => o.key === $("[name='operation']", form)?.value);
+        const body = el.dataset.id ? { cron_expression: cron, is_active: $("[name='is_active']", form).checked, __id: el.dataset.id } : { parser_name: op?.parser, job_type: op?.job_type, cron_expression: cron, is_active: $("[name='is_active']", form).checked };
+        confirmDialog({ title: "Сохранить расписание", text: esc(C.describeCron(cron).text), requestKey: el.dataset.id ? "schedule.update" : "schedule.create", body, icon: "calendar-clock", ok: "Сохранить", onOk: () => { closeDrawer(true); mockDone(el.dataset.id ? "schedule.update" : "schedule.create"); } });
+        break;
+      }
+      case "open-user": userDrawer(find(D.users)); break;
+      case "new-cosmetic": cosmeticDrawer(el.dataset.kind, null); break;
+      case "edit-cosmetic": cosmeticDrawer(el.dataset.kind, el.dataset.kind === "avatar" ? find(D.avatars) : D.decorations.find(x => String(x.id) === el.dataset.id)); break;
+      case "save-form": validateAndSave(el.dataset.kind, el.dataset.requestKey); break;
+      default: break;
+    }
+  }
+  function runRequest(el) {
+    const info = describeRequest(el);
+    const revert = () => { if (el.type === "checkbox") el.checked = !el.checked; };
+    confirmDialog({ ...info, onOk: () => mockDone(info.requestKey) });
+    if (el.type === "checkbox") { const dlg = $("#confirm"); dlg.addEventListener("close", function once() { revert(); dlg.removeEventListener("close", once); }); }
+  }
+
+  document.addEventListener("click", event => {
+    const reqEl = event.target.closest("[data-request]");
+    if (reqEl && reqEl.type !== "checkbox" && !reqEl.disabled) { event.preventDefault(); runRequest(reqEl); return; }
+    const actionEl = event.target.closest("[data-action]");
+    if (actionEl) { handleAction(actionEl, event); return; }
+    const segEl = event.target.closest("[data-seg]");
+    if (segEl) {
+      const name = segEl.dataset.seg, value = segEl.dataset.value;
+      if (name === "titles") { state.titles.filter = value; }
+      if (name === "conflicts") state.conflicts.status = value;
+      if (name === "jobs") state.jobs.status = value;
+      if (name === "logs") state.logs.level = value;
+      if (name === "checks") state.checks.state = value;
+      rerenderMain();
+      $(`[data-seg="${name}"][data-value="${value}"]`)?.focus();
+      return;
+    }
+    const dryEl = event.target.closest("[data-dry]");
+    if (dryEl) { $$(`[data-dry="${dryEl.dataset.dry}"]`).forEach(b => b.setAttribute("aria-pressed", String(b === dryEl))); return; }
+    const tab = event.target.closest("[role='tab'][data-tab]");
+    if (tab) {
+      const scope = tab.closest(".drawer");
+      $$("[role='tab']", scope).forEach(t => t.setAttribute("aria-selected", String(t === tab)));
+      $$("[data-panel]", scope).forEach(p => { p.hidden = p.dataset.panel !== tab.dataset.tab; });
+      return;
+    }
+    const preset = event.target.closest("[data-preset]");
+    if (preset) {
+      $$("[data-preset]").forEach(p => p.setAttribute("aria-pressed", String(p === preset)));
+      $$("[data-show]").forEach(f => { f.hidden = !f.dataset.show.split(" ").includes(preset.dataset.preset); });
+      state.dirty = true; $("[data-dirty]")?.removeAttribute("hidden");
+      updateCronPreview();
+      return;
+    }
+    if (event.target.id === "scrim") { if (!$("#drawer").hidden) closeDrawer(); else closeSubnav(); }
+    if (event.target.closest(".subnav-link")) closeSubnav();
+  });
+
+  document.addEventListener("change", event => {
+    const t = event.target;
+    if (t.matches("[data-request][type='checkbox']")) { runRequest(t); return; }
+    if (t.matches("[data-select='titles']")) {
+      t.checked ? state.titles.selected.add(t.value) : state.titles.selected.delete(t.value);
+      t.closest("tr")?.classList.toggle("is-selected", t.checked);
+      $("#bulk-slot").innerHTML = bulkBar(); refreshIcons($("#bulk-slot"));
+    }
+    if (t.matches("[data-select-all='titles']")) {
+      filteredTitles().forEach(item => (t.checked ? state.titles.selected.add(item.id) : state.titles.selected.delete(item.id)));
+      rerenderMain();
+    }
+    if (t.closest("#drawer form")) { state.dirty = true; $("[data-dirty]")?.removeAttribute("hidden"); }
+    if (t.matches("[data-role-select]")) {
+      const form = t.closest("form");
+      const role = D.roles.find(r => r.id === $("[name='role_id']", form).value);
+      const access = C.effectiveAccess({ is_superuser: $("[name='is_superuser']", form).checked }, role);
+      $("[data-access-preview]", form).innerHTML = accessPreview(access);
+      refreshIcons($("[data-access-preview]", form));
+    }
+    if (t.matches("[data-cron]")) updateCronPreview();
+  });
+
+  let searchTimer;
+  document.addEventListener("input", event => {
+    const t = event.target;
+    if (t.closest("#drawer form")) { state.dirty = true; $("[data-dirty]")?.removeAttribute("hidden"); }
+    if (t.matches("[data-input='titles-q']")) {
+      state.titles.q = t.value;
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => { $("#title-rows").innerHTML = titleRows(); refreshIcons($("#title-rows")); }, 120);
+    }
+    if (t.matches("[data-input='users-q']")) {
+      state.users.q = t.value;
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => { const pos = t.selectionStart; rerenderMain(); const input = $("[data-input='users-q']"); input.focus(); input.setSelectionRange(pos, pos); }, 120);
+    }
+    if (t.matches("[data-cron]")) updateCronPreview();
+  });
+
+  document.addEventListener("submit", event => {
+    const form = event.target.closest("[data-form]");
+    if (!form) return;
+    event.preventDefault();
+    if (form.dataset.form === "import-search") { state.importQ = form.q.value; rerenderMain(); $("[data-form='import-search'] input")?.focus(); }
+    if (form.dataset.form === "blacklist") {
+      const body = C.readForm(form);
+      if (!body.shikimori_id && !body.kodik_id && !body.slug) { toast("Укажите хотя бы один признак", "Shikimori ID, Kodik ID или slug", "warning", "triangle-alert"); return; }
+      confirmDialog({ title: "Добавить в исключения", text: "Синхронизация и импорт перестанут добавлять этот тайтл. Уже существующий тайтл не удалится.", requestKey: "blacklist.create", body, icon: "ban", ok: "Добавить", onOk: () => mockDone("blacklist.create") });
+    }
+  });
+
+  document.addEventListener("keydown", event => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); openCmdk(); return; }
+    if (event.key === "Escape") {
+      if ($("#cmdk").open || $("#confirm").open) return;
+      if (!$("#drawer").hidden) { closeDrawer(); return; }
+      closeSubnav();
+    }
+    if (event.key === "/" && !/input|textarea|select/i.test(document.activeElement?.tagName || "") && !$("#cmdk").open) { event.preventDefault(); openCmdk(); }
+  });
+
+  window.addEventListener("hashchange", render);
+  window.addEventListener("scroll", () => $("#shell").classList.toggle("is-scrolled", window.scrollY > 4), { passive: true });
+
+  function initInputModality() {
+    document.addEventListener("pointerdown", event => { document.documentElement.dataset.inputModality = "pointer"; }, { capture: true, passive: true });
+    document.addEventListener("keydown", event => { if (["Tab", "Enter", " ", "Escape", "ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) document.documentElement.dataset.inputModality = "keyboard"; }, true);
   }
   initInputModality();
 
-  const viewRoot = document.querySelector("#view-root");
-  const appShell = document.querySelector("#app-shell");
-  const overlay = document.querySelector("#overlay");
-  const commandDialog = document.querySelector("#command-dialog");
-  const commandInput = document.querySelector("#command-input");
-  const commandResults = document.querySelector("#command-results");
-  const dialog = document.querySelector("#dialog");
-  const drawer = document.querySelector("#detail-drawer");
-  const notificationPopover = document.querySelector("#notification-popover");
-  const uiTooltip = document.querySelector("#ui-tooltip");
-
-  let tooltipTimer = null;
-  let tooltipOwner = null;
-  let returnFocusTo = null;
-
-  const viewMeta = {
-    overview: ["Обзор", "Операционный центр"],
-    catalog: ["Аниме", "Каталог"],
-    episodes: ["Эпизоды", "Каталог"],
-    releases: ["Релизы", "Каталог"],
-    collections: ["Коллекции", "Каталог"],
-    assets: ["Декорации и аватары", "Каталог"],
-    "anime-editor": ["Редактор аниме", "Каталог"],
-    "episode-editor": ["Редактор эпизода", "Каталог"],
-    "release-editor": ["Редактор релиза", "Каталог"],
-    parsers: ["Парсер-центр", "Потоки данных"],
-    imports: ["Поиск и импорт", "Потоки данных"],
-    conflicts: ["Конфликты", "Потоки данных"],
-    scheduler: ["Планировщик", "Потоки данных"],
-    "parser-settings": ["Настройки парсера", "Потоки данных"],
-    moderation: ["Модерация", "Потоки данных"],
-    users: ["Пользователи", "Управление"],
-    monitoring: ["Мониторинг", "Управление"],
-    settings: ["Настройки сайта", "Система"],
-    backups: ["Резервные копии", "Система"],
-    audit: ["Журнал аудита", "Система"],
-  };
-
-  const anime = [
-    {
-      id: 9253,
-      code: "SL",
-      title: "Поднятие уровня в одиночку 2",
-      original: "Solo Leveling Season 2",
-      type: "TV",
-      year: 2025,
-      episodes: "13 / 13",
-      status: "released",
-      score: "8.72",
-      views: "1,24 млн",
-      updated: "12 мин назад",
-      a: "#381932",
-      b: "#9a587f",
-    },
-    {
-      id: 52991,
-      code: "FR",
-      title: "Провожающая в последний путь Фрирен",
-      original: "Sousou no Frieren",
-      type: "TV",
-      year: 2023,
-      episodes: "28 / 28",
-      status: "released",
-      score: "9.31",
-      views: "986 тыс.",
-      updated: "28 мин назад",
-      a: "#4b3146",
-      b: "#ad8aa0",
-    },
-    {
-      id: 57334,
-      code: "DD",
-      title: "Дандадан",
-      original: "Dandadan",
-      type: "TV",
-      year: 2024,
-      episodes: "12 / 12",
-      status: "released",
-      score: "8.63",
-      views: "844 тыс.",
-      updated: "44 мин назад",
-      a: "#5a203b",
-      b: "#d07598",
-    },
-    {
-      id: 54857,
-      code: "RZ",
-      title: "Re:Zero 3",
-      original: "Re:Zero kara Hajimeru Isekai Seikatsu 3",
-      type: "TV",
-      year: 2024,
-      episodes: "16 / 16",
-      status: "announced",
-      score: "8.49",
-      views: "718 тыс.",
-      updated: "1 ч назад",
-      a: "#3d2d45",
-      b: "#9e7da9",
-    },
-    {
-      id: 58514,
-      code: "AP",
-      title: "Монолог фармацевта 2",
-      original: "Kusuriya no Hitorigoto 2",
-      type: "TV",
-      year: 2025,
-      episodes: "21 / 24",
-      status: "ongoing",
-      score: "8.77",
-      views: "632 тыс.",
-      updated: "2 ч назад",
-      a: "#5b3d2a",
-      b: "#b9875a",
-    },
-    {
-      id: 40748,
-      code: "JK",
-      title: "Магическая битва",
-      original: "Jujutsu Kaisen",
-      type: "TV",
-      year: 2020,
-      episodes: "47 / 47",
-      status: "released",
-      score: "8.65",
-      views: "2,18 млн",
-      updated: "вчера",
-      a: "#33243b",
-      b: "#866f95",
-    },
-    {
-      id: 21,
-      code: "OP",
-      title: "Ван-Пис",
-      original: "One Piece",
-      type: "TV",
-      year: 1999,
-      episodes: "1122 / —",
-      status: "ongoing",
-      score: "8.73",
-      views: "4,82 млн",
-      updated: "вчера",
-      a: "#553026",
-      b: "#c08463",
-    },
-    {
-      id: 16498,
-      code: "AT",
-      title: "Атака титанов",
-      original: "Shingeki no Kyojin",
-      type: "TV",
-      year: 2013,
-      episodes: "94 / 94",
-      status: "released",
-      score: "8.55",
-      views: "3,67 млн",
-      updated: "2 дня назад",
-      a: "#4b2d2a",
-      b: "#a96f64",
-    },
-  ];
-
-  const jobs = [
-    {
-      id: "#J-8412",
-      source: "Kodik full sync",
-      scope: "Полная сверка каталога",
-      status: "running",
-      progress: null,
-      records: "Итоги после завершения",
-      started: "10:42",
-      duration: "18:42",
-    },
-    {
-      id: "#J-8411",
-      source: "Shikimori related refresh",
-      scope: "Связи и external ID",
-      status: "success",
-      progress: 100,
-      records: "2 410 обработано",
-      started: "09:00",
-      duration: "27:08",
-    },
-    {
-      id: "#J-8410",
-      source: "Kodik incremental",
-      scope: "Релизы и эпизоды",
-      status: "success",
-      progress: 100,
-      records: "1 248 обработано",
-      started: "08:30",
-      duration: "06:18",
-    },
-    {
-      id: "#J-8409",
-      source: "Kodik incremental",
-      scope: "Релизы и эпизоды",
-      status: "success",
-      progress: 100,
-      records: "986 обработано",
-      started: "08:00",
-      duration: "05:54",
-    },
-    {
-      id: "#J-8408",
-      source: "Kodik incremental",
-      scope: "Релизы и эпизоды",
-      status: "failed",
-      progress: 62,
-      records: "612 обработано",
-      started: "вчера, 22:10",
-      duration: "01:12",
-    },
-  ];
-
-  const users = [
-    {
-      id: 44192,
-      initials: "AK",
-      name: "Алексей Ким",
-      email: "alex.kim@example.com",
-      role: "Пользователь",
-      status: "active",
-      activity: "сейчас",
-      joined: "12 янв 2024",
-      comments: 128,
-    },
-    {
-      id: 43108,
-      initials: "MS",
-      name: "Мария Садыкова",
-      email: "maria.s@example.com",
-      role: "Модератор",
-      status: "active",
-      activity: "4 мин назад",
-      joined: "28 ноя 2023",
-      comments: 842,
-    },
-    {
-      id: 41887,
-      initials: "DV",
-      name: "Данияр Власов",
-      email: "d.vlasov@example.com",
-      role: "Пользователь",
-      status: "active",
-      activity: "1 ч назад",
-      joined: "6 окт 2023",
-      comments: 54,
-    },
-    {
-      id: 40621,
-      initials: "YU",
-      name: "Юлия Уткина",
-      email: "yulia.u@example.com",
-      role: "Администратор",
-      status: "active",
-      activity: "3 ч назад",
-      joined: "14 авг 2023",
-      comments: 337,
-    },
-    {
-      id: 39884,
-      initials: "RR",
-      name: "roman.r",
-      email: "roman.rr@example.com",
-      role: "Пользователь",
-      status: "banned",
-      activity: "5 дней назад",
-      joined: "2 июл 2023",
-      comments: 17,
-    },
-    {
-      id: 38152,
-      initials: "NT",
-      name: "Никита Тен",
-      email: "nikita.t@example.com",
-      role: "Пользователь",
-      status: "active",
-      activity: "вчера",
-      joined: "19 апр 2023",
-      comments: 206,
-    },
-  ];
-
-  const [initialHashView, initialHashTab] = location.hash.slice(1).split("/");
-
-  const contracts = window.KitsuAdminContracts;
-  const formDrafts = new Map();
-  const state = {
-    currentView: initialHashView in viewMeta ? initialHashView : "overview",
-    catalogQuery: "",
-    catalogFilter: "all",
-    usersRoleFilter: "all",
-    selectedAnime: new Set(),
-    catalogTimer: null,
-    parserTab:
-      initialHashView === "parsers" &&
-      ["jobs", "logs", "sources"].includes(initialHashTab)
-        ? initialHashTab
-        : "jobs",
-    conflictTab:
-      initialHashView === "conflicts" &&
-      ["pending", "auto", "resolved"].includes(initialHashTab)
-        ? initialHashTab
-        : "pending",
-    importMode: "search",
-    assetTab: "avatars",
-    moderationTab:
-      initialHashView === "moderation" &&
-      ["import", "comments"].includes(initialHashTab)
-        ? initialHashTab
-        : "import",
-    usersTab: "accounts",
-    settingsTab: "general",
-    parserSettingsTab: "general",
-    editorTab: "main",
-    commandIndex: 0,
-    commandItems: [],
-    dirtyViews: new Set(),
-  };
-
-  function filteredAnime() {
-    const query = state.catalogQuery.trim().toLocaleLowerCase("ru-RU");
-    return anime.filter((item) => {
-      const matchesStatus =
-        state.catalogFilter === "all" || item.status === state.catalogFilter;
-      const haystack = [
-        item.id,
-        item.title,
-        item.original,
-        item.type,
-        item.year,
-      ]
-        .join(" ")
-        .toLocaleLowerCase("ru-RU");
-      return matchesStatus && (!query || haystack.includes(query));
-    });
+  /* Живой прогресс текущей задачи (демонстрация WebSocket /dashboard/parsers/ws/jobs/{id}). */
+  function tickLive() {
+    if (!D.jobs.some(j => j.status === "running") || reduceMotion.matches) return;
+    setInterval(() => {
+      if (state.live.progress >= 96) return;
+      state.live.progress += 1;
+      $$("[data-live-pct]").forEach(n => { n.textContent = `${state.live.progress}%`; });
+      $$("[data-live-bar], #live-chip .progress > i").forEach(n => n.style.setProperty("--p", `${state.live.progress}%`));
+      $$("[role='progressbar']").forEach(n => n.setAttribute("aria-valuenow", state.live.progress));
+    }, 2400);
   }
 
-  const icon = (name, className = "") =>
-    `<i data-lucide="${name}"${className ? ` class="${className}"` : ""}></i>`;
-  const poster = (item, className = "") =>
-    `<span class="poster ${className}" style="--poster-a:${item.a};--poster-b:${item.b}"><span>${item.code}</span></span>`;
-  const status = (text, tone = "success") =>
-    `<span class="status-badge status-badge--${tone}">${text}</span>`;
-  const actionButton = (label, action, iconName, primary = false) =>
-    `<button class="button${primary ? " button--primary" : ""}" data-action="${action}">${icon(iconName)}<span>${label}</span></button>`;
-  const iconAction = (label, action, iconName, extra = "") =>
-    `<button class="icon-button ${extra}" data-action="${action}" aria-label="${label}" data-tooltip="${label}">${icon(iconName)}</button>`;
-  const sectionTabs = (items, current, attribute) =>
-    `<div class="tabs tabs--contained">${items.map(([id, label, count]) => `<button class="${current === id ? "is-active" : ""}" data-${attribute}="${id}">${label}${count ? `<span class="tab-count">${count}</span>` : ""}</button>`).join("")}</div>`;
-  const rowActions = (id, kind = "anime") => {
-    const editable = ["anime", "episode", "release", "user"].includes(kind);
-    return `<div class="row-actions"><button class="row-action" data-action="view-${kind}" data-id="${id}" aria-label="Открыть детали">${icon("panel-right-open")}</button>${editable ? `<button class="row-action" data-action="edit-${kind}" data-id="${id}" aria-label="Редактировать">${icon("pencil")}</button>` : ""}</div>`;
-  };
-  const toneForStatus = (value) =>
-    ({
-      published: "success",
-      released: "success",
-      ongoing: "info",
-      announced: "neutral",
-      draft: "warning",
-      success: "success",
-      completed: "success",
-      healthy: "success",
-      running: "live",
-      pending: "neutral",
-      cancelled: "neutral",
-      failed: "danger",
-      warning: "warning",
-      danger: "danger",
-      active: "success",
-      banned: "danger",
-      paused: "warning",
-      unreachable: "danger",
-      degraded: "warning",
-    })[value] || "info";
-  const labelForStatus = (value) =>
-    ({
-      published: "Опубликовано",
-      released: "Завершён",
-      ongoing: "Онгоинг",
-      announced: "Анонс",
-      draft: "Черновик",
-      success: "Завершено",
-      completed: "Завершено",
-      healthy: "Работает",
-      running: "Выполняется",
-      pending: "Ожидает",
-      cancelled: "Отменено",
-      failed: "Ошибка",
-      warning: "С предупреждением",
-      danger: "Ошибка",
-      active: "Активен",
-      banned: "Заблокирован",
-      paused: "Приостановлено",
-      unreachable: "Недоступен",
-      degraded: "Деградация",
-    })[value] || value;
-
-  function heading({ eyebrow, title, description, actions = "" }) {
-    return `<header class="page-heading"><div class="page-heading__copy"><span class="eyebrow">${eyebrow}</span><h1>${title}</h1><p>${description}</p></div>${actions ? `<div class="heading-actions">${actions}</div>` : ""}</header>`;
-  }
-
-  function panel(title, subtitle, body, options = {}) {
-    return `<section class="panel${options.flush ? " panel--flush" : ""}${options.attention ? " panel--attention" : ""}"><header class="panel-header"><div class="panel-title-group"><h2 class="panel-title">${title}</h2>${subtitle ? `<p class="panel-subtitle">${subtitle}</p>` : ""}</div>${options.actions ? `<div class="panel-actions">${options.actions}</div>` : ""}</header><div class="panel-body">${body}</div></section>`;
-  }
-
-  function kpi(label, value, note, trend, iconName, down = false) {
-    return `<article class="kpi"><div class="kpi-label"><span>${label}</span>${icon(iconName)}</div><div class="kpi-main"><strong class="kpi-value">${value}</strong><span class="trend${down ? " trend--down" : ""}">${icon(down ? "trending-down" : "trending-up")}${trend}</span></div><div class="kpi-note">${note}</div></article>`;
-  }
-
-  function statTile(label, value, note, iconName) {
-    return `<article class="stat-tile"><div class="stat-tile__top"><span>${label}</span>${icon(iconName)}</div><div class="stat-tile__value">${value}</div><div class="stat-tile__note">${note}</div></article>`;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function renderImports() {
-    const searchResults = [
-      [
-        anime[0],
-        "Kodik",
-        "kodik-498912",
-        "13 эпизодов",
-        "existing external ID",
-        "existing",
-      ],
-      [
-        anime[4],
-        "Shikimori",
-        "shiki-58514",
-        "24 эпизода",
-        "has_video=true",
-        "candidate",
-      ],
-      [
-        anime[2],
-        "Kodik",
-        "kodik-498721",
-        "12 эпизодов",
-        "manual comparison",
-        "conflict",
-      ],
-    ];
-    const results = `<div class="import-results">${searchResults.map((row) => `<article class="import-result">${poster(row[0], "import-poster")}<div class="import-result__copy"><div class="import-result__title"><div><h3>${row[0].title}</h3><p>${row[0].original} · ${row[0].type}, ${row[0].year}</p></div>${status(row[5] === "existing" ? "Уже в каталоге" : row[5] === "conflict" ? "Нужна сверка" : "Можно импортировать", row[5] === "existing" ? "success" : row[5] === "conflict" ? "warning" : "info")}</div><dl class="inline-definition"><div><dt>Источник</dt><dd>${row[1]}</dd></div><div><dt>External ID</dt><dd>${row[2]}</dd></div><div><dt>Данные</dt><dd>${row[3]}</dd></div><div><dt>Backend field</dt><dd>${row[4]}</dd></div></dl><div class="review-actions"><button class="button button--small" data-action="preview-import" data-id="${row[0].id}">${icon("scan-search")}Сравнить поля</button>${row[5] === "existing" ? `<button class="button button--small" data-action="refresh-anime">${icon("refresh-cw")}Refresh по slug</button><button class="button button--small" data-action="refresh-poster">${icon("image")}Refresh poster</button>` : `<button class="button button--small button--primary" data-action="confirm-single-import">${icon("download")}add-from-kodik</button>`}</div></div></article>`).join("")}</div>`;
-    const search = `<section class="search-workbench"><div class="search-workbench__form"><label class="field field--source"><span>Источник</span><select><option>Kodik + Shikimori</option><option>Kodik</option><option>Shikimori</option></select></label><label class="field field--query"><span>Название, URL или внешний ID</span><div class="input-action"><input value="Solo Leveling" placeholder="Например: https://kodik.info/... или 9253"><button class="button button--primary" data-action="run-import-search">${icon("search")}Найти</button></div><small>Поиск ничего не меняет в каталоге. Перед импортом будет показано сравнение.</small></label></div></section>${results}`;
-    const batch = `<div class="batch-layout"><section class="panel"><div class="form-section"><h3>Пакетная проверка</h3><p>Отдельного batch-import endpoint нет. Клиент может только валидировать список и затем подтверждать каждый add-from-kodik отдельно.</p><label class="field"><span>Список Kodik URL / Shikimori ID</span><textarea rows="10">https://kodik.info/serial/498912\n58514\nhttps://kodik.info/serial/498721</textarea><small>Распознано 3 записи · дубликаты будут пропущены.</small></label><div class="form-actions"><button class="button" data-action="download-import-template">${icon("download")}Шаблон CSV</button><button class="button button--primary" data-action="validate-batch">${icon("scan-line")}Проверить локально</button></div></div></section><aside class="operation-note"><span class="operation-note__icon">${icon("shield-check")}</span><h3>Что произойдёт</h3><ol><li>Проверка источников и external ID</li><li>Поиск существующих карточек</li><li>Сравнение метаданных и эпизодов</li><li>Явное подтверждение каждой записи через существующий endpoint</li></ol></aside></div>`;
-    return `${heading({ eyebrow: "Потоки данных · ручные операции", title: "Поиск и импорт", description: "Search-live, fetch-full и add-from-kodik подтверждены; отдельного batch-import endpoint нет." })}<div class="section-bar">${sectionTabs(
-      [
-        ["search", "Поиск по источникам"],
-        ["batch", "Пакетная проверка"],
-      ],
-      state.importMode,
-      "import-mode",
-    )}<div class="section-bar__meta">Provider health этим экраном не измеряется</div></div>${state.importMode === "search" ? search : batch}`;
-  }
-
-  function renderControlCenter() {
-    const decisionQueue = [
-      [
-        "conflicts",
-        "identity",
-        5,
-        "Несовпадение идентичности Shikimori",
-        "Сезон или найденный title не подтверждены",
-        "git-compare-arrows",
-        "warning",
-      ],
-      [
-        "moderation",
-        "moderation",
-        12,
-        "Карточки после импорта",
-        "7 no_video · 3 poster_url · 2 description",
-        "shield-alert",
-        "warning",
-      ],
-      [
-        "backups",
-        "backup",
-        1,
-        "Не создан media-артефакт",
-        "Database-копия готова, media завершилась ошибкой",
-        "database-zap",
-        "danger",
-      ],
-      [
-        "parsers",
-        "jobs",
-        2,
-        "Ошибки задач за 24 часа",
-        "Повторный запуск доступен из журнала задач",
-        "triangle-alert",
-        "danger",
-      ],
-    ];
-    const decisionTotal = decisionQueue.reduce((sum, row) => sum + row[2], 0);
-    const decisionRows = decisionQueue
-      .map(
-        (row) =>
-          `<button class="decision-row" data-view="${row[0]}"><span class="decision-code">${row[1]}</span><span class="decision-count">${row[2]}</span><span class="decision-copy"><strong>${row[3]}</strong><small>${row[4]}</small></span><span class="decision-icon decision-icon--${row[6]}">${icon(row[5])}</span>${icon("chevron-right")}</button>`,
-      )
-      .join("");
-    const queueBreakdown = `<div class="queue-breakdown" role="img" aria-label="Состав очереди: ${decisionQueue.map((row) => `${row[3]} — ${row[2]}`).join(", ")}">${decisionQueue
-      .map(
-        (row) =>
-          `<span class="queue-breakdown__segment queue-breakdown__segment--${row[6]}" style="width:${(row[2] / decisionTotal) * 100}%" data-tooltip="${row[3]} · ${row[2]} из ${decisionTotal}"></span>`,
-      )
-      .join(
-        "",
-      )}</div><div class="queue-legend">${decisionQueue
-      .map(
-        (row) =>
-          `<span class="queue-legend__item"><i class="queue-legend__dot queue-breakdown__segment--${row[6]}"></i>${row[1]}<b>${row[2]}</b></span>`,
-      )
-      .join("")}</div>`;
-    const jobsSample = jobs.slice(0, 5);
-    const jobRows = jobsSample
-      .map((job) => {
-        const progress =
-          job.progress === null
-            ? `<span class="honest-progress"><i></i>Нет точного прогресса</span>`
-            : `<div class="progress-line"><div class="progress-track"><div class="progress-value" style="width:${job.progress}%"></div></div><span>${job.progress}%</span></div>`;
-        return `<tr><td data-label="Задача"><button class="row-leading" data-action="view-job" data-id="${job.id}"><span class="job-glyph job-glyph--${job.status}">${icon(job.status === "running" ? "loader-circle" : job.status === "failed" ? "triangle-alert" : "check")}</span><span class="row-leading__copy"><strong>${job.source}</strong><span>${job.id} · ${job.scope}</span></span></button></td><td data-label="Статус">${status(labelForStatus(job.status), toneForStatus(job.status))}</td><td data-label="Прогресс">${progress}</td><td class="cell-muted" data-label="Старт">${job.started}</td><td class="cell-muted" data-label="Длительность">${job.duration}</td><td data-label=""><button class="icon-button" data-action="view-job" data-id="${job.id}" aria-label="Детали задачи">${icon("panel-right-open")}</button></td></tr>`;
-      })
-      .join("");
-    const jobStatusCounts = jobsSample.reduce((acc, job) => {
-      acc[job.status] = (acc[job.status] || 0) + 1;
-      return acc;
-    }, {});
-    const jobStatusTone = { running: "live", success: "success", failed: "danger" };
-    const jobStatusLabel = { running: "в работе", success: "успешно", failed: "с ошибкой" };
-    const jobStatusOrder = Object.keys(jobStatusTone).filter((key) => jobStatusCounts[key]);
-    const jobStatusLegend = jobStatusOrder.map((key) => `${jobStatusCounts[key]} ${jobStatusLabel[key]}`).join(" · ");
-    const jobStatusStrip = `<div class="status-strip" role="img" aria-label="Статусы среди ${jobsSample.length} загруженных задач: ${jobStatusLegend}">${jobStatusOrder
-      .map(
-        (key) =>
-          `<span class="status-strip__segment status-strip__segment--${jobStatusTone[key]}" style="width:${(jobStatusCounts[key] / jobsSample.length) * 100}%" data-tooltip="${jobStatusLabel[key]} · ${jobStatusCounts[key]} из ${jobsSample.length}"></span>`,
-      )
-      .join("")}</div><div class="queue-legend">${jobStatusOrder
-      .map(
-        (key) =>
-          `<span class="queue-legend__item"><i class="queue-legend__dot status-strip__segment--${jobStatusTone[key]}"></i>${jobStatusLabel[key]}<b>${jobStatusCounts[key]}</b></span>`,
-      )
-      .join("")}</div>`;
-    const processedDays = [
-      ["9 авг", 742, 210],
-      ["10 авг", 891, 340],
-      ["11 авг", 654, 180],
-      ["12 авг", 1023, 265],
-      ["13 авг", 986, 298],
-      ["14 авг", 1248, 410],
-      ["15 авг", 610, 155],
-    ];
-    const rowCount = 16;
-    const dayTotals = processedDays.map(([, kodik, shikimori]) => kodik + shikimori);
-    const chartMaxTotal = Math.max(...dayTotals);
-    const totalKodik = processedDays.reduce((sum, row) => sum + row[1], 0);
-    const totalShikimori = processedDays.reduce((sum, row) => sum + row[2], 0);
-    const trendColumns = processedDays
-      .map(([label, kodik, shikimori]) => {
-        const total = kodik + shikimori;
-        const filled = Math.round((total / chartMaxTotal) * rowCount);
-        const kodikCells = filled ? Math.round((kodik / total) * filled) : 0;
-        const cells = [];
-        for (let i = 0; i < rowCount; i += 1) {
-          const posFromBottom = rowCount - 1 - i;
-          const tone =
-            posFromBottom < kodikCells ? "accent" : posFromBottom < filled ? "info" : "empty";
-          cells.push(`<span class="trend-cell trend-cell--${tone}"></span>`);
-        }
-        return `<div class="trend-column" data-tooltip="${label} · Kodik ${kodik.toLocaleString("ru-RU")} · Shikimori ${shikimori.toLocaleString("ru-RU")}"><div class="trend-column__cells">${cells.join("")}</div><span class="trend-column__label">${label.split(" ")[0]}</span></div>`;
-      })
-      .join("");
-    const processedChart = `<section class="panel panel--flush trend-panel"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">Обработка источников</span><h2 class="panel-title">Обработано за 7 дней</h2><p class="panel-subtitle">Записи из Kodik и Shikimori · 9–15 августа</p></div><div class="chart-legend"><span class="legend-item"><i class="legend-mark"></i>Kodik · ${totalKodik.toLocaleString("ru-RU")}</span><span class="legend-item"><i class="legend-mark legend-mark--info"></i>Shikimori · ${totalShikimori.toLocaleString("ru-RU")}</span><span class="chart-summary">За неделю <strong>${(totalKodik + totalShikimori).toLocaleString("ru-RU")}</strong></span></div></header><div class="trend-grid" role="img" aria-label="Обработано за 7 дней: Kodik и Shikimori по дням">${trendColumns}</div></section>`;
-    const chartTable = `<table class="sr-only"><caption>Обработано за 7 дней: Kodik и Shikimori по дням</caption><thead><tr><th scope="col">День</th><th scope="col">Kodik</th><th scope="col">Shikimori</th></tr></thead><tbody>${processedDays.map(([label, kodik, shikimori]) => `<tr><th scope="row">${label}</th><td>${kodik}</td><td>${shikimori}</td></tr>`).join("")}</tbody></table>`;
-    const attentionCards = decisionQueue
-      .map(
-        (row) =>
-          `<button class="attention-card attention-card--${row[6]}" data-view="${row[0]}"><span class="attention-card__top"><span class="attention-card__code">${row[1]}</span><span class="attention-card__icon">${icon(row[5])}</span></span><span class="attention-card__count">${row[2]}</span><span class="attention-card__copy"><strong>${row[3]}</strong><small>${row[4]}</small></span><span class="attention-card__go">Открыть ${icon("arrow-right")}</span></button>`,
-      )
-      .join("");
-    const nowStrip = `<section class="now-strip" aria-label="Сейчас"><article class="now-cell now-cell--job"><span class="now-cell__label"><i class="live-dot" aria-hidden="true"></i>Выполняется сейчас</span><strong class="now-cell__title">Kodik full sync</strong><small class="now-cell__meta">#J-8412 · ручной запуск · идёт 18:42</small><div class="indeterminate-track" role="progressbar" aria-label="Задача выполняется без публикации точного прогресса"><span></span></div><p class="now-cell__note">Точный прогресс не публикуется: счётчики появятся после завершения.</p><div class="now-cell__actions"><button class="button button--small" data-action="view-job" data-id="#J-8412">${icon("panel-right-open")}Открыть задачу</button><button class="button button--small button--danger" data-action="stop-job">${icon("square")}Остановить</button></div></article><article class="now-cell"><span class="now-cell__label"><i class="live-dot" aria-hidden="true"></i>Ближайший запуск</span><strong class="now-cell__title">Kodik incremental</strong><small class="now-cell__meta">сегодня, 11:30 · <code>*/30 * * * *</code></small><button class="panel-link" data-view="scheduler">Планировщик ${icon("arrow-right")}</button></article><article class="now-cell"><span class="now-cell__label"><i class="live-dot" aria-hidden="true"></i>Состояние API</span><strong class="now-cell__title">Go API online</strong><small class="now-cell__meta">PostgreSQL 12 ms · 2 воркера активны</small><button class="panel-link" data-view="monitoring">Мониторинг ${icon("arrow-right")}</button></article></section>`;
-    const attention = `<section class="panel panel--flush attention-panel"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">Требует внимания</span><h2 class="panel-title">Очередь оператора</h2><p class="panel-subtitle">Ошибки, конфликты и материалы на модерации.</p></div><span class="queue-total">${decisionTotal} открыто</span></header>${queueBreakdown}<div class="attention-grid">${attentionCards}</div></section>`;
-    const kpis = `<div class="metric-grid metric-grid--secondary"><article class="metric-card"><span>Пользователи</span><strong>24 812</strong><small>1 284 активны за сутки</small><div class="metric-ratio" role="img" aria-label="1 284 из 24 812 активны за сутки"><span style="width:${((1284 / 24812) * 100).toFixed(1)}%"></span></div></article><article class="metric-card"><span>Аниме</span><strong>3 402</strong><small>184 онгоинга</small><div class="metric-ratio" role="img" aria-label="184 из 3 402 в статусе онгоинг"><span style="width:${((184 / 3402) * 100).toFixed(1)}%"></span></div></article><article class="metric-card"><span>Активные релизы</span><strong>18 429</strong><small>доступны в плеере</small></article><article class="metric-card"><span>Время работы API</span><strong>3д 11ч</strong><small>с последнего запуска</small></article></div>`;
-    const health = `<section class="health-ribbon" aria-label="Состояние сервисов"><button data-view="monitoring"><span>Go API</span><strong><i class="status-dot status-dot--live"></i>online</strong><small>последняя проверка</small></button><button data-view="monitoring"><span>PostgreSQL</span><strong><i class="status-dot status-dot--ok"></i>12 ms</strong><small>основная база</small></button><button data-view="monitoring"><span>Cache</span><strong><i class="status-dot status-dot--warning"></i>не проверен</strong><small>проверка доступности не выполнена</small></button><button data-view="parsers"><span>Workers</span><strong><i class="status-dot status-dot--ok"></i>2 активны</strong><small>работающие процессы</small></button><button data-view="monitoring"><span>Storage</span><strong><i class="status-dot status-dot--warning"></i>68%</strong><small>занято на диске</small></button></section>`;
-    const recent = `<section class="panel panel--flush"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">Журнал</span><h2 class="panel-title">Последние задачи</h2><p class="panel-subtitle">Последние запуски и результаты обработки.</p></div><button class="panel-link" data-view="parsers">Задачи и логи ${icon("arrow-right")}</button></header>${jobStatusStrip}<div class="table-shell"><table class="data-table responsive"><thead><tr><th>Задача</th><th>Статус</th><th>Прогресс</th><th>Старт</th><th>Длительность</th><th></th></tr></thead><tbody>${jobRows}</tbody></table></div></section>`;
-    return `${heading({ eyebrow: "Демонстрационные данные", title: "Обзор", description: "Что происходит сейчас и что ждёт решения оператора.", actions: `${actionButton("Найти в источниках", "go-imports", "search-code")}${actionButton("Ручной запуск", "start-sync", "play", true)}` })}${nowStrip}${attention}${kpis}${processedChart.replace("</section>", `${chartTable}</section>`)}${health}${recent}`;
-  }
-
-  function renderParserCenterReal() {
-    const jobRows = jobs
-      .map((job) => {
-        const progress =
-          job.progress === null
-            ? `<span class="honest-progress"><i></i>счётчики в конце</span>`
-            : `<div class="progress-line"><div class="progress-track"><div class="progress-value" style="width:${job.progress}%"></div></div><span>${job.progress}%</span></div>`;
-        return `<tr><td><button class="row-leading" data-action="view-job" data-id="${job.id}"><span class="job-glyph job-glyph--${job.status}">${icon(job.status === "running" ? "loader-circle" : job.status === "failed" ? "circle-x" : "check")}</span><span class="row-leading__copy"><strong>${job.source}</strong><span>${job.id} · ${job.scope}</span></span></button></td><td>${status(labelForStatus(job.status), toneForStatus(job.status))}</td><td>${progress}</td><td class="cell-muted">${job.records}</td><td class="cell-muted">${job.duration}</td><td>${rowActions(job.id, "job")}</td></tr>`;
-      })
-      .join("");
-    const jobsView = `<div class="parser-workspace"><aside class="source-matrix"><article class="source-mode source-mode--ready"><div class="source-mode__head"><span>KI</span><div><strong>Kodik incremental</strong><small>релизы и эпизоды</small></div>${status("Работает", "success")}</div><ul><li>Ручной и scheduled запуск</li><li>Счётчики подтверждаются результатом job</li><li>Каждый trigger создаёт новую job</li></ul><button class="button button--primary button--block" data-action="run-job">${icon("play")}Запустить incremental</button></article><article class="source-mode source-mode--manual"><div class="source-mode__head"><span>KF</span><div><strong>Kodik full sync</strong><small>полная сверка</small></div>${status("Только вручную", "warning")}</div><ul><li>Checkpoint / resume API нет</li><li>Длительность заранее неизвестна</li><li>Без live процента</li></ul><button class="button button--block" data-action="start-sync">${icon("refresh-cw")}Настроить запуск</button></article><article class="source-mode source-mode--ready"><div class="source-mode__head"><span>SR</span><div><strong>Related refresh</strong><small>Shikimori links</small></div>${status("Работает", "success")}</div><ul><li>Только ручной запуск</li><li>Live progress</li><li>Создаёт conflicts</li></ul><button class="button button--block" data-action="run-related-refresh">${icon("git-branch")}Обновить связи</button></article><article class="source-mode source-mode--disabled"><div class="source-mode__head"><span>SM</span><div><strong>Shikimori metadata</strong><small>incremental / full</small></div>${status("Не портировано", "neutral")}</div><ul><li>Worker возвращает ошибку</li><li>Нельзя планировать</li><li>Нет кнопки запуска</li></ul><button class="button button--block" disabled>Недоступно</button></article></aside><section class="panel panel--flush parser-table"><header class="panel-header"><div class="panel-title-group"><h2 class="panel-title">Журнал задач</h2><p class="panel-subtitle">Фактические поля progress и items_processed…items_failed</p></div><div class="panel-header__actions"><button class="button button--small" data-action="clear-jobs">${icon("trash-2")}Очистить журнал</button><button class="button button--small" data-action="refresh-jobs">${icon("refresh-cw")}Обновить</button></div></header><div class="table-toolbar"><div class="toolbar-leading"><label class="search-field">${icon("search")}<input placeholder="ID, источник или статус"></label><button class="filter-button">${icon("list-filter")}Статус</button></div><span class="timezone-chip">${icon("clock-3")}Asia/Almaty · UTC+5</span></div><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Задача</th><th>Статус</th><th>Прогресс</th><th>Результат</th><th>Время</th><th></th></tr></thead><tbody>${jobRows}</tbody></table></div></section></div>`;
-    const logsView = `<section class="log-console"><header><div><span class="section-kicker">REST snapshot</span><h2>Глобальный журнал worker</h2></div><div class="log-controls"><button class="filter-chip is-active">Все уровни</button><button class="filter-chip">Warning</button><button class="filter-chip">Error</button><button class="button button--small" data-action="refresh-jobs">${icon("refresh-cw")}Обновить</button></div></header><div class="log-stream"><p><time>11:00:42.218</time><span class="log-level log-level--info">INFO</span><code>job=#J-8412</code><span>kodik full sync: page fetched</span><b>page=41</b></p><p><time>11:00:41.934</time><span class="log-level log-level--info">INFO</span><code>job=#J-8412</code><span>batch committed</span><b>created=18 updated=76 skipped=4</b></p><p><time>10:59:58.102</time><span class="log-level log-level--warning">WARN</span><code>source=kodik</code><span>rate limit backoff</span><b>retry_in=2s</b></p><p><time>10:59:12.044</time><span class="log-level log-level--info">INFO</span><code>worker=parser-2</code><span>heartbeat</span><b>active_jobs=1</b></p><p><time>10:54:03.611</time><span class="log-level log-level--danger">ERROR</span><code>job=#J-8408</code><span>request failed after retry</span><b>source=kodik</b></p></div><footer><span>REST GET /logs · обновление по запросу</span><span>Показан контрактный снимок 5 строк</span></footer></section>`;
-    const sourcesView = `<div class="integration-grid"><article class="integration-card"><div class="integration-card__icon">${icon("radio-tower")}</div><div><span class="section-kicker">Primary source</span><h3>Kodik API</h3><p>Каталог видео, эпизоды, релизы и translation metadata.</p></div><dl><dt>Конфигурация</dt><dd>${status("Подключена", "neutral")}</dd><dt>Health probe</dt><dd>Не предусмотрен</dd><dt>Данные</dt><dd>Из parser jobs/logs</dd></dl></article><article class="integration-card"><div class="integration-card__icon">${icon("network")}</div><div><span class="section-kicker">Identity source</span><h3>Shikimori API</h3><p>External IDs и related graph через ручной related refresh.</p></div><dl><dt>Конфигурация</dt><dd>${status("Подключена", "neutral")}</dd><dt>Health probe</dt><dd>Не предусмотрен</dd><dt>Metadata sync</dt><dd>${status("Не портирован", "neutral")}</dd></dl></article><article class="integration-card"><div class="integration-card__icon">${icon("database")}</div><div><span class="section-kicker">Persistence</span><h3>PostgreSQL</h3><p>Jobs, logs, conflicts и транзакционные изменения каталога.</p></div><dl><dt>Состояние</dt><dd>${status("Online", "success")}</dd><dt>Latency</dt><dd>12 ms</dd><dt>Проверка</dt><dd>SELECT 1</dd></dl></article><article class="integration-card"><div class="integration-card__icon">${icon("memory-stick")}</div><div><span class="section-kicker">Coordination</span><h3>Redis</h3><p>Cache, locks и координация фоновых процессов.</p></div><dl><dt>Ответ backend</dt><dd>${status("Online*", "warning")}</dd><dt>Health probe</dt><dd>Не выполняется</dd><dt>Ограничение</dt><dd>Статус hardcoded</dd></dl></article></div>`;
-    const body =
-      state.parserTab === "logs"
-        ? logsView
-        : state.parserTab === "sources"
-          ? sourcesView
-          : jobsView;
-    return `${heading({ eyebrow: "Потоки данных · parser jobs", title: "Парсер-центр", description: "Поддерживаемые режимы, честный прогресс, результаты и REST-журнал в одном месте.", actions: `${actionButton("Обновить", "refresh-jobs", "refresh-cw")}${actionButton("Ручной запуск", "start-sync", "play", true)}` })}<div class="section-bar parser-tabs">${sectionTabs(
-      [
-        ["jobs", "Задачи", "5"],
-        ["logs", "Журнал"],
-        ["sources", "Источники", "4"],
-      ],
-      state.parserTab,
-      "parser-tab",
-    )}<div class="section-bar__meta"><span class="status-dot status-dot--ok"></span>2 активны · count из Asynq Inspector</div></div>${body}`;
-  }
-
-  function renderConflictsReal() {
-    const conflictRows = [
-      {
-        id: 781,
-        title: "Поднятие уровня в одиночку 2",
-        kodik: "498912",
-        shiki: "58567",
-        reason: "season_mismatch",
-        expected: "Сезон 2",
-        incoming: "Сезон 1",
-        reliable: false,
-        created: "11 мин назад",
-      },
-      {
-        id: 780,
-        title: "Дандадан 2",
-        kodik: "512449",
-        shiki: "—",
-        reason: "no_match",
-        expected: "TV · 2025",
-        incoming: "Кандидат не найден",
-        reliable: false,
-        created: "28 мин назад",
-      },
-      {
-        id: 779,
-        title: "Монолог фармацевта 2",
-        kodik: "509114",
-        shiki: "58514",
-        reason: "season_mismatch",
-        expected: "Сезон 2",
-        incoming: "Сезон не указан",
-        reliable: false,
-        created: "1 ч назад",
-      },
-    ];
-    const autoRows = [
-      {
-        id: 776,
-        title: "Провожающая Фрирен",
-        kodik: "472104",
-        shiki: "52991",
-        reason: "title_year_match",
-        expected: "TV · 2023",
-        incoming: "TV · 2023",
-        reliable: true,
-        created: "сегодня, 08:58",
-      },
-    ];
-    const resolvedRows = [
-      {
-        id: 764,
-        title: "Ван-Пис",
-        kodik: "34012",
-        shiki: "21",
-        reason: "resolved_replace",
-        expected: "TV · 1999",
-        incoming: "TV · 1999",
-        reliable: true,
-        created: "вчера, 17:31",
-      },
-    ];
-    const data =
-      state.conflictTab === "auto"
-        ? autoRows
-        : state.conflictTab === "resolved"
-          ? resolvedRows
-          : conflictRows;
-    const cards = data
-      .map((item) => {
-        const actions =
-          state.conflictTab === "pending"
-            ? `<div class="conflict-actions"><button class="button" data-action="ignore-conflict" data-id="${item.id}">${icon("ban")}Игнорировать</button><button class="button button--primary" data-action="replace-conflict" data-id="${item.id}">${icon("replace")}Заменить связь</button><button class="icon-button" data-action="resolve-conflict" data-id="${item.id}" aria-label="Открыть полные данные">${icon("panel-right-open")}</button></div>`
-            : `<button class="button button--small" data-action="view-audit">${icon("scroll-text")}Открыть audit</button>`;
-        return `<article class="conflict-card"><header><div><span class="conflict-id">C-${item.id} · shikimori_identity_mismatch</span><h3>${item.title}</h3></div>${status(state.conflictTab === "pending" ? "Ожидает решения" : state.conflictTab === "auto" ? "Auto accepted" : "Решён", state.conflictTab === "pending" ? "warning" : "success")}</header><div class="conflict-grid"><section><span class="compare-source">Текущая запись · Kodik</span><dl><dt>External ID</dt><dd>${item.kodik}</dd><dt>Ожидаемая связь</dt><dd>${item.expected}</dd><dt>Надёжная</dt><dd>${item.reliable ? "Да" : "Нет"}</dd></dl></section><div class="compare-axis"><span>${icon("git-compare-arrows")}</span><small>${item.reason}</small></div><section><span class="compare-source">Incoming · Shikimori</span><dl><dt>Shikimori ID</dt><dd>${item.shiki}</dd><dt>Результат</dt><dd>${item.incoming}</dd><dt>Причина</dt><dd><code>${item.reason}</code></dd></dl></section></div><footer><span>${icon("clock-3")}${item.created} · Asia/Almaty (UTC+5)</span>${actions}</footer></article>`;
-      })
-      .join("");
-    return `${heading({ eyebrow: "Потоки данных · ParserConflict", title: "Конфликты идентичности", description: "Причины season_mismatch и no_match вынесены из JSON в явное сравнение для решения оператора.", actions: actionButton("Обновить очередь", "refresh-jobs", "refresh-cw") })}<div class="conflict-summary"><article><span>Ожидают решения</span><strong>5</strong><small>блокируют автоматическую связь</small></article><article><span>Auto accepted</span><strong>70</strong><small>доступны для аудита</small></article><article><span>Решено сегодня</span><strong>12</strong><small>ignore или replace</small></article><article><span>Network errors</span><strong>1</strong><small>не смешаны с conflicts</small></article></div><div class="section-bar"><div class="tabs tabs--contained"><button class="${state.conflictTab === "pending" ? "is-active" : ""}" data-conflict-tab="pending">Ожидают <span class="tab-count">5</span></button><button class="${state.conflictTab === "auto" ? "is-active" : ""}" data-conflict-tab="auto">Auto accepted <span class="tab-count">70</span></button><button class="${state.conflictTab === "resolved" ? "is-active" : ""}" data-conflict-tab="resolved">Решённые</button></div><div class="section-bar__meta">Стратегии API: ignore · replace</div></div><div class="conflict-list">${cards}</div>`;
-  }
-
-  function renderSchedulerReal() {
-    return `${heading({ eyebrow: "Потоки данных · ParserSchedule", title: "Планировщик", description: "Kodik incremental и Shikimori calendar snapshot по расписанию; full sync и related refresh — вручную.", actions: actionButton("Новое расписание", "create-schedule", "plus", true) })}<div class="scheduler-layout"><section class="schedule-board"><article class="schedule-card schedule-card--active"><header><span class="schedule-symbol">KI</span><div><h3>Kodik incremental</h3><p>parser_name=kodik · job_type=incremental</p></div>${status("Активно", "success")}<button class="switch is-on" data-action="toggle-switch" aria-label="Kodik incremental включён"></button></header><div class="schedule-timing"><div><span>Cron expression</span><strong><code>*/30 * * * *</code></strong><small>каждые 30 минут</small></div><div><span>Последний запуск</span><strong>сегодня, 10:30</strong><small>last_run_at из ответа</small></div><div><span>Следующий запуск</span><strong>сегодня, 11:30</strong><small>Asia/Almaty · UTC+5</small></div></div><footer><button class="button button--small" data-action="run-schedule" data-id="schedule-kodik" data-operation="kodik:incremental">${icon("play")}Запустить сейчас</button><button class="button button--small" data-action="edit-schedule">${icon("pencil")}Изменить cron</button></footer></article><article class="schedule-card"><header><span class="schedule-symbol">SC</span><div><h3>Shikimori calendar snapshot</h3><p>parser_name=shikimori · job_type=calendar_snapshot</p></div><button class="switch is-on" data-action="toggle-switch" aria-label="Shikimori calendar snapshot включён"></button></header><div class="schedule-timing"><div><span>Cron expression</span><strong><code>0 4 * * *</code></strong><small>04:00 UTC · один раз в сутки</small></div><div><span>Что обновляет</span><strong>Календарь и next_episode_at</strong><small>Не импортирует каталог и не заменяет related refresh</small></div></div><footer><button class="button button--small" data-action="run-schedule" data-id="schedule-calendar" data-operation="shikimori:calendar_snapshot">Запустить сейчас</button><button class="button button--small" data-action="edit-schedule" data-operation="shikimori:calendar_snapshot">Изменить cron</button><button class="button button--small" data-action="delete-schedule" data-id="schedule-calendar">Удалить</button></footer></article><article class="manual-operation"><span class="manual-operation__index">01</span><div><h3>Kodik full sync</h3><p>Ручной запуск; checkpoint/resume endpoint отсутствует. Не добавлять расписание без повторной проверки worker.</p></div>${status("Manual only", "warning")}<button class="button" data-action="start-sync">Запустить</button></article><article class="manual-operation"><span class="manual-operation__index">02</span><div><h3>Shikimori related refresh</h3><p>Ручной проход связей с live progress и conflict output.</p></div>${status("Manual only", "warning")}<button class="button" data-action="run-related-refresh">Запустить</button></article><article class="manual-operation manual-operation--disabled"><span class="manual-operation__index">03</span><div><h3>Shikimori metadata</h3><p>Incremental/full worker ещё не портирован в Go.</p></div>${status("Недоступно", "neutral")}<button class="button" disabled>Нет действия</button></article></section><aside class="scheduler-aside"><section class="panel"><span class="section-kicker">Поведение backend</span><h2 class="aside-title">Что важно при редактировании</h2><ul class="system-facts"><li>${icon("clock-4")}При создании <code>next_run_at</code> сначала равен now + 1h.</li><li>${icon("refresh-cw")}Cron рассчитывается при следующем recovery-проходе.</li><li>${icon("pencil")}Изменение cron не пересчитывает next_run_at мгновенно.</li><li>${icon("play")}Kodik run-now исполняет incremental; Shikimori calendar_snapshot обновляет календарь.</li></ul></section><section class="timezone-panel"><span>Часовой пояс интерфейса</span><strong>Asia/Almaty</strong><small>UTC+5 · backend timestamps интерпретируются как UTC</small></section></aside></div>`;
-  }
-
-  function renderMonitoringReal() {
-    const services = [
-      ["Go API process", "healthy", "online", "health endpoint", "server-cog"],
-      ["PostgreSQL", "healthy", "12 ms", "SELECT 1", "database"],
-      [
-        "Cache status*",
-        "degraded",
-        "online*",
-        "hardcoded; probe не выполняется",
-        "memory-stick",
-      ],
-      [
-        "Parser workers",
-        "healthy",
-        "2 активны",
-        "count из Asynq Inspector",
-        "workflow",
-      ],
-      [
-        "Root filesystem",
-        "degraded",
-        "68%",
-        "resources.disk_percent",
-        "hard-drive",
-      ],
-    ]
-      .map(
-        (item) =>
-          `<article class="service-state service-state--${item[1]}"><div class="service-state__icon">${icon(item[4])}</div><div><span>${item[0]}</span><strong>${item[2]}</strong><small>${item[3]}</small></div>${status(labelForStatus(item[1]), toneForStatus(item[1]))}</article>`,
-      )
-      .join("");
-    return `${heading({ eyebrow: "Управление · runtime и зависимости", title: "Мониторинг", description: "Latency, worker state и ресурсы процесса. Неизвестное состояние никогда не интерпретируется как ноль или healthy.", actions: actionButton("Обновить проверку", "refresh-monitoring", "refresh-cw", true) })}<div class="monitoring-banner"><div><span class="status-pulse"></span><span><strong>Health endpoint отвечает</strong><small>Контрактный снимок · timestamp приходит от backend</small></span></div><span>5 сигналов · cache без самостоятельного probe</span></div><section class="service-state-grid">${services}</section><div class="monitoring-layout"><section class="panel"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">Go process</span><h2 class="panel-title">Ресурсы приложения</h2><p class="panel-subtitle">Значения процесса и узла показаны раздельно</p></div></header><div class="resource-list"><div class="resource-row"><div><span>CPU узла</span><strong>24%</strong></div><div class="resource-track"><span style="width:24%"></span></div><small>resources.cpu_percent</small></div><div class="resource-row"><div><span>Память узла</span><strong>41%</strong></div><div class="resource-track"><span style="width:41%"></span></div><small>resources.memory_percent</small></div><div class="resource-row"><div><span>RSS приложения</span><strong>842 MB</strong></div><div class="resource-track"><span style="width:42%"></span></div><small>resources.memory_app_mb · без придуманного лимита</small></div><div class="resource-row resource-row--warning"><div><span>Корневая файловая система</span><strong>68%</strong></div><div class="resource-track"><span style="width:68%"></span></div><small>resources.disk_percent</small></div><div class="resource-row"><div><span>Load average</span><strong>0.62 · 0.54 · 0.48</strong></div><div class="resource-track"><span style="width:31%"></span></div><small>resources.load_avg · 1 / 5 / 15 мин</small></div></div></section><section class="panel panel--flush route-ownership"><header class="panel-header"><div class="panel-title-group"><span class="section-kicker">Response contract</span><h2 class="panel-title">Что действительно возвращается</h2><p class="panel-subtitle">Без предположений о соседних сервисах и маршрутах</p></div></header><div class="route-list"><div><span class="route-owner route-owner--go">DB</span><div><strong>services.database</strong><small>status · latency_ms · SELECT 1</small></div>${status("Проверяется", "success")}</div><div><span class="route-owner route-owner--hybrid">CA</span><div><strong>services.cache</strong><small>status=online без самостоятельной проверки</small></div>${status("Не проверен*", "warning")}</div><div><span class="route-owner route-owner--go">WK</span><div><strong>services.worker</strong><small>status · count из Asynq Inspector</small></div>${status("Проверяется", "success")}</div><div><span class="route-owner route-owner--web">RS</span><div><strong>resources</strong><small>CPU · memory · app RSS · disk · load_avg</small></div>${status("Измеряется", "info")}</div></div></section></div><section class="unknown-state-example"><span>${icon("circle-help")}</span><div><strong>Контракт неизвестного состояния</strong><p>Если dependency недоступна, карточка показывает «Нет данных» и время последнего успешного ответа — не 0 ms и не зелёный статус.</p></div><button class="button button--small" data-action="view-audit">Диагностический audit</button></section>`;
-  }
-
-  function renderSiteSettingsReal() {
-    return `${heading({ eyebrow: "Система · SystemSetting", title: "Настройки сайта", description: "Только ключи, которые действительно читаются и сохраняются текущим backend.", actions: `${actionButton("История изменений", "settings-history", "history")}${actionButton("Сохранить", "save-settings", "save", true)}` })}<div class="settings-contract"><main class="settings-form"><section class="settings-card"><header><span class="settings-card__number">01</span><div><h2>Идентификация сайта</h2><p>Публичное название из ключа <code>site_name</code></p></div>${status("Редактируется", "neutral")}</header><label class="field field--prominent"><span>Название сайта <code>site_name</code></span><input value="Kitsu Enterprise" autocomplete="off"><small>При интеграции значение всегда берётся из GET /system/settings/site.</small></label></section><section class="settings-card settings-card--critical"><header><span class="settings-card__number">02</span><div><h2>Режим обслуживания</h2><p>Булевый ключ <code>maintenance_mode</code></p></div>${status("Выключен", "success")}</header><div class="maintenance-control"><div><span class="maintenance-icon">${icon("construction")}</span><div><strong>Пользовательский сайт доступен</strong><p>Backend хранит значение, но потребитель maintenance_mode в текущем коде не найден. Не обещать блокировку сайта до реализации и теста consumer.</p></div></div><button class="switch" data-action="toggle-switch" aria-label="Режим обслуживания"></button></div></section><section class="settings-card"><header><span class="settings-card__number">03</span><div><h2>Регистрация</h2><p>Булевый ключ <code>allow_registration</code></p></div>${status("Включена", "success")}</header><div class="maintenance-control"><div><span class="maintenance-icon">${icon("user-plus")}</span><div><strong>Новые аккаунты разрешены</strong><p>Backend хранит значение, но consumer allow_registration в текущем коде не найден. Регистрацию не блокировать только на клиенте.</p></div></div><button class="switch is-on" data-action="toggle-switch" aria-label="Разрешить регистрацию"></button></div></section><section class="settings-card"><header><span class="settings-card__number">04</span><div><h2>Акцентные цвета</h2><p>Ключи <code>accent_primary</code> и <code>accent_danger</code></p></div>${status("Редактируются", "neutral")}</header><div class="form-grid"><label class="field"><span>Основной акцент <code>accent_primary</code></span><div class="input-action"><input type="color" value="#e0472b" aria-label="Основной акцент"><input value="#e0472b" autocomplete="off"></div><small>Целевой токен redesign; при интеграции поле сначала показывает фактическое значение GET.</small></label><label class="field"><span>Опасное действие <code>accent_danger</code></span><div class="input-action"><input type="color" value="#ff6f93" aria-label="Опасный акцент"><input value="#ff6f93" autocomplete="off"></div><small>Целевой danger-токен; backend пока только хранит значение и не применяет его к UI автоматически.</small></label></div></section><div class="settings-savebar"><div><span class="status-dot status-dot--ok"></span><span><strong>Пять значений загружены</strong><small>GET возвращает map без actor и updated_at</small></span></div><button class="button button--primary" data-action="save-settings">${icon("save")}Сохранить 5 ключей</button></div></main><aside class="settings-context"><section class="panel"><span class="section-kicker">Контракт конфигурации</span><h2 class="aside-title">Область настроек</h2><dl class="definition-list"><dt>Seeded keys</dt><dd>5</dd><dt>Источник</dt><dd>SystemSetting API</dd><dt>Чтение Go</dt><dd>Напрямую из БД</dd><dt>PATCH</dt><dd>Только существующие ключи</dd></dl></section><section class="cache-card"><span class="cache-card__icon">${icon("database-zap")}</span><div><strong>Настройки читаются из БД</strong><p>После PATCH backend инвалидирует cache namespaces; отдельный cache-health здесь не возвращается.</p></div>${status("DB source", "neutral")}</section><section class="scope-note"><span>${icon("info")}</span><p>Public URL, язык, комментарии и timezone не добавлены: этих ключей нет в seeded contract. Регистрация и два accent-ключа включены ниже.</p></section></aside></div>`;
-  }
-
-  function renderBackupsReal() {
-    const rows = [
-      [
-        "B-2042",
-        "kitsu-db-2026-08-13-0400.sql.gz",
-        "database",
-        "3,8 GB",
-        "success",
-        "Сегодня, 04:00",
-        "manual",
-        "",
-      ],
-      [
-        "B-2043",
-        "kitsu-media-2026-08-13-0400.tar.zst",
-        "media",
-        "12,6 GB",
-        "success",
-        "Сегодня, 04:00",
-        "manual",
-        "",
-      ],
-      [
-        "B-2040",
-        "kitsu-db-2026-08-12-0400.sql.gz",
-        "database",
-        "3,7 GB",
-        "success",
-        "Вчера, 04:00",
-        "automatic",
-        "",
-      ],
-      [
-        "B-2041",
-        "kitsu-media-2026-08-12-0400.tar.zst",
-        "media",
-        "—",
-        "failed",
-        "Вчера, 04:00",
-        "automatic",
-        "media volume read timeout",
-      ],
-      [
-        "B-2038",
-        "kitsu-db-2026-08-11-0400.sql.gz",
-        "database",
-        "3,7 GB",
-        "success",
-        "11 авг, 04:00",
-        "automatic",
-        "",
-      ],
-    ]
-      .map((row) => {
-        const stateBadge =
-          row[4] === "success"
-            ? status("Готов", "success")
-            : status("Ошибка", "danger");
-        const actions =
-          row[4] === "success"
-            ? `<div class="row-actions"><button class="row-action" data-action="download-backup" data-id="${row[0]}" aria-label="Скачать">${icon("download")}</button><button class="row-action" data-action="delete-backup" data-id="${row[0]}" aria-label="Удалить">${icon("trash-2")}</button></div>`
-            : `<button class="button button--small" data-action="create-backup">Повторить пару</button>`;
-        const failure = row[7]
-          ? `<div class="failure-reason">${icon("triangle-alert")} ${row[7]}</div>`
-          : "";
-        return `<tr class="${row[4] === "failed" ? "is-error" : ""}"><td data-label="Артефакт"><div class="row-leading"><span class="backup-kind backup-kind--${row[2]}">${icon(row[2] === "database" ? "database" : "images")}</span><span class="row-leading__copy"><strong>${row[1]}</strong><span>${row[0]} · ${row[6]}</span></span></div>${failure}</td><td data-label="Kind"><code>${row[2]}</code></td><td data-label="Размер">${row[3]}</td><td data-label="Статус">${stateBadge}</td><td data-label="Создан">${row[5]}<small class="cell-subline">Asia/Almaty · UTC+5</small></td><td data-label="Действия">${actions}</td></tr>`;
-      })
-      .join("");
-    return `${heading({ eyebrow: "Система · BackupRecord", title: "Резервные копии", description: "Каждый запуск создаёт database и media отдельно; успех, ошибка и failure_reason видны на уровне артефакта.", actions: actionButton("Создать database + media", "create-backup", "database-backup", true) })}<div class="backup-overview"><article class="backup-primary"><span class="section-kicker">Последний successful database artifact</span><strong>Сегодня, 04:00</strong><p>kitsu-db-2026-08-13-0400.sql.gz · 3,8 GB</p>${status("completed", "success")}</article><article><span>Загружено</span><strong>5</strong><small>artifact rows в текущем response</small></article><article><span>Completed</span><strong>4</strong><small>в загруженной выборке</small></article><article class="backup-warning"><span>Failed</span><strong>1</strong><small>failure_reason показан в строке</small></article></div><section class="panel panel--flush"><header class="panel-header"><div class="panel-title-group"><h2 class="panel-title">Артефакты</h2><p class="panel-subtitle">Возраст считается от последней успешной database-копии, а не от последней попытки</p></div><div class="legend-inline"><span><i class="legend-swatch legend-swatch--database"></i>database</span><span><i class="legend-swatch legend-swatch--media"></i>media</span></div></header><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Артефакт</th><th>Kind</th><th>Размер</th><th>Статус</th><th>Создан</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></section><section class="no-restore"><span>${icon("shield-x")}</span><div><strong>Restore не является admin-действием</strong><p>Это осознанное ограничение текущего backend. Здесь доступны create, list, download и delete.</p></div></section>`;
-  }
-
-  function renderParserSettingsReal() {
-    const categories = [
-      [
-        "general",
-        "General",
-        "plug-zap",
-        "Global network and provider settings",
-      ],
-      [
-        "notifications",
-        "Notifications",
-        "bell",
-        "Alerting and pulse relay protocols",
-      ],
-      [
-        "advanced",
-        "Advanced",
-        "cpu",
-        "High-concurrency tuning and engine logic",
-      ],
-      [
-        "blacklist",
-        "Blacklist",
-        "shield-ban",
-        "Content exclusion and metadata interceptors",
-      ],
-      [
-        "grabbing",
-        "Grabbing",
-        "download-cloud",
-        "Metadata filters and quality thresholds",
-      ],
-      ["fields", "Fields", "list-tree", "Schema mapping and template engine"],
-      [
-        "images",
-        "Images",
-        "image",
-        "Visual asset localization and optimization",
-      ],
-      ["player", "Player", "play-square", "CDN hierarchy and streaming logic"],
-    ];
-    const nav = categories
-      .map(
-        (item) =>
-          `<button class="${state.parserSettingsTab === item[0] ? "is-active" : ""}" data-parser-settings-tab="${item[0]}">${icon(item[2])}<span>${item[1]}</span></button>`,
-      )
-      .join("");
-    const selected =
-      categories.find((item) => item[0] === state.parserSettingsTab) ||
-      categories[0];
-    const blacklist =
-      selected[0] === "blacklist"
-        ? `<section class="config-section"><header><div><span class="section-kicker">Отдельный ресурс</span><h2>ParserAnimeBlacklist</h2><p>Это GET/POST/DELETE /dashboard/parsers/blacklist, а не JSON из parser_settings.</p></div><button class="button" data-action="add-blacklist">${icon("plus")}Добавить запись</button></header><div class="blacklist-table"><div><strong>shikimori_id=58567</strong><span>kodik_id=498912 · slug=null</span><button class="row-action" data-action="remove-blacklist" aria-label="Удалить blacklist entry 58567">${icon("trash-2")}</button></div><div><strong>slug=sample-anime-slug</strong><span>shikimori_id=null · kodik_id=null</span><button class="row-action" data-action="remove-blacklist" aria-label="Удалить blacklist entry sample-anime-slug">${icon("trash-2")}</button></div><div><strong>kodik_id=472104</strong><span>shikimori_id=null · slug=null</span><button class="row-action" data-action="remove-blacklist" aria-label="Удалить blacklist entry 472104">${icon("trash-2")}</button></div></div></section>`
-        : "";
-    return `${heading({ eyebrow: "Потоки данных · ParserSettings", title: "Настройки парсера", description: "Восемь seeded categories и произвольный JSON contract — без выдуманных typed-полей.", actions: `${actionButton("Экспорт JSON", "export-parser-settings", "download")}${actionButton("Сохранить JSON", "save-parser-settings", "save", true)}` })}<div class="config-layout"><nav class="config-nav" aria-label="Категории настроек парсера">${nav}</nav><main class="config-content"><div class="truth-note">${icon("triangle-alert")}<p><strong>Сохранено не значит применено.</strong><br>PATCH записывает category, description и config, но активный Go worker не читает parser_settings. Перед типизацией каждого ключа сначала найти runtime-consumer и тест.</p></div><section class="config-section"><header><div><span class="section-kicker">${selected[0]}</span><h2>${selected[1]}</h2><p>${selected[3]}</p></div>${status("Stored JSON", "neutral")}</header><div class="form-grid form-grid--editor"><label class="field field--full"><span>description</span><input value="${selected[3]}"></label><label class="field field--full"><span>config · JSON object</span><textarea id="parser-settings-config" rows="12" spellcheck="false" aria-label="JSON config ${selected[0]}">{}</textarea><small>GET возвращает фактический object. PATCH может upsert category; UI не должен подставлять клиентские defaults поверх ответа.</small></label></div><dl class="definition-list"><dt>Read</dt><dd>GET /dashboard/parsers/settings</dd><dt>Write</dt><dd>PATCH /dashboard/parsers/settings/${selected[0]}</dd><dt>Runtime consumer</dt><dd>Не найден в Go worker</dd><dt>Applied status</dt><dd>Неизвестно</dd></dl></section>${blacklist}<div class="config-footer"><span>updated_at и updated_by показывать только из GET response</span><button class="button button--primary" data-action="save-parser-settings">${icon("save")}Сохранить JSON</button></div></main></div>`;
-  }
-
-  function renderAnimeEditorReal() {
-    const main = `<section class="editor-section"><header><div><span class="section-kicker">Anime · основные поля</span><h2>Идентификация и выпуск</h2><p>Поля соответствуют текущему anime form contract.</p></div></header><div class="form-grid form-grid--editor"><label class="field field--full"><span>Название <b>*</b></span><input value="Поднятие уровня в одиночку 2"></label><label class="field"><span>Название на английском</span><input value="Solo Leveling Season 2"></label><label class="field"><span>Название на японском</span><input value="Ore dake Level Up na Ken Season 2"></label><label class="field field--full"><span>Slug <b>*</b></span><div class="input-prefix"><span>/anime/</span><input value="solo-leveling-season-2"></div></label><label class="field"><span>Kind <b>*</b></span><select><option>tv</option><option>movie</option><option>ova</option><option>ona</option><option>special</option><option>music</option><option>tv_special</option></select></label><label class="field"><span>Статус выхода <b>*</b></span><select><option>ongoing</option><option>released</option><option>announced</option></select></label><label class="field"><span>Rating</span><select><option>G</option><option>PG</option><option selected>PG13</option><option>R</option><option>R+</option><option>Rx</option></select></label><label class="field"><span>Год</span><input type="number" value="2025"></label><label class="field"><span>Дата начала</span><input type="date" value="2025-01-05"><small>aired_on · дата без времени</small></label><label class="field"><span>Оценка</span><input type="number" value="8.72" min="0" max="10" step="0.01"></label><label class="field"><span>Эпизодов вышло</span><input type="number" value="13"></label><label class="field"><span>Эпизодов всего</span><input type="number" value="13"></label><label class="field field--full"><span>Описание</span><textarea rows="8">После завершения первого рейда Сон Джину продолжает развивать способности и сталкивается с угрозой, меняющей баланс между охотниками.</textarea><small>Incoming-описание не перезапишет ручную правку без модерации.</small></label><label class="field field--full"><span>Жанры</span><div class="token-input"><span>Экшен ${icon("x")}</span><span>Фэнтези ${icon("x")}</span><span>Приключения ${icon("x")}</span><input placeholder="Добавить существующий жанр"></div></label><label class="field field--full"><span>Студии</span><div class="token-input"><span>A-1 Pictures ${icon("x")}</span><input placeholder="Добавить студию"></div></label></div></section>`;
-    const media = `<section class="editor-section"><header><div><span class="section-kicker">Anime · media fields</span><h2>Постер и обложка</h2><p>Anime хранит poster_url и cover_url. Отдельного upload/validate endpoint для этих полей нет.</p></div><span class="unsupported-label">Без server URL probe</span></header><div class="media-editor-real"><article><div class="poster poster--large" style="--poster-a:#381932;--poster-b:#9a587f"><span>SL</span></div><div><h3>Постер · 2:3</h3><label class="field"><span>poster_url</span><div class="input-action"><input value="/media/posters/solo-leveling-season-2.webp"><button class="button" data-action="validate-url-local">Проверить формат</button></div></label><div class="media-meta"><span>Значение из Anime response</span><span>Доступность не проверена</span></div><div class="review-actions"><button class="button button--small" data-action="refresh-poster">${icon("refresh-cw")}Обновить из Shikimori</button></div></div></article><article><div class="cover-placeholder cover-placeholder--plum"><span>KITSU / SOLO LEVELING</span></div><div><h3>Обложка · 16:9</h3><label class="field"><span>cover_url</span><div class="input-action"><input value="/media/covers/solo-leveling-season-2.webp"><button class="button" data-action="validate-url-local">Проверить формат</button></div></label><div class="media-meta"><span>Значение из Anime response</span><span>Доступность не проверена</span></div></div></article></div><div class="truth-note">${icon("info")}<p><strong>Не переносить сюда parser image defaults.</strong><br>parser_settings хранит JSON, но активный Go worker его не читает; ручной Anime PATCH сохраняет только URL-поля.</p></div></section>`;
-    const sources = `<section class="editor-section"><header><div><span class="section-kicker">Anime · внешние связи</span><h2>Источники и идентификаторы</h2><p>Изменение external ID требует non-mutating сравнения до PATCH.</p></div><button class="button" data-action="preview-source-identity">${icon("scan-search")}Сравнить через fetch-full</button></header><div class="form-grid form-grid--editor"><label class="field"><span>Kodik ID</span><input value="498912"></label><label class="field"><span>Kodik URL</span><input value="https://kodik.info/serial/498912"></label><label class="field"><span>Shikimori ID</span><input value="58567"></label><label class="field"><span>MyAnimeList ID</span><input value="58567"></label></div><div class="truth-note">${icon("git-compare-arrows")}<p><strong>Verdict не вычисляется из ID на клиенте.</strong><br>POST /dashboard/parsers/fetch-full возвращает объединённого кандидата; конфликт решается только через ParserConflict API.</p></div></section>`;
-    const review = `<section class="editor-section"><header><div><span class="section-kicker">Anime · moderation</span><h2>Контроль карточки</h2><p>needs_moderation и moderation_reason показаны как явные условия решения.</p></div>${status("Нужна проверка", "warning")}</header><div class="moderation-reasons"><article class="is-resolved"><span>${icon("check")}</span><div><strong>poster_url</strong><p>Поле заполнено; server probe доступности отсутствует.</p></div>${status("Поле есть", "success")}</article><article class="is-resolved"><span>${icon("check")}</span><div><strong>description</strong><p>Непустое описание соответствует approve-rule.</p></div>${status("Поле есть", "success")}</article><article><span>${icon("video-off")}</span><div><strong>no_video</strong><p>Для released/ongoing нужен kodik_url. Announced можно одобрить без него.</p></div>${status("Блокирует", "danger")}</article></div><div class="approval-gate"><div><span>${icon("shield-alert")}</span><div><strong>Одобрение пока недоступно</strong><p>Добавьте kodik_url либо измените status на announced, если это действительно анонс.</p></div></div><button class="button" disabled>Одобрить карточку</button></div></section>`;
-    const content = { main, media, sources, review }[state.editorTab] || main;
-    return `<div class="editor-shell editor-shell--real"><header class="editor-topline"><div class="editor-topline__copy"><button class="back-link" data-view="catalog">${icon("arrow-left")}Каталог аниме</button><div><h1>Поднятие уровня в одиночку 2</h1><p>anime:9253 · ongoing · needs_moderation · sample response</p></div></div><div class="editor-actions"><span class="dirty-state" data-dirty-state role="status">Изменений нет</span><button class="button" data-view="catalog" data-discard>Отмена</button><button class="button" data-action="preview-content">${icon("eye")}Сводка перед PATCH</button><button class="button button--primary" data-action="save-anime">${icon("save")}Сохранить Anime</button></div></header><div class="editor-tabs">${sectionTabs(
-      [
-        ["main", "Основное"],
-        ["media", "Медиа"],
-        ["sources", "Источники"],
-        ["review", "Модерация", "1"],
-      ],
-      state.editorTab,
-      "editor-tab",
-    )}</div><div class="editor-layout"><main class="editor-main">${content}</main><aside class="editor-rail"><section class="rail-card rail-card--identity"><span class="section-kicker">Record</span><h3>Anime #9253</h3><dl class="definition-list"><dt>Kind</dt><dd>tv</dd><dt>Status</dt><dd>ongoing</dd><dt>Kodik ID</dt><dd>498912</dd><dt>Shikimori ID</dt><dd>58567</dd></dl></section><section class="rail-card"><h3>Временные метки</h3><dl class="definition-list"><dt>Создано</dt><dd>12 янв 2025, 04:18 UTC</dd><dt>Обновлено</dt><dd>13 авг 2026, 05:48 UTC</dd><dt>В интерфейсе</dt><dd>10:48 UTC+5</dd></dl></section><section class="rail-card"><h3>Готовность данных</h3><ul class="check-list"><li class="is-done">${icon("check")}Обязательные поля</li><li class="is-done">${icon("check")}External ID</li><li class="is-done">${icon("check")}Постер и описание</li><li>${icon("circle")}Active release</li></ul></section></aside></div></div>`;
-  }
-
-  function renderEpisodeEditorReal() {
-    return `<div class="editor-shell editor-shell--real"><header class="editor-topline"><div class="editor-topline__copy"><button class="back-link" data-view="episodes">${icon("arrow-left")}Эпизоды</button><div><h1>Новый эпизод</h1><p>Episode form · временные метки сохраняются в UTC</p></div></div><div class="editor-actions"><span class="dirty-state" data-dirty-state role="status">Изменений нет</span><button class="button" data-view="episodes" data-discard>Отмена</button><button class="button button--primary" data-action="save-episode">${icon("save")}Сохранить Episode</button></div></header><div class="editor-layout editor-layout--compact"><main class="editor-main"><section class="editor-section"><header><div><span class="section-kicker">Episode · обязательные данные</span><h2>Эпизод и связь с аниме</h2><p>После успешного POST можно создать один или несколько Release.</p></div></header><div class="form-grid form-grid--editor"><label class="field field--full"><span>Аниме <b>*</b></span><div class="entity-select"><span class="poster poster--tiny" style="--poster-a:#381932;--poster-b:#9a587f"><span>SL</span></span><span><strong>Поднятие уровня в одиночку 2</strong><small>anime:9253 · tv · ongoing · sample response</small></span><button class="button button--small" data-action="choose-anime">Изменить</button></div></label><label class="field"><span>Сезон <b>*</b></span><input type="number" value="2" min="0"></label><label class="field"><span>Номер эпизода <b>*</b></span><input type="number" value="14" min="0" step="1"></label><label class="field field--full"><span>Название</span><input placeholder="Название эпизода, если известно"></label><label class="field"><span>Дата и время выхода</span><input type="datetime-local" value="2026-08-13T12:00"><small>aired_at · введено как Asia/Almaty UTC+5</small></label><label class="field"><span>Значение для API</span><input value="2026-08-13T07:00:00Z" readonly><small>Нормализовано в UTC</small></label><label class="field field--full"><span>Thumbnail URL</span><div class="input-action"><input placeholder="https://…"><button class="button" data-action="validate-url-local">${icon("scan-search")}Проверить формат</button></div><small>Локальная schema-проверка; server probe отсутствует.</small></label></div><div class="binary-options"><div class="switch-row"><span class="switch-copy"><strong>Филлер</strong><small>is_filler=true</small></span><button class="switch" data-action="toggle-switch"></button></div><div class="switch-row"><span class="switch-copy"><strong>Рекап</strong><small>is_recap=true</small></span><button class="switch" data-action="toggle-switch"></button></div></div></section></main><aside class="editor-rail"><section class="rail-card"><h3>Уникальность</h3><div class="source-check"><span class="status-dot status-dot--warning"></span><div><strong>Проверяется POST mutation</strong><p>season=2 · episode=14</p></div></div></section><section class="rail-card"><h3>После сохранения</h3><p>Релизы загружаются отдельным endpoint по episode_id.</p><button class="button button--small" data-view="release-editor">Создать Release</button></section><section class="rail-card rail-card--timezone"><h3>Часовой пояс</h3><strong>Asia/Almaty · UTC+5</strong><p>Backend timestamps интерпретируются и сохраняются как UTC.</p></section></aside></div></div>`;
-  }
-
-  function renderReleaseEditorReal() {
-    return `<div class="editor-shell editor-shell--real"><header class="editor-topline"><div class="editor-topline__copy"><button class="back-link" data-view="releases">${icon("arrow-left")}Релизы</button><div><h1>Новый релиз</h1><p>Release form · источник, перевод и два URL-поля</p></div></div><div class="editor-actions"><span class="dirty-state" data-dirty-state role="status">Изменений нет</span><button class="button" data-view="releases" data-discard>Отмена</button><button class="button button--primary" data-action="save-release">${icon("save")}Сохранить Release</button></div></header><div class="editor-layout editor-layout--compact"><main class="editor-main"><section class="editor-section"><header><div><span class="section-kicker">Release · связи</span><h2>Аниме и эпизод</h2><p>Release сохраняет episode_id; Anime используется только для удобного выбора.</p></div></header><div class="form-grid form-grid--editor"><label class="field field--full"><span>Аниме</span><div class="entity-select"><span class="poster poster--tiny" style="--poster-a:#381932;--poster-b:#9a587f"><span>SL</span></span><span><strong>Поднятие уровня в одиночку 2</strong><small>sample response · вспомогательный выбор</small></span><button class="button button--small" data-action="choose-anime">Изменить</button></div></label><label class="field field--full"><span>Episode ID <b>*</b></span><select><option value="00000000-0000-4000-8000-000000008413">EP-8413 · S2E14</option><option value="00000000-0000-4000-8000-000000008412">EP-8412 · S2E13</option></select></label></div></section><section class="editor-section"><header><div><span class="section-kicker">Release · playback</span><h2>Источник воспроизведения</h2><p>url и embed_url сохраняются отдельно; backend не проверяет поток.</p></div><span class="unsupported-label">Без server validate/test-stream</span></header><div class="form-grid form-grid--editor"><label class="field"><span>Source <b>*</b></span><select><option>Kodik</option><option>Aniboom</option><option>Sibnet</option><option>other</option></select></label><label class="field"><span>Quality</span><select><option>1080p</option><option>720p</option><option>480p</option><option>auto</option></select></label><label class="field field--full"><span>URL <b>*</b></span><div class="input-action"><input value="https://kodik.info/video/498912/14"><button class="button" data-action="validate-url-local">Проверить формат</button></div></label><label class="field field--full"><span>Embed URL</span><div class="input-action"><input value="https://kodik.info/seria/498912/14"><button class="button" data-action="validate-url-local">Проверить формат</button></div></label><label class="field"><span>External ID</span><input value="498912:14:anilibria"></label><label class="field"><span>Verified</span><select><option>Да</option><option>Нет</option></select><small>is_verified — сохранённый boolean, не результат probe.</small></label></div></section><section class="editor-section"><header><div><span class="section-kicker">Release · translation</span><h2>Перевод</h2><p>Тип, команда и язык используются в выборе варианта плеера.</p></div></header><div class="form-grid form-grid--editor"><label class="field"><span>Translation type</span><select><option>voice</option><option>subtitles</option><option>raw</option></select></label><label class="field"><span>Translation language</span><input value="ru"></label><label class="field field--full"><span>Translation team</span><input value="AniLibria"></label></div><div class="switch-row"><span class="switch-copy"><strong>Активный релиз</strong><small>is_active=true · доступен как вариант плеера</small></span><button class="switch is-on" data-action="toggle-switch"></button></div></section></main><aside class="editor-rail"><section class="rail-card"><h3>Проверка URL</h3><div class="source-check"><span class="status-dot status-dot--warning"></span><div><strong>Только локальная URL schema</strong><p>Доступность источника неизвестна</p></div></div><dl class="definition-list"><dt>Source</dt><dd>Kodik</dd><dt>Quality</dt><dd>1080p</dd><dt>is_verified</dt><dd>true</dd></dl></section><section class="rail-card"><h3>Поля POST</h3><ul class="check-list"><li class="is-done">${icon("check")}episode_id</li><li class="is-done">${icon("check")}source + url</li><li class="is-done">${icon("check")}translation</li><li class="is-done">${icon("check")}is_active + is_verified</li></ul></section><section class="rail-card rail-card--success"><span>${icon("badge-check")}</span><div><strong>Форма заполнена</strong><p>Публичный плеер должен использовать только подтверждённую Release policy, а не собственные догадки.</p></div></section></aside></div></div>`;
-  }
-
-  function renderModerationReal() {
-    const parserQueue = [
-      {
-        item: anime[4],
-        reason: "no_video",
-        eligible: false,
-        detail: "ongoing · active release отсутствует",
-        age: "18 мин",
-      },
-      {
-        item: anime[3],
-        reason: "no_video",
-        eligible: true,
-        detail: "announced · видео не требуется",
-        age: "31 мин",
-      },
-      {
-        item: anime[2],
-        reason: "poster_url",
-        eligible: false,
-        detail: "poster_url отсутствует в response",
-        age: "44 мин",
-      },
-      {
-        item: anime[6],
-        reason: "description",
-        eligible: false,
-        detail: "описание отсутствует",
-        age: "1 ч",
-      },
-    ]
-      .map(
-        (row) =>
-          `<article class="moderation-card">${poster(row.item, "review-poster")}<div class="moderation-card__body"><header><div><h3>${row.item.title}</h3><p>anime:${row.item.id} · ${row.item.type.toLowerCase()} · ${row.item.status}</p></div>${status(row.reason, row.eligible ? "info" : "warning")}</header><div class="moderation-reason"><span>${icon(row.reason === "no_video" ? "video-off" : row.reason === "poster_url" ? "image-off" : "file-x-2")}</span><div><strong>${row.eligible ? "Можно одобрить" : "Одобрение заблокировано"}</strong><p>${row.detail}</p></div></div><footer><span>${icon("clock-3")}${row.age} · Kodik import</span><div class="review-actions"><button class="button button--small" data-action="view-review" data-id="${row.item.id}">${icon("columns-2")}Проверить карточку</button><button class="button button--small button--primary" data-action="approve-review" data-id="${row.item.id}" ${row.eligible ? "" : "disabled"}>${icon("check")}Одобрить</button></div></footer></div></article>`,
-      )
-      .join("");
-    const commentRows = [
-      [
-        "C-731",
-        "user:44192",
-        "anime",
-        "9253",
-        "Очень сильный финал, особенно работа со звуком.",
-        true,
-        "12 мин",
-      ],
-      [
-        "C-728",
-        "user:39884",
-        "episode",
-        "8412",
-        "Повторяющаяся рекламная ссылка.",
-        true,
-        "31 мин",
-      ],
-      [
-        "C-719",
-        "user:43108",
-        "anime",
-        "57334",
-        "Почему у второго перевода звук отстаёт?",
-        false,
-        "1 ч",
-      ],
-    ]
-      .map(
-        (row) =>
-          `<article class="comment-review"><span class="avatar">${row[1].slice(-2)}</span><div class="comment-review__copy"><div><strong>${row[1]}</strong><span>${row[6]}</span></div><p>${row[4]}</p><small>${row[2]}:${row[3]} · ${row[0]} · plain CommentOut</small></div><div class="comment-review__actions">${status(row[5] ? "Скрыт" : "Виден", row[5] ? "warning" : "neutral")}<div class="row-actions">${row[5] ? `<button class="button button--small button--primary" data-action="approve-comment">${icon("check")}Показать</button>` : ""}<button class="button button--small button--danger" data-action="delete-comment">${icon("trash-2")}Soft delete</button></div></div></article>`,
-      )
-      .join("");
-    const comments = `<section class="panel panel--flush"><header class="panel-header"><div class="panel-title-group"><h2 class="panel-title">Staff comment queue</h2><p class="panel-subtitle">Plain array без total, reports и review analytics</p></div></header><div class="comment-review-list">${commentRows}</div></section>`;
-    const body =
-      state.moderationTab === "comments"
-        ? comments
-        : `<div class="moderation-list">${parserQueue}</div>`;
-    return `${heading({ eyebrow: "Контент · moderation queues", title: "Контроль качества", description: "Причина модерации и eligibility показаны до действия — оператор видит, почему карточку нельзя одобрить.", actions: actionButton("Обновить очередь", "refresh-moderation", "refresh-cw") })}<div class="moderation-summary"><article><span>Загружено</span><strong>4</strong><small>parser moderation page</small></article><article><span>Можно одобрить</span><strong>1</strong><small>eligible по backend rules</small></article><article><span>Заблокировано</span><strong>3</strong><small>причина видна до действия</small></article><article><span>Комментарии</span><strong>3</strong><small>загруженная staff queue</small></article></div><div class="section-bar">${sectionTabs(
-      [
-        ["import", "Карточки парсера", "12"],
-        ["comments", "Комментарии", "3"],
-      ],
-      state.moderationTab,
-      "moderation-tab",
-    )}<div class="section-bar__meta">Причины: poster_url · description · no_video</div></div>${body}`;
-  }
-
-  function renderEpisodesReal() {
-    const rows = [
-      [
-        "EP-8412",
-        "Поднятие уровня в одиночку 2",
-        2,
-        13,
-        "Не задано",
-        "2026-08-13 07:00 UTC",
-        false,
-        false,
-        true,
-      ],
-      [
-        "EP-8411",
-        "Монолог фармацевта 2",
-        1,
-        21,
-        "Не задано",
-        "2026-08-13 05:30 UTC",
-        false,
-        false,
-        true,
-      ],
-      [
-        "EP-8410",
-        "Ван-Пис",
-        1,
-        1122,
-        "Рекап арки",
-        "2026-08-12 17:00 UTC",
-        false,
-        true,
-        true,
-      ],
-      [
-        "EP-8409",
-        "Дандадан",
-        1,
-        12,
-        "Финал сезона",
-        "2026-08-12 14:00 UTC",
-        false,
-        false,
-        true,
-      ],
-      ["EP-8408", "Re:Zero 3", 3, 16, "Не задано", "—", true, false, false],
-    ]
-      .map((row) => {
-        const flags =
-          row[6] || row[7]
-            ? `${row[6] ? status("filler", "warning") : ""}${row[7] ? status("recap", "info") : ""}`
-            : `<span class="cell-muted">—</span>`;
-        return `<tr><td data-label="Эпизод"><button class="row-leading" data-action="view-episode" data-id="${row[0]}"><span class="episode-symbol">S${row[2]}<b>E${row[3]}</b></span><span class="row-leading__copy"><strong>${row[1]}</strong><span>${row[0]} · anime nested title/slug</span></span></button></td><td data-label="Название">${row[4]}</td><td data-label="Aired at"><span>${row[5]}</span><small class="cell-subline">${row[5] === "—" ? "null" : "локально +5 часов"}</small></td><td data-label="Метки"><div class="tag-row">${flags}</div></td><td data-label="Thumbnail">${status(row[8] ? "Есть URL" : "Нет URL", row[8] ? "neutral" : "warning")}</td><td>${rowActions(row[0], "episode")}</td></tr>`;
-      })
-      .join("");
-    return `${heading({ eyebrow: "Контент · Episode", title: "Эпизоды", description: "Поля GET /episodes/with-anime без выдуманного publication status и без N+1 release-count.", actions: actionButton("Добавить эпизод", "add-episode", "plus", true) })}<div class="metric-grid"><article class="metric-card metric-card--focus"><span>Загружено</span><strong>5</strong><small>sample response page</small></article><article class="metric-card"><span>aired_at задан</span><strong>4</strong><small>в загруженной page</small></article><article class="metric-card"><span>thumbnail_url задан</span><strong>4</strong><small>в загруженной page</small></article><article class="metric-card"><span>Filler / recap</span><strong>2</strong><small>read fields в выборке</small></article></div><section class="panel panel--flush"><div class="table-toolbar"><div class="toolbar-leading"><span class="timezone-chip">GET /episodes/with-anime · только skip/limit · без total</span></div><span class="timezone-chip">${icon("clock-3")}Asia/Almaty · UTC+5</span></div><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Эпизод</th><th>Название</th><th>Aired at</th><th>Метки</th><th>Thumbnail</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
-  }
-
-  function renderReleasesReal() {
-    const rows = [
-      [
-        "REL-19420",
-        "EP-8412",
-        "Kodik",
-        "1080p",
-        "voice",
-        "ru",
-        "AniLibria",
-        true,
-        true,
-      ],
-      [
-        "REL-19419",
-        "EP-8411",
-        "Kodik",
-        "1080p",
-        "voice",
-        "ru",
-        "Studio Band",
-        true,
-        true,
-      ],
-      [
-        "REL-19418",
-        "EP-8411",
-        "Aniboom",
-        "720p",
-        "subtitles",
-        "ru",
-        "AniDub",
-        true,
-        false,
-      ],
-      [
-        "REL-19417",
-        "EP-8409",
-        "Sibnet",
-        "1080p",
-        "subtitles",
-        "ru",
-        "Crunchyroll",
-        false,
-        true,
-      ],
-      ["REL-19416", "EP-8408", "other", "auto", "raw", "ja", "—", false, false],
-    ]
-      .map(
-        (row) =>
-          `<tr><td data-label="Release"><button class="row-leading" data-action="view-release" data-id="${row[0]}"><span class="release-symbol">${icon("play")}</span><span class="row-leading__copy"><strong>${row[0]}</strong><span>episode_id=${row[1]}</span></span></button></td><td data-label="Источник"><strong>${row[2]}</strong><small class="cell-subline">${row[3]}</small></td><td data-label="Перевод"><span>${row[4]} · ${row[5]}</span><small class="cell-subline">${row[6]}</small></td><td data-label="Active">${status(row[7] ? "true" : "false", row[7] ? "success" : "neutral")}</td><td data-label="Verified">${status(row[8] ? "true" : "false", row[8] ? "success" : "warning")}</td><td data-label="URL">${status("Не проверяется", "neutral")}</td><td>${rowActions(row[0], "release")}</td></tr>`,
-      )
-      .join("");
-    return `${heading({ eyebrow: "Контент · Release", title: "Релизы", description: "Точный Release contract; список не притворяется, что backend вернул Anime title или URL health.", actions: actionButton("Добавить релиз", "add-release", "plus", true) })}<div class="metric-grid"><article class="metric-card metric-card--focus"><span>Загружено</span><strong>5</strong><small>sample response page</small></article><article class="metric-card"><span>is_active=true</span><strong>3</strong><small>в загруженной выборке</small></article><article class="metric-card"><span>is_verified=true</span><strong>3</strong><small>boolean, не health probe</small></article><article class="metric-card"><span>Источники</span><strong>4</strong><small>в загруженной выборке</small></article></div><section class="panel panel--flush"><div class="table-toolbar"><div class="toolbar-leading"><span class="timezone-chip">GET /releases · skip/limit; server filter только episode_id · без total</span></div></div><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Release / Episode</th><th>Источник</th><th>Перевод</th><th>Active</th><th>Verified</th><th>URL health</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
-  }
-
-  function renderCollectionsReal() {
-    const rows = [
-      [
-        "COL-104",
-        "Смотрят сейчас",
-        "watching-now",
-        24,
-        true,
-        "184 203",
-        "12 842",
-      ],
-      [
-        "COL-103",
-        "Лучшее за сезон",
-        "best-of-season",
-        18,
-        true,
-        "98 441",
-        "8 116",
-      ],
-      [
-        "COL-102",
-        "Новая волна сёнэна",
-        "new-shonen-wave",
-        12,
-        true,
-        "64 820",
-        "5 431",
-      ],
-      [
-        "COL-101",
-        "Короткие сериалы на вечер",
-        "short-evening",
-        16,
-        false,
-        "—",
-        "—",
-      ],
-      [
-        "COL-100",
-        "Классика Kitsu",
-        "kitsu-classics",
-        42,
-        true,
-        "42 118",
-        "3 902",
-      ],
-    ]
-      .map(
-        (row) =>
-          `<tr><td data-label="Коллекция"><div class="row-leading"><span class="collection-cover">${icon("library")}</span><span class="row-leading__copy"><strong>${row[1]}</strong><span>/collections/${row[2]} · ${row[0]}</span></span></div></td><td data-label="Items"><strong>${row[3]}</strong><small class="cell-subline">позиции сохранены</small></td><td data-label="Public">${status(row[4] ? "Публичная" : "Скрыта", row[4] ? "success" : "neutral")}</td><td data-label="Просмотры">${row[5]}</td><td data-label="Лайки">${row[6]}</td><td><button class="icon-button" data-action="view-collection" data-id="${row[0]}" aria-label="Открыть загруженные данные">${icon("panel-right-open")}</button></td></tr>`,
-      )
-      .join("");
-    return `${heading({ eyebrow: "Контент · Collection", title: "Коллекции", description: "Superuser list доступен для обзора; update/delete по-прежнему проверяют owner, поэтому экран read-only.", actions: `${actionButton("Экспорт CSV", "export-collections", "download")}${actionButton("Обновить", "refresh-catalog", "refresh-cw")}` })}<div class="metric-grid"><article class="metric-card metric-card--focus"><span>Загружено</span><strong>5</strong><small>superuser list snapshot</small></article><article class="metric-card"><span>Public</span><strong>4</strong><small>в загруженной выборке</small></article><article class="metric-card"><span>Anime placements</span><strong>112</strong><small>сумма загруженных rows</small></article><article class="metric-card"><span>Owner mutations</span><strong>Read only</strong><small>admin list не обходит ownership</small></article></div><section class="panel panel--flush"><div class="table-toolbar"><div class="toolbar-leading"><span class="timezone-chip">Superuser list snapshot · owner mutations не выполняются</span></div></div><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Коллекция</th><th>Items</th><th>Public</th><th>Просмотры</th><th>Лайки</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></section>`;
-  }
-
-  function renderAssetsReal() {
-    const avatars = [
-      ["f37c…f820", "Kitsu Plum", "base", true, "KP", "#381932"],
-      ["a910…5d44", "Milk Rose", "base", true, "MR", "#93658a"],
-      ["bb12…24ab", "Season Mauve", "seasonal", true, "SM", "#7a5875"],
-      ["7e94…102f", "Archive Cocoa", "archive", false, "AC", "#6f5145"],
-    ]
-      .map(
-        (item) =>
-          `<article class="asset-real-card"><div class="avatar-preview-real" style="--avatar-color:${item[5]}"><span>${item[4]}</span></div><div><header><div><h3>${item[1]}</h3><p>avatar ${item[0]}</p></div>${status(item[3] ? "Активен" : "Выключен", item[3] ? "success" : "neutral")}</header><dl><dt>category</dt><dd>${item[2]}</dd><dt>image_url</dt><dd>Локализован</dd></dl><footer><button class="button button--small" data-action="edit-asset">${icon("pencil")}Изменить</button><button class="icon-button" data-action="delete-asset" aria-label="Удалить">${icon("trash-2")}</button></footer></div></article>`,
-      )
-      .join("");
-    const decorations = [
-      [116, "Plum frame", true, "PF", "#381932"],
-      [115, "Rose mark", true, "RM", "#93658a"],
-      [114, "Founder cocoa", false, "FC", "#6f5145"],
-      [113, "Season mauve", true, "SM", "#7a5875"],
-    ]
-      .map(
-        (item) =>
-          `<article class="asset-real-card"><div class="decoration-preview-real" style="--avatar-color:${item[4]}"><span>${item[3]}</span></div><div><header><div><h3>${item[1]}</h3><p>decoration #${item[0]}</p></div>${status(item[2] ? "Активна" : "Выключена", item[2] ? "success" : "neutral")}</header><dl><dt>image_url</dt><dd>Локализован</dd><dt>is_active</dt><dd>${item[2] ? "true" : "false"}</dd></dl><footer><button class="button button--small" data-action="edit-asset">${icon("pencil")}Изменить</button><button class="icon-button" data-action="delete-asset" aria-label="Удалить">${icon("trash-2")}</button></footer></div></article>`,
-      )
-      .join("");
-    return `${heading({ eyebrow: "Контент · Avatar и Decoration", title: "Материалы профиля", description: "Две фактические backend-сущности без выдуманных коллекций, типов рамок и sort order.", actions: actionButton(state.assetTab === "avatars" ? "Добавить аватар" : "Добавить декорацию", state.assetTab === "avatars" ? "create-avatar-collection" : "create-decoration", "plus", true) })}<div class="section-bar">${sectionTabs(
-      [
-        ["avatars", "Аватары", "4"],
-        ["decorations", "Декорации", "4"],
-      ],
-      state.assetTab,
-      "asset-tab",
-    )}<div class="section-bar__meta">image_url · is_active ${state.assetTab === "avatars" ? "· category" : ""}</div></div><div class="asset-real-grid">${state.assetTab === "avatars" ? avatars : decorations}</div>`;
-  }
-
-  function renderUsersReal() {
-    const accountsData = [
-      [
-        "U-1",
-        "DM",
-        "Montihx",
-        "montihx@kitsu.local",
-        "Суперадминистратор",
-        true,
-        true,
-        "сейчас",
-        "13 авг 2026",
-      ],
-      [
-        "U-44192",
-        "AK",
-        "Алексей Ким",
-        "alex.kim@example.com",
-        "Пользователь",
-        true,
-        false,
-        "4 мин назад",
-        "12 янв 2024",
-      ],
-      [
-        "U-43108",
-        "MS",
-        "Мария Садыкова",
-        "maria.s@example.com",
-        "Модератор",
-        true,
-        false,
-        "18 мин назад",
-        "28 ноя 2023",
-      ],
-      [
-        "U-41887",
-        "DV",
-        "Данияр Власов",
-        "d.vlasov@example.com",
-        "Пользователь",
-        true,
-        false,
-        "1 ч назад",
-        "6 окт 2023",
-      ],
-      [
-        "U-40621",
-        "YU",
-        "Юлия Уткина",
-        "yulia.u@example.com",
-        "Администратор",
-        true,
-        false,
-        "3 ч назад",
-        "14 авг 2023",
-      ],
-      [
-        "U-39884",
-        "RR",
-        "roman.r",
-        "roman.rr@example.com",
-        "Пользователь",
-        false,
-        false,
-        "5 дней назад",
-        "2 июл 2023",
-      ],
-    ];
-    const roleFilterOptions = ["all", ...new Set(accountsData.map((row) => row[4]))];
-    const roleFilterChips = roleFilterOptions
-      .map(
-        (role) =>
-          `<button class="filter-chip ${state.usersRoleFilter === role ? "is-active" : ""}" data-role-filter="${role}">${role === "all" ? "Все роли" : role}</button>`,
-      )
-      .join("");
-    const filteredAccounts = accountsData.filter(
-      (row) => state.usersRoleFilter === "all" || row[4] === state.usersRoleFilter,
-    );
-    const accounts = filteredAccounts
-      .map((row) => {
-        const ban = row[6]
-          ? `<button class="button button--small" disabled>Superuser защищён</button>`
-          : row[5]
-            ? `<button class="button button--small button--danger" data-action="ban-user">Заблокировать</button>`
-            : `<button class="button button--small" data-action="unban-user">Разблокировать</button>`;
-        return `<tr><td data-label="Пользователь"><button class="row-leading" data-action="view-user" data-id="${row[0]}"><span class="avatar ${row[6] ? "avatar--admin" : ""}">${row[1]}</span><span class="row-leading__copy"><strong>${row[2]}${row[6] ? " · superuser" : ""}</strong><span>${row[3]} · ${row[0]}</span></span></button></td><td data-label="Роль">${row[4]}</td><td data-label="Активен">${status(row[5] ? "Активен" : "Заблокирован", row[5] ? "success" : "danger")}</td><td data-label="Последняя активность">${row[7]}</td><td data-label="Создан">${row[8]}</td><td data-label="Действия"><div class="row-actions"><button class="button button--small" data-action="edit-user">${icon("key-round")}Роль</button>${ban}</div></td></tr>`;
-      })
-      .join("");
-    const roles = [
-      ["super_admin", "Полный доступ", "*", "shield-check"],
-      [
-        "admin",
-        "Административный доступ",
-        "content.* · users.view · users.edit · parsers.* · analytics.view",
-        "shield",
-      ],
-      [
-        "moderator",
-        "Модерация контента",
-        "content.view · content.edit · comments.moderate",
-        "badge-check",
-      ],
-      [
-        "user",
-        "Публичные возможности",
-        "content.view · comments.write",
-        "user-round",
-      ],
-    ]
-      .map((row) => {
-        return `<article class="role-card-real"><span>${icon(row[3])}</span><div><h3>${row[0]}</h3><p>${row[1]}</p><small>${row[2]}</small></div>${status("Read only", "neutral")}</article>`;
-      })
-      .join("");
-    const body =
-      state.usersTab === "roles"
-        ? `<div class="role-grid-real">${roles}</div>`
-        : `<section class="panel panel--flush"><div class="table-toolbar table-toolbar--two-row"><div class="toolbar-leading"><label class="search-field search-field--wide">${icon("search")}<input placeholder="Username или email" aria-label="Поиск пользователей"></label><span class="timezone-chip">Server query: q · skip · limit; total отсутствует</span></div><div class="toolbar-actions">${roleFilterChips}</div></div><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Пользователь</th><th>Роль</th><th>Активен</th><th>Последняя активность</th><th>Создан</th><th></th></tr></thead><tbody>${accounts}</tbody></table></div><footer class="table-footer"><span>Показано ${filteredAccounts.length} из ${accountsData.length} загруженных · фильтр по роли — клиентский</span></footer></section>`;
-    return `${heading({ eyebrow: "Управление · User и Role", title: "Пользователи и роли", description: "Загруженная страница пользователей, superuser-защита и назначение существующего role_id; роли read-only.", actions: actionButton("Обновить", "refresh-catalog", "refresh-cw") })}<div class="metric-grid"><article class="metric-card metric-card--focus"><span>Загружено</span><strong>6</strong><small>текущая page без server total</small></article><article class="metric-card"><span>Активны</span><strong>5</strong><small>в загруженной выборке</small></article><article class="metric-card"><span>Seeded roles</span><strong>4</strong><small>roles endpoint read-only</small></article><article class="metric-card"><span>Заблокированы</span><strong>1</strong><small>в загруженной выборке</small></article></div><div class="section-bar">${sectionTabs(
-      [
-        ["accounts", "Аккаунты"],
-        ["roles", "Роли", "4"],
-      ],
-      state.usersTab,
-      "users-tab",
-    )}<div class="section-bar__meta">Superuser нельзя заблокировать</div></div>${body}`;
-  }
-
-  function renderAuditReal() {
-    const rows = [
-      [
-        "A-9842",
-        "8b4a…e221",
-        "10.24.18.7",
-        "resolve_conflict",
-        "parser",
-        "—",
-        true,
-        "middleware audit; arbitrary meta may be empty",
-        "2026-08-13 05:48:12 UTC",
-      ],
-      [
-        "A-9841",
-        "5d91…bb30",
-        "10.24.18.21",
-        "update",
-        "episode",
-        "d2f4…91a0",
-        true,
-        "inline audit after mutation",
-        "2026-08-13 04:27:08 UTC",
-      ],
-      [
-        "A-9840",
-        "8b4a…e221",
-        "10.24.18.7",
-        "delete",
-        "release",
-        "c10a…922f",
-        false,
-        "error_message может быть null или string",
-        "2026-08-12 23:04:41 UTC",
-      ],
-      [
-        "A-9839",
-        "5d91…bb30",
-        "10.24.18.21",
-        "bulk_anime",
-        "anime",
-        "—",
-        true,
-        "одна запись audit на request, не на каждый ID",
-        "2026-08-12 18:42:09 UTC",
-      ],
-      [
-        "A-9838",
-        "8b4a…e221",
-        "10.24.18.7",
-        "update",
-        "site_settings",
-        "—",
-        true,
-        "RequireAudit не гарантирует before/after diff",
-        "2026-08-12 17:16:44 UTC",
-      ],
-    ]
-      .map(
-        (row) =>
-          `<tr class="${row[6] ? "" : "is-error"}"><td data-label="Actor"><div class="row-leading"><span class="avatar">${row[1] === "system" ? "SY" : row[1].slice(0, 2).toUpperCase()}</span><span class="row-leading__copy"><strong>${row[1]}</strong><span>${row[2]}</span></span></div></td><td data-label="Action"><code>${row[3]}</code></td><td data-label="Resource"><strong>${row[4]}</strong><small class="cell-subline">id=${row[5]}</small></td><td data-label="Meta"><span class="audit-meta">${row[7]}</span></td><td data-label="Success">${status(row[6] ? "success" : "error", row[6] ? "success" : "danger")}</td><td data-label="Created"><span>${row[8]}</span><small class="cell-subline">локально +5 часов</small></td><td><button class="icon-button" data-action="view-audit" data-id="${row[0]}" aria-label="Полные метаданные">${icon("braces")}</button></td></tr>`,
-      )
-      .join("");
-    return `${heading({ eyebrow: "Система · AuditLog", title: "Журнал аудита", description: "Actor, IP, action, resource, meta, success и error_message в фактической структуре события.", actions: actionButton("Экспорт CSV", "export", "download") })}<section class="audit-filterbar"><span class="timezone-chip">GET /system/audit-logs · только skip/limit · plain array</span><span class="timezone-chip">${icon("clock-3")}UTC → Asia/Almaty</span></section><section class="panel panel--flush"><div class="table-shell"><table class="data-table responsive"><thead><tr><th>Actor / IP</th><th>Action</th><th>Resource</th><th>Meta / error</th><th>Result</th><th>Created at</th><th></th></tr></thead><tbody>${rows}</tbody></table></div><footer class="table-footer"><span>Показаны последние 5 событий · сортировка created_at DESC</span><div class="pagination"><button aria-label="Назад">${icon("chevron-left")}</button><button class="is-active">1</button><button>2</button><button>3</button><button aria-label="Вперёд">${icon("chevron-right")}</button></div></footer></section>`;
-  }
-
-  function renderCatalogReal() {
-    const sourceMeta = {
-      9253: ["Kodik 498912", "Shiki 58567", false],
-      52991: ["Kodik 472104", "Shiki 52991", false],
-      57334: ["Kodik 498721", "Shiki 57334", true],
-      54857: ["Kodik 501884", "Shiki 54857", true],
-      58514: ["Kodik 509114", "Shiki 58514", false],
-      40748: ["Kodik 418202", "Shiki 40748", false],
-      21: ["Kodik 34012", "Shiki 21", false],
-      16498: ["Kodik 17644", "Shiki 16498", false],
-    };
-    const rows = filteredAnime()
-      .map((item) => {
-        const meta = sourceMeta[item.id] || ["Kodik —", "Shiki —", false];
-        return `<tr class="${state.selectedAnime.has(item.id) ? "is-selected" : ""}"><td class="check-cell"><input class="check-control" type="checkbox" data-select-anime="${item.id}" ${state.selectedAnime.has(item.id) ? "checked" : ""} aria-label="Выбрать ${item.title}"></td><td data-label="Аниме"><button class="row-leading" data-action="view-anime" data-id="${item.id}">${poster(item)}<span class="row-leading__copy"><strong>${item.title}</strong><span>${item.original} · anime:${item.id}</span></span></button></td><td data-label="Формат"><span class="cell-primary">${item.type}</span><br><span class="cell-muted">${item.year}</span></td><td data-label="Эпизоды">${item.episodes}</td><td data-label="Источники"><span class="source-stack"><small>${meta[0]}</small><small>${meta[1]}</small></span></td><td data-label="Статус">${status(labelForStatus(item.status), toneForStatus(item.status))}</td><td data-label="Оценка"><span class="score-pill">${icon("star")}${item.score}</span></td><td data-label="Контроль">${meta[2] ? status("Нужна проверка", "warning") : status("Чисто", "success")}</td><td data-label="Действия">${rowActions(item.id)}</td></tr>`;
-      })
-      .join("");
-    const bulk = state.selectedAnime.size
-      ? `<div class="bulk-bar"><div><strong>${state.selectedAnime.size} выбрано</strong><span> · POST /dashboard/bulk/anime поддерживает update_status или delete</span></div><div class="row-actions"><button class="button button--small" data-action="bulk-status">${icon("list-restart")}Изменить status</button><button class="row-action" data-action="clear-selection" aria-label="Снять выделение">${icon("x")}</button></div></div>`
-      : "";
-    const empty = `<tr><td colspan="9"><div class="empty-state"><div class="empty-state__inner"><span class="empty-icon">${icon("search-x")}</span><h3>По этой выборке записей нет</h3><p>Измените запрос, формат или состояние релиза.</p><button class="button" data-action="reset-catalog">Сбросить фильтры</button></div></div></td></tr>`;
-    return `${heading({ eyebrow: "Контент", title: "Каталог аниме", description: "Поиск, редактирование и проверка материалов.", actions: `${actionButton("Поиск и импорт", "go-imports", "search-code")}${actionButton("Добавить аниме", "add-content", "plus", true)}` })}<div class="metric-grid metric-grid--catalog"><article class="metric-card metric-card--focus"><span>Всего в каталоге</span><strong>3 402</strong><small>тайтлов</small></article><article class="metric-card"><span>Онгоинги</span><strong>184</strong><small>активные обновления</small></article><article class="metric-card"><span>Нужна модерация</span><strong>12</strong><small>постер, описание или видео</small></article><article class="metric-card"><span>Без активного видео</span><strong>21</strong><small>нужно добавить релиз</small></article></div><section class="panel panel--flush"><div class="table-toolbar table-toolbar--two-row"><div class="toolbar-leading"><label class="search-field search-field--wide">${icon("search")}<input id="catalog-search" value="${state.catalogQuery}" placeholder="Название, anime ID, Kodik или Shikimori ID" aria-label="Поиск по каталогу"></label><button class="filter-button" data-action="focus-filter">${icon("list-filter")}Тип · видео · модерация</button></div><div class="toolbar-actions"><button class="filter-chip ${state.catalogFilter === "all" ? "is-active" : ""}" data-filter="all">Все</button><button class="filter-chip ${state.catalogFilter === "ongoing" ? "is-active" : ""}" data-filter="ongoing">Онгоинг</button><button class="filter-chip ${state.catalogFilter === "released" ? "is-active" : ""}" data-filter="released">Завершён</button><button class="filter-chip ${state.catalogFilter === "announced" ? "is-active" : ""}" data-filter="announced">Анонс</button>${iconAction("Настроить столбцы", "columns", "columns-3")}${iconAction("Обновить", "refresh-catalog", "refresh-cw")}</div></div><div class="table-shell"><table class="data-table responsive"><thead><tr><th><input class="check-control" id="select-all-anime" type="checkbox" aria-label="Выбрать всё"></th><th>Аниме</th><th>Формат</th><th>Эпизоды</th><th>Источники</th><th>Статус</th><th>Оценка</th><th>Контроль</th><th></th></tr></thead><tbody>${rows || empty}</tbody></table></div><footer class="table-footer"><span>Показано ${filteredAnime().length} из 3 402 · сортировка: обновлено</span><div class="pagination"><button aria-label="Назад">${icon("chevron-left")}</button><button class="is-active">1</button><button>2</button><button>3</button><button>…</button><button>426</button><button aria-label="Вперёд">${icon("chevron-right")}</button></div></footer></section>${bulk}`;
-  }
-
-  const renderers = {
-    overview: renderControlCenter,
-    catalog: renderCatalogReal,
-    episodes: renderEpisodesReal,
-    releases: renderReleasesReal,
-    collections: renderCollectionsReal,
-    assets: renderAssetsReal,
-    "anime-editor": renderAnimeEditorReal,
-    "episode-editor": renderEpisodeEditorReal,
-    "release-editor": renderReleaseEditorReal,
-    parsers: renderParserCenterReal,
-    imports: renderImports,
-    conflicts: renderConflictsReal,
-    scheduler: renderSchedulerReal,
-    "parser-settings": renderParserSettingsReal,
-    moderation: renderModerationReal,
-    users: renderUsersReal,
-    monitoring: renderMonitoringReal,
-    settings: renderSiteSettingsReal,
-    backups: renderBackupsReal,
-    audit: renderAuditReal,
-  };
-
-  function refreshIcons() {
-    if (window.lucide) {
-      window.lucide.createIcons({
-        attrs: { "aria-hidden": "true", "stroke-width": 1.8 },
-      });
-    }
-    hydrateInteractive(document);
-  }
-
-  function hydrateInteractive(root) {
-    root
-      .querySelectorAll("button:not([type])")
-      .forEach((button) => button.setAttribute("type", "button"));
-    root
-      .querySelectorAll(".search-field input:not([aria-label])")
-      .forEach((input) => input.setAttribute("aria-label", "Поиск"));
-    root.querySelectorAll(".switch").forEach((control) => {
-      const label =
-        control.getAttribute("aria-label") ||
-        control
-          .closest(".switch-row")
-          ?.querySelector(".switch-copy strong")
-          ?.textContent?.trim() ||
-        "Переключатель";
-      control.setAttribute("role", "switch");
-      control.setAttribute("aria-label", label);
-      control.setAttribute(
-        "aria-checked",
-        String(control.classList.contains("is-on")),
-      );
-    });
-    root.querySelectorAll(".pagination button").forEach((button) => {
-      if (button.getAttribute("aria-label") || button.textContent.trim())
-        return;
-      if (button.querySelector(".lucide-chevron-left"))
-        button.setAttribute("aria-label", "Предыдущая страница");
-      if (button.querySelector(".lucide-chevron-right"))
-        button.setAttribute("aria-label", "Следующая страница");
-    });
-    root.querySelectorAll("[title]").forEach((node) => {
-      if (!node.dataset.tooltip) node.dataset.tooltip = node.title;
-      node.removeAttribute("title");
-    });
-    root
-      .querySelectorAll("button[aria-label], [data-tooltip]")
-      .forEach((node) => {
-        if (!node.dataset.tooltip && node.getAttribute("aria-label"))
-          node.dataset.tooltip = node.getAttribute("aria-label");
-      });
-  }
-
-  function toggleSwitch(control) {
-    const isOn = control.classList.toggle("is-on");
-    control.setAttribute("aria-checked", String(isOn));
-  }
-
-  function trapModalFocus(event) {
-    if (event.key !== "Tab") return;
-    const modal = [commandDialog, dialog, drawer].find(
-      (element) => !element.hidden,
-    );
-    if (!modal) return;
-    const focusable = [
-      ...modal.querySelectorAll(
-        'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
-      ),
-    ].filter((element) => element.getClientRects().length > 0);
-    if (!focusable.length) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  }
-
-  function positionTooltip(owner) {
-    if (!owner || uiTooltip.hidden) return;
-    const ownerRect = owner.getBoundingClientRect();
-    const tooltipRect = uiTooltip.getBoundingClientRect();
-    const margin = 8;
-    let left = ownerRect.left + ownerRect.width / 2 - tooltipRect.width / 2;
-    left = Math.max(
-      margin,
-      Math.min(left, window.innerWidth - tooltipRect.width - margin),
-    );
-    let top = ownerRect.bottom + 8;
-    if (top + tooltipRect.height > window.innerHeight - margin)
-      top = ownerRect.top - tooltipRect.height - 8;
-    uiTooltip.style.left = `${Math.round(left)}px`;
-    uiTooltip.style.top = `${Math.round(Math.max(margin, top))}px`;
-  }
-
-  function showTooltip(owner, delay = 260) {
-    if (
-      !owner?.dataset.tooltip ||
-      window.matchMedia("(pointer: coarse)").matches
-    )
-      return;
-    clearTimeout(tooltipTimer);
-    tooltipTimer = setTimeout(() => {
-      tooltipOwner = owner;
-      uiTooltip.textContent = owner.dataset.tooltip;
-      uiTooltip.hidden = false;
-      owner.setAttribute("aria-describedby", "ui-tooltip");
-      requestAnimationFrame(() => positionTooltip(owner));
-    }, delay);
-  }
-
-  function hideTooltip(immediate = false) {
-    clearTimeout(tooltipTimer);
-    if (tooltipOwner) tooltipOwner.removeAttribute("aria-describedby");
-    const finish = () => {
-      uiTooltip.hidden = true;
-      uiTooltip.classList.remove("is-hiding");
-      tooltipOwner = null;
-    };
-    if (immediate || uiTooltip.hidden) return finish();
-    uiTooltip.classList.add("is-hiding");
-    setTimeout(finish, 90);
-  }
-
-  function keepFormDraft() {
-    const key = viewRoot.dataset.draftKey;
-    if (!key) return;
-    const entries = [...viewRoot.querySelectorAll('input,select,textarea')].map(input => ({value:input.value,checked:input.checked}));
-    const switches = [...viewRoot.querySelectorAll('.switch')].map(control => control.classList.contains('is-on'));
-    formDrafts.set(key, { entries, switches });
-  }
-  function restoreFormDraft(root, key) {
-    const draft = formDrafts.get(key);
-    if (!draft) return;
-    [...root.querySelectorAll('input,select,textarea')].forEach((input, i) => {
-      if (draft.entries[i]) { input.value = draft.entries[i].value; input.checked = draft.entries[i].checked; }
-    });
-    [...root.querySelectorAll('.switch')].forEach((control, i) => {
-      control.classList.toggle('is-on', !!draft.switches[i]);
-      control.setAttribute('aria-checked', String(!!draft.switches[i]));
-    });
-  }
-  // Unsaved-state marker for the editors: set by the first edit, cleared by "Отмена".
-  function syncDirtyState() {
-    const dirty = state.dirtyViews.has(state.currentView);
-    viewRoot.querySelectorAll("[data-dirty-state]").forEach((node) => {
-      node.classList.toggle("is-dirty", dirty);
-      node.textContent = dirty ? "Есть несохранённые изменения" : "Изменений нет";
-    });
-  }
-  ["input", "change"].forEach((type) =>
-    viewRoot.addEventListener(type, () => {
-      if (!viewRoot.dataset.draftKey) return;
-      state.dirtyViews.add(state.currentView);
-      syncDirtyState();
-    }),
-  );
-  viewRoot.addEventListener("click", (event) => {
-    if (event.target.closest?.(".switch") && viewRoot.dataset.draftKey) {
-      state.dirtyViews.add(state.currentView);
-      syncDirtyState();
-    }
-    if (event.target.closest?.("[data-discard]")) {
-      [...formDrafts.keys()]
-        .filter((key) => key.startsWith(`${state.currentView}:`))
-        .forEach((key) => formDrafts.delete(key));
-      state.dirtyViews.delete(state.currentView);
-      viewRoot.dataset.draftKey = "";
-    }
-  }, true);
-
-  function hydrateFormDraft() {
-    contracts.hydrate(viewRoot);
-    const formView = ['anime-editor','episode-editor','release-editor','parser-settings','settings'].includes(state.currentView);
-    const key = formView ? state.currentView + ':' + (state.currentView === 'anime-editor' ? state.editorTab : state.currentView === 'parser-settings' ? state.parserSettingsTab : '') : '';
-    viewRoot.dataset.draftKey = key;
-    restoreFormDraft(viewRoot, key);
-    syncDirtyState();
-    const date = viewRoot.querySelector('[name="aired_on"]'), year = viewRoot.querySelector('[name="year"]');
-    if (date && year) { const update=()=>{year.value=date.value.slice(0,4);};date.addEventListener('input',update);update(); }
-    const localDate = viewRoot.querySelector('[name="aired_at"]'), utc = viewRoot.querySelector('input[readonly]:not([name])');
-    if(localDate && utc) localDate.addEventListener('input',()=>{utc.value=contracts.localDateToUtc(localDate.value) || '';});
-  }
-  function previewForm(kind) {
-    const invalid = [...viewRoot.querySelectorAll('input,select,textarea')].find(input => !input.checkValidity());
-    if (invalid) { invalid.reportValidity(); return toast('Проверьте форму', 'Исправьте отмеченное поле.', 'danger'); }
-    keepFormDraft();
-    let payload = contracts.read(viewRoot);
-    if (kind === 'anime') {
-      payload = {};
-      const currentTab = state.editorTab;
-      try {
-        for (const tab of ['main', 'media', 'sources']) {
-          state.editorTab = tab;
-          const detached = document.createElement('div');
-          detached.innerHTML = renderAnimeEditorReal();
-          contracts.hydrate(detached);
-          restoreFormDraft(detached, `anime-editor:${tab}`);
-          Object.assign(payload, contracts.read(detached));
-        }
-      } finally { state.editorTab = currentTab; }
-    }
-    if(kind === 'episode') payload.anime_id = '00000000-0000-4000-8000-000000009253';
-    const errors = contracts.errors(kind, payload);
-    if(errors.length) return toast('Проверьте форму',errors.join('; '),'danger');
-    const json=JSON.stringify(payload,null,2).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-    return openDrawer({eyebrow:'Локальная проверка · запрос не отправлен',title:'Поля перед сохранением',body:'<p>Показаны фактические значения формы, включая черновики других вкладок. Уникальность, права и доступность URL проверяются только API. Демонстрационные идентификаторы не являются production ID.</p><pre class="payload-preview">'+json+'</pre>'});
-  }
-  // Numeric columns are right-aligned and monospaced; found by header so templates stay untouched.
-  const NUMERIC_COLUMNS = new Set(["эпизоды", "оценка", "items", "просмотры", "лайки", "размер", "длительность", "время", "размер файла"]);
-  function markNumericColumns(root) {
-    root.querySelectorAll("table").forEach((table) => {
-      [...table.querySelectorAll("thead th")].forEach((th, index) => {
-        if (!NUMERIC_COLUMNS.has(th.textContent.trim().toLowerCase())) return;
-        th.classList.add("num");
-        table.querySelectorAll(`tbody tr`).forEach((row) => row.children[index]?.classList.add("num"));
-      });
-    });
-  }
-
-  function renderCurrent({ focus = false } = {}) {
-    keepFormDraft();
-    hideTooltip(true);
-    viewRoot.innerHTML = `<div class="view-enter">${renderers[state.currentView]()}</div>`;
-    markNumericColumns(viewRoot);
-    document.querySelector("#breadcrumb-current").textContent =
-      viewMeta[state.currentView][0];
-    document.title = `${viewMeta[state.currentView][0]} — Kitsu Enterprise Admin`;
-    document.querySelectorAll(".sidebar [data-view]").forEach((button) => {
-      const activeViews =
-        button.dataset.view === "catalog"
-          ? ["catalog", "anime-editor"]
-          : button.dataset.view === "episodes"
-            ? ["episodes", "episode-editor"]
-            : button.dataset.view === "releases"
-              ? ["releases", "release-editor"]
-              : [button.dataset.view];
-      button.classList.toggle(
-        "is-active",
-        activeViews.includes(state.currentView),
-      );
-    });
-    document
-      .querySelectorAll(".mobile-nav-item[data-view]")
-      .forEach((button) => {
-        const target = button.dataset.view;
-        const groups =
-          target === "catalog"
-            ? [
-                "catalog",
-                "episodes",
-                "releases",
-                "collections",
-                "assets",
-                "anime-editor",
-                "episode-editor",
-                "release-editor",
-              ]
-            : target === "parsers"
-              ? [
-                  "parsers",
-                  "imports",
-                  "conflicts",
-                  "scheduler",
-                  "parser-settings",
-                  "moderation",
-                ]
-              : target === "monitoring"
-                ? ["monitoring", "users", "settings", "backups", "audit"]
-                : [target];
-        button.classList.toggle(
-          "is-active",
-          groups.includes(state.currentView),
-        );
-      });
-    refreshIcons();
-    hydrateFormDraft();
-    if (focus) viewRoot.focus({ preventScroll: true });
-  }
-
-  function navigate(view) {
-    if (!renderers[view]) return;
-    state.currentView = view;
-    history.pushState(null, "", `#${view}`);
-    appShell.classList.remove("is-mobile-open");
-    syncMobileSidebar();
-    closeTransient();
-    // Progressive enhancement: crossfade the work area where View Transitions exist.
-    if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      document.startViewTransition(() => renderCurrent({ focus: true }));
-    } else {
-      renderCurrent({ focus: true });
-    }
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  function openOverlayFor(element) {
-    returnFocusTo =
-      document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-    overlay.hidden = false;
-    element.hidden = false;
-    refreshIcons();
-  }
-
-  function closeTransient() {
-    const hadOverlay =
-      !commandDialog.hidden || !dialog.hidden || !drawer.hidden;
-    overlay.hidden = true;
-    commandDialog.hidden = true;
-    dialog.hidden = true;
-    drawer.hidden = true;
-    notificationPopover.hidden = true;
-    document
-      .querySelector("#notifications-trigger")
-      ?.setAttribute("aria-expanded", "false");
-    hideTooltip(true);
-    if (hadOverlay && returnFocusTo?.isConnected)
-      returnFocusTo.focus({ preventScroll: true });
-    returnFocusTo = null;
-  }
-
-  const commandSource = [
-    ...Object.entries(viewMeta)
-      .filter(([view]) => !view.endsWith("-editor"))
-      .map(([view, meta]) => ({
-        type: "Раздел",
-        title: meta[0],
-        subtitle: meta[1],
-        icon: {
-          overview: "layout-dashboard",
-          catalog: "clapperboard",
-          episodes: "play-square",
-          releases: "languages",
-          collections: "library",
-          assets: "shapes",
-          parsers: "waypoints",
-          imports: "search-code",
-          conflicts: "git-compare-arrows",
-          scheduler: "calendar-clock",
-          "parser-settings": "sliders-horizontal",
-          moderation: "shield-check",
-          users: "users",
-          monitoring: "activity",
-          settings: "settings-2",
-          backups: "database-backup",
-          audit: "scroll-text",
-        }[view],
-        view,
-      })),
-    {
-      type: "Действие",
-      title: "Добавить аниме",
-      subtitle: "Создать запись каталога",
-      icon: "plus",
-      action: "add-content",
-    },
-    {
-      type: "Действие",
-      title: "Добавить эпизод",
-      subtitle: "Открыть редактор эпизода",
-      icon: "play-square",
-      action: "add-episode",
-    },
-    {
-      type: "Действие",
-      title: "Найти в Kodik / Shikimori",
-      subtitle: "Безопасный поиск и импорт",
-      icon: "search-code",
-      action: "go-imports",
-    },
-    {
-      type: "Действие",
-      title: "Запустить синхронизацию",
-      subtitle: "Только поддерживаемые ParserJob modes",
-      icon: "refresh-cw",
-      action: "start-sync",
-    },
-    {
-      type: "Действие",
-      title: "Создать резервную копию",
-      subtitle: "Database + media артефакты",
-      icon: "database-backup",
-      action: "create-backup",
-    },
-  ];
-
-  function renderCommandResults() {
-    const query = commandInput.value.trim().toLowerCase();
-    state.commandItems = commandSource
-      .filter(
-        (item) =>
-          !query ||
-          `${item.title} ${item.subtitle} ${item.type}`
-            .toLowerCase()
-            .includes(query),
-      )
-      .slice(0, 9);
-    if (state.commandIndex >= state.commandItems.length) state.commandIndex = 0;
-    commandResults.innerHTML = state.commandItems.length
-      ? `<p class="command-group-title">${query ? "Результаты" : "Быстрый доступ"}</p>${state.commandItems.map((item, index) => `<button class="command-result ${index === state.commandIndex ? "is-active" : ""}" data-command-index="${index}"><span class="mini-icon ${item.type === "Действие" ? "mini-icon--accent" : ""}">${icon(item.icon)}</span><span><strong>${item.title}</strong><small>${item.subtitle}</small></span><kbd>${item.type}</kbd></button>`).join("")}`
-      : `<div class="empty-state"><div class="empty-state__inner"><span class="empty-icon">${icon("search-x")}</span><h3>Совпадений нет</h3><p>Попробуйте название раздела или действия.</p></div></div>`;
-    refreshIcons();
-  }
-
-  function openCommand() {
-    state.commandIndex = 0;
-    commandInput.value = "";
-    renderCommandResults();
-    openOverlayFor(commandDialog);
-    requestAnimationFrame(() => commandInput.focus());
-  }
-
-  function executeCommand(item) {
-    if (!item) return;
-    closeTransient();
-    if (item.view) navigate(item.view);
-    if (item.action) handleAction(item.action, {});
-  }
-
-  let lastActionTarget = "";
-
-  function openDialog({
-    eyebrow = "Действие",
-    title,
-    body,
-    confirm = "Сохранить",
-    confirmAction = "confirm-generic",
-    danger = false,
-  }) {
-    document.querySelector("#dialog-eyebrow").textContent = eyebrow;
-    document.querySelector("#dialog-title").textContent = title;
-    const targetLine =
-      danger && lastActionTarget
-        ? `<p class="dialog-target"><span>Объект</span><code>${lastActionTarget.replace(/[<>&]/g, "")}</code></p>`
-        : "";
-    document.querySelector("#dialog-body").innerHTML = targetLine + body;
-    document.querySelector("#dialog-footer").innerHTML =
-      `<button type="button" class="button" data-action="close-dialog">${icon("x")}Отмена</button><button type="button" class="button ${danger ? "button--danger" : "button--primary"}" data-action="${confirmAction}">${icon(danger ? "triangle-alert" : "check")}${confirm}</button>`;
-    openOverlayFor(dialog);
-    requestAnimationFrame(() =>
-      dialog
-        .querySelector("input, select, textarea, button")
-        ?.focus({ preventScroll: true }),
-    );
-  }
-
-  function openDrawer({ eyebrow = "Детали", title, body }) {
-    document.querySelector("#drawer-eyebrow").textContent = eyebrow;
-    document.querySelector("#drawer-title").textContent = title;
-    document.querySelector("#drawer-content").innerHTML = body;
-    openOverlayFor(drawer);
-    requestAnimationFrame(() => {
-      document.querySelector("#drawer-close")?.focus({ preventScroll: true });
-      hideTooltip(true);
-    });
-  }
-
-  function animeDrawer(item) {
-    openDrawer({
-      eyebrow: `Anime ID ${item.id}`,
-      title: "Карточка аниме",
-      body: `<div class="detail-hero">${poster(item)}<div class="detail-hero__copy"><h3>${item.title}</h3><p>${item.original}</p>${status(labelForStatus(item.status), toneForStatus(item.status))}</div></div><section class="detail-section"><h4>Поля загруженной строки</h4><dl class="definition-list"><dt>id</dt><dd>${item.id}</dd><dt>Kind / year</dt><dd>${item.type} · ${item.year}</dd><dt>Episodes</dt><dd>${item.episodes}</dd><dt>Score</dt><dd>${item.score}</dd><dt>Views</dt><dd>${item.views}</dd><dt>Updated</dt><dd>${item.updated}</dd></dl></section><section class="detail-section"><div class="truth-note">${icon("info")}<p>kodik_id, shikimori_id, mal_id и release-count не выводятся из Anime ID. В production показывать только значения фактического response.</p></div></section><section class="detail-section"><div class="review-actions"><button class="button button--primary" data-action="edit-anime">${icon("pencil")}Редактировать</button></div></section>`,
-    });
-  }
-
-  function jobDrawerReal(job) {
-    const selected =
-      jobs.find((item) => String(item.id) === String(job)) || jobs[0];
-    const isIndeterminate = selected.progress === null;
-    const progressLabel = isIndeterminate
-      ? "не публикуется"
-      : selected.progress + "%";
-    const progress = isIndeterminate
-      ? `<div class="indeterminate-track"><span></span></div><p class="drawer-hint">Kodik full sync не публикует live percentage.</p>`
-      : `<div class="meter"><span style="width:${selected.progress}%"></span></div>`;
-    const stats = selected.source.includes("related")
-      ? `<div class="result-grid"><div><span>Updated</span><strong>418</strong></div><div><span>No change</span><strong>1 840</strong></div><div><span>Auto accepted</span><strong>70</strong></div><div><span>Conflicts</span><strong>5</strong></div><div><span>Not found</span><strong>76</strong></div><div><span>Network errors</span><strong>1</strong></div></div>`
-      : `<div class="result-grid"><div><span>Processed</span><strong>${isIndeterminate ? "—" : "1 248"}</strong></div><div><span>Created</span><strong>${isIndeterminate ? "—" : "18"}</strong></div><div><span>Updated</span><strong>${isIndeterminate ? "—" : "986"}</strong></div><div><span>Skipped</span><strong>${isIndeterminate ? "—" : "244"}</strong></div><div><span>Failed</span><strong>${isIndeterminate ? "—" : "0"}</strong></div><div><span>Duration</span><strong>${selected.duration}</strong></div></div>`;
-    const pendingNote = isIndeterminate
-      ? `<div class="truth-note">${icon("info")}<p>Итоговые counters появятся после completed, failed или partial timeout.</p></div>`
-      : "";
-    const action =
-      selected.status === "running"
-        ? `<button class="button button--danger" data-action="stop-job">${icon("square")}Остановить</button>`
-        : `<button class="button button--danger" data-action="delete-job">${icon("trash-2")}Удалить job</button>`;
-    openDrawer({
-      eyebrow: `${selected.id} · ParserJob`,
-      title: selected.source,
-      body: `<div class="drawer-status drawer-status--real"><div><span>Статус</span>${status(labelForStatus(selected.status), toneForStatus(selected.status))}</div><div><span>Progress</span><strong>${progressLabel}</strong></div><div><span>Started</span><strong>${selected.started}</strong></div><div><span>Duration</span><strong>${selected.duration}</strong></div></div><section class="detail-section"><div class="detail-section__title"><h4>Ход выполнения</h4><span>sample ParserJob response</span></div>${progress}</section><section class="detail-section"><div class="detail-section__title"><h4>Результат</h4><span>items_* / statistics</span></div>${stats}${pendingNote}</section><section class="detail-section"><div class="detail-section__title"><h4>ParserJobLog</h4><button class="text-button" data-action="open-global-logs">Открыть REST-журнал</button></div><div class="truth-note">${icon("info")}<p>Логи загружаются отдельным GET /jobs/{id}/logs. WebSocket публикует telemetry, но не заменяет log endpoint.</p></div></section><section class="detail-section"><div class="review-actions">${action}<button class="button" data-action="start-sync">${icon("plus")}Новый ручной запуск</button></div></section>`,
-    });
-  }
-
-  function userDrawerReal(id) {
-    const isSuperuser = String(id) === "U-1";
-    const isActive = String(id) !== "U-39884";
-    const rawId = String(id || "").replace(/\D/g, "");
-    const user = users.find((entry) => String(entry.id) === rawId) || users[0];
-    openDrawer({
-      eyebrow: `User ${id || user.id}`,
-      title: isSuperuser ? "Montihx" : user.name,
-      body: `<div class="detail-hero"><span class="avatar ${isSuperuser ? "avatar--admin" : ""}">${isSuperuser ? "DM" : user.initials}</span><div class="detail-hero__copy"><h3>${isSuperuser ? "Montihx" : user.name}</h3><p>${isSuperuser ? "montihx@kitsu.local" : user.email}</p>${status(isActive ? "Активен" : "Заблокирован", isActive ? "success" : "danger")}</div></div><section class="detail-section"><h4>GET /users/{id}</h4><dl class="definition-list"><dt>is_active</dt><dd>${isActive}</dd><dt>is_superuser</dt><dd>${isSuperuser}</dd><dt>role</dt><dd>${isSuperuser ? "super_admin" : user.role}</dd><dt>created_at</dt><dd>${user.joined}</dd><dt>last_seen_at</dt><dd>${user.activity}</dd></dl></section><section class="detail-section"><div class="review-actions"><button class="button button--primary" data-action="edit-user">${icon("key-round")}Назначить role_id</button><button class="button button--danger" data-action="ban-user" ${isSuperuser || !isActive ? "disabled" : ""}>${icon("ban")}${isSuperuser ? "Superuser защищён" : isActive ? "Заблокировать" : "Уже заблокирован"}</button></div></section>`,
-    });
-  }
-
-  function episodeDrawerReal(id) {
-    openDrawer({
-      eyebrow: `Episode ${id}`,
-      title: "S2 · Episode 13",
-      body: `<section class="detail-section"><h4>GET /episodes/{id}</h4><dl class="definition-list"><dt>anime_id</dt><dd>9253</dd><dt>season / episode</dt><dd>2 / 13</dd><dt>title</dt><dd>null</dd><dt>aired_at</dt><dd>2026-08-13 07:00 UTC</dd><dt>is_filler / is_recap</dt><dd>false / false</dd><dt>thumbnail_url</dt><dd>/media/episodes/ep-8412.webp</dd></dl></section><section class="detail-section"><div class="truth-note">${icon("info")}<p>Release-count не входит в Episode response. Для списка вариантов использовать GET /episodes/{id}/releases или GET /releases?episode_id=….</p></div></section><section class="detail-section"><div class="review-actions"><button class="button button--primary" data-action="edit-episode">${icon("pencil")}Редактировать</button><button class="button" data-view="releases">Открыть Releases</button></div></section>`,
-    });
-  }
-
-  function releaseDrawerReal(id) {
-    openDrawer({
-      eyebrow: `Release ${id}`,
-      title: "Kodik · voice · ru",
-      body: `<section class="detail-section"><h4>GET /releases/{id}</h4><dl class="definition-list"><dt>episode_id</dt><dd>EP-8412</dd><dt>source</dt><dd>Kodik</dd><dt>quality</dt><dd>1080p</dd><dt>url</dt><dd>Значение сохранено · health неизвестен</dd><dt>embed_url</dt><dd>Значение сохранено · health неизвестен</dd><dt>external_id</dt><dd>498912:13:anilibria</dd></dl></section><section class="detail-section"><h4>Translation</h4><dl class="definition-list"><dt>translation_type</dt><dd>voice</dd><dt>translation_language</dt><dd>ru</dd><dt>translation_team</dt><dd>AniLibria</dd><dt>is_active</dt><dd>true</dd><dt>is_verified</dt><dd>true · stored boolean</dd></dl></section><section class="detail-section"><div class="review-actions"><button class="button button--primary" data-action="edit-release">${icon("pencil")}Редактировать</button><span class="unsupported-label">Server validate/test-stream отсутствует</span></div></section>`,
-    });
-  }
-
-  function importPreview(id) {
-    const item =
-      anime.find((entry) => String(entry.id) === String(id)) || anime[0];
-    openDrawer({
-      eyebrow: "Безопасный предпросмотр · данные не изменены",
-      title: "Сравнение импорта",
-      body: `<div class="detail-hero">${poster(item)}<div class="detail-hero__copy"><h3>${item.title}</h3><p>${item.original}</p>${status("fetch-full · без записи", "info")}</div></div><section class="detail-section"><h4>Sample field diff</h4><div class="diff-list"><div><span>Поле</span><strong>В каталоге</strong><strong>Источник</strong></div><div><span>Эпизодов</span><em>21 / 24</em><mark>22 / 24</mark></div><div><span>Оценка</span><em>8.74</em><mark>8.77</mark></div><div><span>poster_url</span><em>Текущее значение</em><mark>Incoming значение</mark></div></div><p class="drawer-hint">Процент совпадения не показывается: такого поля нет в backend response.</p></section><section class="detail-section"><div class="review-actions"><button class="button" data-action="skip-import">Закрыть без изменений</button><button class="button button--primary" data-action="confirm-single-import">${icon("download")}Вызвать add-from-kodik</button></div></section>`,
-    });
-  }
-
-  function toast(title, detail = "Операция выполнена", tone = "success") {
-    const toastRegion = document.querySelector("#toast-region");
-    const node = document.createElement("article");
-    node.className = "toast";
-    node.innerHTML = `<span class="toast-icon ${tone === "warning" ? "event-icon--warning" : tone === "danger" ? "attention-icon--danger" : "event-icon--success"}">${icon(tone === "warning" ? "triangle-alert" : tone === "danger" ? "circle-x" : "check")}</span><span class="toast-copy"><strong>${title}</strong><small>${detail}</small></span><button type="button" class="toast-close" aria-label="Закрыть уведомление">${icon("x")}</button>`;
-    toastRegion.append(node);
-    refreshIcons();
-    const remove = () => {
-      node.classList.add("is-leaving");
-      setTimeout(() => node.remove(), 180);
-    };
-    node.querySelector(".toast-close").addEventListener("click", remove);
-    setTimeout(remove, 4200);
-  }
-
-  function downloadTextFile(
-    filename,
-    content,
-    type = "text/plain;charset=utf-8",
-  ) {
-    const url = URL.createObjectURL(new Blob([content], { type }));
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    document.body.append(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 0);
-  }
-
-  function handleAction(action, dataset) {
-    if (action === "close-dialog") return closeTransient();
-    if (action === "open-site")
-      return toast(
-        "Пользовательский сайт",
-        "В макете внешняя ссылка отключена",
-      );
-    if (action === "profile-menu")
-      return openDrawer({
-        eyebrow: "GET /users/me · sample response",
-        title: "Montihx",
-        body: `<div class="detail-hero"><span class="avatar avatar--admin">DM</span><div class="detail-hero__copy"><h3>Montihx</h3><p>montihx@kitsu.local</p>${status("is_active=true", "success")}</div></div><section class="detail-section"><h4>FullUser fields</h4><dl class="definition-list"><dt>username</dt><dd>Montihx</dd><dt>is_superuser</dt><dd>true</dd><dt>is_verified</dt><dd>true</dd><dt>role</dt><dd>super_admin</dd><dt>created_at</dt><dd>13 авг 2026</dd><dt>last_seen_at</dt><dd>сейчас</dd></dl><p class="drawer-hint">IP, device list и срок сессии не показываются: GET /users/me их не возвращает.</p></section><section class="detail-section"><div class="action-menu-list"><button data-view="settings">${icon("settings-2")}Настройки сайта<span>Перейти к пяти SystemSetting keys</span></button><button data-action="change-password">${icon("key-round")}Сменить пароль<span>POST /auth/change-password</span></button><button class="is-danger" data-action="sign-out">${icon("log-out")}Выйти<span>Очистить локальные токены и открыть /login</span></button></div></section>`,
-      });
-    if (action === "export") {
-      const rows = [...document.querySelectorAll(".data-table tr")].map((row) =>
-        [...row.querySelectorAll("th, td")]
-          .map((cell) => `"${cell.innerText.replaceAll('"', '""').trim()}"`)
-          .join(","),
-      );
-      downloadTextFile(
-        "kitsu-audit-loaded-page.csv",
-        rows.join("\n"),
-        "text/csv;charset=utf-8",
-      );
-      return toast(
-        "CSV скачан",
-        "Экспортированы только строки загруженной страницы",
-      );
-    }
-    if (action === "export-collections") {
-      const rows = [...document.querySelectorAll(".data-table tr")].map((row) =>
-        [...row.querySelectorAll("th, td")]
-          .map((cell) => `"${cell.innerText.replaceAll('"', '""').trim()}"`)
-          .join(","),
-      );
-      downloadTextFile(
-        "kitsu-collections-loaded-page.csv",
-        rows.join("\n"),
-        "text/csv;charset=utf-8",
-      );
-      return toast(
-        "CSV скачан",
-        "Экспортированы только строки загруженной superuser list",
-      );
-    }
-    if (action === "export-parser-settings") {
-      const textarea = document.querySelector("#parser-settings-config");
-      downloadTextFile(
-        `kitsu-parser-settings-${state.parserSettingsTab}.json`,
-        textarea ? textarea.value : "{}",
-        "application/json;charset=utf-8",
-      );
-      return toast(
-        "JSON скачан",
-        `Экспортирован loaded config категории ${state.parserSettingsTab}`,
-      );
-    }
-    if (action === "go-imports" || action === "import-kodik")
-      return navigate("imports");
-    if (action === "add-content" || action === "edit-anime")
-      return navigate("anime-editor");
-    if (action === "add-episode" || action === "edit-episode")
-      return navigate("episode-editor");
-    if (action === "add-release" || action === "edit-release")
-      return navigate("release-editor");
-    if (action === "preview-content" || action === "save-anime") return previewForm('anime');
-    if (action === "save-episode") return previewForm('episode');
-    if (action === "save-release") return previewForm('release');
-    if ((action === "open-filters" || action === "focus-filter") && state.currentView !== 'catalog') {
-      const labels = {parsers:'status/parser_name',episodes:'skip/limit',releases:'episode_id',audit:'skip/limit',users:'параметры users list'};
-      return openDialog({eyebrow:'Фильтр текущего раздела',title:'Поиск в загруженных строках',body:'<label class="field"><span>Текст</span><input id="loaded-row-query" placeholder="Текст в таблице"></label><p>Локальный поиск, без API запроса. Контракт раздела: '+(labels[state.currentView] || 'проверяется при интеграции')+'.</p>',confirm:'Применить',confirmAction:'apply-loaded-filter'});
-    }
-    if(action === 'apply-loaded-filter') {
-      const query=document.querySelector('#loaded-row-query').value.trim().toLocaleLowerCase('ru-RU');
-      viewRoot.querySelectorAll('tbody tr').forEach(row=>{row.hidden=!!query&&!row.textContent.toLocaleLowerCase('ru-RU').includes(query);});
-      closeTransient(); return;
-    }
-    if (action === "open-filters" || action === "focus-filter")
-      return openDialog({
-        eyebrow: "Таблица · фильтры",
-        title: "Настроить выборку",
-        body: `<div class="form-grid"><label class="field"><span>kind</span><select><option>Любой</option><option>tv</option><option>movie</option><option>ova</option><option>ona</option><option>special</option><option>music</option><option>tv_special</option></select></label><label class="field"><span>status</span><select><option>Любой</option><option>ongoing</option><option>released</option><option>announced</option></select></label><label class="field"><span>has_video</span><select><option>Любое</option><option>true</option><option>false</option></select></label><label class="field"><span>needs_moderation</span><select><option>Любое</option><option>true</option><option>false</option></select></label></div><p class="drawer-hint">Только query-параметры GET /dashboard/parsers/anime-list. Дата, provider и «ошибки» не добавлены.</p>`,
-        confirm: "Применить фильтры",
-        confirmAction: "apply-filters",
-      });
-    if (action === "apply-filters") {
-      closeTransient();
-      return toast(
-        "Query-параметры проверены",
-        "Production синхронизирует их через nuqs и повторяет GET; sample rows не изменены",
-        "warning",
-      );
-    }
-    if (action === "columns")
-      return openDialog({
-        eyebrow: "Таблица · представление",
-        title: "Настроить столбцы",
-        body: `<div class="column-picker"><label><input type="checkbox" checked>Название и ID <span>Закреплено</span></label><label><input type="checkbox" checked>Kind / year</label><label><input type="checkbox" checked>External IDs</label><label><input type="checkbox" checked>Status</label><label><input type="checkbox" checked>Score</label><label><input type="checkbox">Updated at</label><label><input type="checkbox">Created at</label></div>`,
-        confirm: "Сохранить представление",
-        confirmAction: "apply-columns",
-      });
-    if (action === "apply-columns") {
-      closeTransient();
-      return toast(
-        "Представление проверено",
-        "Standalone не сохраняет пользовательские настройки столбцов",
-        "warning",
-      );
-    }
-    if (
-      [
-        "refresh-catalog",
-        "refresh-sources",
-        "refresh-jobs",
-        "refresh-monitoring",
-      ].includes(action)
-    )
-      return toast(
-        "Refresh contract",
-        "Production повторяет GET текущего ресурса; sample rows не изменены",
-        "warning",
-      );
-    if (action === "reset-catalog") {
-      state.catalogQuery = "";
-      state.catalogFilter = "all";
-      return renderCurrent();
-    }
-    if (action === "clear-selection") {
-      state.selectedAnime.clear();
-      return renderCurrent();
-    }
-    if (action === "bulk-status")
-      return openDialog({
-        eyebrow: "POST /dashboard/bulk/anime",
-        title: `Изменить status у ${state.selectedAnime.size} записей?`,
-        body: `<label class="field"><span>new_status</span><select><option>ongoing</option><option>released</option><option>anons</option><option>cancelled</option><option>hiatus</option></select><small>Точный allow-list bulk handler. Обратите внимание: bulk использует anons, хотя parser нормализует его в announced.</small></label><div class="truth-note truth-note--dialog">${icon("info")}<p>Audit создаёт одну запись на request, не отдельную запись на каждый ID.</p></div>`,
-        confirm: "Отправить update_status",
-        confirmAction: "confirm-bulk-status",
-      });
-    if (action === "confirm-bulk-status") {
-      const count = state.selectedAnime.size;
-      closeTransient();
-      state.selectedAnime.clear();
-      renderCurrent();
-      return toast(
-        "Bulk payload проверен",
-        `${count} IDs · action=update_status · standalone запрос не выполняет`,
-        "warning",
-      );
-    }
-    if (action === "start-sync")
-      return openDialog({
-        eyebrow: "ParserJob · ручной запуск",
-        title: "Запустить поддерживаемую операцию",
-        body: `<div class="form-grid"><label class="field field--full"><span>parser_name + job_type</span><select><option>kodik · incremental</option><option>kodik · full_sync</option><option>shikimori · shikimori_related_refresh</option><option>shikimori · calendar_snapshot</option></select><small>POST /jobs/trigger принимает только parser_name и job_type. Batch size и priority в request отсутствуют.</small></label></div><div class="truth-note truth-note--dialog">${icon("info")}<p><strong>Прогресс зависит от режима.</strong><br>Full sync не публикует промежуточный процент; related refresh публикует telemetry и может создать conflicts.</p></div>`,
-        confirm: "Создать задачу",
-        confirmAction: "confirm-sync",
-      });
-    if (action === "confirm-sync") {
-      closeTransient();
-      return toast(
-        "Trigger payload проверен",
-        "Production получает {job_id,status}; standalone запрос не выполняет",
-        "warning",
-      );
-    }
-    if (action === "run-related-refresh")
-      return openDialog({
-        eyebrow: "Shikimori · ручная операция",
-        title: "Обновить связи и external ID?",
-        body: `<p class="dialog-copy">Job type <code>shikimori_related_refresh</code> публикует telemetry и может создать <code>shikimori_identity_mismatch</code> conflicts. Длительность заранее неизвестна.</p><div class="impact-list"><span>${icon("check")}No change и auto accepted учитываются отдельно</span><span>${icon("git-compare-arrows")}Suspicious попадают в очередь конфликтов</span><span>${icon("wifi-off")}Network errors не смешиваются с conflicts</span></div>`,
-        confirm: "Запустить related refresh",
-        confirmAction: "confirm-related-refresh",
-      });
-    if (action === "confirm-related-refresh") {
-      closeTransient();
-      return toast(
-        "Related refresh payload проверен",
-        "Production вызывает jobs/trigger; standalone запрос не выполняет",
-        "warning",
-      );
-    }
-    if (action === "run-import-search")
-      return toast(
-        "Search-live contract",
-        "На экране показаны 3 sample rows; production отображает только response.data",
-        "warning",
-      );
-    if (action === "preview-import") return importPreview(dataset.id);
-    if (action === "confirm-single-import") {
-      closeTransient();
-      return toast(
-        "add-from-kodik payload проверен",
-        "Endpoint выполняется синхронно; результат может требовать moderation",
-        "warning",
-      );
-    }
-    if (action === "validate-batch")
-      return toast(
-        "Sample CSV разобран локально",
-        "Production должен показать только фактический результат валидации",
-        "warning",
-      );
-    if (action === "download-import-template") {
-      downloadTextFile(
-        "kitsu-add-from-kodik.csv",
-        "kodik_id,kodik_shikimori_id,shikimori_id\n498912,58567,58567\n",
-        "text/csv;charset=utf-8",
-      );
-      return toast("CSV скачан", "Колонки совпадают с POST /add-from-kodik");
-    }
-    if (action === "resolve-conflict")
-      return openDrawer({
-        eyebrow: `Конфликт C-${dataset.id || 781} · shikimori_identity_mismatch`,
-        title: "Полные данные сопоставления",
-        body: `<section class="detail-section"><h4>Existing data · Kodik</h4><dl class="definition-list"><dt>Title</dt><dd>Поднятие уровня в одиночку 2</dd><dt>Kodik ID</dt><dd>498912</dd><dt>Season</dt><dd>2</dd><dt>Kind / year</dt><dd>TV · 2025</dd></dl></section><section class="detail-section"><h4>Incoming data · Shikimori</h4><dl class="definition-list"><dt>Shikimori ID</dt><dd>58567</dd><dt>Reason</dt><dd><code>season_mismatch</code></dd><dt>Season</dt><dd>1</dd><dt>Reliable</dt><dd>Нет</dd></dl></section><section class="detail-section"><h4>Стратегия решения</h4><p class="dialog-copy">Ignore сохраняет текущую связь. Replace применяет incoming ID и записывает решение в audit log.</p><div class="review-actions"><button class="button" data-action="ignore-conflict">${icon("ban")}Ignore</button><button class="button button--primary" data-action="replace-conflict">${icon("replace")}Replace</button></div></section>`,
-      });
-    if (action === "ignore-conflict")
-      return openDialog({
-        eyebrow: `Конфликт C-${dataset.id || 781} · ignore`,
-        title: "Сохранить текущую связь?",
-        body: `<p class="dialog-copy">Incoming-данные будут отклонены. Стратегия <code>ignore</code>, actor и timestamp сохранятся в журнале аудита.</p>`,
-        confirm: "Игнорировать incoming",
-        confirmAction: "confirm-ignore-conflict",
-      });
-    if (action === "replace-conflict")
-      return openDialog({
-        eyebrow: `Конфликт C-${dataset.id || 781} · replace`,
-        title: "Заменить внешнюю связь?",
-        body: `<p class="dialog-copy">Shikimori ID из incoming_data заменит текущую связь. Проверьте сезон: это действие влияет на последующие обновления.</p>`,
-        confirm: "Заменить связь",
-        confirmAction: "confirm-replace-conflict",
-        danger: true,
-      });
-    if (
-      action === "confirm-ignore-conflict" ||
-      action === "confirm-replace-conflict"
-    ) {
-      closeTransient();
-      return toast(
-        "Resolve payload проверен",
-        action === "confirm-ignore-conflict"
-          ? "Production отправляет strategy=ignore; standalone запрос не выполняет"
-          : "Production отправляет strategy=replace; standalone запрос не выполняет",
-        "warning",
-      );
-    }
-    if (action === "view-anime" || action === "view-review") {
-      const item =
-        anime.find((entry) => String(entry.id) === String(dataset.id)) ||
-        anime[0];
-      return animeDrawer(item);
-    }
-    if (action === "view-episode") return episodeDrawerReal(dataset.id);
-    if (action === "view-release") return releaseDrawerReal(dataset.id);
-    if (action === "view-user") return userDrawerReal(dataset.id);
-    if (action === "view-job") return jobDrawerReal(dataset.id);
-    if (action === "delete-job")
-      return openDialog({
-        eyebrow: "Задача парсера",
-        title: "Удалить задачу и её логи?",
-        body: `<p class="dialog-copy">Записи каталога не изменятся. Будут удалены только история выполнения и технические логи.</p>`,
-        confirm: "Удалить задачу",
-        confirmAction: "confirm-delete-job",
-        danger: true,
-      });
-    if (action === "confirm-delete-job") {
-      closeTransient();
-      return toast(
-        "Delete contract подтверждён",
-        "Production удаляет job и logs; standalone запрос не выполняет",
-        "warning",
-      );
-    }
-    if (action === "clear-jobs") {
-      const clearableCount = jobs.filter((job) => job.status !== "running" && job.status !== "pending").length;
-      return openDialog({
-        eyebrow: "Журнал задач",
-        title: "Очистить журнал задач?",
-        body: `<p class="dialog-copy">Будут удалены только задачи в terminal статусах (success · failed · cancelled) — ${clearableCount} из ${jobs.length}. Выполняющиеся и ожидающие задачи не затрагиваются.</p>`,
-        confirm: "Очистить журнал",
-        confirmAction: "confirm-clear-jobs",
-        danger: true,
-      });
-    }
-    if (action === "confirm-clear-jobs") {
-      closeTransient();
-      const clearableCount = jobs.filter((job) => job.status !== "running" && job.status !== "pending").length;
-      return toast(
-        "Clear contract подтверждён",
-        `Production удалит ${clearableCount} terminal job из журнала; DELETE /dashboard/parsers/jobs — standalone запрос не выполняет`,
-        "warning",
-      );
-    }
-    if (action === "open-global-logs") {
-      closeTransient();
-      state.parserTab = "logs";
-      return navigate("parsers");
-    }
-    if (action === "run-job") return handleAction("start-sync", dataset);
-    if (action === 'run-schedule') return openDialog({eyebrow:'POST /dashboard/parsers/scheduler/jobs/{id}/run-now',title:'Запустить выбранное расписание?',body:'<p>'+contracts.operations[dataset.operation].label+'</p><p>Используется ID расписания, не jobs/trigger. Демонстрационный запрос не будет отправлен.</p>',confirm:'Подтвердить',confirmAction:'confirm-run-schedule'});
-    if (action === 'confirm-run-schedule') { closeTransient();return toast('Контракт run-now подтверждён','Запрос не отправлен; новая job появляется только после ответа API.','warning'); }
-    if (action === 'delete-schedule') return openDialog({eyebrow:'DELETE /dashboard/parsers/scheduler/jobs/{id}',title:'Удалить расписание?',body:'<p>Удаляется только выбранное расписание. История запусков не удаляется.</p>',confirm:'Удалить расписание',confirmAction:'confirm-delete-schedule',danger:true});
-    if(action === 'confirm-delete-schedule'){closeTransient();return toast('Демонстрация удаления','Запрос не отправлен.','warning');}
-    if (action === "stop-job")
-      return openDialog({
-        eyebrow: "Парсер · остановка",
-        title: "Остановить активную задачу?",
-        body: `<p style="margin:0;color:var(--text-secondary);font-size:10px;line-height:1.6">POST /jobs/{id}/stop доступен только для running/pending. Backend вызывает Asynq CancelProcessing и помечает job cancelled; атомарность незавершённого batch отдельно не обещается.</p>`,
-        confirm: "Остановить задачу",
-        confirmAction: "confirm-stop",
-        danger: true,
-      });
-    if (action === "confirm-stop") {
-      closeTransient();
-      return toast(
-        "Stop contract подтверждён",
-        "Production вызывает /jobs/{id}/stop; standalone запрос не выполняет",
-        "warning",
-      );
-    }
-    if (action === "approve-review")
-      return toast(
-        "Approve payload проверен",
-        "Endpoint снимает needs_moderation у eligible IDs; standalone запрос не выполняет",
-        "warning",
-      );
-    if (action === "approve-comment")
-      return toast(
-        "Comment approve contract",
-        "Endpoint устанавливает is_hidden=false; audit entry не гарантируется",
-        "warning",
-      );
-    if (action === "delete-comment")
-      return openDialog({
-        eyebrow: "Модерация комментария",
-        title: "Удалить комментарий?",
-        body: `<div class="truth-note">${icon("triangle-alert")}<p>DELETE выполняет soft delete и не принимает reason body. Отдельное уведомление пользователю и audit entry backend не гарантирует.</p></div>`,
-        confirm: "Удалить",
-        confirmAction: "confirm-delete-comment",
-        danger: true,
-      });
-    if (action === "confirm-delete-comment") {
-      closeTransient();
-      return toast(
-        "Delete contract подтверждён",
-        "Production выполняет soft delete без body; standalone запрос не выполняет",
-        "warning",
-      );
-    }
-    if (action === "refresh-moderation")
-      return toast(
-        "Refresh contract",
-        "Production повторяет GET текущей queue; sample rows не изменены",
-        "warning",
-      );
-    if (action === "save-settings") {
-      const inputs=[...viewRoot.querySelectorAll('input:not([type="color"])')];
-      if(!inputs[0]?.value.trim() || inputs.slice(1).some(input=>!/^#[0-9a-f]{6}$/i.test(input.value))) return toast('Проверьте настройки','Нужны название и два цвета в формате #RRGGBB.','danger');
-      return toast('Локальная проверка пройдена','Данные не отправлены. Backend только хранит настройки; применение не подтверждено.','warning');
-    }
-    if (action === "save-parser-settings") {
-      const raw =
-        document.querySelector(".config-content textarea")?.value || "{}";
-      try {
-        const parsed = JSON.parse(raw);
-        if (!parsed || Array.isArray(parsed) || typeof parsed !== "object")
-          throw new Error("Config must be an object");
-      } catch {
-        return toast(
-          "Некорректный JSON",
-          "config должен быть JSON object",
-          "danger",
-        );
-      }
-      return toast(
-        "JSON прошёл локальную проверку",
-        "Production отправляет PATCH; Go runtime-consumer всё ещё не подтверждён",
-        "warning",
-      );
-    }
-    if (action === "settings-history") return navigate("audit");
-    if (action === "create-backup")
-      return openDialog({
-        eyebrow: "Backup · ручной запуск",
-        title: "Создать пару артефактов",
-        body: `<p class="dialog-copy">Один запуск создаёт две независимые записи: <strong>database</strong> и <strong>media</strong>. Их статусы и ошибки отслеживаются отдельно.</p><div class="artifact-preview"><span>${icon("database")}<strong>database</strong><small>PostgreSQL dump</small></span><span>${icon("images")}<strong>media</strong><small>Пользовательские файлы</small></span></div><div class="truth-note truth-note--dialog">${icon("shield-check")}<p>Restore намеренно отсутствует. Доступны только create, list, download и delete.</p></div>`,
-        confirm: "Создать database + media",
-        confirmAction: "confirm-backup",
-      });
-    if (action === "confirm-backup") {
-      closeTransient();
-      return toast(
-        "Backup request проверен",
-        "POST синхронно создаёт database и media; результат известен только после response",
-        "warning",
-      );
-    }
-    if (action === "download-backup")
-      return toast(
-        "Download contract",
-        "Production открывает GET /backups/{id}/download; временной signed URL нет",
-        "warning",
-      );
-    if (action === "delete-backup")
-      return openDialog({
-        eyebrow: `Backup B-${dataset.id}`,
-        title: "Удалить резервную копию?",
-        body: `<p style="margin:0;color:var(--text-secondary);font-size:10px;line-height:1.6">DELETE удаляет файл и registry row. Backend не обещает защиту «последней копии»; подтвердите точный artifact.</p>`,
-        confirm: "Удалить навсегда",
-        confirmAction: "confirm-delete-backup",
-        danger: true,
-      });
-    if (action === "confirm-delete-backup") {
-      closeTransient();
-      return toast(
-        "Delete contract подтверждён",
-        "Production удаляет файл и registry row; standalone запрос не выполняет",
-        "warning",
-      );
-    }
-    if (action === "create-schedule")
-      return openDialog({
-        eyebrow: "ParserSchedule · новая запись",
-        title: "Создать расписание",
-        body: `<div class="form-grid"><label class="field field--full"><span>Поддерживаемая задача</span><select id="schedule-operation"><option value="kodik:incremental">Kodik · incremental</option><option value="shikimori:calendar_snapshot">Shikimori · calendar snapshot</option></select><small>Full sync и Shikimori related refresh доступны только вручную.</small></label><label class="field field--full"><span>Cron expression</span><input id="schedule-cron" value="*/30 * * * *" required><small>Например: каждые 30 минут.</small></label><label class="field field--full"><span>Состояние</span><select><option>Активно</option><option>Выключено</option></select></label></div><div class="truth-note truth-note--dialog">${icon("clock-4")}<p>После создания <code>next_run_at</code> сначала будет now + 1h. Точный cron-time установит recovery-проход.</p></div>`,
-        confirm: "Создать расписание",
-        confirmAction: "confirm-schedule",
-      });
-    if (action === "confirm-schedule") {
-      if (!contracts.validCron(document.querySelector('#schedule-cron')?.value)) return toast('Некорректный cron','Нужны 5 корректных полей: минуты, часы, день, месяц, день недели.','danger');
-      closeTransient();
-      return toast(
-        "Schedule payload проверен",
-        "Production создаёт запись; next_run_at уточняется recovery-проходом",
-        "warning",
-      );
-    }
-    if (action === "edit-schedule")
-      return openDialog({
-        eyebrow: "ParserSchedule · редактирование",
-        title: "Изменить cron expression",
-        body: `<label class="field"><span>Cron expression</span><input id="schedule-cron" value="${dataset.operation === 'shikimori:calendar_snapshot' ? '0 4 * * *' : '*/30 * * * *'}"><small>Изменение cron не пересчитает текущий next_run_at мгновенно.</small></label>`,
-        confirm: "Сохранить cron",
-        confirmAction: "confirm-schedule-edit",
-      });
-    if (action === "confirm-schedule-edit") {
-      if (!contracts.validCron(document.querySelector('#schedule-cron')?.value)) return toast('Некорректный cron','Проверьте пять полей и их диапазоны.','danger');
-      closeTransient();
-      return toast(
-        "Cron payload проверен",
-        "Production сохраняет cron; standalone запрос не выполняет, next_run_at сразу не пересчитывается",
-        "warning",
-      );
-    }
-    if (action === "create-avatar-collection")
-      return openDialog({
-        eyebrow: "Avatar · новая запись",
-        title: "Добавить аватар",
-        body: `<div class="form-grid"><label class="field field--full"><span>title</span><input placeholder="Название аватара"></label><label class="field"><span>category</span><input placeholder="base"></label><label class="field"><span>is_active</span><select><option>true</option><option>false</option></select></label><label class="field field--full"><span>image_url</span><input placeholder="https://…"></label></div><p class="drawer-hint">Сначала создаётся запись POST /avatar-collection. Multipart upload доступен отдельным POST /avatar-collection/{id}/upload после получения id.</p>`,
-        confirm: "Добавить аватар",
-        confirmAction: "confirm-avatar-collection",
-      });
-    if (action === "confirm-avatar-collection") {
-      closeTransient();
-      return toast(
-        "Avatar payload проверен",
-        "Production создаёт одну avatar record; upload выполняется после получения id",
-        "warning",
-      );
-    }
-    if (action === "create-decoration")
-      return openDialog({
-        eyebrow: "Decoration · новая запись",
-        title: "Добавить декорацию",
-        body: `<div class="form-grid"><label class="field field--full"><span>title</span><input placeholder="Название декорации"></label><label class="field field--full"><span>image_url</span><input placeholder="https://…"></label><label class="field field--full"><span>is_active</span><select><option>true</option><option>false</option></select></label></div><p class="drawer-hint">Сначала создаётся запись POST /decorations. Multipart upload доступен отдельным POST /decorations/{id}/upload.</p>`,
-        confirm: "Добавить декорацию",
-        confirmAction: "confirm-decoration",
-      });
-    if (action === "confirm-decoration") {
-      closeTransient();
-      return toast(
-        "Decoration payload проверен",
-        "Production создаёт record; upload выполняется отдельным endpoint",
-        "warning",
-      );
-    }
-    if (action === "edit-asset")
-      return openDialog({
-        eyebrow: "Материалы профиля",
-        title: "Изменить свойства",
-        body: `<div class="form-grid"><label class="field field--full"><span>title</span><input value="Kitsu Plum"></label><label class="field field--full"><span>image_url</span><input value="/media/avatar_collection/sample.webp"></label><label class="field"><span>is_active</span><select><option>true</option><option>false</option></select></label><label class="field"><span>category · только Avatar</span><input value="base"></label></div><p class="drawer-hint">Sort order, draft и hidden status в моделях Avatar/Decoration отсутствуют.</p>`,
-        confirm: "Сохранить",
-        confirmAction: "confirm-asset",
-      });
-    if (action === "confirm-asset") {
-      closeTransient();
-      return toast(
-        "Asset payload проверен",
-        "Production отправляет PATCH; standalone запрос не выполняет",
-        "warning",
-      );
-    }
-    if (action === "delete-asset")
-      return openDialog({
-        eyebrow: "Материалы профиля",
-        title: "Удалить этот материал?",
-        body: `<p class="dialog-copy">DELETE удаляет запись. Ссылки users.decoration_id и users.active_avatar_id имеют ON DELETE SET NULL; автоматическая замена другим изображением не выполняется.</p>`,
-        confirm: "Удалить",
-        confirmAction: "confirm-delete-asset",
-        danger: true,
-      });
-    if (action === "confirm-delete-asset") {
-      closeTransient();
-      return toast(
-        "Delete contract подтверждён",
-        "Production удаляет record; linked user field станет null",
-        "warning",
-      );
-    }
-    if (action === "edit-user")
-      return openDialog({
-        eyebrow: "Пользователь · доступ",
-        title: "Назначить существующую роль",
-        body: `<div class="form-grid"><label class="field field--full"><span>role_id</span><select><option>user</option><option>moderator</option><option>admin</option><option>super_admin</option></select><small>Список загружается из read-only GET /roles/. PATCH пользователя принимает только существующий role_id.</small></label></div>`,
-        confirm: "Изменить роль",
-        confirmAction: "confirm-user-role",
-      });
-    if (action === "confirm-user-role") {
-      closeTransient();
-      return toast(
-        "Role payload проверен",
-        "Production отправляет существующий role_id; standalone запрос не выполняет",
-        "warning",
-      );
-    }
-    if (action === "unban-user")
-      return openDialog({
-        eyebrow: "Пользователь · active state",
-        title: "Разблокировать аккаунт?",
-        body: `<div class="truth-note">${icon("info")}<p>POST /users/{id}/unban восстанавливает active state. Дополнительного request body нет.</p></div>`,
-        confirm: "Разблокировать",
-        confirmAction: "confirm-unban",
-      });
-    if (action === "confirm-unban") {
-      closeTransient();
-      return toast(
-        "Unban contract подтверждён",
-        "Production вызывает endpoint без body; standalone запрос не выполняет",
-        "warning",
-      );
-    }
-    if (action === "ban-user")
-      return openDialog({
-        eyebrow: "Модерация пользователя",
-        title: "Заблокировать аккаунт?",
-        body: `<div class="truth-note">${icon("triangle-alert")}<p><strong>POST /users/{id}/ban не принимает body.</strong><br>Причина, срок и уведомление не добавляются в UI: backend меняет только active state и запрещает блокировать superuser.</p></div>`,
-        confirm: "Заблокировать",
-        confirmAction: "confirm-ban",
-        danger: true,
-      });
-    if (action === "confirm-ban") {
-      closeTransient();
-      return toast(
-        "Ban contract подтверждён",
-        "Production меняет active state без body; standalone запрос не выполняет",
-        "warning",
-      );
-    }
-    if (action === "change-password") {
-      closeTransient();
-      return openDialog({
-        eyebrow: "Аккаунт · безопасность",
-        title: "Сменить пароль",
-        body: `<div class="form-grid"><label class="field field--full"><span>current_password</span><input type="password" autocomplete="current-password"></label><label class="field field--full"><span>new_password</span><input type="password" autocomplete="new-password"><small>Backend проверяет длину 8–128 и отличие от текущего пароля; дополнительных composition rules нет.</small></label><label class="field field--full"><span>Повторите новый пароль</span><input type="password" autocomplete="new-password"><small>Повтор — клиентская проверка, в request body не отправляется.</small></label></div>`,
-        confirm: "Обновить пароль",
-        confirmAction: "confirm-password",
-      });
-    }
-    if (action === "confirm-password") {
-      closeTransient();
-      return toast(
-        "Password payload проверен",
-        "Production сохраняет fresh token pair для текущего устройства и отзывает остальные",
-        "warning",
-      );
-    }
-    if (action === "sign-out") {
-      closeTransient();
-      return toast(
-        "Standalone не хранит auth tokens",
-        "Production очищает локальные токены и перенаправляет на /login",
-        "warning",
-      );
-    }
-    if (action === "validate-url-local") {
-      const input = document.activeElement
-        ?.closest(".input-action")
-        ?.querySelector("input");
-      const raw = input?.value.trim() || "";
-      const valid = raw.startsWith("/") || /^https?:\/\/[^\s]+$/i.test(raw);
-      return toast(
-        valid ? "Формат URL допустим" : "Формат URL некорректен",
-        valid
-          ? "Это локальная schema-проверка; доступность источника неизвестна"
-          : "Используйте абсолютный http(s) URL или путь, начинающийся с /",
-        valid ? "warning" : "danger",
-      );
-    }
-    if (action === "preview-source-identity") return importPreview(9253);
-    if (action === "choose-anime")
-      return openDialog({
-        eyebrow: "GET /dashboard/parsers/anime-list",
-        title: "Выбрать Anime",
-        body: `<label class="field"><span>search</span><input value="Solo Leveling" autocomplete="off"></label><div class="truth-note truth-note--dialog">${icon("info")}<p>Production использует server search и возвращает id/slug/title. Текущее sample-значение не меняется без response.</p></div>`,
-        confirm: "Оставить текущий Anime",
-        confirmAction: "close-dialog",
-      });
-    if (action === "refresh-anime" || action === "refresh-poster")
-      return openDialog({
-        eyebrow: "Parser mutation · подтверждение",
-        title:
-          action === "refresh-anime"
-            ? "Обновить Anime по slug?"
-            : "Обновить poster_url из Shikimori?",
-        body: `<p class="dialog-copy">${action === "refresh-anime" ? "POST /dashboard/parsers/kodik/refresh/{slug} повторно импортирует данные." : "POST /dashboard/parsers/kodik/refresh-poster/{slug} меняет poster_url."} Перед вызовом production должен показать фактический slug и текущие значения.</p>`,
-        confirm: "Подтвердить mutation",
-        confirmAction:
-          action === "refresh-anime"
-            ? "confirm-refresh-anime"
-            : "confirm-refresh-poster",
-      });
-    if (
-      action === "confirm-refresh-anime" ||
-      action === "confirm-refresh-poster"
-    ) {
-      closeTransient();
-      return toast(
-        "Mutation contract подтверждён",
-        "Standalone запрос не выполняет",
-        "warning",
-      );
-    }
-    if (action === "view-collection")
-      return openDrawer({
-        eyebrow: "Collection · sample response",
-        title: "Смотрят сейчас",
-        body: `<section class="detail-section"><h4>Collection fields</h4><dl class="definition-list"><dt>id</dt><dd>COL-104</dd><dt>user_id</dt><dd>Значение owner из response</dd><dt>slug</dt><dd>watching-now</dd><dt>is_public</dt><dd>true</dd><dt>items_count</dt><dd>24</dd><dt>views_count</dt><dd>184203</dd><dt>likes_count</dt><dd>12842</dd></dl></section><div class="truth-note">${icon("shield-check")}<p>Superuser list не отменяет owner-check для PATCH/DELETE, поэтому drawer read-only.</p></div>`,
-      });
-    if (action === "view-audit")
-      return openDrawer({
-        eyebrow: `AuditLog ${dataset.id || "sample"}`,
-        title: "Метаданные события",
-        body: `<section class="detail-section"><h4>AuditLog fields</h4><dl class="definition-list"><dt>actor_id</dt><dd>UUID или null</dd><dt>actor_ip</dt><dd>10.24.18.7</dd><dt>action</dt><dd>Значение из response</dd><dt>resource_type / id</dt><dd>Значения из response</dd><dt>meta</dt><dd>JSON object; before/after diff не гарантирован</dd><dt>success / error_message</dt><dd>Фактические поля события</dd></dl></section>`,
-      });
-    if (action === "add-blacklist")
-      return openDialog({
-        eyebrow: "POST /dashboard/parsers/blacklist",
-        title: "Добавить blacklist entry",
-        body: `<div class="form-grid"><label class="field"><span>shikimori_id</span><input type="number"></label><label class="field"><span>kodik_id</span><input></label><label class="field field--full"><span>slug</span><input></label></div><p class="drawer-hint">Request принимает только эти три nullable поля. Rule type, operator и text match отсутствуют.</p>`,
-        confirm: "Проверить payload",
-        confirmAction: "confirm-add-blacklist",
-      });
-    if (action === "confirm-add-blacklist") {
-      closeTransient();
-      return toast(
-        "Blacklist payload проверен",
-        "Production выполняет POST; standalone запрос не выполняет",
-        "warning",
-      );
-    }
-    if (action === "remove-blacklist")
-      return openDialog({
-        eyebrow: "DELETE /dashboard/parsers/blacklist/{entry_id}",
-        title: "Удалить blacklist entry?",
-        body: `<p class="dialog-copy">Удаляется запись по UUID entry_id. В production dialog должен показать полный ID загруженной строки.</p>`,
-        confirm: "Удалить entry",
-        confirmAction: "confirm-remove-blacklist",
-        danger: true,
-      });
-    if (action === "confirm-remove-blacklist") {
-      closeTransient();
-      return toast(
-        "Delete contract подтверждён",
-        "Standalone запрос не выполняет",
-        "warning",
-      );
-    }
-    if (action === "skip-import") return closeTransient();
-    return toast(
-      "Действие отключено",
-      action
-        ? `Для «${action}» не найден проверенный handler в этом standalone template`
-        : "Не передан action identifier",
-      "warning",
-    );
-  }
-
-  document.addEventListener("click", (event) => {
-    const viewTarget = event.target.closest("[data-view]");
-    if (viewTarget) {
-      event.preventDefault();
-      navigate(viewTarget.dataset.view);
-      return;
-    }
-    const actionTarget = event.target.closest("[data-action]");
-    if (actionTarget) {
-      event.preventDefault();
-      if (actionTarget.dataset.action === "toggle-switch") {
-        toggleSwitch(actionTarget);
-        return;
-      }
-      if (actionTarget.dataset.action === 'validate-url-local') {
-        const input=actionTarget.closest('.input-action')?.querySelector('input');
-        const relative = !['url', 'embed_url'].includes(input?.name);
-        const valid=contracts.validUrl(input?.value || '', relative);
-        if(input) input.setAttribute('aria-invalid',String(!valid));
-        toast(valid?'Формат URL корректен':'Некорректный URL',valid?'Доступность ресурса не проверялась.':relative?'Укажите HTTP(S) URL или локальный /путь.':'Укажите HTTP(S) URL.',valid?'warning':'danger'); return;
-      }
-      // Remember what the action points at, so a dangerous confirmation can name it.
-      const holder = actionTarget.closest("tr, article, li, .moderation-card, .asset-card");
-      const named = holder?.querySelector("strong, h3, h2")?.textContent?.trim();
-      lastActionTarget = actionTarget.dataset.id || named || "";
-      handleAction(actionTarget.dataset.action, actionTarget.dataset);
-      return;
-    }
-    const filter = event.target.closest("[data-filter]");
-    if (filter) {
-      state.catalogFilter = filter.dataset.filter;
-      renderCurrent();
-      return;
-    }
-    const roleFilter = event.target.closest("[data-role-filter]");
-    if (roleFilter) {
-      state.usersRoleFilter = roleFilter.dataset.roleFilter;
-      renderCurrent();
-      return;
-    }
-    const parserTab = event.target.closest("[data-parser-tab]");
-    if (parserTab) {
-      state.parserTab = parserTab.dataset.parserTab;
-      history.replaceState(null, "", `#parsers/${state.parserTab}`);
-      renderCurrent();
-      return;
-    }
-    const conflictTab = event.target.closest("[data-conflict-tab]");
-    if (conflictTab) {
-      state.conflictTab = conflictTab.dataset.conflictTab;
-      history.replaceState(null, "", `#conflicts/${state.conflictTab}`);
-      renderCurrent();
-      return;
-    }
-    const settingsTab = event.target.closest("[data-settings-tab]");
-    if (settingsTab) {
-      state.settingsTab = settingsTab.dataset.settingsTab;
-      renderCurrent();
-      return;
-    }
-    const assetTab = event.target.closest("[data-asset-tab]");
-    if (assetTab) {
-      state.assetTab = assetTab.dataset.assetTab;
-      renderCurrent();
-      return;
-    }
-    const importMode = event.target.closest("[data-import-mode]");
-    if (importMode) {
-      state.importMode = importMode.dataset.importMode;
-      renderCurrent();
-      return;
-    }
-    const editorTab = event.target.closest("[data-editor-tab]");
-    if (editorTab) {
-      state.editorTab = editorTab.dataset.editorTab;
-      renderCurrent();
-      return;
-    }
-    const parserSettingsTab = event.target.closest(
-      "[data-parser-settings-tab]",
-    );
-    if (parserSettingsTab) {
-      state.parserSettingsTab = parserSettingsTab.dataset.parserSettingsTab;
-      renderCurrent();
-      return;
-    }
-    const moderationTab = event.target.closest("[data-moderation-tab]");
-    if (moderationTab) {
-      state.moderationTab = moderationTab.dataset.moderationTab;
-      history.replaceState(null, "", `#moderation/${state.moderationTab}`);
-      renderCurrent();
-      return;
-    }
-    const usersTab = event.target.closest("[data-users-tab]");
-    if (usersTab) {
-      state.usersTab = usersTab.dataset.usersTab;
-      renderCurrent();
-      return;
-    }
-    const commandTarget = event.target.closest("[data-command-index]");
-    if (commandTarget) {
-      executeCommand(
-        state.commandItems[Number(commandTarget.dataset.commandIndex)],
-      );
-      return;
-    }
-    const switchTarget = event.target.closest(".switch");
-    if (switchTarget) {
-      toggleSwitch(switchTarget);
-      return;
-    }
-    const simpleToggle = event.target.closest(
-      ".filter-chip, .segmented button, .tabs button",
-    );
-    if (simpleToggle) {
-      simpleToggle.parentElement
-        ?.querySelectorAll("button")
-        .forEach((button) =>
-          button.classList.toggle("is-active", button === simpleToggle),
-        );
-      return;
-    }
-    const paginationButton = event.target.closest(".pagination button");
-    if (paginationButton) {
-      const label = paginationButton.textContent.trim();
-      toast(
-        "Pagination contract",
-        /^\d+$/.test(label)
-          ? `Production записывает page=${label} в URL через nuqs и повторяет GET`
-          : "Production вычисляет соседнюю страницу через URL state и повторяет GET",
-        "warning",
-      );
-      return;
-    }
-    const looseFilter = event.target.closest(".filter-button");
-    if (looseFilter) {
-      handleAction("open-filters", looseFilter.dataset);
-      return;
-    }
-    if (
-      !event.target.closest("#notification-popover") &&
-      !event.target.closest("#notifications-trigger")
-    ) {
-      notificationPopover.hidden = true;
-      document
-        .querySelector("#notifications-trigger")
-        ?.setAttribute("aria-expanded", "false");
-    }
-  });
-
-  document.addEventListener("change", (event) => {
-    const animeSelect = event.target.closest("[data-select-anime]");
-    if (animeSelect) {
-      const id = Number(animeSelect.dataset.selectAnime);
-      if (animeSelect.checked) state.selectedAnime.add(id);
-      else state.selectedAnime.delete(id);
-      renderCurrent();
-      return;
-    }
-    if (event.target.id === "select-all-anime") {
-      if (event.target.checked)
-        filteredAnime().forEach((item) => state.selectedAnime.add(item.id));
-      else state.selectedAnime.clear();
-      renderCurrent();
-    }
-  });
-
-  document.addEventListener("input", (event) => {
-    if (event.target.id === "catalog-search") {
-      const position = event.target.selectionStart;
-      state.catalogQuery = event.target.value;
-      clearTimeout(state.catalogTimer);
-      state.catalogTimer = setTimeout(() => {
-        renderCurrent();
-        const input = document.querySelector("#catalog-search");
-        input?.focus();
-        input?.setSelectionRange(position, position);
-      }, 140);
-    }
-  });
-
-  document
-    .querySelector("#command-trigger")
-    .addEventListener("click", openCommand);
-  document
-    .querySelector("#mobile-search")
-    .addEventListener("click", openCommand);
-  document
-    .querySelector("#notifications-trigger")
-    .addEventListener("click", (event) => {
-      notificationPopover.hidden = !notificationPopover.hidden;
-      event.currentTarget.setAttribute(
-        "aria-expanded",
-        String(!notificationPopover.hidden),
-      );
-      hideTooltip(true);
-    });
-  document.querySelector("#menu-button").addEventListener("click", () => {
-    appShell.classList.add("is-mobile-open");
-    syncMobileSidebar();
-  });
-  document.querySelector("#mobile-more").addEventListener("click", () => {
-    appShell.classList.add("is-mobile-open");
-    syncMobileSidebar();
-  });
-  document.querySelector("#sidebar-close").addEventListener("click", () => {
-    appShell.classList.remove("is-mobile-open");
-    syncMobileSidebar();
-  });
-  document.querySelector("#sidebar-scrim").addEventListener("click", () => {
-    appShell.classList.remove("is-mobile-open");
-    syncMobileSidebar();
-  });
-  document.querySelector("#collapse-button").addEventListener("click", () => {
-    appShell.classList.toggle("is-collapsed");
-    localStorage.setItem(
-      "kitsu-sidebar-collapsed",
-      appShell.classList.contains("is-collapsed") ? "1" : "0",
-    );
-    setTimeout(refreshIcons, 0);
-  });
-  document.querySelector("#theme-toggle").addEventListener("click", () => {
-    const next =
-      document.documentElement.dataset.theme === "light" ? "dark" : "light";
-    const apply = () => {
-      document.documentElement.dataset.theme = next;
-      localStorage.setItem("kitsu-admin-theme", next);
-      document.querySelector('meta[name="theme-color"]').content =
-        next === "light" ? "#f4eee3" : "#0f0c0b";
-    };
-    if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      document.startViewTransition(apply);
-    } else {
-      apply();
-    }
-  });
-  document
-    .querySelector("#dialog-close")
-    .addEventListener("click", closeTransient);
-  document
-    .querySelector("#drawer-close")
-    .addEventListener("click", closeTransient);
-  overlay.addEventListener("click", closeTransient);
-  commandInput.addEventListener("input", () => {
-    state.commandIndex = 0;
-    renderCommandResults();
-  });
-  commandInput.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      state.commandIndex = Math.min(
-        state.commandIndex + 1,
-        state.commandItems.length - 1,
-      );
-      renderCommandResults();
-    }
-    if (event.key === "ArrowUp") {
-      event.preventDefault();
-      state.commandIndex = Math.max(state.commandIndex - 1, 0);
-      renderCommandResults();
-    }
-    if (event.key === "Enter") {
-      event.preventDefault();
-      executeCommand(state.commandItems[state.commandIndex]);
-    }
-  });
-  document.addEventListener("keydown", (event) => {
-    trapModalFocus(event);
-    if (event.key === "Escape") hideTooltip(true);
-    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-      event.preventDefault();
-      openCommand();
-    }
-    if (event.key === "Escape") {
-      closeTransient();
-      if (appShell.classList.contains("is-mobile-open")) {
-        appShell.classList.remove("is-mobile-open");
-        syncMobileSidebar();
-        document.querySelector("#menu-button").focus({ preventScroll: true });
-      }
-    }
-    if (
-      !event.metaKey &&
-      !event.ctrlKey &&
-      !event.altKey &&
-      ["1", "2", "3", "4"].includes(event.key) &&
-      !["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)
-    ) {
-      navigate(
-        ["overview", "catalog", "parsers", "monitoring"][Number(event.key) - 1],
-      );
-    }
-  });
-  function syncFromHash() {
-    const [view, tab] = location.hash.slice(1).split("/");
-    if (!renderers[view]) return;
-    state.currentView = view;
-    if (view === "parsers" && ["jobs", "logs", "sources"].includes(tab)) {
-      state.parserTab = tab;
-    }
-    if (
-      view === "conflicts" &&
-      ["pending", "auto", "resolved"].includes(tab)
-    ) {
-      state.conflictTab = tab;
-    }
-    if (view === "moderation" && ["import", "comments"].includes(tab)) {
-      state.moderationTab = tab;
-    }
-    renderCurrent();
-  }
-  window.addEventListener("hashchange", syncFromHash);
-  window.addEventListener("popstate", syncFromHash);
-  document.addEventListener("pointerover", (event) => {
-    if (event.pointerType === "touch") return;
-    const target = event.target.closest?.("[data-tooltip]");
-    if (
-      !target ||
-      (event.relatedTarget instanceof Node &&
-        target.contains(event.relatedTarget))
-    )
-      return;
-    showTooltip(target);
-  });
-  document.addEventListener("pointerout", (event) => {
-    const target = event.target.closest?.("[data-tooltip]");
-    if (
-      !target ||
-      (event.relatedTarget instanceof Node &&
-        target.contains(event.relatedTarget))
-    )
-      return;
-    hideTooltip();
-  });
-  document.addEventListener("focusin", (event) => {
-    const target = event.target.closest?.("[data-tooltip]");
-    if (target) showTooltip(target, 80);
-  });
-  document.addEventListener("focusout", (event) => {
-    if (event.target.closest?.("[data-tooltip]")) hideTooltip();
-  });
-  window.addEventListener("scroll", () => hideTooltip(true), { passive: true });
-  function syncMobileSidebar() {
-    const mobile = window.matchMedia("(max-width: 980px)").matches;
-    const open = appShell.classList.contains("is-mobile-open");
-    const hidden = mobile && !open;
-    const sidebar = document.querySelector("#sidebar");
-    const menuButton = document.querySelector("#menu-button");
-    sidebar.inert = hidden;
-    if (hidden) sidebar.setAttribute("aria-hidden", "true");
-    else sidebar.removeAttribute("aria-hidden");
-    menuButton.setAttribute("aria-expanded", String(mobile && open));
-  }
-
-  window.addEventListener("resize", () => {
-    hideTooltip(true);
-    syncMobileSidebar();
-  });
-
-  const savedTheme = localStorage.getItem("kitsu-admin-theme");
-  if (savedTheme === "light" || savedTheme === "dark")
-    document.documentElement.dataset.theme = savedTheme;
-  document.querySelector('meta[name="theme-color"]').content =
-    document.documentElement.dataset.theme === "light" ? "#f4eee3" : "#0f0c0b";
-  if (localStorage.getItem("kitsu-sidebar-collapsed") === "1")
-    appShell.classList.add("is-collapsed");
-  syncMobileSidebar();
-  renderCurrent();
+  window.KitsuAdmin = { renderers, state, toneForStatus, labelForStatus, describeRequest, sections };
+  render();
+  applyThemeColor();
+  tickLive();
 })();
