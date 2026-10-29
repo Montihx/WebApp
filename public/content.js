@@ -106,9 +106,11 @@
     // One row per episode: big local time, poster, title over a blurred still of the same title.
     function airRow(row) {
       const date = M.parseDateAsUtc(row.next_episode_at), diff = date.getTime() - Date.now(), air = M.airLabel(row.next_episode_at);
-      return `<a class="schedule-item schedule-item--air${diff > 0 ? '' : ' is-aired'}" href="${href(row.local_slug)}"><span class="air-backdrop" aria-hidden="true"><img src="${esc(row.local_poster)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span><time class="air-time" datetime="${row.next_episode_at}"><b>${fmt(date, { hour: '2-digit', minute: '2-digit' })}</b><span>${fmt(date, { weekday: 'short' })}</span></time><img class="air-poster" src="${esc(row.local_poster)}" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="air-copy"><strong>${esc(row.anime.russian)}</strong><small>${row.next_episode} серия${row.genres ? `<span class="air-genres"> · ${esc(row.genres)}</span>` : ''}</small><small class="schedule-countdown"${air && air.status !== 'past' ? '' : ' hidden'}>${air && air.status !== 'past' ? `Выйдет ${air.label}` : ''}</small><small class="air-done"${diff > 0 ? ' hidden' : ''}>Вышла</small></span></a>`;
+      return `<a class="schedule-item schedule-item--air${diff > 0 ? '' : ' is-aired'}" href="${href(row.local_slug)}"><span class="air-backdrop" aria-hidden="true"><img src="${esc(row.local_poster)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span><img class="air-poster" src="${esc(row.local_poster)}" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="air-copy"><strong>${esc(row.anime.russian)}</strong><small>${row.next_episode} серия${row.genres ? `<span class="air-genres"> · ${esc(row.genres)}</span>` : ''}</small><small class="schedule-countdown"${air && air.status !== 'past' ? '' : ' hidden'}>${air && air.status !== 'past' ? `Выйдет ${air.label}` : ''}</small><small class="air-done"${diff > 0 ? ' hidden' : ''}>Вышла</small></span><time class="air-time" datetime="${row.next_episode_at}"><span>${fmt(date, { weekday: 'short' })}</span><b>${fmt(date, { hour: '2-digit', minute: '2-digit' })}</b></time></a>`;
     }
-    const nowLine = () => `<div class="air-now" role="presentation"><span>Сейчас у вас <b data-now-clock>${fmt(new Date(), { hour: '2-digit', minute: '2-digit' })}</b></span></div>`;
+    // "Сейчас у вас" lives in the card header, not between rows.
+    const clock = () => fmt(new Date(), { hour: '2-digit', minute: '2-digit' });
+    $('#schedule-title')?.closest('.schedule-head')?.querySelector('.section-kicker')?.insertAdjacentHTML('afterend', `<p class="air-clock" aria-live="off"><span>Сейчас у вас</span><b id="schedule-now">${clock()}</b></p>`);
     function renderItems() {
       const rows = schedule.filter(row => M.dateKey(M.parseDateAsUtc(row.next_episode_at)) === activeKey);
       const panel = $('#schedule-items');
@@ -119,9 +121,7 @@
         window.lucide?.createIcons?.({ attrs: { 'aria-hidden': 'true' } });
         return;
       }
-      const isToday = activeKey === M.dateKey(new Date());
-      const firstFuture = rows.findIndex(row => M.parseDateAsUtc(row.next_episode_at) > new Date());
-      panel.innerHTML = rows.map((row, index) => `${isToday && index === (firstFuture < 0 ? rows.length : firstFuture) ? nowLine() : ''}${airRow(row)}`).join('') + (isToday && firstFuture < 0 ? nowLine() : '');
+      panel.innerHTML = rows.map(airRow).join('');
     }
     function selectDay(key, focus = false) {
       activeKey = key;
@@ -149,7 +149,7 @@
       { id: 5114, title: 'Стальной алхимик: Братство', slug: 'fullmetal-alchemist-brotherhood', kind: 'tv', last_episode_number: 64, last_translation_team: 'AniDUB', last_release_at: at(-3, 11, 30) },
       { id: 1, title: 'Ковбой Бибоп', slug: 'cowboy-bebop', kind: 'tv', last_episode_number: null, last_translation_team: null, last_release_at: at(-4, 18) },
     ];
-    $('#update-items').innerHTML = updates.map(row => { const date = M.parseDateAsUtc(row.last_release_at); return `<a class="schedule-item" href="${href(row.slug)}"><img src="${M.poster(row.id)}" alt="" loading="lazy" referrerpolicy="no-referrer"><span><strong>${esc(row.title)}</strong><small>${esc(M.updateLabel(row))}</small><small>${M.kindLabel(row.kind)}</small></span><time datetime="${row.last_release_at}"><span>${fmt(date, { day: 'numeric', month: 'short' })}</span><b>${fmt(date, { hour: '2-digit', minute: '2-digit' })}</b></time></a>`; }).join('');
+    $('#update-items').innerHTML = updates.map(row => { const date = M.parseDateAsUtc(row.last_release_at); return `<a class="schedule-item schedule-item--air schedule-item--update" href="${href(row.slug)}"><span class="air-backdrop" aria-hidden="true"><img src="${M.poster(row.id)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span><img class="air-poster" src="${M.poster(row.id)}" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="air-copy"><strong>${esc(row.title)}</strong><small>${esc(M.updateLabel(row))}</small><small>${M.kindLabel(row.kind)}</small></span><time class="air-time" datetime="${row.last_release_at}"><span>${fmt(date, { day: 'numeric', month: 'short' })}</span><b>${fmt(date, { hour: '2-digit', minute: '2-digit' })}</b></time></a>`; }).join('');
     renderDays(); renderItems();
     let renderedDate = M.dateKey(new Date());
     function refresh() {
@@ -169,13 +169,8 @@
         if (countdown) { countdown.hidden = diff <= 0; if (air && diff > 0) countdown.textContent = `Выйдет ${air.label}`; }
         if (done) done.hidden = diff > 0;
       });
-      // The "now" line moves by moving the node itself, so links and focus stay put.
-      $('#schedule-items').querySelectorAll('.air-now').forEach(line => {
-        line.querySelectorAll('[data-now-clock]').forEach(clock => { clock.textContent = fmt(new Date(), { hour: '2-digit', minute: '2-digit' }); });
-        const next = [...line.parentElement.querySelectorAll('.schedule-item:not(.is-aired)')][0];
-        if (next && next.previousElementSibling !== line) line.parentElement.insertBefore(line, next);
-        if (!next && line.nextElementSibling) line.parentElement.append(line);
-      });
+      const nowClock = $('#schedule-now');
+      if (nowClock) nowClock.textContent = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     }
     let timer = setInterval(refresh, 60000);
     addEventListener('pagehide', () => clearInterval(timer));
