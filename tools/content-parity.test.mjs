@@ -121,3 +121,38 @@ test('review harness follows actual DOM views and history navigation, including 
   assert.match(html,/candidate.hash === current.hash/);
   assert.match(html,/url:doc.URL/);
 });
+test('next episode reads in plain words and disappears a day after release', () => {
+  const now = Date.parse('2026-09-03T00:00:00Z');
+  assert.equal(M.airLabel('2026-09-03T00:20:00Z', now).label, 'через 20 мин');
+  assert.equal(M.airLabel('2026-09-03T05:10:00Z', now).label, 'через 5 ч 10 мин');
+  assert.equal(M.airLabel('2026-09-03T05:00:00Z', now).label, 'через 5 ч');
+  assert.equal(M.airLabel('2026-09-05T00:00:00Z', now).label, 'через 2 дня');
+  assert.equal(M.airLabel('2026-09-08T00:00:00Z', now).label, 'через 5 дней');
+  assert.equal(M.airLabel('2026-09-04T00:00:00Z', now).label, 'через 1 день');
+  assert.equal(M.airLabel('2026-09-02T20:00:00Z', now).status, 'past');
+  for (const value of ['2026-09-01T00:00:00Z', null, 'garbage']) assert.equal(M.airLabel(value, now), null);
+});
+test('every relation has a caption, a kanji for its ofuda and a tone', () => {
+  for (const key of Object.keys(M.relations)) {
+    assert.ok(M.relationKanji[key], key);
+    assert.match(M.relationTone(key), /^(before|after|side)$/);
+  }
+  assert.equal(M.relationTone('Prequel'), 'before');
+  assert.equal(M.relationTone('Sequel'), 'after');
+  assert.equal(M.plural(2, 'тайтл', 'тайтла', 'тайтлов'), 'тайтла');
+  assert.equal(M.plural(11, 'тайтл', 'тайтла', 'тайтлов'), 'тайтлов');
+  assert.equal(M.plural(21, 'тайтл', 'тайтла', 'тайтлов'), 'тайтл');
+});
+test('related titles render as posters with an ofuda and the current one is marked', () => {
+  const source = read('public/content.js');
+  assert.match(source, /class="relation-card is-current" aria-current="page"/);
+  assert.match(source, /ofuda ofuda--relation ofuda--rel-\$\{tone\}/);
+  assert.match(source, /alt="Постер «\$\{esc\(row.title\)\}»"/);
+});
+test('schedule rows carry a blurred still of the same title and a moving now line', () => {
+  const source = read('public/content.js');
+  assert.match(source, /class="air-backdrop" aria-hidden="true"><img src="\$\{esc\(row.local_poster\)\}" alt=""/);
+  const refresh = source.slice(source.indexOf('    function refresh()'), source.indexOf('    let timer'));
+  assert.match(refresh, /insertBefore\(line, next\)/);
+  assert.doesNotMatch(refresh, /innerHTML/);
+});

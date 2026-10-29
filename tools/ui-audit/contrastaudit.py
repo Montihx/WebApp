@@ -35,7 +35,7 @@ async def main():
             pg=await b.new_page(viewport={'width':1440,'height':900})
             await pg.add_init_script(f"localStorage.setItem('kitsu-theme','{theme}');localStorage.setItem('kitsu-admin-theme','{theme}');localStorage.setItem('kitsu-palette','{pal}')")
             await pg.emulate_media(reduced_motion='reduce')
-            for u in ['','public/','public/anime.html','public/anime.html?title=steins-gate']:
+            for u in ['','public/','public/anime.html','public/anime.html?title=steins-gate','public/anime.html?title=one-piece']:
                 await pg.goto('http://127.0.0.1:4173/'+u); await pg.wait_for_timeout(900)
                 for x in await pg.evaluate(JS): seen.setdefault(x.split(' ',1)[1],[]).append(f'{theme}/{pal} {u or "root"} {x.split(" ")[0]}')
             await pg.goto('http://127.0.0.1:4173/admin/'); await pg.wait_for_timeout(800)
