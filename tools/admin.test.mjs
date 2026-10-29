@@ -70,10 +70,10 @@ test('every detail page renders a heading, never prints undefined, null or NaN, 
     assert.match(html, /<h1>/, `${route}/${param}`);
     assert.doesNotMatch(html.replace(/<[^>]+>/g, ' '), /\bundefined\b|\bnull\b|\bNaN\b/, `${route}/${param}`);
   }
-  const item = D.anime[0];
+  const item = D.anime.find(a => D.episodes.some(e => e.anime_slug === a.slug));
   admin.state.editing.episode = 'new';
   assert.match(admin.details['catalog/titles'](item.slug), /data-edit="episode"/);
-  const ep = D.episodes.find(e => e.anime_slug === item.slug) || { id: `syn-${item.slug}-${item.episodes_aired}` };
+  const ep = D.episodes.find(e => e.anime_slug === item.slug);
   admin.state.editing.episode = ep.id;
   admin.state.editing.release = `new-${ep.id}`;
   const open = admin.details['catalog/titles'](item.slug);
@@ -180,4 +180,25 @@ test('admin stylesheet keeps rectangular shapes and icon-only buttons without pl
   const iconBtn = [...css.matchAll(/(^|\n)\.icon-btn\s*\{([^}]*)\}/g)].map(m => m[2]).join('\n');
   assert.match(iconBtn, /background:\s*transparent/);
   assert.match(iconBtn, /border:\s*0/);
+});
+
+test('parser settings keep every stored field, including ones without a control', () => {
+  /* PATCH /dashboard/parsers/settings/{category} replaces config whole: a key missing from the template data would be wiped. */
+  for (const { category, fields } of D.settings.parserArchive) {
+    const config = D.parserConfig[category];
+    assert.ok(config, category);
+    for (const field of fields) assert.ok(field in config, `${category}.${field}`);
+  }
+});
+
+test('sample episodes and sources are read-only: no edit, delete or save targets a made-up id', () => {
+  for (const item of D.anime) {
+    for (const episode of [null, ...D.episodes.filter(e => e.anime_slug === item.slug).map(e => e.id), `syn-${item.slug}-${item.episodes_aired}`]) {
+      admin.state.editing = { schedule: null, episode, release: null };
+      const html = admin.details['catalog/titles'](item.slug);
+      assert.doesNotMatch(html, /data-(?:id|request-key)="syn-|data-id="[^"]*-r\d+"/, item.slug);
+      assert.doesNotMatch(html, /data-edit="episode"[^>]*data-id="syn-/, item.slug);
+    }
+  }
+  admin.state.editing = { schedule: null, episode: null, release: null };
 });
