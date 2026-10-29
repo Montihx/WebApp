@@ -2598,3 +2598,123 @@ html[data-theme="light"] .title-backdrop-plane {
   background: none;
   box-shadow: none;
 }
+
+/* ==========================================================================
+   Связанные тайтлы постерами: отношение — на офуде, как статус в каталоге
+   ========================================================================== */
+:root #watch-order-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 22px 18px;
+  margin-top: 18px;
+}
+:root #watch-order-list li + li { border-top: 0; }
+:root .watch-order :is(ol, ul) > li > .relation-card { border-radius: 0; }
+.relation-card { display: grid; gap: 10px; align-content: start; color: var(--text); text-decoration: none; }
+.relation-poster {
+  position: relative; display: block; aspect-ratio: 150 / 216; overflow: hidden;
+  border: 1px solid var(--glass-line); border-radius: 14px; background: var(--surface-raised);
+  container-type: inline-size;
+  transition: transform var(--dur-2) var(--ease-out), border-color var(--dur-2), box-shadow var(--dur-2);
+}
+.relation-poster > img { width: 100%; height: 100%; object-fit: cover; }
+.relation-poster::after {
+  content: ""; position: absolute; inset: auto 0 0; height: 46%; pointer-events: none;
+  background: linear-gradient(0deg, rgba(var(--media-ink-rgb), 0.78), transparent);
+}
+a.relation-card:hover .relation-poster,
+a.relation-card:focus-visible .relation-poster { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 55%, transparent); box-shadow: 0 18px 36px -22px var(--accent-glow); }
+a.relation-card:focus-visible { outline: none; }
+a.relation-card:focus-visible .relation-poster { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+.relation-card.is-current .relation-poster { border-color: var(--kitsunebi); box-shadow: 0 0 0 1px var(--kitsunebi), 0 0 26px -8px var(--kitsunebi-glow); }
+.relation-step {
+  position: absolute; z-index: 3; left: 8px; bottom: 8px; padding: 3px 5px;
+  border-radius: 4px; background: rgba(var(--media-ink-rgb), 0.72);
+  color: var(--media-text); font: 600 12px/1 var(--font-mono); letter-spacing: 0.06em;
+}
+.relation-copy { display: grid; gap: 4px; min-width: 0; }
+.relation-copy strong { font-size: 0.9375rem; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
+.relation-meta { display: flex; flex-wrap: wrap; gap: 2px 10px; color: var(--text-muted); font-size: var(--type-meta); }
+:root .ofuda--relation { max-height: calc(100% - 40px); background: rgba(var(--media-ink-rgb), 0.78); }
+:root .ofuda--rel-before { --ofuda-tone: var(--accent-2); }
+:root .ofuda--rel-after { --ofuda-tone: var(--accent); }
+:root .ofuda--rel-side { --ofuda-tone: var(--text-muted); }
+:root .ofuda--rel-current { --ofuda-tone: var(--kitsunebi); box-shadow: inset 0 2px 0 var(--kitsunebi), 0 0 14px -4px var(--kitsunebi-glow); }
+@media (max-width: 720px) {
+  :root #watch-order-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 12px; }
+}
+
+/* ==========================================================================
+   Следующая серия под названием: лисий огонь — только для «выходит сейчас»
+   ========================================================================== */
+.next-episode {
+  display: inline-flex; align-items: center; gap: 8px; width: fit-content; max-width: 100%;
+  margin-top: 12px; padding: 6px 12px 6px 10px;
+  border: 1px solid color-mix(in srgb, var(--kitsunebi) 45%, transparent); border-radius: var(--radius-sm);
+  background: var(--kitsunebi-soft); color: var(--kitsunebi-text);
+  font-size: 0.875rem; font-weight: 600; white-space: nowrap;
+}
+.next-episode b { color: var(--text); font-weight: 700; }
+.next-episode__fire {
+  flex: none; width: 8px; height: 8px; border-radius: 2px; background: var(--kitsunebi);
+  box-shadow: 0 0 10px var(--kitsunebi-glow); transform: rotate(45deg);
+  animation: kitsunebi-flicker 3s ease-in-out infinite;
+}
+.next-episode--past { border-color: color-mix(in srgb, var(--green) 45%, transparent); background: var(--green-soft); color: var(--green); }
+.next-episode--past .next-episode__fire { background: var(--green); box-shadow: none; animation: none; }
+@media (max-width: 720px) {
+  .next-episode { order: 1; margin-top: 14px; }
+}
+
+/* ==========================================================================
+   Расписание: строка серии на размытом кадре этого же тайтла
+   ========================================================================== */
+:root .schedule-card .schedule-item--air {
+  grid-template-columns: 92px 52px minmax(0, 1fr);
+  gap: 14px; min-height: 96px; padding: 12px 16px 12px 14px; overflow: hidden; isolation: isolate;
+}
+:root .schedule-card .schedule-item--air .air-backdrop { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+:root .schedule-card .schedule-item--air .air-backdrop img {
+  position: absolute; inset: -24px; width: calc(100% + 48px); height: calc(100% + 48px); max-width: none;
+  border-radius: 0; outline: 0; object-fit: cover; object-position: center 30%;
+  filter: blur(16px) saturate(1.35); opacity: 0.75; transform: scale(1.05);
+}
+/* Слева — почти сплошная подложка под временем и названием, вправо кадр проступает. */
+:root .schedule-card .schedule-item--air .air-backdrop::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 94%, transparent) 0%, color-mix(in srgb, var(--surface) 80%, transparent) 50%, color-mix(in srgb, var(--surface) 30%, transparent) 100%);
+}
+:root .schedule-card .schedule-item--air:hover .air-backdrop img { opacity: 0.8; }
+:root .schedule-card .schedule-item--air .air-time { display: grid; gap: 2px; align-content: center; justify-items: start; text-align: left; }
+:root .schedule-card .schedule-item--air .air-time > b {
+  display: block; font: 400 1.375rem/1.2 var(--font-heading); text-align: left; white-space: nowrap;
+  background: var(--accent-grad); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+}
+:root .schedule-card .schedule-item--air .air-time > span { display: block; text-align: left; text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.6875rem; }
+:root .schedule-card .schedule-item--air .air-poster { width: 52px; height: 74px; border-radius: 10px; }
+:root .schedule-card .schedule-item--air .air-copy { display: grid; gap: 4px; min-width: 0; }
+:root .schedule-card .schedule-item--air .air-copy strong { font-size: 1rem; }
+:root .schedule-card .schedule-item--air .air-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); }
+:root .schedule-card .schedule-item--air .air-done { color: var(--green); font-weight: 600; }
+:root .schedule-card .schedule-item--air.is-aired .air-time > b { background: none; color: var(--text-muted); -webkit-text-fill-color: var(--text-muted); }
+:root .schedule-card .schedule-item--air.is-aired .air-poster { filter: saturate(0.6); }
+
+/* «Сейчас у вас 11:32»: тонкая линия лисьего огня между вышедшими и ещё не вышедшими. */
+.air-now { position: relative; display: flex; align-items: center; gap: 10px; margin: 2px 0; color: var(--kitsunebi-text); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.air-now::before { content: ""; width: 8px; height: 8px; flex: none; border-radius: 2px; background: var(--kitsunebi); box-shadow: 0 0 10px var(--kitsunebi-glow); transform: rotate(45deg); }
+.air-now::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--kitsunebi), transparent); }
+.air-now b { font-family: var(--font-mono); font-weight: 600; letter-spacing: 0; color: var(--text); }
+:root .schedule-empty strong { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 400; letter-spacing: 0.02em; }
+:root .schedule-empty svg { color: var(--accent-text); }
+@media (max-width: 420px) {
+  :root .schedule-card .schedule-item--air { grid-template-columns: 70px 44px minmax(0, 1fr); gap: 10px; padding: 10px 12px 10px 10px; }
+  :root .schedule-card .schedule-item--air .air-time > b { font-size: 1.125rem; }
+  :root .schedule-card .schedule-item--air .air-poster { width: 44px; height: 62px; }
+}
+@media (max-width: 560px) {
+  :root .schedule-card .schedule-item--air .air-genres { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .next-episode__fire { animation: none; }
+}

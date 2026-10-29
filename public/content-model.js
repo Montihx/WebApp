@@ -2,6 +2,26 @@
 (() => {
   'use strict';
   const relations = { Prequel: 'Предыстория', Sequel: 'Продолжение', Parent: 'Основная история', 'Side story': 'Другая история', Summary: 'Обобщение', Alternative: 'Альтернативная история', 'Alternative setting': 'Альтернативная история', Other: 'Прочее', Franchise: 'Франшиза', Adaptation: 'Адаптация' };
+  // Kanji on the ofuda over a related poster; the Russian caption next to it is the real label.
+  const relationKanji = { Prequel: '前', Sequel: '続', Parent: '本', 'Side story': '外', Summary: '総', Alternative: '異', 'Alternative setting': '異', Other: '他', Franchise: '系', Adaptation: '原' };
+  // Tone of the ofuda stripe: what came before, what comes after, everything else.
+  const relationTone = relation => ({ Prequel: 'before', Parent: 'before', Sequel: 'after' }[relation] || 'side');
+  function plural(n, one, few, many) {
+    const a = Math.abs(n) % 100, b = a % 10;
+    return a > 10 && a < 20 ? many : b > 1 && b < 5 ? few : b === 1 ? one : many;
+  }
+  // "через 2 дня", "через 3 ч 10 мин", "через 25 мин"; a fresh release reads "вышла сегодня".
+  function airLabel(value, now = Date.now()) {
+    const date = parseDateAsUtc(value);
+    if (!date) return null;
+    const diff = date.getTime() - now;
+    if (diff <= 0) return -diff < 26 * 3600000 ? { status: 'past', label: 'вышла' } : null;
+    const minutes = Math.max(1, Math.ceil(diff / 60000));
+    if (minutes < 60) return { status: 'soon', label: `через ${minutes} мин` };
+    if (minutes < 1440) { const h = Math.floor(minutes / 60), m = minutes % 60; return { status: 'today', label: `через ${h} ч${m ? ` ${m} мин` : ''}` }; }
+    const days = Math.round(minutes / 1440);
+    return { status: 'later', label: `через ${days} ${plural(days, 'день', 'дня', 'дней')}` };
+  }
   const kindLabel = kind => ({ tv: 'ТВ-сериал', tv_13: 'ТВ-сериал', tv_24: 'ТВ-сериал', movie: 'Фильм', film: 'Фильм', ova: 'OVA', ona: 'ONA', special: 'Спешл', tv_special: 'ТВ-спешл', music: 'Клип' }[String(kind).toLowerCase()] || kind || 'Аниме');
   function parseDateAsUtc(value) {
     if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T/.test(value)) return null;
@@ -77,5 +97,5 @@
     [33352, 'violet-evergarden', 'Вайолет Эвергарден', 13],
     [54857, 're-zero-3', 'Re:Zero 3', 0, 'announced'],
   ]) titles[slug] = { id: String(id), slug, title, episodes_total: episodes, status, kind: 'tv', poster_url: poster(id), related: [], description: 'Демонстрационные данные карточки из каталога шаблона. Полные сведения, описание и доступные релизы загружаются из Anime response при интеграции.' };
-  window.KitsuContent = { relations, kindLabel, parseDateAsUtc, dateKey, formatCountdown, countdownState, watchOrder, mergeSchedule, scheduleDays, updateLabel, titles, poster };
+  window.KitsuContent = { relations, relationKanji, relationTone, plural, airLabel, kindLabel, parseDateAsUtc, dateKey, formatCountdown, countdownState, watchOrder, mergeSchedule, scheduleDays, updateLabel, titles, poster };
 })();
