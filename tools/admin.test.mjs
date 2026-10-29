@@ -17,7 +17,7 @@ function loadAdmin() {
   runInContext(read('admin/data.js'), context);
   runInContext(read('admin/contracts.js'), context);
   const cut = app.indexOf('  function refreshIcons(');
-  runInContext(`${app.slice(0, cut)}window.audit = { renderers, state, sections, pages };})();`, context);
+  runInContext(`${app.slice(0, cut)}window.audit = { renderers, details, state, sections, pages };})();`, context);
   return { ...window.audit, D: window.KitsuAdminData, C: window.KitsuAdminContracts };
 }
 const admin = loadAdmin();
@@ -26,7 +26,7 @@ const { C, D } = admin;
 test('every section page has a renderer and every renderer is reachable from navigation', () => {
   const routes = [...admin.sections.flatMap(s => s.pages.map(p => p.id))].sort();
   assert.deepEqual(Object.keys(admin.renderers).sort(), routes);
-  assert.equal(routes.length, 21);
+  assert.equal(routes.length, 31);
 });
 
 test('every screen renders a heading and never prints undefined, null or NaN', () => {
@@ -55,13 +55,52 @@ test('no emoji or symbol substitutes anywhere in the admin source', () => {
   }
 });
 
+/* Страницы записей: каждый тайтл, задача и пользователь из демо-данных, новый тайтл и несуществующий адрес. */
+function detailPages() {
+  const out = [];
+  const slugs = [...new Set([...D.anime.map(a => a.slug), ...D.moderation.map(m => m.slug), 'new', 'no-such-title'])];
+  slugs.forEach(slug => out.push(['catalog/titles', slug]));
+  D.jobs.forEach(j => out.push(['parser/jobs', j.id]));
+  D.users.forEach(u => out.push(['people/users', u.id]));
+  return out;
+}
+test('every detail page renders a heading, never prints undefined, null or NaN, and survives open inline editors', () => {
+  for (const [route, param] of detailPages()) {
+    const html = admin.details[route](param);
+    assert.match(html, /<h1>/, `${route}/${param}`);
+    assert.doesNotMatch(html.replace(/<[^>]+>/g, ' '), /\bundefined\b|\bnull\b|\bNaN\b/, `${route}/${param}`);
+  }
+  const item = D.anime[0];
+  admin.state.editing.episode = 'new';
+  assert.match(admin.details['catalog/titles'](item.slug), /data-edit="episode"/);
+  const ep = D.episodes.find(e => e.anime_slug === item.slug) || { id: `syn-${item.slug}-${item.episodes_aired}` };
+  admin.state.editing.episode = ep.id;
+  admin.state.editing.release = `new-${ep.id}`;
+  const open = admin.details['catalog/titles'](item.slug);
+  assert.match(open, /data-edit="release"/);
+  assert.doesNotMatch(open.replace(/<[^>]+>/g, ' '), /\bundefined\b|\bnull\b|\bNaN\b/);
+  admin.state.editing = { schedule: 'new', episode: null, release: null };
+  assert.match(admin.renderers['parser/schedule'](), /data-edit="schedule"/);
+  admin.state.editing.schedule = D.schedules[0].id;
+  assert.match(admin.renderers['parser/schedule'](), /data-freq="cron_expression"/);
+  admin.state.editing = { schedule: null, episode: null, release: null };
+});
+
+test('no technical cron, field names or drawer panels leak into the interface', () => {
+  const html = [...Object.values(admin.renderers).map(r => r()), ...detailPages().map(([r, p]) => admin.details[r](p))].join('\n');
+  const text = html.replace(/<[^>]+>/g, ' ');
+  assert.doesNotMatch(text, /\*\/\d+ \* \* \* \*|\b\d+ \d+ \* \* [\d*]\b/, 'cron виден человеку');
+  assert.doesNotMatch(html, /<code>[a-z_]+<\/code>/, 'имя поля вместо подписи');
+  assert.doesNotMatch(app, /drawer|subnav/i, 'выезжающие панели вернулись');
+});
+
 test('every rendered action has a handler and every request key has a contract and a description', () => {
-  const html = Object.values(admin.renderers).map(r => r()).join('\n');
+  const html = [...Object.values(admin.renderers).map(r => r()), ...detailPages().map(([r, p]) => admin.details[r](p))].join('\n');
   const handler = app.slice(app.indexOf('  function handleAction('), app.indexOf('  function runRequest('));
   const actions = new Set([...html.matchAll(/data-action="([^"]+)"/g)].map(m => m[1]));
   for (const action of actions) assert.ok(handler.includes(`case "${action}"`), action);
   const describe = app.slice(app.indexOf('  function describeRequest('), app.indexOf('  /* ==========', app.indexOf('  function describeRequest(')));
-  const keys = new Set([...app.matchAll(/request\("([a-zA-Z.]+)"/g), ...app.matchAll(/data-request-key="\$\{isNew \? "([a-zA-Z.]+)" : "([a-zA-Z.]+)"/g)].flatMap(m => m.slice(1).filter(Boolean)));
+  const keys = new Set([...app.matchAll(/request\("([a-zA-Z.]+)"/g), ...app.matchAll(/editForm\("[^"]+", (?:isNew \? )?"([a-zA-Z.]+)"(?: : "([a-zA-Z.]+)")?/g), ...app.matchAll(/requestKey: "([a-zA-Z.]+)"/g)].flatMap(m => m.slice(1).filter(Boolean)));
   for (const key of keys) {
     assert.ok(C.endpoints[key], `нет контракта ${key}`);
   }
@@ -86,6 +125,8 @@ test('cron helpers translate Almaty wall time to UTC cron and back', () => {
   assert.equal(C.validCron('*/30 * * * *'), true);
   assert.equal(C.validCron('0 3 * *'), false);
   assert.deepEqual([...C.fireMinutes('0 4 * * *')], [540]);
+  assert.equal(C.describeCron('0 */6 * * *').text, 'Каждые 6 часов');
+  assert.deepEqual([...C.fireMinutes('0 */6 * * *')], [300, 660, 1020, 1380]);
   assert.equal(C.fireMinutes('*/5 * * * *').length, 96, 'шаг пульса 15 минут');
 });
 

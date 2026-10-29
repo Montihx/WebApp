@@ -87,7 +87,8 @@
 
     "site.get": ["GET", "/system/settings/site", SU, "ключи site_name, maintenance_mode, allow_registration, accent_primary, accent_danger"],
     "site.update": ["PATCH", "/system/settings/site", SU, "только UPDATE существующих ключей; неизвестные молча пропускаются; сайт эти значения не читает"],
-    "parserSettings.list": ["GET", "/dashboard/parsers/settings", SU, "архив: текущий бэкенд эти значения не читает"],
+    "parserSettings.list": ["GET", "/dashboard/parsers/settings", SU, "текущий воркер эти значения не читает"],
+    "parserSettings.update": ["PATCH", "/dashboard/parsers/settings/{category}", SU, "config и description заменяются целиком: что не прислано — пропадёт, без description станет null; в журнал действий не пишется"],
   };
 
   /* Право → что оно реально открывает (authmw.RequirePermissions). */
@@ -196,6 +197,11 @@
       const note = n < 15 ? `Пульс срабатывает раз в 15 минут, поэтому чаще, чем раз в 15 минут, задача не пойдёт` : "";
       return { ok: true, text: `Каждые ${n} ${plural(n, "минуту", "минуты", "минут")}`, note, kind: "every", n };
     }
+    const everyH = /^\*\/(\d+)$/.exec(h);
+    if (/^\d+$/.test(mi) && everyH && dom === "*" && mon === "*" && dow === "*") {
+      const n = +everyH[1];
+      return { ok: true, text: `Каждые ${n} ${plural(n, "час", "часа", "часов")}`, kind: "hours", n, minute: +mi };
+    }
     if (/^\d+$/.test(mi) && h === "*" && dom === "*" && mon === "*" && dow === "*") {
       return { ok: true, text: `Каждый час в :${pad(+mi)}`, kind: "hourly", minute: +mi };
     }
@@ -228,6 +234,7 @@
       return Array.from({ length: Math.floor(1440 / step) }, (_, i) => i * step);
     }
     if (d.kind === "hourly") return Array.from({ length: 24 }, (_, i) => i * 60 + d.minute);
+    if (d.kind === "hours") return Array.from({ length: Math.ceil(24 / d.n) }, (_, i) => ((i * d.n + OFFSET_H) % 24) * 60 + d.minute).sort((a, b) => a - b);
     if (d.kind === "daily" || d.kind === "weekly") { const [h, m] = d.local.split(":").map(Number); return [h * 60 + m]; }
     return [];
   }

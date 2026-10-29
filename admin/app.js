@@ -1,4 +1,4 @@
-/* Kitsu Admin v4 — интерактивный шаблон. Запросы не отправляются: каждая
+/* Kitsu Admin v5 — интерактивный шаблон. Запросы не отправляются: каждая
    кнопка с последствиями показывает точный запрос (метод, путь, тело) и
    честно сообщает, что это макет. Данные — admin/data.js, контракты — admin/contracts.js. */
 (() => {
@@ -116,7 +116,19 @@
       { id: "people/access", title: "Доступ" },
       { id: "people/cosmetics", title: "Оформление" },
     ] },
-    { id: "settings", label: "Настройки", icon: "sliders-horizontal", kana: "設定", lede: "Где на самом деле живёт каждая настройка.", pages: [{ id: "settings", title: "Настройки" }] },
+    { id: "settings", label: "Настройки", icon: "sliders-horizontal", kana: "設定", lede: "Поведение сайта и парсера.", pages: [
+      { id: "settings", title: "Обзор", icon: "layout-grid" },
+      { id: "settings/site", title: "Сайт", icon: "app-window", desc: "Название, регистрация, режим обслуживания" },
+      { id: "settings/import", title: "Импорт", icon: "radar", desc: "Какие тайтлы брать и как часто искать новые" },
+      { id: "settings/updates", title: "Обновления", icon: "refresh-cw", desc: "Что проверять у тайтлов, которые уже есть" },
+      { id: "settings/images", title: "Изображения", icon: "image", desc: "Хранение, качество и размер постеров" },
+      { id: "settings/texts", title: "Тексты", icon: "text-cursor-input", desc: "Заголовок и описание страницы тайтла" },
+      { id: "settings/taxonomy", title: "Жанры и студии", icon: "tags", desc: "Как пополнять справочники" },
+      { id: "settings/stopwords", title: "Стоп-слова", icon: "shield-ban", desc: "Жанры и слова, при которых тайтл не берётся" },
+      { id: "settings/player", title: "Плеер", icon: "monitor-play", desc: "Источник и качество видео по умолчанию" },
+      { id: "settings/notify", title: "Уведомления", icon: "bell", desc: "Куда сообщать о сбоях" },
+      { id: "settings/network", title: "Сеть", icon: "plug", desc: "Прокси, скорость запросов, адрес Shikimori" },
+    ] },
   ];
   const pages = Object.fromEntries(sections.flatMap(section => section.pages.map(page => [page.id, { ...page, section }])));
 
@@ -133,45 +145,46 @@
     importQ: "фармацевт",
     live: { progress: D.jobs.find(j => j.status === "running")?.progress ?? 0 },
     dirty: false,
+    param: null,
+    paramTitle: "",
+    editing: { schedule: null, episode: null, release: null },
   };
 
-  /* ---------- Каркас ---------- */
+  /* ---------- Каркас ----------
+     Никаких выезжающих панелей: разделы — в левой колонке (на телефоне — нижняя полоса),
+     страницы раздела — вкладками над заголовком, карточки и редакторы — отдельными страницами. */
   function currentSection() { return pages[state.route]?.section || sections[0]; }
   function railItem(section, mobile = false) {
     const active = currentSection().id === section.id;
     const first = section.pages[0].id;
     const attention = section.pages.reduce((sum, page) => sum + (page.tone === "warn" && page.count ? page.count() : 0), 0);
     return `<a class="rail-item" href="#/${first}" data-section="${section.id}" aria-current="${active}" ${mobile ? "" : `title="${esc(section.label)}"`}>
-      ${icon(section.icon)}<span>${esc(section.label)}</span>${attention ? `<b class="rail-badge" aria-label="${attention} требуют внимания">${attention}</b>` : ""}</a>`;
+      ${icon(section.icon)}<span>${esc(mobile ? section.short || section.label : section.label)}</span>${attention ? `<b class="rail-badge" aria-label="${attention} требуют внимания">${attention}</b>` : ""}</a>`;
+  }
+  function sectionTabs() {
+    const section = currentSection();
+    if (section.pages.length < 2) return "";
+    return `<nav class="section-tabs" aria-label="${esc(section.label)}">${section.pages.map(page => {
+      const n = page.count ? page.count() : null;
+      const current = state.route === page.id;
+      return `<a href="#/${page.id}" class="section-tab" aria-current="${current ? "page" : "false"}">${esc(page.title)}${n ? `<span class="count ${page.tone === "warn" ? "warn" : ""}">${num(n)}</span>` : ""}</a>`;
+    }).join("")}</nav>`;
   }
   function renderChrome() {
     $("#rail-list").innerHTML = sections.map(s => railItem(s)).join("");
-    const mobileIds = ["pult", "catalog", "queues", "parser"];
-    $("#mobile-nav").innerHTML = sections.filter(s => mobileIds.includes(s.id)).map(s => railItem(s, true)).join("") +
-      `<button type="button" class="rail-item" data-action="subnav" aria-current="${!mobileIds.includes(currentSection().id)}" aria-controls="subnav">${icon("layout-grid")}<span>Ещё</span></button>`;
-    const section = currentSection();
-    const stackUp = D.stack.alive;
-    const running = D.jobs.find(j => j.status === "running");
-    $("#subnav").innerHTML = `
-      <div class="subnav-head"><span class="subnav-kana" aria-hidden="true">${section.kana}</span><h2>${esc(section.label)}</h2><p>${esc(section.lede)}</p></div>
-      <div class="subnav-list">${section.pages.map(page => {
-        const n = page.count ? page.count() : null;
-        const cls = page.tone === "warn" ? "warn" : "";
-        return `<a class="subnav-link" href="#/${page.id}" aria-current="${state.route === page.id ? "page" : "false"}"><span>${esc(page.title)}</span>${n ? `<span class="count ${cls}">${num(n)}</span>` : ""}</a>`;
-      }).join("")}</div>
-      <div class="subnav-list subnav-all" data-mobile-only>${sections.filter(s => s.id !== section.id).map(s => `<a class="subnav-link" href="#/${s.pages[0].id}"><span>${esc(s.label)}</span></a>`).join("")}</div>
-      <div class="subnav-foot">
-        <div class="stack-line">${dot(stackUp ? "success" : "danger")}<span>Стенд <strong>${stackUp ? "в работе" : "не отвечает"}</strong> с ${C.fmtTime(D.stack.up_since)}</span></div>
-        ${running ? `<div class="stack-line">${dot("live")}<span>${esc(jobTitle(running))}${progressKind(running) === "live" ? ` · <strong class="mono" data-live-pct>${state.live.progress}%</strong>` : ""}</span></div>` : ""}
-        <div class="stack-line">${icon("map-pin", "icon-s")}<span>Время — Алматы, UTC+5</span></div>
-      </div>`;
+    $("#mobile-nav").innerHTML = sections.map(s => railItem(s, true)).join("");
+    $("#mobile-nav [aria-current='true']")?.scrollIntoView?.({ inline: "center", block: "nearest" });
     const page = pages[state.route];
-    $("#crumbs").innerHTML = page.section.pages.length > 1
-      ? `<a href="#/${page.section.pages[0].id}">${esc(page.section.label)}</a>${icon("chevron-right")}<b>${esc(page.title)}</b>`
-      : `<b>${esc(page.title)}</b>`;
+    const crumbs = [];
+    if (page.section.pages.length > 1) crumbs.push(`<a href="#/${page.section.pages[0].id}">${esc(page.section.label)}</a>`);
+    if (state.param) crumbs.push(`<a href="#/${state.route}">${esc(page.title)}</a>`, `<b>${esc(state.paramTitle || "")}</b>`);
+    else crumbs.push(`<b>${esc(page.title)}</b>`);
+    $("#crumbs").innerHTML = crumbs.join(icon("chevron-right"));
+    const running = D.jobs.find(j => j.status === "running");
     const chip = $("#live-chip");
     if (running) {
       chip.hidden = false;
+      chip.href = `#/parser/jobs/${running.id}`;
       const live = progressKind(running) === "live";
       chip.innerHTML = `${dot("live")}<span class="label">${esc(jobTitle(running))}</span>${live ? `<span class="progress live thin"><i style="--p:${state.live.progress}%"></i></span><span class="mono" data-live-pct>${state.live.progress}%</span>` : ""}`;
       chip.setAttribute("aria-label", `Выполняется: ${jobTitle(running)}, ${state.live.progress}%`);
@@ -180,8 +193,8 @@
     $("[data-theme-label]").textContent = root.dataset.theme === "light" ? "Светлая" : "Тёмная";
   }
 
-  function pageHead(title, lede, actions = "") {
-    return `<header class="page-head"><div><div class="page-title"><span class="beam" aria-hidden="true"></span><h1>${esc(title)}</h1></div>${lede ? `<p class="lede">${lede}</p>` : ""}</div>${actions ? `<div class="page-actions">${actions}</div>` : ""}</header>`;
+  function pageHead(title, lede, actions = "", back = "") {
+    return `<header class="page-head"><div>${back ? `<a class="back-link" href="${back}">${icon("arrow-left")}Назад к списку</a>` : ""}<div class="page-title"><span class="beam" aria-hidden="true"></span><h1>${esc(title)}</h1></div>${lede ? `<p class="lede">${lede}</p>` : ""}</div>${actions ? `<div class="page-actions">${actions}</div>` : ""}</header>`;
   }
   const note = (tone, ic, html) => `<div class="note" data-tone="${tone}">${icon(ic)}<div>${html}</div></div>`;
   const empty = (ic, title, text, action = "") => `<div class="empty">${icon(ic)}<strong>${esc(title)}</strong><p>${text}</p>${action}</div>`;
@@ -316,27 +329,27 @@
   }
   function titleRows() {
     const list = filteredTitles();
-    if (!list.length) return `<tr><td colspan="7">${empty("search-x", "Ничего не нашлось", "Поиск идёт по русскому, английскому названию, ромадзи и slug.")}</td></tr>`;
+    if (!list.length) return `<tr><td colspan="7">${empty("search-x", "Ничего не нашлось", "Поиск идёт по русскому и английскому названию, ромадзи и адресу на сайте.")}</td></tr>`;
     return list.map(item => {
       const selected = state.titles.selected.has(item.id);
       return `<tr class="${selected ? "is-selected" : ""}">
         <td class="check"><input class="box-check" type="checkbox" data-select="titles" value="${item.id}" ${selected ? "checked" : ""} aria-label="Выбрать «${esc(item.title)}»" /></td>
-        <td class="lead"><div class="cell-title">${thumb(item)}<div><strong>${esc(item.title)}</strong><small>${esc(item.title_en || "")}${item.aired_on ? ` · ${item.aired_on.slice(0, 4)}` : ""}</small></div></div></td>
+        <td class="lead"><a class="cell-title cell-link" href="#/catalog/titles/${esc(item.slug)}">${thumb(item)}<div><strong>${esc(item.title)}</strong><small>${esc(item.title_en || "")}${item.aired_on ? ` · ${item.aired_on.slice(0, 4)}` : ""}</small></div></a></td>
         <td class="opt" data-label="Тип">${esc(KIND[item.kind] || item.kind)}</td>
         <td data-label="Статус">${statusTag(item.status)}${item.needs_moderation ? ` ${tag("Модерация", "warning")}` : ""}</td>
         <td class="num" data-label="Серии">${item.episodes_aired}${item.episodes_total ? ` / ${item.episodes_total}` : ""}</td>
         <td class="num opt" data-label="Оценка">${item.score ? String(item.score).replace(".", ",") : "—"}</td>
         <td class="num opt" data-label="Обновлён">${at(item.updated_at)}</td>
-        <td class="actions"><button type="button" class="icon-btn s" data-action="edit-title" data-id="${item.id}" aria-label="Редактировать «${esc(item.title)}»">${icon("pencil")}</button><button type="button" class="icon-btn s" data-action="title-menu" data-id="${item.id}" aria-label="Ещё действия">${icon("more-horizontal")}</button></td>
+        <td class="actions"><a class="button s" href="#/catalog/titles/${esc(item.slug)}">${icon("pencil")}Открыть</a></td>
       </tr>`;
     }).join("");
   }
   function renderTitles() {
     const all = D.anime;
     const n = key => ({ all: all.length, moderation: all.filter(i => i.needs_moderation).length, novideo: all.filter(i => !i.kodik_id).length, ongoing: all.filter(i => i.status === "ongoing").length, announced: all.filter(i => i.status === "announced").length }[key]);
-    return `${pageHead("Тайтлы", `В каталоге ${num(D.kodikStats.local_total)} тайтлов. Большую часть полей пишет синхронизация; руками правят то, что она не знает или знает неверно.`, `<a class="button" href="#/catalog/import">${icon("download")}Из Kodik</a><button type="button" class="button primary" data-action="new-title">${icon("plus")}Новый тайтл</button>`)}
+    return `${pageHead("Тайтлы", `В каталоге ${num(D.kodikStats.local_total)} тайтлов. Большую часть полей пишет синхронизация; руками правят то, что она не знает или знает неверно.`, `<a class="button" href="#/catalog/import">${icon("download")}Из Kodik</a><a class="button primary" href="#/catalog/titles/new">${icon("plus")}Новый тайтл</a>`)}
     <div class="toolbar">
-      <label class="search grow">${icon("search")}<span class="sr-only">Поиск</span><input class="input" type="search" data-input="titles-q" value="${esc(state.titles.q)}" placeholder="Название, ромадзи или slug" /></label>
+      <label class="search grow">${icon("search")}<span class="sr-only">Поиск</span><input class="input" type="search" data-input="titles-q" value="${esc(state.titles.q)}" placeholder="Название на любом языке или адрес" /></label>
       ${seg("titles", state.titles.filter, [["all", "Все", n("all")], ["ongoing", "Выходят", n("ongoing")], ["announced", "Анонсы", n("announced")], ["moderation", "На модерации", n("moderation")], ["novideo", "Без видео", n("novideo")]])}
     </div>
     <section class="card">
@@ -372,36 +385,35 @@
           <label class="search">${icon("search")}<span class="sr-only">Название</span><input class="input" type="search" name="q" value="${esc(state.importQ)}" placeholder="Например: фармацевт" /></label>
           <button type="submit" class="button primary">${icon("search")}Найти в Kodik</button>
         </form>
-        <p class="muted" style="font-size:12px">Запрос: <code>GET /dashboard/parsers/kodik/search?q=…</code>. Сервер сам убирает дубликаты и отмечает <code>already_exists</code>. В макете ищется по четырём заготовленным результатам.</p>
+        <p class="muted" style="font-size:12px">Тайтлы, которые уже есть в каталоге, помечены. В макете поиск идёт по четырём заготовленным результатам.</p>
       </div>
       <div class="results">${results.length ? results.map(r => `<div class="result">
           ${thumb({ title: r.title })}
-          <div><h4>${esc(r.title)}</h4><div class="meta"><span>${esc(r.title_orig)}</span><span class="mono">${r.year}</span><span>${r.type === "anime" ? "Фильм" : "Сериал"} · ${r.episodes} ${C.plural(r.episodes, "серия", "серии", "серий")}</span><span>${r.translations} ${C.plural(r.translations, "озвучка", "озвучки", "озвучек")}</span><span class="mono">${esc(r.kodik_id)}</span>${r.shikimori_id ? `<span class="mono">shikimori ${r.shikimori_id}</span>` : tag("Нет Shikimori ID", "warning")}</div></div>
+          <div><h4>${esc(r.title)}</h4><div class="meta"><span>${esc(r.title_orig)}</span><span class="mono">${r.year}</span><span>${r.type === "anime" ? "Фильм" : "Сериал"} · ${r.episodes} ${C.plural(r.episodes, "серия", "серии", "серий")}</span><span>${r.translations} ${C.plural(r.translations, "озвучка", "озвучки", "озвучек")}</span>${r.shikimori_id ? "" : tag("Нет в Shikimori", "warning")}</div></div>
           <div class="op-actions">${r.in_catalog ? `${tag("Уже в каталоге", "success", "check")}<button type="button" class="button s" ${request("import.single", { shikimori: r.shikimori_id ?? "", kodik: r.kodik_id })}>${icon("refresh-cw")}Обновить</button>` : `<button type="button" class="button s primary" ${request("import.single", { shikimori: r.shikimori_id ?? "", kodik: r.kodik_id })}>${icon("download")}Импортировать</button>`}</div>
         </div>`).join("") : empty("telescope", "Введите название", "Поиск идёт по русскому и оригинальному названию.")}</div>
     </section>`;
   }
 
   function renderEpisodes() {
-    return `${pageHead("Серии и источники", "Серии и источники видео создаёт синхронизация Kodik. Руками правят номер, сезон, отметки «филлер» и «рекап», а также неработающие источники.", `<button type="button" class="button primary" data-action="new-episode">${icon("plus")}Новая серия</button>`)}
-    ${note("info", "lightbulb", "Поиска по тайтлу у списка серий на сервере нет: <code>GET /episodes/with-anime</code> принимает только <code>skip</code> и <code>limit</code>. Чтобы найти серии конкретного тайтла, откройте тайтл: там список из <code>GET /anime/{id}/episodes</code>.")}
+    return `${pageHead("Серии и источники", "Свежие серии всех тайтлов. Их создаёт синхронизация Kodik; править и добавлять серии удобнее на странице тайтла — там все его серии и озвучки.")}
     <section class="card">
       <div class="table-wrap"><table class="data cards"><thead><tr><th>Тайтл и серия</th><th class="num opt">Сезон</th><th>Отметки</th><th class="num opt">Источников</th><th class="num">Вышла</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody>
       ${D.episodes.map(e => `<tr>
-        <td class="lead"><div class="cell-title"><div><strong>${esc(e.anime)} · ${e.episode} серия</strong><small>${esc(e.title || "Без названия")}</small></div></div></td>
+        <td class="lead"><a class="cell-title cell-link" href="#/catalog/titles/${esc(e.anime_slug)}?ep=${e.id}"><div><strong>${esc(e.anime)} · ${e.episode} серия</strong><small>${esc(e.title || "Без названия")}</small></div></a></td>
         <td class="num opt" data-label="Сезон">${e.season}</td>
         <td data-label="Отметки">${e.is_filler ? tag("Филлер", "warning") : ""}${e.is_recap ? tag("Рекап", "info") : ""}${!e.is_filler && !e.is_recap ? '<span class="muted">—</span>' : ""}</td>
         <td class="num opt" data-label="Источников">${e.releases}</td>
         <td class="num" data-label="Вышла">${at(e.aired_at)}</td>
-        <td class="actions"><button type="button" class="button s" data-action="open-episode" data-id="${e.id}">${icon("list-video")}Открыть</button></td>
+        <td class="actions"><a class="button s" href="#/catalog/titles/${esc(e.anime_slug)}?ep=${e.id}">${icon("pencil")}Изменить</a></td>
       </tr>`).join("")}</tbody></table></div>
-      <div class="pager"><span>Свежие серии сверху · страницы по 100</span></div>
+      <div class="pager"><span>Свежие серии сверху</span></div>
     </section>`;
   }
 
   function renderCollections() {
     return `${pageHead("Коллекции", "Подборки пользователей. Создавать, править и отмечать их как «избранные» из админки сейчас нельзя: в API есть только чтение.")}
-    ${note("warning", "lock", "Поле <code>is_featured</code> в базе есть, а эндпоинта, который его меняет, нет. Если подборки на главной нужны, это задача для бэкенда.")}
+    ${note("warning", "lock", "Отметку «избранная» (для показа на главной) поставить пока нельзя: на сервере нет такого действия. Это задача для бэкенда.")}
     <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th>Подборка</th><th>Видимость</th><th class="num">Тайтлов</th><th class="num">Просмотры</th><th class="num opt">Лайки</th><th class="num">Обновлена</th></tr></thead><tbody>
     ${D.collections.map(c => `<tr><td class="lead"><div class="cell-title"><div><strong>${esc(c.title)}</strong><small>${esc(c.user)}</small></div></div></td><td data-label="Видимость">${c.is_public ? tag("Публичная", "success") : tag("Личная", "neutral")}${c.is_featured ? ` ${tag("Избранная", "info")}` : ""}</td><td class="num" data-label="Тайтлов">${c.items_count}</td><td class="num" data-label="Просмотры">${num(c.views_count)}</td><td class="num opt" data-label="Лайки">${c.likes_count}</td><td class="num" data-label="Обновлена">${at(c.updated_at)}</td></tr>`).join("")}
     </tbody></table></div></section>`;
@@ -418,7 +430,7 @@
     const list = D.moderation;
     const ok = list.filter(eligible);
     return `${pageHead("Модерация", "Синхронизация ставит тайтл сюда, если у него нет постера, описания или видео. Пока тайтл здесь, на сайте его не видно.", `<button type="button" class="button primary" ${request("moderation.approve", { ids: ok.map(i => i.id).join(",") })} ${ok.length ? "" : "disabled"}>${icon("check-check")}Одобрить готовые · ${ok.length}</button>`)}
-    ${note("info", "lightbulb", "Сервер сам проверяет каждый тайтл: без постера или описания одобрить нельзя, тайтл без видео — только если это анонс или есть ссылка Kodik. Неподходящие вернутся в <code>skipped_ids</code>. Если поправить постер и описание в редакторе, тайтл уйдёт из очереди сам.")}
+    ${note("info", "lightbulb", "Без постера или описания тайтл одобрить нельзя, без видео — только если это анонс или есть ссылка Kodik. Проще всего нажать «Заполнить»: когда у тайтла появятся постер и описание, он уйдёт из очереди сам.")}
     ${list.some(i => i.moderation_reason === "no_video") ? note("neutral", "archive", "Причину «Нет видео» ставила старая Python-синхронизация. Go-код её больше не ставит: тайтл без видео он просто не импортирует. Такие строки могли остаться в базе.") : ""}
     <section class="card"><div class="mod-list">
     ${list.map(item => {
@@ -428,7 +440,7 @@
         <input class="box-check" type="checkbox" data-select="moderation" value="${item.id}" ${okay ? "" : "disabled"} aria-label="Выбрать «${esc(item.title)}»" />
         ${thumb({ title: item.title, poster_url: item.poster_url })}
         <div><h4>${esc(item.title)}</h4><div class="why">${reasons.map(r => tag(REASON[r] || r, "warning", r === "no_video" ? "video-off" : r === "poster_url" ? "image-off" : "file-x")).join("")}${statusTag(item.status)}<span class="muted" style="font-size:12px">${ago(item.updated_at)}</span></div></div>
-        <div class="mod-actions">${okay ? `<button type="button" class="button s" ${request("moderation.approve", { ids: item.id })}>${icon("check")}Одобрить</button>` : `<span class="muted" style="font-size:12px;align-self:center">Сначала заполните</span>`}<button type="button" class="button s ${okay ? "ghost" : "primary"}" data-action="edit-title" data-slug="${item.slug}">${icon("pencil")}Заполнить</button></div>
+        <div class="mod-actions">${okay ? `<button type="button" class="button s" ${request("moderation.approve", { ids: item.id })}>${icon("check")}Одобрить</button>` : `<span class="muted" style="font-size:12px;align-self:center">Сначала заполните</span>`}<a class="button s ${okay ? "ghost" : "primary"}" href="#/catalog/titles/${esc(item.slug)}">${icon("pencil")}Заполнить</a></div>
       </div>`;
     }).join("")}</div></section>`;
   }
@@ -439,20 +451,20 @@
     const list = D.conflicts.filter(c => c.status === status);
     const why = { season_mismatch: "Сезоны не совпали", no_match: "Названия не совпали", metadata: "Принят по году и числу серий" };
     return `${pageHead("Конфликты", "Проход «Связанные тайтлы» сверяет каждый тайтл с Shikimori. Если строгая проверка не уверена, что это тот же тайтл, данные не пишутся, а строка попадает сюда.")}
-    ${note("warning", "triangle-alert", "<strong>Кнопка «Применить данные Shikimori» в текущем дашборде ничего не меняет в тайтле.</strong> У этого типа конфликта входящие поля (<code>russian</code>, <code>name</code>, <code>id</code>…) не входят в список разрешённых колонок, поэтому любая стратегия только закрывает конфликт. Здесь действия названы честно: «Верно, закрыть» или «Исправить Shikimori ID» в редакторе тайтла.")}
+    ${note("info", "lightbulb", "<strong>Как решать.</strong> Если слева и справа один и тот же тайтл — «Верно, закрыть». Если нет — откройте тайтл и поправьте номер Shikimori: при следующем проходе данные подтянутся сами.")}
     <div class="toolbar">${seg("conflicts", status, [["pending", "Ждут решения", counts("pending")], ["auto_accepted", "Приняты автоматически", counts("auto_accepted")], ["resolved", "Закрыты", counts("resolved")]])}</div>
     <section class="card">${list.length ? list.map(c => {
       const ex = c.existing_data, inc = c.incoming_data;
       const seasonMismatch = ex.season_number != null && inc.season_number != null && ex.season_number !== inc.season_number;
       return `<article class="conflict">
         <div class="conflict-head"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${tag(why[c.reason] || c.reason, c.reason === "metadata" ? "info" : "warning")}<span class="muted mono" style="font-size:12px">shikimori ${esc(c.external_id)} · ${at(c.created_at)}</span></div>
-        <div class="conflict-actions">${c.status === "pending" ? `<button type="button" class="button s ghost" data-action="edit-title" data-slug="${esc(ex.slug)}">${icon("pencil")}Исправить Shikimori ID</button><button type="button" class="button s" ${request("conflicts.resolve", { id: c.id, strategy: "keep" })}>${icon("check")}Верно, закрыть</button>` : c.status === "auto_accepted" ? `<button type="button" class="button s ghost" data-action="edit-title" data-slug="${esc(ex.slug)}">${icon("pencil")}Открыть тайтл</button>` : ""}</div></div>
+        <div class="conflict-actions">${c.status === "pending" ? `<a class="button s ghost" href="#/catalog/titles/${esc(ex.slug)}">${icon("pencil")}Исправить номер Shikimori</a><button type="button" class="button s" ${request("conflicts.resolve", { id: c.id, strategy: "keep" })}>${icon("check")}Верно, закрыть</button>` : c.status === "auto_accepted" ? `<a class="button s ghost" href="#/catalog/titles/${esc(ex.slug)}">${icon("arrow-right")}Открыть тайтл</a>` : ""}</div></div>
         <div class="diff">
           <div class="diff-side"><h5>${icon("home", "icon-s")}У нас</h5><div class="t">${esc(ex.title)}</div><div class="s">${esc(ex.title_en || "")}</div>
-            <dl class="kv"><dt>Shikimori ID</dt><dd class="mono">${esc(ex.shikimori_id)}</dd>${ex.season_number !== undefined ? `<dt>Сезон</dt><dd class="mono ${seasonMismatch ? "mismatch" : ""}">${ex.season_number ?? "не найден"}</dd>` : ""}${ex.aired_on_year ? `<dt>Год / серий</dt><dd class="mono">${ex.aired_on_year} / ${ex.episodes_total}</dd>` : ""}<dt>slug</dt><dd class="mono">${esc(ex.slug)}</dd></dl></div>
+            <dl class="kv"><dt>Номер Shikimori</dt><dd class="mono">${esc(ex.shikimori_id)}</dd>${ex.season_number !== undefined ? `<dt>Сезон</dt><dd class="mono ${seasonMismatch ? "mismatch" : ""}">${ex.season_number ?? "не найден"}</dd>` : ""}${ex.aired_on_year ? `<dt>Год / серий</dt><dd class="mono">${ex.aired_on_year} / ${ex.episodes_total}</dd>` : ""}<dt>Адрес</dt><dd class="mono">/anime/${esc(ex.slug)}</dd></dl></div>
           <div class="diff-mid${seasonMismatch ? " is-mismatch" : ""}" aria-hidden="true">${icon(seasonMismatch ? "equal-not" : "arrow-left-right")}</div>
           <div class="diff-side"><h5>${icon("cloud", "icon-s")}Shikimori</h5><div class="t">${esc(inc.russian)}</div><div class="s">${esc(inc.english || inc.name || "")}</div>
-            <dl class="kv"><dt>ID</dt><dd class="mono">${esc(inc.id)}</dd>${inc.season_number !== undefined ? `<dt>Сезон</dt><dd class="mono ${seasonMismatch ? "mismatch" : ""}">${inc.season_number ?? "не найден"}</dd>` : ""}${inc.aired_on_year ? `<dt>Год / серий</dt><dd class="mono">${inc.aired_on_year} / ${inc.episodes}</dd>` : ""}</dl></div>
+            <dl class="kv"><dt>Номер</dt><dd class="mono">${esc(inc.id)}</dd>${inc.season_number !== undefined ? `<dt>Сезон</dt><dd class="mono ${seasonMismatch ? "mismatch" : ""}">${inc.season_number ?? "не найден"}</dd>` : ""}${inc.aired_on_year ? `<dt>Год / серий</dt><dd class="mono">${inc.aired_on_year} / ${inc.episodes}</dd>` : ""}</dl></div>
         </div>
       </article>`;
     }).join("") : empty("check-check", "Пусто", "В этом состоянии конфликтов нет.")}</section>`;
@@ -460,7 +472,7 @@
 
   function renderComments() {
     return `${pageHead("Комментарии", "Лента всех комментариев, свежие сверху. Удалить комментарий может только суперпользователь; текст станет «[удалено]».")}
-    ${note("warning", "eye-off", "<strong>Очередь «на проверку» всегда пуста.</strong> В API нет действия «скрыть», и новые комментарии создаются видимыми, поэтому кнопке «Одобрить» нечего одобрять. Модератор (<code>comments.moderate</code>) может только читать эту ленту: удалить чужой комментарий он не может.")}
+    ${note("info", "eye", "Комментарии появляются на сайте сразу, предварительной проверки нет. Модератор может читать ленту, а удалять — только суперпользователь.")}
     <section class="card">${D.comments.map(c => `<article class="comment ${c.is_deleted ? "is-deleted" : ""}">
       <span class="letter" aria-hidden="true">${esc(c.user[0].toUpperCase())}</span>
       <div><div class="comment-meta"><strong style="color:var(--text)">${esc(c.user)}</strong><span>${esc(c.anime)} · ${c.episode} серия</span><span>${at(c.created_at)}</span><span>${icon("heart", "icon-s")} ${c.likes_count}</span><span>ответов ${c.replies_count}</span></div><p>${esc(c.content)}</p></div>
@@ -506,17 +518,17 @@
     const st = state.jobs.status;
     const list = D.jobs.filter(j => st === "all" || j.status === st);
     const n = s => D.jobs.filter(j => j.status === s).length;
-    return `${pageHead("Задачи", "Очередь и история запусков. Источник запуска («Расписание», «Вручную», «kitsu-admin») в базе пока не хранится — в шаблоне он показан, чтобы было видно, где ему место.", `<button type="button" class="button" ${request("jobs.clear", { status: "completed" })}>${icon("eraser")}Очистить готовые</button>`)}
+    return `${pageHead("Задачи", "Очередь и история запусков. Откройте задачу, чтобы увидеть её журнал и подробности.", `<button type="button" class="button" ${request("jobs.clear", { status: "completed" })}>${icon("eraser")}Очистить готовые</button>`)}
     <div class="toolbar">${seg("jobs", st, [["all", "Все", D.jobs.length], ["running", "Идут", n("running")], ["pending", "Ждут", n("pending")], ["completed", "Готово", n("completed")], ["failed", "Ошибки", n("failed")], ["cancelled", "Остановлены", n("cancelled")]])}</div>
     <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th>Задача</th><th>Статус</th><th class="opt">Прогресс</th><th class="num">Обработано</th><th class="num opt">Длительность</th><th class="num">Создана</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody>
     ${list.length ? list.map(j => `<tr>
-      <td class="lead"><div class="cell-title"><div><strong>${esc(jobTitle(j))}</strong><small>${esc(j.source)} · <span class="mono">${esc(j.parser_name)}/${esc(j.job_type)}</span></small></div></div></td>
+      <td class="lead"><a class="cell-title cell-link" href="#/parser/jobs/${esc(j.id)}"><div><strong>${esc(jobTitle(j))}</strong><small>${esc(j.source)}</small></div></a></td>
       <td data-label="Статус">${statusTag(j.status)}</td>
-      <td class="opt" data-label="Прогресс" style="min-width:120px">${j.status === "running" ? liveBar(j) : j.status === "pending" ? `<span class="muted" style="font-size:12px">Ждёт свободного слота</span>` : j.error_message ? `<span class="${j.status === "failed" ? "" : "muted"}" style="font-size:12px;color:${j.status === "failed" ? "var(--red)" : ""}">${esc(j.error_message)}</span>` : `<span class="progress"><i style="--p:${j.progress}%"></i></span>`}</td>
+      <td class="opt" data-label="Прогресс" style="min-width:120px">${j.status === "running" ? liveBar(j) : j.status === "pending" ? `<span class="muted" style="font-size:12px">Ждёт своей очереди</span>` : j.error_message ? `<span class="${j.status === "failed" ? "" : "muted"}" style="font-size:12px;color:${j.status === "failed" ? "var(--red)" : ""}">${esc(j.error_message)}</span>` : `<span class="progress"><i style="--p:${j.progress}%"></i></span>`}</td>
       <td class="num" data-label="Обработано">${num(j.items_processed)}${j.items_failed ? ` <span style="color:var(--red)">· ${j.items_failed} ош.</span>` : ""}</td>
       <td class="num opt" data-label="Длительность">${C.fmtDuration(j.duration_seconds)}</td>
       <td class="num" data-label="Создана">${at(j.created_at)}</td>
-      <td class="actions"><button type="button" class="icon-btn s" data-action="open-job" data-id="${j.id}" aria-label="Подробно: ${esc(jobTitle(j))}" title="Подробно">${icon("scroll-text")}</button></td>
+      <td class="actions"><a class="button s" href="#/parser/jobs/${esc(j.id)}">${icon("scroll-text")}Подробно</a></td>
     </tr>`).join("") : `<tr><td colspan="7">${empty("inbox", "Пусто", "Задач с таким статусом нет.")}</td></tr>`}
     </tbody></table></div></section>
     ${note("warning", "triangle-alert", "Мониторинг считает отказы и запаздывание расписания по истории задач. Очистка истории стирает эти следы: проверки на время станут «нет выборки».")}`;
@@ -531,28 +543,41 @@
     const scale = Array.from({ length: 9 }, (_, i) => `<span style="left:${(i / 8) * 100}%">${String(i * 3).padStart(2, "0")}:00</span>`).join("");
     return `<div class="daymap">${rows.join("")}<div class="daymap-scale"><div></div><div aria-hidden="true">${scale}</div></div></div>`;
   }
+  function scheduleEditor(s) {
+    const isNew = !s;
+    const schedulable = D.operations.filter(op => op.works && op.schedulable);
+    return `<div class="inline-editor">${editForm("schedule", isNew ? "schedule.create" : "schedule.update", s?.id, `
+      ${isNew ? field("Что запускать", "operation", schedulable[0]?.key, { options: schedulable.map(op => [op.key, op.title]), wide: true, hint: "В списке только то, что имеет смысл запускать по расписанию." }) : ""}
+      <div class="field"><span>Как часто</span>${freqPicker("cron_expression", s?.cron_expression || "0 4 * * *", { allowFast: false })}</div>
+      <div class="toggles-row"><label class="switch"><input type="checkbox" name="is_active" ${!s || s.is_active ? "checked" : ""} /><span class="track"></span>Включено</label></div>
+      <div class="inline-actions"><span class="grow"></span><button type="button" class="button s ghost" data-action="toggle-schedule" data-id="${isNew ? "new" : s.id}">Отмена</button><button type="button" class="button s primary" data-action="save-inline">${icon("save")}${isNew ? "Создать" : "Сохранить"}</button></div>`)}</div>`;
+  }
   function renderSchedule() {
-    return `${pageHead("Расписание", "Когда задачи запускаются сами. Время — по Алматы; сервер хранит cron в UTC, его видно мелко под каждой строкой.", `<button type="button" class="button primary" data-action="new-schedule">${icon("plus")}Новое расписание</button>`)}
-    <section class="card reveal"><div class="card-head"><h2>${icon("calendar-range")}Карта суток</h2><span class="card-meta">Когда что срабатывает, по Алматы</span></div><div class="card-body">${daymap()}</div></section>
+    const editing = state.editing.schedule;
+    return `${pageHead("Расписание", "Когда задачи запускаются сами. Всё время — по Алматы.", `<button type="button" class="button primary" data-action="toggle-schedule" data-id="new" aria-expanded="${editing === "new"}">${icon("plus")}Новое расписание</button>`)}
+    <section class="card reveal"><div class="card-head"><h2>${icon("calendar-range")}Карта суток</h2><span class="card-meta">Когда что срабатывает</span></div><div class="card-body">${daymap()}</div></section>
     <section class="card"><div class="sched-list">
+    ${editing === "new" ? `<div class="sched is-open"><div class="sched-title"><strong>Новое расписание</strong></div>${scheduleEditor(null)}</div>` : ""}
     ${D.schedules.map(s => {
       const d = C.describeCron(s.cron_expression);
-      return `<div class="sched">
-        <div class="sched-title"><strong>${esc(scheduleTitle(s))}</strong><small>${esc(s.parser_name)}/${esc(s.job_type)} · cron <span>${esc(s.cron_expression)}</span>${d.utc ? ` (${esc(d.utc)})` : ""}</small></div>
-        <div class="sched-when"><strong>${esc(d.text)}</strong><small>Следующий: ${at(s.next_run_at)} · прошлый: ${at(s.last_run_at)}</small></div>
+      const open = editing === s.id;
+      return `<div class="sched ${open ? "is-open" : ""}">
+        <div class="sched-title"><strong>${esc(scheduleTitle(s))}</strong><small>${s.is_active ? `Следующий запуск ${at(s.next_run_at)}` : "Выключено"} · прошлый ${at(s.last_run_at)}</small></div>
+        <div class="sched-when"><strong>${esc(d.text)}</strong>${d.note ? `<small>${esc(d.note)}</small>` : ""}</div>
         <div class="sched-actions">
-          <label class="switch" title="Включено"><input type="checkbox" ${s.is_active ? "checked" : ""} ${request("schedule.update", { id: s.id, field: "is_active" })} aria-label="Включено" /><span class="track"></span></label>
+          <label class="switch" title="Включено"><input type="checkbox" ${s.is_active ? "checked" : ""} ${request("schedule.update", { id: s.id, field: "is_active" })} aria-label="Включено: ${esc(scheduleTitle(s))}" /><span class="track"></span></label>
           <button type="button" class="icon-btn s" ${request("schedule.runNow", { id: s.id, name: scheduleTitle(s) })} aria-label="Запустить сейчас">${icon("play")}</button>
-          <button type="button" class="icon-btn s" data-action="edit-schedule" data-id="${s.id}" aria-label="Изменить">${icon("pencil")}</button>
+          <button type="button" class="icon-btn s" data-action="toggle-schedule" data-id="${s.id}" aria-expanded="${open}" aria-label="${open ? "Свернуть" : "Изменить время"}">${icon(open ? "chevron-up" : "pencil")}</button>
           <button type="button" class="icon-btn s danger" ${request("schedule.delete", { id: s.id, name: scheduleTitle(s) })} aria-label="Удалить">${icon("trash-2")}</button>
         </div>
         ${s.trap ? note("warning", "triangle-alert", esc(s.trap)) : ""}
+        ${open ? scheduleEditor(s) : ""}
       </div>`;
     }).join("")}</div></section>
     <div class="grid cols-3">
-      ${note("info", "hourglass", "<strong>Шаг — 15 минут.</strong> Пульс воркера проверяет расписание раз в 15 минут, поэтому задача может стартовать с опозданием до 15 минут.")}
+      ${note("info", "hourglass", "<strong>Возможна задержка до 15 минут.</strong> Расписание проверяется раз в 15 минут, поэтому задача стартует в ближайшую такую проверку.")}
       ${note("info", "lock", "<strong>Одна очередь.</strong> Пока идёт долгая задача, плановые ждут. Это видно на пульте как запаздывание.")}
-      ${note("warning", "calendar-x", "<strong>Правка cron не сдвигает ближайший запуск.</strong> Сервер не пересчитывает <code>next_run_at</code>: новое время начнёт действовать после ближайшего старого запуска.")}
+      ${note("warning", "calendar-x", "<strong>Новое время вступит в силу не сразу.</strong> Ближайший запуск пройдёт по старому времени, следующие — по новому.")}
     </div>`;
   }
 
@@ -565,17 +590,16 @@
   }
 
   function renderBlacklist() {
-    return `${pageHead("Исключения", "Тайтлы, которые синхронизация и импорт никогда не добавят. Достаточно одного признака: Shikimori ID, Kodik ID или slug.")}
-    <section class="card"><div class="card-body"><form class="form-grid bl-form" data-form="blacklist">
-      <label class="field"><span>Shikimori ID</span><input class="input mono" name="shikimori_id" type="number" min="1" inputmode="numeric" placeholder="33352" /></label>
-      <label class="field"><span>Kodik ID</span><input class="input mono" name="kodik_id" placeholder="serial-77120" /></label>
-      <label class="field"><span>slug</span><input class="input mono" name="slug" placeholder="test-title" /></label>
-      <button type="submit" class="button primary">${icon("plus")}Добавить</button>
-    </form></div></section>
-    <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th>Признак</th><th>Зачем</th><th class="num">Добавлен</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody>
-    ${D.blacklist.map(b => `<tr><td class="lead mono">${b.shikimori_id ? `shikimori ${b.shikimori_id}` : b.kodik_id ? esc(b.kodik_id) : `slug ${esc(b.slug)}`}</td><td data-label="Зачем" class="secondary">${esc(b.note)}</td><td class="num" data-label="Добавлен">${at(b.created_at)}</td><td class="actions"><button type="button" class="icon-btn s danger" ${request("blacklist.delete", { id: b.id, name: b.shikimori_id || b.kodik_id || b.slug })} aria-label="Убрать из исключений">${icon("trash-2")}</button></td></tr>`).join("")}
-    </tbody></table></div></section>
-    ${note("info", "lightbulb", "Колонки «зачем» в таблице <code>parser_anime_blacklist</code> нет. В шаблоне она показана как пожелание: через полгода никто не вспомнит, почему тайтл исключён.")}`;
+    const label = b => (b.shikimori_id ? `Номер Shikimori ${b.shikimori_id}` : b.kodik_id ? `Номер Kodik ${esc(b.kodik_id)}` : `Адрес /anime/${esc(b.slug)}`);
+    return `${pageHead("Исключения", "Тайтлы, которые синхронизация и импорт никогда не добавят. Жанры и слова исключаются в настройках, на странице «Стоп-слова».")}
+    <section class="card"><div class="card-head"><h2>${icon("plus")}Исключить тайтл</h2></div><div class="card-body"><form class="bl-form" data-form="blacklist">
+      <label class="field"><span>По чему узнать тайтл</span><select class="select" name="target"><option value="shikimori_id">Номер на Shikimori</option><option value="kodik_id">Номер в Kodik</option><option value="slug">Адрес на сайте</option></select></label>
+      <label class="field grow"><span>Значение</span><input class="input mono" name="target_value" placeholder="Например, 33352" autocomplete="off" /></label>
+      <button type="submit" class="button primary">${icon("ban")}Исключить</button>
+    </form><p class="hint" style="margin-top:8px">Номер Shikimori — число в адресе страницы тайтла на shikimori.one: /animes/<b>33352</b>-…</p></div></section>
+    <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th>Тайтл</th><th>Зачем</th><th class="num">Добавлен</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody>
+    ${D.blacklist.map(b => `<tr><td class="lead">${label(b)}</td><td data-label="Зачем" class="secondary">${esc(b.note)}</td><td class="num" data-label="Добавлен">${at(b.created_at)}</td><td class="actions"><button type="button" class="button s ghost" ${request("blacklist.delete", { id: b.id, name: b.shikimori_id || b.kodik_id || b.slug })}>${icon("undo-2")}Вернуть</button></td></tr>`).join("")}
+    </tbody></table></div></section>`;
   }
 
   /* ==========================================================================
@@ -589,7 +613,8 @@
     const shown = String(c.value).replace(".", ",");
     return forms ? `${shown} <span class="u">${Number.isInteger(c.value) ? C.plural(c.value, ...forms) : forms[1]}</span>` : `${shown} <span class="u">${esc(c.unit)}</span>`;
   }
-  const checkName = name => esc(name).replace(/\(([0-9*\/ ,-]+)\)/, '(<span class="mono">$1</span>)');
+  /* В имени проверки сервер пишет cron расписания — показываем его словами. */
+  const checkName = name => esc(name).replace(/\(([0-9*\/ ,-]+)\)/, (m, cron) => { const d = C.describeCron(cron.trim()); return d.ok && d.kind !== "custom" ? `(${d.text.toLowerCase()})` : m; });
   function renderChecks() {
     const st = state.checks.state;
     const states = ["fail", "warn", "stale", "no_sample", "waiting", "unknown", "ok"];
@@ -660,18 +685,20 @@
     return tag(series && comments ? "Серии и комментарии" : series ? "Только серии" : "Только комментарии", "info");
   }
   function renderUsers() {
-    const q = state.users.q.toLowerCase();
-    const list = D.users.filter(u => !q || `${u.username} ${u.email}`.toLowerCase().includes(q));
     return `${pageHead("Пользователи", "Поиск по имени и почте. Создавать пользователей из админки нельзя: только регистрация на сайте.")}
     <div class="toolbar"><label class="search grow">${icon("search")}<span class="sr-only">Поиск</span><input class="input" type="search" data-input="users-q" value="${esc(state.users.q)}" placeholder="Имя или email" /></label></div>
-    <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th>Пользователь</th><th class="opt">Роль</th><th>Доступ в админке</th><th>Состояние</th><th class="num opt">Был</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody id="user-rows">
-    ${list.map(u => `<tr><td class="lead"><div class="cell-title"><span class="letter" aria-hidden="true">${esc(u.username[0].toUpperCase())}</span><div><strong>${esc(u.username)}</strong><small>${esc(u.email)}</small></div></div></td>
-      <td class="opt" data-label="Роль"><span class="mono">${esc(u.role || "без роли")}</span></td>
+    <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th>Пользователь</th><th class="opt">Роль</th><th>Доступ в админке</th><th>Состояние</th><th class="num opt">Был</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody id="user-rows">${userRows()}</tbody></table></div></section>`;
+  }
+  function userRows() {
+    const q = state.users.q.toLowerCase();
+    const list = D.users.filter(u => !q || `${u.username} ${u.email}`.toLowerCase().includes(q));
+    if (!list.length) return `<tr><td colspan="6">${empty("search-x", "Никого не нашлось", "Поиск идёт по имени и почте.")}</td></tr>`;
+    return list.map(u => `<tr><td class="lead"><a class="cell-title cell-link" href="#/people/users/${esc(u.id)}"><span class="letter" aria-hidden="true">${esc(u.username[0].toUpperCase())}</span><div><strong>${esc(u.username)}</strong><small>${esc(u.email)}</small></div></a></td>
+      <td class="opt" data-label="Роль">${esc(u.role || "без роли")}</td>
       <td data-label="Доступ">${accessTag(u)}</td>
       <td data-label="Состояние">${u.is_active ? (u.is_verified ? tag("Активен", "success") : tag("Почта не подтверждена", "warning")) : tag("Забанен", "danger")}</td>
       <td class="num opt" data-label="Был">${at(u.last_seen_at)}</td>
-      <td class="actions"><button type="button" class="button s" data-action="open-user" data-id="${u.id}">${icon("user-cog")}Открыть</button></td></tr>`).join("")}
-    </tbody></table></div></section>`;
+      <td class="actions"><a class="button s" href="#/people/users/${esc(u.id)}">${icon("user-cog")}Открыть</a></td></tr>`).join("");
   }
 
   function renderAccess() {
@@ -679,13 +706,13 @@
     return `${pageHead("Доступ", "Что на самом деле даёт каждая роль. В ролях записано много прав, но сервер проверяет только два. Всё остальное открыто одному суперпользователю.")}
     ${note("warning", "key-round", "<strong>Права <code>users.view</code>, <code>users.edit</code>, <code>parsers.*</code>, <code>analytics.view</code> ни на что не влияют.</strong> Роль «admin» без флага суперпользователя не откроет ни парсер, ни пользователей — только серии и источники. Менять сами роли через API нельзя, только назначать.")}
     <div class="role-grid reveal">
-      <section class="card role-card"><h3>Суперпользователь</h3><p class="muted" style="font-size:13px">Флаг <code>is_superuser</code>, не роль</p><ul><li>${icon("check")}Всё в админке: парсер, бэкапы, пользователи, настройки</li><li>${icon("check")}Удаление чужих комментариев</li></ul></section>
+      <section class="card role-card"><h3>Суперпользователь</h3><p class="muted" style="font-size:13px">Отдельный флажок у пользователя, а не роль</p><ul><li>${icon("check")}Всё в админке: парсер, бэкапы, пользователи, настройки</li><li>${icon("check")}Удаление чужих комментариев</li></ul></section>
       ${D.roles.map(role => {
         const items = effects.map(([perm, list]) => ({ on: C.satisfies(role.permissions, perm), perm, list }));
         return `<section class="card role-card"><h3>${esc(role.name)}</h3><p class="muted" style="font-size:13px">${esc(role.description)}</p>
           <ul>${items.flatMap(i => i.list.map(text => `<li class="${i.on ? "" : "off"}">${icon(i.on ? "check" : "minus")}${esc(text)}</li>`)).join("")}</ul>
           <p class="muted" style="font-size:12.5px">Остальные разделы открываются только флагом суперпользователя.</p>
-          <div class="perm-list">${role.permissions.map(p => `<code>${esc(p)}</code>`).join("")}</div></section>`;
+          <details class="tech"><summary>${icon("chevron-right", "icon-s")}Права, записанные в роли</summary><div class="perm-list">${role.permissions.map(p => `<code>${esc(p)}</code>`).join("")}</div></details></section>`;
       }).join("")}
     </div>`;
   }
@@ -701,256 +728,585 @@
   }
 
   /* ==========================================================================
-     Настройки
+     Элементы форм: всё вводится выбором, переключателями и подсказками, а не кодами
      ========================================================================== */
-  function renderSettings() {
-    const S = D.settings;
-    const fields = S.parserArchive.reduce((sum, c) => sum + c.fields.length, 0);
-    return `${pageHead("Настройки", "Раньше здесь было 10 вкладок и около 60 полей. Проверка кода показала: ни одно из них не влияет на работу сайта. Ниже — где на самом деле живёт каждая настройка.")}
-    <section class="card glow reveal"><div class="card-body" style="display:grid;gap:12px">
-      <div style="display:flex;gap:14px;align-items:flex-start">${icon("search-check", "icon-l")}<div><strong style="font-size:16px">Что показала сверка с кодом</strong><p class="secondary" style="margin-top:4px">Настройки парсера (${S.parserArchive.length} ${C.plural(S.parserArchive.length, "категория", "категории", "категорий")}, ${fields} ${C.plural(fields, "поле", "поля", "полей")}) и настройки сайта (${S.site.length} ${C.plural(S.site.length, "ключ", "ключа", "ключей")}) сохраняются в базу, но текущий Go-бэкенд их не читает. Python-воркер, который читал часть из них, больше не запускается. Пункт меню «Настройки» в дашборде ведёт на несуществующую страницу.</p></div></div>
-    </div></section>
+  const field = (label, name, value, opts = {}) => `<label class="field ${opts.wide ? "wide" : ""}"><span>${esc(label)}${opts.req ? ' <b class="req" aria-hidden="true">*</b>' : ""}</span>${opts.textarea ? `<textarea class="textarea" name="${name}" ${opts.req ? "required" : ""} ${opts.placeholder ? `placeholder="${esc(opts.placeholder)}"` : ""}>${esc(value ?? "")}</textarea>` : opts.options ? `<select class="select" name="${name}">${opts.options.map(([v, l]) => `<option value="${esc(v)}" ${String(v) === String(value ?? "") ? "selected" : ""}>${esc(l)}</option>`).join("")}</select>` : `<input class="input ${opts.mono ? "mono" : ""}" name="${name}" type="${opts.type || "text"}" value="${esc(value ?? "")}" ${opts.req ? "required" : ""} ${opts.readonly ? 'readonly data-readonly="true"' : ""} ${opts.step ? `step="${opts.step}"` : ""} ${opts.min != null ? `min="${opts.min}"` : ""} ${opts.max != null ? `max="${opts.max}"` : ""} ${opts.placeholder ? `placeholder="${esc(opts.placeholder)}"` : ""} ${opts.list ? `list="${opts.list}"` : ""} ${opts.inputmode ? `inputmode="${opts.inputmode}"` : ""} />`}${opts.hint ? `<span class="hint">${opts.hint}</span>` : ""}<span class="error" data-error-for="${name}" hidden></span></label>`;
+  const hidden = (name, value, list = false) => `<input type="hidden" name="${name}" value="${esc(Array.isArray(value) ? value.join(", ") : value ?? "")}" ${list ? 'data-list="true"' : ""} />`;
+  /* Один вариант из нескольких: кнопки-сегменты пишут значение в скрытое поле. */
+  const single = (name, value, options, label = "") => `<div class="seg seg-input" role="radiogroup" ${label ? `aria-label="${esc(label)}"` : ""} data-single="${name}">${options.map(([v, l, ic]) => `<button type="button" role="radio" data-value="${esc(v)}" aria-checked="${String(v) === String(value)}" aria-pressed="${String(v) === String(value)}">${ic ? icon(ic) : ""}${esc(l)}</button>`).join("")}${hidden(name, value)}</div>`;
+  /* Несколько вариантов: кнопки-чипы, результат — список через запятую или массив. */
+  const multi = (name, values, options, { array = false, label = "" } = {}) => {
+    const set = new Set((Array.isArray(values) ? values : String(values || "").split(",")).map(x => x.trim()).filter(Boolean));
+    return `<div class="choice-chips" role="group" ${label ? `aria-label="${esc(label)}"` : ""} data-multi="${name}" ${array ? 'data-array="true"' : ""}>${options.map(([v, l]) => `<button type="button" data-value="${esc(v)}" aria-pressed="${set.has(v)}">${esc(l)}</button>`).join("")}${hidden(name, [...set].join(", "), array)}</div>`;
+  };
+  /* Свободный список: набрать и нажать Enter, лишнее убрать крестиком. */
+  const chips = (name, values, { suggest = [], placeholder = "Добавить и нажать Enter", array = false } = {}) => {
+    const list = (Array.isArray(values) ? values : String(values || "").split(",")).map(x => x.trim()).filter(Boolean);
+    const dl = suggest.length ? `dl-${name}` : "";
+    return `<div class="chips-input" data-chips="${name}" ${array ? 'data-array="true"' : ""}>${list.map(chipItem).join("")}<input class="chips-entry" type="text" ${dl ? `list="${dl}"` : ""} placeholder="${esc(placeholder)}" aria-label="${esc(placeholder)}" />${hidden(name, list.join(", "), array)}${dl ? `<datalist id="${dl}">${suggest.map(s => `<option value="${esc(s)}"></option>`).join("")}</datalist>` : ""}</div>`;
+  };
+  const chipItem = text => `<span class="chip" data-chip="${esc(text)}">${esc(text)}<button type="button" class="chip-x" data-chip-remove aria-label="Убрать «${esc(text)}»">${icon("x")}</button></span>`;
+  const toggle = (name, checked, label) => `<label class="switch"><input type="checkbox" name="${name}" ${checked ? "checked" : ""} aria-label="${esc(label)}" /><span class="track"></span></label>`;
+  /* Ползунок с подписью текущего значения. */
+  const RANGE_FORMAT = {
+    score: v => `от ${Number(v).toFixed(1).replace(".", ",")}`,
+    percent: v => `${v}%${+v >= 100 ? " · без потерь" : +v >= 85 ? " · почти без потерь" : +v >= 70 ? " · сбалансировано" : " · экономно"}`,
+    ms: v => (+v ? `${v} мс` : "без паузы"),
+    parallel: v => `${v} ${C.plural(+v, "запрос", "запроса", "запросов")} одновременно`,
+  };
+  const range = (name, value, { min, max, step = 1, format }) => `<div class="range-wrap"><input class="range" type="range" name="${name}" min="${min}" max="${max}" step="${step}" value="${esc(value)}" data-format="${format}" aria-valuetext="${esc(RANGE_FORMAT[format](value))}" /><output class="range-value" data-range-out="${name}">${esc(RANGE_FORMAT[format](value))}</output></div>`;
+  /* Строка настройки: слева что это и зачем, справа элемент управления. */
+  const srow = (title, desc, control, { stack = false, id = "" } = {}) => `<div class="srow ${stack ? "stack" : ""}" ${id ? `id="${id}"` : ""}><div class="srow-text"><strong>${esc(title)}</strong>${desc ? `<small>${desc}</small>` : ""}</div><div class="srow-control">${control}</div></div>`;
 
-    <h2 class="sr-only">Что работает</h2>
-    <div class="truth">${S.real.map(r => `<a class="card truth-card" href="#/${r.route}">${icon(r.icon)}<strong>${esc(r.title)}</strong><small>${esc(r.where)}</small><p>${esc(r.how)}</p></a>`).join("")}</div>
+  /* «Как часто» вместо cron: выбор из понятных вариантов, cron собирается сам. */
+  const FREQ = [
+    ["*/10 * * * *", "Каждые 10 минут"], ["*/15 * * * *", "Каждые 15 минут"], ["*/20 * * * *", "Каждые 20 минут"], ["*/30 * * * *", "Каждые 30 минут"],
+    ["0 * * * *", "Каждый час"], ["0 */2 * * *", "Каждые 2 часа"], ["0 */3 * * *", "Каждые 3 часа"], ["0 */6 * * *", "Каждые 6 часов"], ["0 */12 * * *", "Каждые 12 часов"],
+    ["daily", "Раз в день"], ["weekly", "Раз в неделю"],
+  ];
+  const WEEKDAYS = [[1, "Пн"], [2, "Вт"], [3, "Ср"], [4, "Чт"], [5, "Пт"], [6, "Сб"], [0, "Вс"]];
+  function freqState(cron) {
+    const d = C.describeCron(cron);
+    if (FREQ.some(([v]) => v === cron)) return { kind: cron, time: "09:00", weekday: 1 };
+    if (d.kind === "daily") return { kind: "daily", time: d.local, weekday: 1 };
+    if (d.kind === "weekly") {
+      const [mi, h, , , dow] = cron.split(/\s+/);
+      const total = +h * 60 + +mi + C.OFFSET_H * 60;
+      return { kind: "weekly", time: d.local, weekday: (+dow + (total >= 1440 ? 1 : 0)) % 7 };
+    }
+    return { kind: "custom", time: "09:00", weekday: 1, cron };
+  }
+  function freqPicker(name, cron, { allowFast = true } = {}) {
+    const st = freqState(cron);
+    const options = FREQ.filter(([v]) => allowFast || v !== "*/10 * * * *");
+    const [hh, mm] = st.time.split(":");
+    return `<div class="freq" data-freq="${name}">
+      <select class="select" data-freq-kind aria-label="Как часто">${options.map(([v, l]) => `<option value="${v}" ${st.kind === v ? "selected" : ""}>${l}</option>`).join("")}${st.kind === "custom" ? `<option value="custom" selected>Особое расписание (оставить как есть)</option>` : ""}</select>
+      <div class="freq-time" ${["daily", "weekly"].includes(st.kind) ? "" : "hidden"}>
+        <div class="choice-chips weekday" data-freq-weekday ${st.kind === "weekly" ? "" : "hidden"}>${WEEKDAYS.map(([v, l]) => `<button type="button" data-value="${v}" aria-pressed="${st.weekday === v}">${l}</button>`).join("")}</div>
+        <span class="freq-at">в</span>
+        <select class="select" data-freq-hour aria-label="Час">${Array.from({ length: 24 }, (_, h) => `<option value="${String(h).padStart(2, "0")}" ${+hh === h ? "selected" : ""}>${String(h).padStart(2, "0")}</option>`).join("")}</select>
+        <span class="freq-at">:</span>
+        <select class="select" data-freq-minute aria-label="Минуты">${["00", "05", "10", "15", "20", "30", "40", "45", "50"].map(m => `<option ${m === mm ? "selected" : ""}>${m}</option>`).join("")}</select>
+        <span class="muted freq-tz">по Алматы</span>
+      </div>
+      ${hidden(name, cron)}
+      <p class="freq-say" data-freq-say ${freqSayHidden(cron, st.kind) ? "hidden" : ""}>${esc(freqSentence(cron))}</p>
+    </div>`;
+  }
+  /* Подпись-пересказ нужна, когда выбор неочевиден: день и время, особое расписание или оговорка пульса. */
+  const freqSayHidden = (cron, kind) => !["daily", "weekly", "custom"].includes(kind) && !C.describeCron(cron).note;
+  function freqSentence(cron) {
+    const d = C.describeCron(cron);
+    if (!d.ok) return "Сейчас записано что-то, чего сервер не поймёт: он будет запускать задачу раз в час.";
+    return `${d.text}${d.kind === "daily" || d.kind === "weekly" ? " по Алматы" : ""}.${d.note ? ` ${d.note}.` : ""}`;
+  }
+  function readFreq(box) {
+    const kind = $("[data-freq-kind]", box).value;
+    if (kind === "custom") return $("input[type=hidden]", box).value;
+    if (kind !== "daily" && kind !== "weekly") return kind;
+    const local = `${$("[data-freq-hour]", box).value}:${$("[data-freq-minute]", box).value}`;
+    const weekday = +($("[data-freq-weekday] [aria-pressed='true']", box)?.dataset.value ?? 1);
+    return C.buildCron({ kind, local, weekday });
+  }
+  function syncFreq(box) {
+    const kind = $("[data-freq-kind]", box).value;
+    $(".freq-time", box).hidden = !["daily", "weekly"].includes(kind);
+    $("[data-freq-weekday]", box).hidden = kind !== "weekly";
+    const cron = readFreq(box);
+    $("input[type=hidden]", box).value = cron;
+    const say = $("[data-freq-say]", box);
+    say.textContent = freqSentence(cron);
+    say.hidden = freqSayHidden(cron, kind);
+  }
 
-    <div class="grid split-even">
-      <section class="card"><div class="card-head"><h2>${icon("app-window")}Сайт</h2>${tag("Не подключено", "warning", "unplug")}</div><div class="card-body">
-        ${S.site.map(s => `<div class="setting"><div><strong>${esc(s.label)}</strong><small><code>${esc(s.key)}</code></small></div>
-          ${s.type === "boolean" ? `<label class="switch"><input type="checkbox" ${s.value ? "checked" : ""} ${request("site.update", { key: s.key })} aria-label="${esc(s.label)}" /><span class="track"></span></label>` : s.type === "color" ? `<span class="swatch-row"><span class="swatch" style="background:${esc(s.value)}" aria-hidden="true"></span><span class="mono secondary">${esc(s.value)}</span></span>` : `<span class="mono secondary">${esc(s.value)}</span>`}
-          <div class="tags">${s.retire ? tag("Предлагаю убрать: цвета задаёт тема", "neutral") : tag("Сайт не читает это значение", "warning")}</div></div>`).join("")}
-        ${note("info", "lightbulb", "Если подключать, то начать с «Регистрация открыта»: это одна проверка в <code>POST /auth/register</code>. «Режим обслуживания» требует решения, что видят зрители и кто проходит мимо.")}
-      </div></section>
-      <section class="card"><div class="card-head"><h2>${icon("terminal")}Задано на сервере</h2><span class="card-meta">Меняется только деплоем</span></div><div class="card-body flush env-list">
-        ${S.env.map(e => `<div class="env"><strong>${esc(e.name)}</strong><code>${esc(e.value)}</code><small>${esc(e.note)}</small></div>`).join("")}
-      </div></section>
-    </div>
+  /* Панель «Есть несохранённые изменения» внизу страницы с формой. */
+  const savebar = (label = "Сохранить") => `<div class="savebar" data-savebar hidden role="region" aria-label="Несохранённые изменения"><span class="savebar-text">${icon("pencil-line")}Есть несохранённые изменения</span><span class="savebar-actions"><button type="button" class="button ghost" data-action="reset-form">Отменить</button><button type="button" class="button primary" data-action="save-page">${icon("save")}${esc(label)}</button></span></div>`;
+  const editForm = (kind, requestKey, id, inner, extra = "") => `<form class="edit-form" data-edit="${kind}" data-request-key="${requestKey}" data-id="${esc(id || "")}" ${extra} novalidate>${inner}</form>`;
 
-    <section class="card"><div class="card-head"><h2>${icon("archive")}Архив старых настроек парсера</h2><button type="button" class="button s" ${request("parserSettings.list")}>${icon("file-json")}Выгрузить JSON</button></div>
-      <div class="card-body flush archive">${S.parserArchive.map(c => `<details><summary>${icon("chevron-right")}<strong>${esc(c.title)}</strong><span class="count">${c.fields.length}</span><code>${esc(c.category)}</code></summary><div class="inner">${c.note ? note("info", "lightbulb", esc(c.note)) : ""}<div class="field-chips">${c.fields.map(f => `<code>${esc(f)}</code>`).join("")}</div></div></details>`).join("")}</div>
-    </section>`;
+  /* ==========================================================================
+     Страница тайтла (вместо выезжающей панели)
+     ========================================================================== */
+  const RATING = [["", "Не указан"], ["g", "G — для всех"], ["pg", "PG — детям с родителями"], ["pg_13", "PG-13 — от 13 лет"], ["r", "R-17 — от 17 лет"], ["r_plus", "R+ — от 17, откровенные сцены"], ["rx", "Rx — только для взрослых"]];
+  const GENRE_SUGGEST = ["Экшен", "Приключения", "Комедия", "Драма", "Фэнтези", "Фантастика", "Романтика", "Детектив", "Триллер", "Психологическое", "Сверхъестественное", "Повседневность", "Спорт", "Музыка", "Исторический", "Меха", "Сёнен", "Сёдзё", "Сейнен", "Дзёсей", "Исекай", "Ужасы"];
+  const STUDIO_SUGGEST = ["Madhouse", "Bones", "MAPPA", "Kyoto Animation", "Wit Studio", "Ufotable", "Production I.G", "Sunrise", "Toei Animation", "White Fox", "Science SARU", "OLM", "A-1 Pictures", "CloverWorks", "Trigger"];
+  const TEAMS = ["AniLibria.TV", "AniDUB", "Dream Cast", "Studio Band", "AniMedia", "SHIZA Project", "Crunchyroll", "JAM CLUB"];
+  const demoDescription = "Талантливый хирург спасает жизнь мальчику, а спустя годы узнаёт, что вернул в мир чудовище. Он бросает всё, чтобы исправить ошибку. (Демонстрационный текст.)";
+
+  function animeBySlug(slug) {
+    const known = D.anime.find(x => x.slug === slug);
+    if (known) return known;
+    const mod = D.moderation.find(m => m.slug === slug) || D.conflicts.map(c => c.existing_data).find(e => e.slug === slug);
+    if (!mod) return null;
+    return { id: mod.id || `demo-${slug}`, slug, title: mod.title, status: mod.status || "ongoing", kind: "tv", poster: !!mod.poster_url, description: !!mod.description, genres: [], studios: [], synonyms: [], episodes_aired: 0, needs_moderation: !!mod.moderation_reason, moderation_reason: mod.moderation_reason, shikimori_id: mod.shikimori_id ?? null, kodik_id: mod.kodik_url ? "serial-62004" : null, updated_at: mod.updated_at };
+  }
+  function episodesFor(item) {
+    const real = D.episodes.filter(e => e.anime_slug === item.slug);
+    if (real.length) return real.sort((a, b) => b.episode - a.episode);
+    const n = Math.min(item.episodes_aired || 0, 6);
+    return Array.from({ length: n }, (_, i) => {
+      const number = item.episodes_aired - i;
+      return { id: `syn-${item.slug}-${number}`, anime: item.title, anime_slug: item.slug, season: 1, episode: number, title: null, aired_at: null, is_filler: false, is_recap: false, releases: 1 + (hash(item.slug + number) % 4) };
+    });
+  }
+  function releasesFor(ep) {
+    const real = D.releases.filter(r => r.anime === ep.anime && r.episode === ep.episode);
+    if (real.length) return real;
+    return Array.from({ length: ep.releases || 0 }, (_, i) => {
+      const seed = hash(ep.id + i);
+      return { id: `${ep.id}-r${i}`, anime: ep.anime, episode: ep.episode, source: "kodik", translation_type: i === 2 ? "subtitles" : "voice", translation_team: TEAMS[seed % TEAMS.length], translation_language: "ru", quality: i % 2 ? "720p" : "1080p", is_active: true, is_verified: i === 0, url: `https://kodik.info/seria/${100000 + (seed % 899999)}/${(seed % 65535).toString(16)}/720p` };
+    });
+  }
+
+  function renderTitlePage(slug) {
+    const isNew = slug === "new";
+    const item = isNew ? { title: "", slug: "", status: "announced", kind: "tv", genres: [], studios: [], synonyms: [], episodes_aired: 0, rating: "" } : animeBySlug(slug);
+    if (!item) return `${pageHead("Тайтл не найден", "", "", "#/catalog/titles")}${empty("search-x", "Такого тайтла нет", "Возможно, его удалили или адрес набран с ошибкой.", `<a class="button" href="#/catalog/titles">${icon("arrow-left")}К списку тайтлов</a>`)}`;
+    state.paramTitle = isNew ? "Новый тайтл" : item.title;
+    const reasons = String(item.moderation_reason || "").split(",").filter(Boolean);
+    const facts = isNew ? "" : `<div class="hero-facts">
+        <div><b>${item.episodes_aired}${item.episodes_total ? ` / ${item.episodes_total}` : ""}</b><span>серий</span></div>
+        <div><b>${item.score ? String(item.score).replace(".", ",") : "—"}</b><span>оценка</span></div>
+        <div><b>${item.aired_on ? item.aired_on.slice(0, 4) : "—"}</b><span>год</span></div>
+        <div><b>${num(item.views_count)}</b><span>просмотров</span></div>
+        <div><b>${num(item.favorites_count)}</b><span>в избранном</span></div>
+      </div>`;
+    const head = isNew
+      ? pageHead("Новый тайтл", "Обычно тайтлы добавляет импорт из Kodik. Вручную — для того, чего в Kodik нет.", `<a class="button" href="#/catalog/import">${icon("download")}Найти в Kodik</a>`, "#/catalog/titles")
+      : `<a class="back-link" href="#/catalog/titles">${icon("arrow-left")}Назад к списку</a>
+      <section class="entity-hero">
+        <div class="entity-poster">${item.poster === false ? `<span class="entity-poster-empty">${icon("image-off")}<small>Нет постера</small></span>` : `<img src="${posterUri(item.title, 150, 216)}" alt="" />`}</div>
+        <div class="entity-main">
+          <div class="entity-tags">${statusTag(item.status)}${tag(KIND[item.kind] || item.kind || "—", "neutral")}${item.needs_moderation ? tag("Скрыт: модерация", "warning", "eye-off") : tag("Виден на сайте", "success", "eye")}</div>
+          <div class="page-title"><span class="beam" aria-hidden="true"></span><h1>${esc(item.title)}</h1></div>
+          <p class="entity-sub">${esc([item.title_en, item.title_jp].filter(Boolean).join(" · "))}</p>
+          ${facts}
+        </div>
+        <div class="entity-actions">
+          <a class="button" href="../public/anime.html" target="_blank" rel="noopener">${icon("external-link")}Открыть на сайте</a>
+          <button type="button" class="button" ${request("anime.refresh", { slug: item.slug, name: item.title })}>${icon("refresh-cw")}Перечитать из Kodik</button>
+        </div>
+      </section>`;
+    const moderation = item.needs_moderation ? note("warning", "triangle-alert", `<strong>Зрители этот тайтл не видят.</strong> Не хватает: ${reasons.map(r => (REASON[r] || r).toLowerCase().replace("нет ", "")).join(", ")}. ${reasons.includes("no_video") ? "Видео добавляет Kodik: тайтл уйдёт из модерации, когда появится ссылка Kodik, или если это анонс." : "Заполните поля ниже и сохраните: тайтл выйдет из модерации сам."}`) : "";
+    const form = editForm("anime", isNew ? "anime.create" : "anime.update", item.id, `
+      <div class="grid split">
+        <div class="stack-col">
+          <section class="card"><div class="card-head"><h2>${icon("type")}Названия и описание</h2></div><div class="card-body form-grid">
+            ${field("Название на русском", "title", item.title, { req: true, wide: true })}
+            ${field("Английское", "title_en", item.title_en)}
+            ${field("Японское", "title_jp", item.title_jp)}
+            <label class="field wide"><span>Описание</span><textarea class="textarea" name="description" rows="6" placeholder="Пара абзацев о сюжете, без спойлеров">${esc(item.description === false ? "" : item.description ? demoDescription : "")}</textarea><span class="hint">${item.description === false ? "Пока описания нет, тайтл не выйдет из модерации." : "Видно на странице тайтла под постером."}</span></label>
+          </div></section>
+          <section class="card"><div class="card-head"><h2>${icon("tags")}Жанры и студии</h2></div><div class="card-body" style="display:grid;gap:16px">
+            <div class="field"><span>Жанры</span>${chips("genres", item.genres, { suggest: GENRE_SUGGEST, placeholder: "Начните вводить жанр", array: true })}</div>
+            <div class="field"><span>Студии</span>${chips("studios", item.studios, { suggest: STUDIO_SUGGEST, placeholder: "Начните вводить студию", array: true })}</div>
+          </div></section>
+          <section class="card"><div class="card-head"><h2>${icon("image")}Постер</h2></div><div class="card-body media-row">
+            <div class="media-preview">${item.poster === false || isNew ? `<span class="entity-poster-empty">${icon("image-off")}<small>Нет постера</small></span>` : `<img src="${posterUri(item.title, 150, 216)}" alt="Текущий постер" />`}</div>
+            <div class="form-grid" style="flex:1">
+              ${field("Ссылка на постер", "poster_url", item.poster === false || isNew ? "" : `/media/posters/${item.slug}.webp`, { wide: true, placeholder: "https://… или /media/posters/…", hint: "Проще всего — кнопка ниже: постер подтянется из Shikimori." })}
+              ${field("Ссылка на обложку", "cover_url", "", { wide: true, placeholder: "Широкая картинка для слайдера, необязательно" })}
+              ${!isNew ? `<div class="wide"><button type="button" class="button s" ${request("anime.refreshPoster", { slug: item.slug, name: item.title })}>${icon("image-down")}Постер из Shikimori</button></div>` : ""}
+            </div>
+          </div></section>
+          ${isNew ? "" : `<section class="card"><div class="card-head"><h2>${icon("lock")}Только из синхронизации</h2></div><div class="card-body"><dl class="kv"><dt>Ромадзи</dt><dd>${esc(item.title_romaji || "—")}</dd><dt>Другие названия</dt><dd>${esc((item.synonyms || []).join(", ") || "—")}</dd><dt>Связанных тайтлов</dt><dd class="mono">${item.related ?? 0}</dd><dt>Адрес на сайте</dt><dd class="mono">/anime/${esc(item.slug)}</dd><dt>Обновлён</dt><dd>${at(item.updated_at)}</dd></dl><p class="muted" style="font-size:12px;margin-top:10px">Эти поля руками не меняются: их пишет проход «Связанные тайтлы».</p></div></section>`}
+        </div>
+        <div class="stack-col">
+          <section class="card"><div class="card-head"><h2>${icon("calendar-days")}Выход</h2></div><div class="card-body" style="display:grid;gap:16px">
+            <div class="field"><span>Статус</span>${single("status", item.status === "anons" ? "announced" : item.status, [["announced", "Анонс"], ["ongoing", "Выходит"], ["released", "Вышел"]], "Статус")}</div>
+            <div class="field"><span>Тип</span>${single("kind", item.kind, [["tv", "Сериал"], ["movie", "Фильм"], ["ova", "OVA"], ["ona", "ONA"], ["special", "Спешл"]], "Тип")}</div>
+            <div class="form-grid">
+              ${field("Серий вышло", "episodes_aired", item.episodes_aired, { type: "number", min: 0, inputmode: "numeric" })}
+              ${field("Серий всего", "episodes_total", item.episodes_total, { type: "number", min: 0, inputmode: "numeric", placeholder: "Неизвестно" })}
+              ${field("Дата начала", "aired_on", item.aired_on, { type: "date" })}
+              ${field("Следующая серия", "next_episode_at", C.utcToLocalInput(item.next_episode_at), { type: "datetime-local", hint: "По Алматы" })}
+            </div>
+            ${field("Возрастной рейтинг", "rating", item.rating || "", { options: RATING })}
+            ${field("Оценка", "score", item.score, { type: "number", step: "0.01", min: 0, max: 10, inputmode: "decimal", hint: "От 0 до 10. Обычно приходит из Shikimori." })}
+          </div></section>
+          <section class="card"><div class="card-head"><h2>${icon("link")}Связь с Shikimori и Kodik</h2></div><div class="card-body form-grid">
+            <div class="wide">${note("info", "lightbulb", "По этим номерам синхронизация находит тайтл. Неверный номер Shikimori — главная причина конфликтов.")}</div>
+            <label class="field"><span>Номер на Shikimori</span><span class="input-link"><input class="input mono" name="shikimori_id" type="number" min="0" inputmode="numeric" value="${esc(item.shikimori_id ?? "")}" />${item.shikimori_id ? `<a class="icon-btn s" href="https://shikimori.one/animes/${item.shikimori_id}" target="_blank" rel="noopener" aria-label="Открыть на Shikimori">${icon("external-link")}</a>` : ""}</span><span class="error" data-error-for="shikimori_id" hidden></span></label>
+            ${field("Номер на MyAnimeList", "mal_id", item.mal_id, { type: "number", min: 0, mono: true, inputmode: "numeric" })}
+            ${field("Номер в Kodik", "kodik_id", item.kodik_id, { mono: true, placeholder: "serial-1471" })}
+            ${field("Номер Shikimori по мнению Kodik", "kodik_shikimori_id", item.kodik_shikimori_id, { type: "number", min: 0, mono: true, inputmode: "numeric", hint: item.kodik_shikimori_id && item.shikimori_id && item.kodik_shikimori_id !== item.shikimori_id ? "Не совпадает с номером Shikimori — проверьте." : "Должен совпадать с номером выше." })}
+            ${field("Ссылка на плеер Kodik", "kodik_url", item.kodik_id ? `https://kodik.info/serial/${item.kodik_id.replace(/\D/g, "")}` : "", { wide: true, mono: true, placeholder: "https://kodik.info/serial/…" })}
+          </div></section>
+          ${isNew ? `<section class="card"><div class="card-head"><h2>${icon("link-2")}Адрес на сайте</h2></div><div class="card-body">${field("Адрес", "slug", "", { req: true, mono: true, placeholder: "naprimer-monstr", hint: "Латиница, цифры и дефисы. Подставится из названия, если оставить пустым." })}</div></section>` : hidden("slug", item.slug)}
+        </div>
+      </div>`);
+    const episodes = isNew ? "" : episodesSection(item);
+    const danger = isNew ? "" : `<section class="card danger-zone"><div class="card-body danger-row"><div><strong>Удалить тайтл</strong><p class="muted">Вместе с ним пропадут серии, источники, комментарии, избранное и места в коллекциях. Если тайтл просто не нужен в синхронизации, лучше добавить его в исключения.</p></div><button type="button" class="button danger" ${request("anime.delete", { id: item.id, name: item.title })}>${icon("trash-2")}Удалить навсегда</button></div></section>`;
+    return `${head}${moderation}${form}${episodes}${danger}${savebar(isNew ? "Создать тайтл" : "Сохранить")}`;
+  }
+
+  function episodesSection(item) {
+    const eps = episodesFor(item);
+    const editing = state.editing.episode;
+    const rows = eps.map(ep => {
+      const open = editing === ep.id;
+      return `<div class="ep-row ${open ? "is-open" : ""}">
+        <div class="ep-line">
+          <span class="ep-num mono">${ep.episode}</span>
+          <div class="ep-title"><strong>${esc(ep.title || `${ep.episode} серия`)}</strong><small>Сезон ${ep.season}${ep.aired_at ? ` · вышла ${at(ep.aired_at)}` : ""}</small></div>
+          <div class="ep-tags">${ep.is_filler ? tag("Филлер", "warning") : ""}${ep.is_recap ? tag("Рекап", "info") : ""}<span class="muted ep-src">${ep.releases} ${C.plural(ep.releases, "источник", "источника", "источников")}</span></div>
+          <button type="button" class="button s ${open ? "" : "ghost"}" data-action="toggle-episode" data-id="${ep.id}" aria-expanded="${open}">${icon(open ? "chevron-up" : "pencil")}${open ? "Свернуть" : "Изменить"}</button>
+        </div>
+        ${open ? episodeEditor(item, ep) : ""}
+      </div>`;
+    }).join("");
+    const adding = editing === "new";
+    return `<section class="card" id="episodes"><div class="card-head"><h2>${icon("list-video")}Серии и источники видео</h2><button type="button" class="button s" data-action="toggle-episode" data-id="new">${icon("plus")}Добавить серию</button></div>
+      <div class="card-body flush">
+        ${note("info", "lightbulb", "Серии и озвучки обычно приходят из Kodik сами. Здесь правят номер, сезон, отметки «филлер» и «рекап» и выключают нерабочие источники.")}
+        ${adding ? `<div class="ep-row is-open">${episodeEditor(item, null)}</div>` : ""}
+        <div class="ep-list">${rows || `<p class="muted" style="padding:16px var(--card-pad)">Серий пока нет.</p>`}</div>
+      </div></section>`;
+  }
+  function episodeEditor(item, ep) {
+    const isNew = !ep;
+    ep = ep || { season: 1, episode: (item.episodes_aired || 0) + 1, title: "", is_filler: false, is_recap: false };
+    const rels = isNew ? [] : releasesFor(ep);
+    return `<div class="inline-editor">
+      ${editForm("episode", isNew ? "episodes.create" : "episodes.update", ep.id, `
+        ${isNew ? hidden("anime_id", item.id) : ""}
+        <div class="form-grid four">
+          ${field("Сезон", "season", ep.season, { type: "number", min: 0, inputmode: "numeric" })}
+          ${field("Номер серии", "episode", ep.episode, { type: "number", min: 0, req: true, inputmode: "numeric" })}
+          ${field("Название серии", "title", ep.title, { placeholder: "Необязательно" })}
+          ${field("Дата выхода", "aired_at", C.utcToLocalInput(ep.aired_at), { type: "datetime-local", hint: "По Алматы" })}
+        </div>
+        <div class="toggles-row">
+          <label class="switch">${'<input type="checkbox" name="is_filler" ' + (ep.is_filler ? "checked" : "") + ' />'}<span class="track"></span>Филлер — серия вне основного сюжета</label>
+          <label class="switch">${'<input type="checkbox" name="is_recap" ' + (ep.is_recap ? "checked" : "") + ' />'}<span class="track"></span>Рекап — пересказ прошлых серий</label>
+        </div>
+        <div class="inline-actions">${!isNew ? `<button type="button" class="button s ghost danger-text" ${request("episodes.delete", { id: ep.id, name: `${item.title}, серия ${ep.episode}` })}>${icon("trash-2")}Удалить серию</button>` : ""}<span class="grow"></span><button type="button" class="button s ghost" data-action="toggle-episode" data-id="${isNew ? "new" : ep.id}">Отмена</button><button type="button" class="button s primary" data-action="save-inline">${icon("save")}${isNew ? "Добавить" : "Сохранить серию"}</button></div>`)}
+      ${isNew ? "" : `<div class="rel-block"><div class="rel-head"><strong>${icon("film", "icon-s")}Источники видео</strong><button type="button" class="button s ghost" data-action="toggle-release" data-id="new-${ep.id}">${icon("plus")}Добавить источник</button></div>
+        ${state.editing.release === `new-${ep.id}` ? releaseEditor(ep, null) : ""}
+        ${rels.map(r => `<div class="rel-row"><div class="rel-line">${icon("play")}<div><strong>${esc(r.translation_team)}</strong><small>${r.translation_type === "voice" ? "Озвучка" : "Субтитры"} · ${esc(LANG[r.translation_language] || r.translation_language)} · ${esc(r.quality || "качество не указано")} · ${esc(SOURCE[r.source] || r.source)}</small></div>${r.is_active ? (r.is_verified ? tag("Проверен", "success") : tag("Работает", "info")) : tag("Выключен", "neutral")}<button type="button" class="icon-btn s" data-action="toggle-release" data-id="${r.id}" aria-label="Изменить источник ${esc(r.translation_team)}">${icon("pencil")}</button></div>${state.editing.release === r.id ? releaseEditor(ep, r) : ""}</div>`).join("")}
+      </div>`}
+    </div>`;
+  }
+  const LANG = { ru: "Русский", en: "Английский", ja: "Японский", uk: "Украинский", kk: "Казахский" };
+  const SOURCE = { kodik: "Kodik", aniboom: "Aniboom", sibnet: "Sibnet", other: "Другой" };
+  function releaseEditor(ep, rel) {
+    const isNew = !rel;
+    rel = rel || { source: "kodik", translation_type: "voice", translation_language: "ru", quality: "1080p", is_active: true, is_verified: false, url: "", translation_team: "" };
+    return `<div class="inline-editor nested">${editForm("release", isNew ? "releases.create" : "releases.update", rel.id, `
+      ${isNew ? hidden("episode_id", ep.id) : ""}
+      <div class="form-grid">
+        <div class="field"><span>Тип</span>${single("translation_type", rel.translation_type, [["voice", "Озвучка", "mic"], ["subtitles", "Субтитры", "captions"]], "Тип перевода")}</div>
+        <div class="field"><span>Качество</span>${single("quality", rel.quality || "", [["1080p", "1080p"], ["720p", "720p"], ["480p", "480p"], ["", "Неизвестно"]], "Качество")}</div>
+        ${field("Команда перевода", "translation_team", rel.translation_team, { list: "dl-teams", placeholder: "Например, AniLibria.TV" })}
+        ${field("Язык", "translation_language", rel.translation_language, { options: Object.entries(LANG) })}
+        ${field("Откуда видео", "source", rel.source, { options: Object.entries(SOURCE) })}
+        ${field("Ссылка на видео", "url", rel.url, { req: true, wide: true, mono: true, placeholder: "https://kodik.info/seria/…" })}
+      </div>
+      <datalist id="dl-teams">${TEAMS.map(t => `<option value="${esc(t)}"></option>`).join("")}</datalist>
+      <details class="tech"><summary>${icon("chevron-right", "icon-s")}Дополнительно</summary><div class="form-grid">${field("Ссылка для встраивания", "embed_url", rel.embed_url, { wide: true, mono: true, placeholder: "Если отличается от ссылки на видео" })}${field("Номер у источника", "external_id", rel.external_id, { mono: true })}</div></details>
+      <div class="toggles-row"><label class="switch"><input type="checkbox" name="is_active" ${rel.is_active ? "checked" : ""} /><span class="track"></span>Показывать в плеере</label><label class="switch"><input type="checkbox" name="is_verified" ${rel.is_verified ? "checked" : ""} /><span class="track"></span>Проверен вручную</label></div>
+      <div class="inline-actions">${!isNew ? `<button type="button" class="button s ghost danger-text" ${request("releases.delete", { id: rel.id, name: `${rel.translation_team}, серия ${ep.episode}` })}>${icon("trash-2")}Удалить</button>` : ""}<span class="grow"></span><button type="button" class="button s ghost" data-action="toggle-release" data-id="${isNew ? `new-${ep.id}` : rel.id}">Отмена</button><button type="button" class="button s primary" data-action="save-inline">${icon("save")}${isNew ? "Добавить" : "Сохранить"}</button></div>`)}</div>`;
   }
 
   /* ==========================================================================
-     Панель справа (drawer)
+     Страница задачи
      ========================================================================== */
-  let drawerReturn = null;
-  function openDrawer(html) {
-    const drawer = $("#drawer");
-    drawerReturn = document.activeElement;
-    drawer.innerHTML = html;
-    drawer.hidden = false;
-    state.dirty = false;
-    refreshIcons(drawer);
-    const form = $("form[data-form]", drawer);
-    if (form) form.dataset.initial = JSON.stringify(C.readForm(form));
-    requestAnimationFrame(() => { drawer.classList.add("is-open"); $("#scrim").classList.add("is-open"); });
-    document.body.style.overflow = "hidden";
-    setTimeout(() => ($("[autofocus]", drawer) || $(".drawer-head h2", drawer))?.focus?.(), 60);
-  }
-  function closeDrawer(force = false) {
-    const drawer = $("#drawer");
-    if (drawer.hidden) return;
-    if (state.dirty && !force) {
-      confirmDialog({ title: "Закрыть без сохранения?", tone: "warning", icon: "triangle-alert", text: "Изменения в форме пропадут.", ok: "Закрыть", onOk: () => closeDrawer(true) });
-      return;
-    }
-    drawer.classList.remove("is-open");
-    $("#scrim").classList.remove("is-open");
-    document.body.style.overflow = "";
-    setTimeout(() => { drawer.hidden = true; drawer.innerHTML = ""; }, reduceMotion.matches ? 0 : 240);
-    drawerReturn?.focus?.();
-  }
-  const drawerShell = (title, sub, body, foot) => `<div class="drawer-head"><div><h2 id="drawer-title" tabindex="-1">${esc(title)}</h2>${sub ? `<p>${sub}</p>` : ""}<div class="dirty" data-dirty hidden>${icon("pencil-line", "icon-s")}Есть несохранённые изменения</div></div><button type="button" class="icon-btn" data-action="close-drawer" aria-label="Закрыть">${icon("x")}</button></div><div class="drawer-body">${body}</div><div class="drawer-foot">${foot}</div>`;
-  const field = (label, name, value, opts = {}) => `<label class="field ${opts.wide ? "wide" : ""}"><span>${esc(label)}${opts.req ? ' <b class="req" aria-hidden="true">*</b>' : ""} <code>${esc(name)}</code></span>${opts.textarea ? `<textarea class="textarea" name="${name}" ${opts.req ? "required" : ""}>${esc(value ?? "")}</textarea>` : opts.options ? `<select class="select" name="${name}">${opts.options.map(([v, l]) => `<option value="${esc(v)}" ${String(v) === String(value ?? "") ? "selected" : ""}>${esc(l)}</option>`).join("")}</select>` : `<input class="input ${opts.mono ? "mono" : ""}" name="${name}" type="${opts.type || "text"}" value="${esc(value ?? "")}" ${opts.req ? "required" : ""} ${opts.readonly ? 'readonly data-readonly="true"' : ""} ${opts.list ? 'data-list="true"' : ""} ${opts.step ? `step="${opts.step}"` : ""} ${opts.min != null ? `min="${opts.min}"` : ""} ${opts.placeholder ? `placeholder="${esc(opts.placeholder)}"` : ""} />`}${opts.hint ? `<span class="hint">${opts.hint}</span>` : ""}<span class="error" data-error-for="${name}" hidden></span></label>`;
-
-  function titleEditor(item) {
-    const isNew = !item;
-    item = item || { title: "", slug: "", status: "announced", kind: "tv", genres: [], studios: [], synonyms: [], episodes_aired: 0 };
-    const body = `<div class="tabs" role="tablist">${[["main", "Основное"], ["release", "Выход"], ["ids", "Связи и ID"], ["media", "Медиа"], ["sync", "Из синхронизации"]].map(([id, label], i) => `<button type="button" role="tab" data-tab="${id}" aria-selected="${i === 0}">${label}</button>`).join("")}</div>
-      <form data-form="anime" data-id="${item.id || ""}" novalidate>
-        <div data-panel="main" class="form-grid">
-          ${field("Название", "title", item.title, { req: true, wide: true })}
-          ${field("slug", "slug", item.slug, { req: true, mono: true, hint: "Адрес страницы: /anime/slug. Смена ломает старые ссылки." })}
-          ${field("Тип", "kind", item.kind, { options: [["tv", "Сериал"], ["movie", "Фильм"], ["ova", "OVA"], ["ona", "ONA"], ["special", "Спешл"]] })}
-          ${field("Английское название", "title_en", item.title_en)}
-          ${field("Японское название", "title_jp", item.title_jp)}
-          ${field("Описание", "description", item.description ? "Наследник богатой семьи соглашается помочь странной девушке… (демонстрационный текст)" : "", { textarea: true, wide: true, hint: item.description ? "" : "Пустое описание держит тайтл на модерации." })}
-          ${field("Жанры", "genres", (item.genres || []).join(", "), { list: true, wide: true, hint: "Через запятую." })}
-          ${field("Студии", "studios", (item.studios || []).join(", "), { list: true, wide: true })}
-        </div>
-        <div data-panel="release" class="form-grid" hidden>
-          ${field("Статус", "status", item.status, { options: [["announced", "Анонс"], ["ongoing", "Выходит"], ["released", "Вышел"]], hint: "Синхронизация пишет announced. Массовая смена статуса пишет anons — это другое значение." })}
-          ${field("Возрастной рейтинг", "rating", item.rating, { options: [["", "—"], ["g", "G"], ["pg", "PG"], ["pg_13", "PG-13"], ["r", "R-17"], ["r_plus", "R+"], ["rx", "Rx"]] })}
-          ${field("Дата начала", "aired_on", item.aired_on, { type: "date" })}
-          ${field("Следующая серия", "next_episode_at", C.utcToLocalInput(item.next_episode_at), { type: "datetime-local", hint: "По Алматы. В API уйдёт в UTC." })}
-          ${field("Серий вышло", "episodes_aired", item.episodes_aired, { type: "number", min: 0 })}
-          ${field("Серий всего", "episodes_total", item.episodes_total, { type: "number", min: 0 })}
-          ${field("Оценка", "score", item.score, { type: "number", step: "0.01", min: 0 })}
-        </div>
-        <div data-panel="ids" class="form-grid" hidden>
-          ${note("warning", "triangle-alert", "Неверный Shikimori ID — главная причина конфликтов: проход «Связанные тайтлы» сверяет по нему название и сезон.")}
-          ${field("Shikimori ID", "shikimori_id", item.shikimori_id, { type: "number", min: 0, mono: true })}
-          ${field("MyAnimeList ID", "mal_id", item.mal_id, { type: "number", min: 0, mono: true })}
-          ${field("Kodik ID", "kodik_id", item.kodik_id, { mono: true })}
-          ${field("Shikimori ID по данным Kodik", "kodik_shikimori_id", item.kodik_shikimori_id, { type: "number", min: 0, mono: true, hint: "Что Kodik считает правильным ID. Расхождение с полем выше — повод проверить." })}
-          ${field("Ссылка Kodik", "kodik_url", item.kodik_id ? `https://kodik.info/serial/${item.kodik_id}` : "", { wide: true, mono: true })}
-        </div>
-        <div data-panel="media" class="form-grid" hidden>
-          ${field("Постер", "poster_url", item.poster !== false && item.slug ? `/media/posters/${item.slug}.webp` : "", { wide: true, mono: true, hint: "Ссылка http(s) или локальный путь /media/…" })}
-          ${field("Обложка", "cover_url", "", { wide: true, mono: true })}
-          ${!isNew ? `<div class="wide" style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="button s" ${request("anime.refreshPoster", { slug: item.slug, name: item.title })}>${icon("image-down")}Взять постер из Shikimori</button><button type="button" class="button s" ${request("anime.refresh", { slug: item.slug, name: item.title })}>${icon("refresh-cw")}Перечитать из Kodik</button></div>` : ""}
-        </div>
-        <div data-panel="sync" hidden>
-          ${note("info", "lock", "Эти поля пишет только синхронизация, через API их не изменить.")}
-          <dl class="kv" style="margin-top:14px"><dt>Ромадзи</dt><dd>${esc(item.title_romaji || "—")}</dd><dt>Синонимы</dt><dd>${esc((item.synonyms || []).join(", ") || "—")}</dd><dt>Связанных тайтлов</dt><dd class="mono">${item.related ?? 0}</dd><dt>Просмотры</dt><dd class="mono">${num(item.views_count)}</dd><dt>В избранном</dt><dd class="mono">${num(item.favorites_count)}</dd></dl>
-        </div>
-      </form>`;
-    const foot = `${!isNew ? `<button type="button" class="button danger left" ${request("anime.delete", { id: item.id, name: item.title })}>${icon("trash-2")}Удалить</button><a class="button ghost" href="../public/anime.html" target="_blank" rel="noopener">${icon("external-link")}На сайте</a>` : ""}<button type="button" class="button" data-action="close-drawer">Отмена</button><button type="button" class="button primary" data-action="save-form" data-kind="anime" data-request-key="${isNew ? "anime.create" : "anime.update"}">${icon("save")}${isNew ? "Создать" : "Сохранить"}</button>`;
-    openDrawer(drawerShell(isNew ? "Новый тайтл" : item.title, isNew ? "Обычно тайтлы добавляет импорт из Kodik. Вручную — для того, чего в Kodik нет." : `${statusTag(item.status)} ${item.needs_moderation ? tag("На модерации", "warning") : ""} <span class="mono">${esc(item.slug)}</span>`, body, foot));
-  }
-
-  function episodeDrawer(ep) {
-    const isNew = !ep;
-    ep = ep || { season: 1, episode: "", is_filler: false, is_recap: false };
-    const rels = isNew ? [] : D.releases.filter(r => r.anime === ep.anime && r.episode === ep.episode);
-    const body = `<form data-form="episode" data-id="${ep.id || ""}" novalidate><div class="form-grid">
-        ${isNew ? field("Тайтл (anime_id)", "anime_id", "", { wide: true, mono: true, req: true, placeholder: "UUID тайтла", hint: "Проще открыть тайтл и добавить серию оттуда." }) : ""}
-        ${field("Сезон", "season", ep.season, { type: "number", min: 0 })}
-        ${field("Номер серии", "episode", ep.episode, { type: "number", min: 0, req: true })}
-        ${field("Название", "title", ep.title, { wide: true })}
-        ${field("Дата выхода", "aired_at", C.utcToLocalInput(ep.aired_at), { type: "datetime-local", hint: "По Алматы" })}
-        ${field("Превью", "thumbnail_url", "", { mono: true })}
-        <div class="wide" style="display:flex;gap:18px;flex-wrap:wrap"><label class="switch"><input type="checkbox" name="is_filler" ${ep.is_filler ? "checked" : ""} /><span class="track"></span>Филлер</label><label class="switch"><input type="checkbox" name="is_recap" ${ep.is_recap ? "checked" : ""} /><span class="track"></span>Рекап</label></div>
-      </div></form>
-      ${isNew ? "" : `<h3 style="margin:22px 0 10px;font-size:14px;display:flex;align-items:center;gap:8px">${icon("film")}Источники видео · ${rels.length}</h3>
-      <div style="display:grid;gap:8px">${rels.length ? rels.map(r => `<div class="file">${icon("play")}<div><strong>${esc(r.translation_team)} · ${r.translation_type === "voice" ? "озвучка" : "субтитры"}</strong><small>${esc(r.source)} · ${esc(r.quality || "")} · ${esc(r.translation_language)}</small></div>${r.is_active ? (r.is_verified ? tag("Проверен", "success") : tag("Активен", "info")) : tag("Выключен", "neutral")}<div class="file-actions"><button type="button" class="icon-btn s" data-action="edit-release" data-id="${r.id}" aria-label="Изменить источник">${icon("pencil")}</button><button type="button" class="icon-btn s danger" ${request("releases.delete", { id: r.id, name: `${r.translation_team}, серия ${r.episode}` })} aria-label="Удалить источник">${icon("trash-2")}</button></div></div>`).join("") : `<p class="muted">Источников в таблице нет. Плеер на сайте берёт видео из живого плейлиста Kodik, поэтому серия может работать и без них.</p>`}</div>
-      <button type="button" class="button s" style="margin-top:10px" data-action="edit-release">${icon("plus")}Добавить источник</button>`}`;
-    const foot = `${!isNew ? `<button type="button" class="button danger left" ${request("episodes.delete", { id: ep.id, name: `${ep.anime}, серия ${ep.episode}` })}>${icon("trash-2")}Удалить</button>` : ""}<button type="button" class="button" data-action="close-drawer">Отмена</button><button type="button" class="button primary" data-action="save-form" data-kind="episode" data-request-key="${isNew ? "episodes.create" : "episodes.update"}">${icon("save")}${isNew ? "Создать" : "Сохранить"}</button>`;
-    openDrawer(drawerShell(isNew ? "Новая серия" : `${ep.anime} · ${ep.episode} серия`, "Нужно право <code>content.edit</code> или флаг суперпользователя.", body, foot));
-  }
-  function releaseDrawer(rel) {
-    const isNew = !rel;
-    rel = rel || { source: "kodik", translation_language: "ru", is_active: true, is_verified: false };
-    const body = `<form data-form="release" data-id="${rel.id || ""}" novalidate><div class="form-grid">
-      ${isNew ? field("Серия (episode_id)", "episode_id", "", { wide: true, mono: true, req: true, placeholder: "UUID серии" }) : ""}
-      ${field("Источник", "source", rel.source, { req: true })}
-      ${field("Качество", "quality", rel.quality, { placeholder: "1080p" })}
-      ${field("Тип перевода", "translation_type", rel.translation_type, { options: [["voice", "Озвучка"], ["subtitles", "Субтитры"]] })}
-      ${field("Команда", "translation_team", rel.translation_team)}
-      ${field("Язык", "translation_language", rel.translation_language, { mono: true })}
-      ${field("Внешний ID", "external_id", rel.external_id, { mono: true })}
-      ${field("Ссылка", "url", rel.url, { req: true, wide: true, mono: true })}
-      ${field("Ссылка для встраивания", "embed_url", rel.embed_url, { wide: true, mono: true })}
-      <div class="wide" style="display:flex;gap:18px;flex-wrap:wrap"><label class="switch"><input type="checkbox" name="is_active" ${rel.is_active ? "checked" : ""} /><span class="track"></span>Активен</label><label class="switch"><input type="checkbox" name="is_verified" ${rel.is_verified ? "checked" : ""} /><span class="track"></span>Проверен</label></div>
-    </div></form>`;
-    openDrawer(drawerShell(isNew ? "Новый источник" : `${rel.translation_team} · ${rel.episode} серия`, esc(rel.anime || ""), body, `<button type="button" class="button" data-action="close-drawer">Отмена</button><button type="button" class="button primary" data-action="save-form" data-kind="release" data-request-key="${isNew ? "releases.create" : "releases.update"}">${icon("save")}Сохранить</button>`));
-  }
-
-  function jobDrawer(job) {
-    const logs = D.jobLogs.filter(l => job.id.startsWith(l.job));
+  function renderJobPage(id) {
+    const job = D.jobs.find(j => j.id === id);
+    if (!job) return `${pageHead("Задача не найдена", "", "", "#/parser/jobs")}${empty("search-x", "Такой задачи нет", "Возможно, её удалили из истории.")}`;
+    state.paramTitle = jobTitle(job);
+    const logs = D.jobLogs.filter(l => job.id.startsWith(l.job)).sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
     const isLive = job.status === "running" || job.status === "pending";
-    const body = `<dl class="kv"><dt>Статус</dt><dd>${statusTag(job.status)}</dd><dt>Тип</dt><dd class="mono">${esc(job.parser_name)}/${esc(job.job_type)}</dd><dt>Источник</dt><dd>${esc(job.source)} ${tag("в базе не хранится", "neutral")}</dd><dt>Создана</dt><dd>${at(job.created_at)}</dd><dt>Старт</dt><dd>${at(job.started_at)}</dd><dt>Конец</dt><dd>${at(job.completed_at)}</dd><dt>Длительность</dt><dd>${C.fmtDuration(job.duration_seconds)}</dd>${job.waited ? `<dt>Ожидание</dt><dd>${esc(job.waited)}</dd>` : ""}${job.error_message ? `<dt>Ошибка</dt><dd style="color:var(--red)">${esc(job.error_message)}</dd>` : ""}<dt>ID</dt><dd class="mono" style="font-size:12px">${esc(job.id)}</dd></dl>
-      <div class="live-stats" style="margin-top:16px"><div><b>${num(job.items_processed)}</b><span>просмотрено</span></div><div><b>${num(job.items_updated)}</b><span>обновлено</span></div><div><b>${num(job.items_created)}</b><span>создано</span></div><div><b>${num(job.items_failed)}</b><span>ошибок</span></div></div>
-      ${job.job_type === "incremental" && job.parser_name === "shikimori" ? note("danger", "ban", "Этот тип не перенесён в Go-воркер и всегда падает. Запускать его не нужно.") : ""}
-      <h3 style="margin:22px 0 10px;font-size:14px;display:flex;align-items:center;gap:8px">${icon("scroll-text")}Журнал задачи ${isLive ? tag("обновляется вживую", "live") : ""}</h3>
-      <div class="card"><div class="log">${logs.length ? logs.map(l => `<div class="log-row" data-tone="${toneForStatus(l.level)}"><span class="mono muted">${C.fmtTime(l.created_at)}</span><span class="lvl">${esc(labelForStatus(l.level))}</span><span class="msg">${esc(l.message)}</span><span></span></div>`).join("") : `<p class="muted" style="padding:14px">Сообщений нет.</p>`}</div></div>`;
-    const foot = `${isLive ? `<button type="button" class="button danger left" ${request("jobs.stop", { id: job.id, name: jobTitle(job) })}>${icon("square")}Остановить</button>` : `<button type="button" class="button ghost left" ${request("jobs.delete", { id: job.id, name: jobTitle(job) })}>${icon("trash-2")}Удалить из истории</button>`}<button type="button" class="button" data-action="close-drawer">Закрыть</button>`;
-    openDrawer(drawerShell(jobTitle(job), `${statusTag(job.status)}`, body, foot));
-  }
-
-  function scheduleDrawer(s) {
-    const isNew = !s;
-    const schedulable = D.operations.filter(op => op.works && op.schedulable);
-    const cron = s ? s.cron_expression : "0 4 * * *";
-    const d = C.describeCron(cron);
-    const kind = d.kind === "every" ? "every" : d.kind === "weekly" ? "weekly" : "daily";
-    const body = `<form data-form="schedule" novalidate style="display:grid;gap:18px">
-      <label class="field"><span>Что запускать</span><select class="select" name="operation" ${isNew ? "" : "disabled"}>${schedulable.map(op => `<option value="${op.key}" ${s && `${s.parser_name}:${s.job_type}` === op.key ? "selected" : ""}>${esc(op.title)}</option>`).join("")}${s && !schedulable.some(op => `${s.parser_name}:${s.job_type}` === op.key) ? `<option selected>${esc(scheduleTitle(s))}</option>` : ""}</select><span class="hint">В списке только операции, которые имеет смысл планировать.</span></label>
-      <div class="field"><span>Как часто</span><div class="preset-grid">
-        <button type="button" class="preset" data-preset="every" aria-pressed="${kind === "every"}"><strong>Каждые N минут</strong><small>Для новинок</small></button>
-        <button type="button" class="preset" data-preset="daily" aria-pressed="${kind === "daily"}"><strong>Раз в день</strong><small>В выбранное время</small></button>
-        <button type="button" class="preset" data-preset="weekly" aria-pressed="${kind === "weekly"}"><strong>Раз в неделю</strong><small>День и время</small></button>
-      </div></div>
-      <div class="form-grid">
-        <label class="field" data-show="every" ${kind === "every" ? "" : "hidden"}><span>Интервал</span><select class="select" data-cron="minutes">${[15, 30, 60].map(m => `<option value="${m}" ${d.n === m ? "selected" : ""}>Каждые ${m} минут</option>`).join("")}</select></label>
-        <label class="field" data-show="weekly" ${kind === "weekly" ? "" : "hidden"}><span>День</span><select class="select" data-cron="weekday">${["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"].map((n, i) => `<option value="${i}" ${i === 1 ? "selected" : ""}>${n}</option>`).join("")}</select></label>
-        <label class="field" data-show="daily weekly" ${kind === "every" ? "hidden" : ""}><span>Время по Алматы</span><input class="input mono" type="time" data-cron="local" value="${d.local || "09:00"}" /></label>
+    const op = D.operations.find(o => o.parser === job.parser_name && [o.job_type, o.dry].includes(job.job_type));
+    const actions = isLive ? `<button type="button" class="button danger" ${request("jobs.stop", { id: job.id, name: jobTitle(job) })}>${icon("square")}Остановить</button>` : `<button type="button" class="button" ${request("jobs.delete", { id: job.id, name: jobTitle(job) })}>${icon("trash-2")}Убрать из истории</button>`;
+    return `${pageHead(jobTitle(job), `${esc(job.source)} · создана ${at(job.created_at)}${op ? ` · ${esc(op.summary)}` : ""}`, actions, "#/parser/jobs")}
+      <div class="grid split">
+        <section class="card ${job.status === "running" ? "glow" : ""}"><div class="card-head"><h2>${icon("activity")}Ход выполнения</h2>${statusTag(job.status)}</div><div class="card-body" style="display:grid;gap:14px">
+          ${job.status === "running" ? `<div style="display:flex;align-items:center;gap:12px">${liveBar(job)}<span class="mono" data-live-pct>${state.live.progress}%</span></div>` : ""}
+          ${job.waited ? note("info", "hourglass", esc(job.waited)) : ""}
+          ${job.error_message ? note(job.status === "failed" ? "danger" : "neutral", job.status === "failed" ? "octagon-alert" : "square", esc(job.error_message)) : ""}
+          ${job.job_type === "incremental" && job.parser_name === "shikimori" ? note("danger", "ban", "Этот тип не перенесён в Go-воркер и всегда падает. Запускать его не нужно.") : ""}
+          <div class="live-stats"><div><b>${num(job.items_processed)}</b><span>${job.total ? `из ${num(job.total)}` : "просмотрено"}</span></div><div><b>${num(job.items_updated)}</b><span>обновлено</span></div><div><b>${num(job.items_created)}</b><span>создано</span></div><div><b>${num(job.items_failed)}</b><span>ошибок</span></div></div>
+        </div></section>
+        <section class="card"><div class="card-head"><h2>${icon("clock")}Время</h2></div><div class="card-body"><dl class="kv"><dt>Создана</dt><dd>${at(job.created_at)}</dd><dt>Начало</dt><dd>${at(job.started_at)}</dd><dt>Конец</dt><dd>${at(job.completed_at)}</dd><dt>Длительность</dt><dd>${C.fmtDuration(job.duration_seconds)}</dd>${op ? `<dt>Предел</dt><dd>${esc(op.timeout)}</dd>` : ""}<dt>Кто запустил</dt><dd>${esc(job.source)}</dd></dl>
+          <details class="tech"><summary>${icon("chevron-right", "icon-s")}Технические подробности</summary><dl class="kv"><dt>Парсер и тип</dt><dd class="mono">${esc(job.parser_name)} / ${esc(job.job_type)}</dd><dt>Номер задачи</dt><dd class="mono">${esc(job.id)}</dd><dt>Источник запуска</dt><dd>В базе пока не хранится (план 3.5)</dd></dl></details>
+        </div></section>
       </div>
-      <div class="cron-preview" aria-live="polite" data-cron-preview></div>
-      <label class="switch"><input type="checkbox" name="is_active" ${!s || s.is_active ? "checked" : ""} /><span class="track"></span>Включено сразу</label>
-      ${isNew ? note("info", "lightbulb", "Сервер ставит первый запуск через час после создания, независимо от выбранного времени. Дальше — по расписанию.") : note("warning", "calendar-x", "Ближайший запуск останется прежним: сервер не пересчитывает его при смене cron.")}
-    </form>`;
-    openDrawer(drawerShell(isNew ? "Новое расписание" : scheduleTitle(s), "Время вводится по Алматы, сервер получит cron в UTC.", body, `<button type="button" class="button" data-action="close-drawer">Отмена</button><button type="button" class="button primary" data-action="save-schedule" data-id="${s?.id || ""}">${icon("save")}Сохранить</button>`));
-    updateCronPreview();
-  }
-  function cronFromForm() {
-    const drawer = $("#drawer");
-    const kind = $(".preset[aria-pressed='true']", drawer)?.dataset.preset || "daily";
-    return C.buildCron({ kind, minutes: +($("[data-cron='minutes']", drawer)?.value || 30), local: $("[data-cron='local']", drawer)?.value || "09:00", weekday: +($("[data-cron='weekday']", drawer)?.value || 1) });
-  }
-  function updateCronPreview() {
-    const box = $("[data-cron-preview]");
-    if (!box) return;
-    const cron = cronFromForm();
-    const d = C.describeCron(cron);
-    box.innerHTML = `${icon("calendar-clock")}<strong>${esc(d.text)}</strong><span class="muted">cron для сервера:</span><code>${esc(cron)}</code>${d.utc ? `<span class="muted">(${esc(d.utc)})</span>` : ""}${d.note ? `<span style="color:var(--kin-text);font-size:12px">${esc(d.note)}</span>` : ""}`;
-    refreshIcons(box);
+      <section class="card"><div class="card-head"><h2>${icon("scroll-text")}Журнал задачи</h2>${isLive ? tag("обновляется вживую", "live") : ""}</div><div class="card-body flush"><div class="log">${logs.length ? logs.map(l => `<div class="log-row" data-tone="${toneForStatus(l.level)}"><span class="mono muted">${C.fmtTime(l.created_at)}</span><span class="lvl">${esc(labelForStatus(l.level))}</span><span class="msg">${esc(l.message)}</span><span></span></div>`).join("") : `<p class="muted" style="padding:14px var(--card-pad)">Сообщений нет.</p>`}</div></div></section>`;
   }
 
-  function userDrawer(u) {
+  /* ==========================================================================
+     Страница пользователя
+     ========================================================================== */
+  const ROLE_TEXT = { super_admin: "Права «всё», но без флага суперпользователя открывает только серии и комментарии", admin: "Серии и источники видео", moderator: "Серии, источники и лента комментариев", user: "Обычный зритель, в админку не пускает" };
+  function renderUserPage(id) {
+    const u = D.users.find(x => x.id === id);
+    if (!u) return `${pageHead("Пользователь не найден", "", "", "#/people/users")}${empty("search-x", "Такого пользователя нет", "")}`;
+    state.paramTitle = u.username;
     const role = roleByName(u.role);
     const access = C.effectiveAccess(u, role);
-    const body = `<div class="tabs" role="tablist"><button type="button" role="tab" data-tab="profile" aria-selected="true">Профиль</button><button type="button" role="tab" data-tab="access" aria-selected="false">Доступ</button><button type="button" role="tab" data-tab="security" aria-selected="false">Пароль</button></div>
-      <form data-form="user" data-id="${u.id}" novalidate>
-        <div data-panel="profile" class="form-grid">
-          ${field("Имя", "username", u.username, { req: true })}
-          ${field("Email", "email", u.email, { type: "email", req: true })}
-          ${field("Пол", "gender", "", { options: [["", "Не указан"], ["male", "Мужской"], ["female", "Женский"]] })}
-          ${field("О себе", "bio", "", { textarea: true, wide: true })}
-          <div class="wide"><div class="switch-row"><div><strong>Почта подтверждена</strong><small>Можно отметить вручную, если письмо не дошло</small></div><label class="switch"><input type="checkbox" name="is_verified" ${u.is_verified ? "checked" : ""} aria-label="Почта подтверждена" /><span class="track"></span></label></div></div>
+    return `<a class="back-link" href="#/people/users">${icon("arrow-left")}Назад к списку</a>
+      <section class="entity-hero person">
+        <span class="entity-avatar" aria-hidden="true">${esc(u.username[0].toUpperCase())}</span>
+        <div class="entity-main">
+          <div class="entity-tags">${u.is_active ? tag("Активен", "success") : tag("Забанен", "danger")}${u.is_verified ? tag("Почта подтверждена", "success", "mail-check") : tag("Почта не подтверждена", "warning", "mail-warning")}${accessTag(u)}</div>
+          <div class="page-title"><span class="beam" aria-hidden="true"></span><h1>${esc(u.username)}</h1></div>
+          <p class="entity-sub">${esc(u.email)} · с нами с ${C.fmtDate(u.created_at)} · был ${at(u.last_seen_at)}</p>
         </div>
-        <div data-panel="access" hidden style="display:grid;gap:16px">
-          <label class="field"><span>Роль <code>role_id</code></span><select class="select" name="role_id" data-role-select>${[["", "Без роли"], ...D.roles.map(r => [r.id, r.name])].map(([v, l]) => `<option value="${v}" ${role?.id === v ? "selected" : ""}>${esc(l)}</option>`).join("")}</select></label>
-          <div class="switch-row"><div><strong>Суперпользователь</strong><small>Полный доступ ко всему. Забанить суперпользователя нельзя</small></div><label class="switch"><input type="checkbox" name="is_superuser" ${u.is_superuser ? "checked" : ""} aria-label="Суперпользователь" data-role-select /><span class="track"></span></label></div>
-          <div class="card" data-access-preview>${accessPreview(access)}</div>
+      </section>
+      ${editForm("user", "users.update", u.id, `
+      <div class="grid split">
+        <div class="stack-col">
+          <section class="card"><div class="card-head"><h2>${icon("user")}Профиль</h2></div><div class="card-body form-grid">
+            ${field("Имя", "username", u.username, { req: true })}
+            ${field("Email", "email", u.email, { type: "email", req: true })}
+            <div class="field wide"><span>Пол</span>${single("gender", "", [["", "Не указан"], ["male", "Мужской"], ["female", "Женский"]], "Пол")}</div>
+            ${field("О себе", "bio", "", { textarea: true, wide: true, placeholder: "Пользователь пока ничего не написал" })}
+            <div class="wide">${srow("Почта подтверждена", "Можно отметить вручную, если письмо не дошло", toggle("is_verified", u.is_verified, "Почта подтверждена"))}</div>
+          </div></section>
+          <section class="card"><div class="card-head"><h2>${icon("key-round")}Новый пароль</h2></div><div class="card-body form-grid">
+            ${field("Новый пароль", "password", "", { type: "password", placeholder: "Оставьте пустым, чтобы не менять" })}
+            <p class="hint wide">Уже открытые сессии пользователя смена пароля не закрывает.</p>
+          </div></section>
         </div>
-        <div data-panel="security" hidden style="display:grid;gap:14px">
-          ${field("Новый пароль", "password", "", { type: "password", hint: "Пусто — пароль не меняется. Старые сессии пользователя этим не завершаются." })}
+        <div class="stack-col">
+          <section class="card"><div class="card-head"><h2>${icon("shield")}Что можно в админке</h2></div><div class="card-body" style="display:grid;gap:14px">
+            <div class="role-choice" role="radiogroup" aria-label="Роль" data-single="role_id">
+              ${[["", "Без роли", "Обычный зритель"], ...D.roles.map(r => [r.id, r.name, ROLE_TEXT[r.name] || r.description])].map(([v, name, text]) => `<button type="button" role="radio" class="role-option" data-value="${v}" aria-checked="${(role?.id || "") === v}" aria-pressed="${(role?.id || "") === v}"><strong>${esc(name)}</strong><small>${esc(text)}</small></button>`).join("")}
+              ${hidden("role_id", role?.id || "")}
+            </div>
+            ${srow("Суперпользователь", "Открывает всё: парсер, бэкапы, пользователей и настройки", `<label class="switch"><input type="checkbox" name="is_superuser" ${u.is_superuser ? "checked" : ""} aria-label="Суперпользователь" data-role-select /><span class="track"></span></label>`)}
+            <div class="access-preview" data-access-preview>${accessPreview(access)}</div>
+          </div></section>
+          <section class="card danger-zone"><div class="card-body danger-row"><div><strong>${u.is_active ? "Забанить" : "Разбанить"}</strong><p class="muted">${u.is_active ? (u.is_superuser ? "Суперпользователя забанить нельзя: сначала снимите флаг." : "Пользователь не сможет войти. Его комментарии останутся.") : "Пользователь снова сможет войти."}</p></div>${u.is_active ? `<button type="button" class="button danger" ${request("users.ban", { id: u.id, name: u.username })} ${u.is_superuser ? "disabled" : ""}>${icon("ban")}Забанить</button>` : `<button type="button" class="button" ${request("users.unban", { id: u.id, name: u.username })}>${icon("undo-2")}Разбанить</button>`}</div></section>
         </div>
-      </form>`;
-    const ban = u.is_active
-      ? `<button type="button" class="button danger left" ${request("users.ban", { id: u.id, name: u.username })} ${u.is_superuser ? 'disabled title="Суперпользователя забанить нельзя"' : ""}>${icon("ban")}Забанить</button>`
-      : `<button type="button" class="button left" ${request("users.unban", { id: u.id, name: u.username })}>${icon("undo-2")}Разбанить</button>`;
-    openDrawer(drawerShell(u.username, `${esc(u.email)} · с ${C.fmtDate(u.created_at)}`, body, `${ban}<button type="button" class="button" data-action="close-drawer">Отмена</button><button type="button" class="button primary" data-action="save-form" data-kind="user" data-request-key="users.update">${icon("save")}Сохранить</button>`));
+      </div>`)}
+      ${savebar()}`;
   }
-  const accessPreview = access => `<div class="card-body" style="display:grid;gap:8px"><strong style="display:flex;gap:8px;align-items:center">${icon("eye")}Что увидит в админке</strong>${access.items.length ? `<ul style="margin:0;padding-left:18px;color:var(--text-secondary)">${access.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : `<p class="muted">Ничего: вход в админку закрыт.</p>`}</div>`;
+  const accessPreview = access => `<strong class="ap-title">${icon("eye")}Итог: что увидит в админке</strong>${access.items.length ? `<ul>${access.items.map(i => `<li>${icon("check", "icon-s")}${esc(i)}</li>`).join("")}</ul>` : `<p class="muted">Ничего: вход в админку закрыт.</p>`}`;
 
-  function cosmeticDrawer(kind, item) {
+  /* Аватар или рамка — небольшая форма по центру экрана. */
+  function cosmeticDialog(kind, item) {
     const isNew = !item;
     item = item || { title: "", is_active: true, category: "default" };
     const isAvatar = kind === "avatar";
-    const body = `<form data-form="${kind}" data-id="${item.id || ""}" novalidate><div class="form-grid">
-      <div class="wide" style="display:flex;gap:16px;align-items:center"><div class="tile-art" style="width:96px">${artTile(isAvatar ? item.title || "new" : `d${item.title || "new"}`)}</div><div style="display:grid;gap:8px"><button type="button" class="button s" ${request(isAvatar ? "avatars.upload" : "decorations.upload", { id: item.id || "", name: item.title || "новый" })} ${isNew ? 'disabled title="Сначала сохраните, потом загрузите картинку"' : ""}>${icon("upload")}Загрузить картинку</button><span class="hint muted" style="font-size:12px">${isNew ? "Картинку можно загрузить после создания" : "Или укажите ссылку ниже"}</span></div></div>
-      ${field("Название", "title", item.title, { req: true, wide: true })}
-      ${field("Ссылка на картинку", "image_url", isNew ? "" : `/media/${isAvatar ? "avatars" : "decorations"}/${item.id}.webp`, { req: true, wide: true, mono: true })}
-      ${isAvatar ? field("Категория", "category", item.category, { mono: true }) : ""}
-      <div class="wide"><label class="switch"><input type="checkbox" name="is_active" ${item.is_active ? "checked" : ""} /><span class="track"></span>Доступно для выбора</label></div>
-    </div></form>`;
     const base = isAvatar ? "avatars" : "decorations";
-    openDrawer(drawerShell(isNew ? (isAvatar ? "Новый аватар" : "Новая рамка") : item.title, "", body, `${!isNew ? `<button type="button" class="button danger left" ${request(`${base}.delete`, { id: item.id, name: item.title })}>${icon("trash-2")}Удалить</button>` : ""}<button type="button" class="button" data-action="close-drawer">Отмена</button><button type="button" class="button primary" data-action="save-form" data-kind="${kind}" data-request-key="${base}.${isNew ? "create" : "update"}">${icon("save")}Сохранить</button>`));
+    const dlg = $("#confirm");
+    dlg.innerHTML = `<div class="dialog-body"><h2 id="confirm-title">${icon(isAvatar ? "image" : "frame")}${esc(isNew ? (isAvatar ? "Новый аватар" : "Новая рамка") : item.title)}</h2>
+      ${editForm(kind, `${base}.${isNew ? "create" : "update"}`, item.id, `<div class="form-grid">
+        <div class="wide cos-row"><div class="tile-art" style="width:88px">${artTile(isAvatar ? item.title || "new" : `d${item.title || "new"}`)}</div><div style="display:grid;gap:6px"><button type="button" class="button s" ${request(`${base}.upload`, { id: item.id || "", name: item.title || "новый" })} ${isNew ? "disabled" : ""}>${icon("upload")}Загрузить картинку</button><span class="hint">${isNew ? "Картинку можно загрузить сразу после создания." : "Или вставьте ссылку ниже."}</span></div></div>
+        ${field("Название", "title", item.title, { req: true, wide: true })}
+        ${field("Ссылка на картинку", "image_url", isNew ? "" : `/media/${base}/${item.id}.webp`, { req: true, wide: true, mono: true, placeholder: "https://… или /media/…" })}
+        ${isAvatar ? `<div class="field wide"><span>Набор</span>${single("category", item.category, [["default", "Общий"], ["kitsune", "Лисы"], ["nature", "Природа"], ["city", "Город"]], "Набор")}</div>` : ""}
+        <div class="wide">${srow("Доступно для выбора", "Выключенные не видны в выборе, но у тех, кто уже выбрал, остаются", toggle("is_active", item.is_active, "Доступно для выбора"))}</div>
+      </div>`)}</div>
+      <div class="dialog-foot">${!isNew ? `<button type="button" class="button ghost danger-text" ${request(`${base}.delete`, { id: item.id, name: item.title })}>${icon("trash-2")}Удалить</button><span class="grow"></span>` : ""}<button type="button" class="button" data-dialog="cancel">Отмена</button><button type="button" class="button primary" data-action="save-dialog">${icon("save")}Сохранить</button></div>`;
+    refreshIcons(dlg);
+    const form = $("form[data-edit]", dlg);
+    form.dataset.initial = JSON.stringify(C.readForm(form));
+    dlg.onclick = event => { if (event.target === dlg || event.target.closest("[data-dialog='cancel']")) dlg.close(); };
+    dlg.showModal();
+  }
+
+  /* ==========================================================================
+     Настройки: каждая категория — отдельная вкладка с понятными элементами
+     ========================================================================== */
+  const P = () => D.parserConfig;
+  const notWired = `<span class="wire-note">${icon("unplug", "icon-s")}Значения сохраняются в базе. Текущий воркер их пока не читает — это задача бэкенда, подробности в примечании к шаблону.</span>`;
+  function settingsPage(title, lede, category, inner, { wired = false } = {}) {
+    return `${pageHead(title, lede)}${wired ? "" : notWired}${editForm(`settings-${category}`, category === "site" ? "site.update" : "parserSettings.update", category, inner, `data-category="${category}"`)}${savebar()}`;
+  }
+  const scard = (title, ic, rows) => `<section class="card"><div class="card-head"><h2>${icon(ic)}${esc(title)}</h2></div><div class="card-body flush srows">${rows}</div></section>`;
+
+  function renderSettingsOverview() {
+    const S = D.settings;
+    const cats = sections.find(s => s.id === "settings").pages.slice(1);
+    return `${pageHead("Настройки", "Всё, что меняет поведение сайта и парсера, собрано здесь и разложено по темам. Ниже — что где настраивается и что задаётся только на сервере.")}
+      <div class="truth">${cats.map(p => `<a class="card truth-card" href="#/${p.id}">${icon(p.icon)}<strong>${esc(p.title)}</strong><p>${esc(p.desc)}</p></a>`).join("")}</div>
+      <h2 class="group-title">Настраивается в других разделах</h2>
+      <div class="truth">${S.real.map(r => `<a class="card truth-card" href="#/${r.route}">${icon(r.icon)}<strong>${esc(r.title)}</strong><small>${esc(r.where)}</small><p>${esc(r.how)}</p></a>`).join("")}</div>
+      <section class="card"><div class="card-head"><h2>${icon("server")}Задано на сервере</h2><span class="card-meta">Меняется только при обновлении стенда</span></div><div class="card-body flush env-list">
+        ${S.env.map(e => `<div class="env"><strong>${esc(e.name)}</strong><span class="secondary">${esc(e.value)}</span><small>${esc(e.note)}</small></div>`).join("")}
+      </div></section>`;
+  }
+
+  function renderSettingsSite() {
+    const v = Object.fromEntries(D.settings.site.map(s => [s.key, s.value]));
+    return settingsPage("Сайт", "Название и доступ к сайту.", "site", `
+      ${scard("Основное", "app-window", `
+        ${srow("Название сайта", "Показывается во вкладке браузера и в письмах", `<input class="input" name="site_name" value="${esc(v.site_name)}" aria-label="Название сайта" />`)}
+        ${srow("Регистрация открыта", "Если выключить, новые зрители не смогут создать аккаунт; вход для остальных останется", toggle("allow_registration", v.allow_registration, "Регистрация открыта"))}
+        ${srow("Режим обслуживания", "Сайт покажет зрителям заглушку «скоро вернёмся». Админка продолжит работать", toggle("maintenance_mode", v.maintenance_mode, "Режим обслуживания"))}
+      `)}
+      ${scard("Цвета писем и заглушек", "palette", `
+        ${srow("Основной цвет", "Кнопки и ссылки там, где не работает тема сайта: письма, страница обслуживания", `<span class="color-input"><input type="color" name="accent_primary" value="${esc(v.accent_primary)}" aria-label="Основной цвет" /><span class="mono secondary" data-color-out>${esc(v.accent_primary)}</span></span>`)}
+        ${srow("Цвет ошибки", "Сообщения об ошибках в тех же местах", `<span class="color-input"><input type="color" name="accent_danger" value="${esc(v.accent_danger)}" aria-label="Цвет ошибки" /><span class="mono secondary" data-color-out>${esc(v.accent_danger)}</span></span>`)}
+      `)}`);
+  }
+
+  const GRAB_PRESETS = {
+    base: { label: "Обычный", desc: "Сериалы, фильмы, OVA и ONA с оценкой от 6", values: { source_mode: "shikimori", min_score: 6, if_camrip: false, if_lgbt: true, year_start: 1995, year_end: 2026, kinds_allowed: "tv, movie, ova, ona", blocked_genres: "хентай, яой, юри", audio_type: "any", cron_auto_add: "*/30 * * * *", cron_release_updates: "0 * * * *" } },
+    safe: { label: "Строгий", desc: "Только сериалы и фильмы с оценкой от 7,2 и с озвучкой", values: { source_mode: "shikimori", min_score: 7.2, if_camrip: false, if_lgbt: false, year_start: 2005, year_end: 2026, kinds_allowed: "tv, movie", blocked_genres: "хентай, яой, юри, этти", audio_type: "voice", cron_auto_add: "0 */2 * * *", cron_release_updates: "0 * * * *" } },
+    wide: { label: "Всё подряд", desc: "Все типы, оценка от 4,5, вместе с экранками", values: { source_mode: "kodik", min_score: 4.5, if_camrip: true, if_lgbt: true, year_start: 1980, year_end: 2026, kinds_allowed: "tv, movie, ova, ona, special, music", blocked_genres: "", audio_type: "any", cron_auto_add: "*/10 * * * *", cron_release_updates: "*/20 * * * *" } },
+  };
+  const COUNTRY_SUGGEST = ["Япония", "Китай", "Южная Корея", "США", "Франция", "Россия", "Тайвань"];
+  function renderSettingsImport() {
+    const g = P().grabbing;
+    return settingsPage("Импорт и фильтры", "Какие тайтлы парсер берёт сам и как часто ищет новое. Начните с готового набора, потом поправьте детали.", "grabbing", `
+      <section class="card"><div class="card-head"><h2>${icon("wand-sparkles")}Готовые наборы</h2><span class="card-meta">Заполняют форму, сохранять всё равно нужно кнопкой внизу</span></div><div class="card-body preset-grid">
+        ${Object.entries(GRAB_PRESETS).map(([id, p]) => `<button type="button" class="preset" data-action="apply-preset" data-preset-id="${id}"><strong>${esc(p.label)}</strong><small>${esc(p.desc)}</small></button>`).join("")}
+      </div></section>
+      ${scard("Откуда и как часто", "radar", `
+        ${srow("Откуда брать тайтлы", "Shikimori знает весь каталог, Kodik — только то, у чего уже есть видео", single("source_mode", g.source_mode, [["shikimori", "Весь каталог Shikimori"], ["kodik", "Только с видео в Kodik"]], "Откуда брать тайтлы"))}
+        ${srow("Что брать из Kodik", "Учитывается, когда источник — Kodik", multi("kodik_types", g.kodik_types, [["anime-serial", "Сериалы"], ["anime", "Фильмы и спешлы"]], { label: "Что брать из Kodik" }), { id: "row-kodik-types" })}
+        ${srow("Искать новые тайтлы", "", freqPicker("cron_auto_add", g.cron_auto_add), { stack: true })}
+        ${srow("Проверять новые серии", "", freqPicker("cron_release_updates", g.cron_release_updates), { stack: true })}
+      `)}
+      ${scard("Что подходит", "filter", `
+        ${srow("Типы", "", multi("kinds_allowed", g.kinds_allowed, [["tv", "Сериалы"], ["movie", "Фильмы"], ["ova", "OVA"], ["ona", "ONA"], ["special", "Спешлы"], ["music", "Клипы"]], { array: true, label: "Типы" }), { stack: true })}
+        ${srow("Оценка не ниже", "Тайтлы с оценкой ниже пропускаются. Без оценки (анонсы) проходят всегда", range("min_score", g.min_score, { min: 0, max: 10, step: 0.1, format: "score" }), { stack: true })}
+        ${srow("Годы выхода", "Тайтлы вне диапазона пропускаются", `<span class="year-range"><span>с</span><input class="input mono" type="number" name="year_start" min="1960" max="2030" value="${g.year_start}" aria-label="С года" inputmode="numeric" /><span>по</span><input class="input mono" type="number" name="year_end" min="1960" max="2030" value="${g.year_end}" aria-label="По год" inputmode="numeric" /></span>`)}
+        ${srow("Только эти годы", "Если заполнить, остальные годы не подойдут", chips("allowed_years", g.allowed_years, { placeholder: "Например, 2024" }), { stack: true })}
+        ${srow("Кроме этих лет", "", chips("blocked_years", g.blocked_years, { placeholder: "Например, 2007" }), { stack: true })}
+        ${srow("Возрастной рейтинг", "Пусто — подходит любой", multi("mpaa_rating", g.mpaa_rating, [["G", "G"], ["PG", "PG"], ["PG-13", "PG-13"], ["R", "R"], ["NC-17", "NC-17"]], { label: "Возрастной рейтинг" }), { stack: true })}
+        ${srow("Экранки (CAMRip)", "Записи с экрана кинотеатра — обычно плохое качество", toggle("if_camrip", g.if_camrip, "Брать экранки"))}
+        ${srow("Тайтлы с пометкой LGBT", "Включено — такие тайтлы берутся", toggle("if_lgbt", g.if_lgbt, "Тайтлы с пометкой LGBT"))}
+      `)}
+      ${scard("Жанры и страны", "globe-lock", `
+        ${srow("Только эти жанры", "Пусто — подходит любой жанр", chips("allowed_genres", g.allowed_genres, { suggest: GENRE_SUGGEST, placeholder: "Начните вводить жанр" }), { stack: true })}
+        ${srow("Никогда не брать жанры", "", chips("blocked_genres", g.blocked_genres, { suggest: [...GENRE_SUGGEST, "Хентай", "Яой", "Юри", "Этти"], placeholder: "Начните вводить жанр" }), { stack: true })}
+        ${srow("Только эти страны", "Пусто — любая страна", chips("allowed_countries", g.allowed_countries, { suggest: COUNTRY_SUGGEST, placeholder: "Начните вводить страну" }), { stack: true })}
+        ${srow("Никогда не брать страны", "", chips("blocked_countries", g.blocked_countries, { suggest: COUNTRY_SUGGEST, placeholder: "Начните вводить страну" }), { stack: true })}
+        ${srow("Исключения из запрета стран", "Эти страны проходят, даже если попали под запрет выше", chips("unblocked_countries", g.unblocked_countries, { suggest: COUNTRY_SUGGEST, placeholder: "Начните вводить страну" }), { stack: true })}
+      `)}
+      ${scard("Перевод и порядок", "languages", `
+        ${srow("Перевод", "Брать тайтлы, у которых есть…", single("audio_type", g.audio_type, [["any", "Что угодно"], ["voice", "Только озвучка"], ["subs", "Только субтитры"]], "Перевод"), { stack: true })}
+        ${srow("Порядок обхода", "В каком порядке парсер просматривает каталог", `<select class="select" name="sort_order" aria-label="Порядок обхода">${[["year_desc", "Сначала новые по году"], ["year_asc", "Сначала старые по году"], ["created_desc", "Сначала недавно добавленные"], ["created_asc", "Сначала давно добавленные"], ["rating_shiki_desc", "Сначала высокая оценка Shikimori"], ["rating_shiki_asc", "Сначала низкая оценка Shikimori"], ["rating_kp_desc", "Сначала высокая оценка Кинопоиска"], ["rating_kp_asc", "Сначала низкая оценка Кинопоиска"]].map(([v, l]) => `<option value="${v}" ${g.sort_order === v ? "selected" : ""}>${l}</option>`).join("")}</select>`)}
+        ${srow("Студия перевода", "Если нужна конкретная команда. Пусто — любая", `<input class="input" name="voice_kind" value="${esc(g.voice_kind)}" list="dl-teams-s" placeholder="Например, AniLibria.TV" aria-label="Студия перевода" /><datalist id="dl-teams-s">${TEAMS.map(t => `<option value="${esc(t)}"></option>`).join("")}</datalist>`)}
+      `)}`);
+  }
+  function renderSettingsUpdates() {
+    const u = P().updates;
+    return settingsPage("Обновления", "Что парсер проверяет у тайтлов, которые уже есть в каталоге.", "updates", `
+      ${scard("Автообновление", "refresh-cw", `
+        ${srow("Обновлять тайтлы сами", "Выключите, если хотите обновлять только вручную", toggle("auto_update", u.auto_update, "Обновлять тайтлы сами"))}
+        ${srow("Как часто", "", single("update_frequency", u.update_frequency, [["hourly", "Каждый час"], ["daily", "Раз в день"], ["weekly", "Раз в неделю"]], "Как часто"), { stack: true })}
+      `)}
+      ${scard("Что отслеживать", "scan-eye", `
+        ${srow("Новые серии", "Сразу добавлять вышедшие серии и озвучки", toggle("detect_episode_change", u.detect_episode_change, "Новые серии"))}
+        ${srow("Изменения описания и постера", "Перезаписывать описание, постер и жанры, если они поменялись в источнике. Ручные правки при этом пропадут", toggle("detect_metadata_change", u.detect_metadata_change, "Изменения описания и постера"))}
+        ${srow("Оценка из Shikimori", "Всегда брать оценку из Shikimori, даже если она уже есть", toggle("force_shikimori_score", u.force_shikimori_score, "Оценка из Shikimori"))}
+        ${srow("Сообщать об ошибках", "Присылать уведомление, если обновление не удалось. Куда — во вкладке «Уведомления»", toggle("notify_on_fail", u.notify_on_fail, "Сообщать об ошибках"))}
+      `)}`);
+  }
+  function renderSettingsImages() {
+    const i = P().images;
+    return settingsPage("Изображения", "Как хранить постеры и обложки.", "images", `
+      ${scard("Хранение", "hard-drive", `
+        ${srow("Хранить картинки у себя", "Постеры скачиваются на сервер. Сайт не зависит от чужих серверов, но занимает место на диске", toggle("localize_images", i.localize_images, "Хранить картинки у себя"))}
+        ${srow("Перекодировать в WebP", "Картинки становятся легче и грузятся быстрее", toggle("optimize_webp", i.optimize_webp, "Перекодировать в WebP"))}
+      `)}
+      ${scard("Качество и размер", "image", `
+        ${srow("Качество", "Чем ниже, тем легче файл и заметнее размытие", range("quality_percent", i.quality_percent, { min: 50, max: 100, step: 1, format: "percent" }), { stack: true })}
+        ${srow("Наибольшая ширина", "Картинки шире будут уменьшены. Постер на сайте не шире 600 точек", single("max_width", String(i.max_width), [["800", "800"], ["1000", "1000"], ["1200", "1200"], ["1600", "1600"], ["2400", "2400"]], "Наибольшая ширина"), { stack: true })}
+      `)}
+      ${scard("Водяной знак", "stamp", `
+        ${note("warning", "triangle-alert", "Водяной знак в Go-версии не сделан: даже включённый, он не появится. Решение — за владельцем (пункт 4.3 плана).")}
+        ${srow("Ставить водяной знак", "Надпись в углу постера", toggle("enable_watermark", i.enable_watermark, "Ставить водяной знак"))}
+        ${srow("Текст", "", `<input class="input" name="watermark_text" value="${esc(i.watermark_text)}" maxlength="24" aria-label="Текст водяного знака" />`)}
+      `)}`);
+  }
+  const TPL_VARS = [["{title}", "Название"], ["{title_en}", "Английское"], ["{year}", "Год"], ["{score}", "Оценка"], ["{genres}", "Жанры"], ["{studios}", "Студии"], ["{episodes_total}", "Всего серий"], ["{status}", "Статус"], ["{shikimori_id}", "Номер Shikimori"]];
+  const TPL_SAMPLE = { "{title}": "Монстр", "{title_en}": "Monster", "{year}": "2004", "{score}": "8,87", "{genres}": "Детектив, Драма", "{studios}": "Madhouse", "{episodes_total}": "74", "{status}": "вышел", "{shikimori_id}": "19", "{description}": "Талантливый хирург спасает жизнь мальчику…" };
+  const tplPreview = value => esc(String(value || "")).replace(/\{[a-z_]+\}/g, m => `<mark>${esc(TPL_SAMPLE[m] ?? m)}</mark>`);
+  const tplField = (name, label, value, desc) => `<div class="tpl" data-tpl="${name}">
+      <label class="field"><span>${esc(label)}</span><input class="input" name="${name}" value="${esc(value)}" data-tpl-input /></label>
+      ${desc ? `<p class="hint">${desc}</p>` : ""}
+      <div class="tpl-vars" role="group" aria-label="Вставить">${TPL_VARS.map(([v, l]) => `<button type="button" class="tpl-var" data-insert="${v}" aria-label="Вставить: ${esc(l)}">${esc(l)}</button>`).join("")}</div>
+      <p class="tpl-preview"><span class="muted">Как будет выглядеть:</span> <span data-tpl-preview>${tplPreview(value)}</span></p>
+    </div>`;
+  function renderSettingsFields() {
+    const f = P().fields;
+    return settingsPage("Тексты и теги", "Как собирать заголовок, описание и ключевые слова страницы тайтла. Нажимайте на подсказки, чтобы вставить нужное поле.", "fields", `
+      <section class="card"><div class="card-head"><h2>${icon("text-cursor-input")}Шаблоны</h2></div><div class="card-body" style="display:grid;gap:24px">
+        ${tplField("tpl_title", "Заголовок страницы", f.tpl_title, "Его видят во вкладке браузера и в поиске Google и Яндекса")}
+        ${tplField("tpl_description", "Описание", f.tpl_description, "Обычно оставляют только описание тайтла")}
+        ${tplField("tpl_meta_keywords", "Ключевые слова", f.tpl_meta_keywords, "Слова для поисковиков через запятую")}
+      </div></section>
+      ${scard("Теги", "hash", srow("Начало тегов", "Добавляется перед каждым тегом. Пример: «kitsu_» превращает «драма» в «kitsu_драма»", `<span class="prefix-input"><input class="input mono" name="custom_tag_prefix" value="${esc(f.custom_tag_prefix)}" aria-label="Начало тегов" data-prefix-input /><span class="muted" data-prefix-out>${esc(f.custom_tag_prefix)}драма</span></span>`))}`);
+  }
+  function renderSettingsTaxonomy() {
+    const c = P().categories;
+    return settingsPage("Жанры и студии", "Как парсер обращается со справочниками.", "categories", `
+      ${scard("Справочники", "tags", `
+        ${srow("Подбирать жанры", "Сопоставлять жанры из источника с жанрами сайта, даже если они названы иначе", toggle("auto_assign_genres", c.auto_assign_genres, "Подбирать жанры"))}
+        ${srow("Добавлять новые студии", "Если студии ещё нет в справочнике, создать её", toggle("create_missing_studios", c.create_missing_studios, "Добавлять новые студии"))}
+        ${srow("Обновлять франшизы", "Связывать сезоны и фильмы одной франшизы", toggle("sync_franchise_taxonomy", c.sync_franchise_taxonomy, "Обновлять франшизы"))}
+      `)}`);
+  }
+  function renderSettingsStopwords() {
+    const b = P().blacklist;
+    return settingsPage("Стоп-слова", "Слова и жанры, при которых тайтл не берётся. Конкретные тайтлы исключаются в разделе «Парсер», страница «Исключения».", "blacklist", `
+      ${scard("Запреты", "shield-ban", `
+        ${srow("Запрещённые жанры", "", chips("banned_genres", b.banned_genres, { suggest: [...GENRE_SUGGEST, "Хентай", "Яой", "Юри", "Этти"], placeholder: "Начните вводить жанр" }), { stack: true })}
+        ${srow("Запрещённые слова", "Если слово есть в названии или описании, тайтл пропускается. Например: camrip, ts", chips("banned_keywords", b.banned_keywords, { placeholder: "Слово и Enter" }), { stack: true })}
+      `)}
+      <a class="card truth-card inline-link" href="#/parser/blacklist">${icon("ban")}<strong>Исключить конкретный тайтл</strong><p>Раздел «Парсер», страница «Исключения»: этот список работает уже сейчас.</p></a>`);
+  }
+  function renderSettingsPlayer() {
+    const p = P().player;
+    return settingsPage("Плеер", "Что зритель видит по умолчанию, пока сам ничего не выбрал. Свой выбор зрителя сохраняется у него и важнее этих значений.", "player", `
+      ${scard("Источник видео", "monitor-play", `
+        ${srow("Основной", "Откуда плеер берёт видео в первую очередь", single("primary_source", p.primary_source, [["kodik", "Kodik"], ["aniboom", "Aniboom"], ["sibnet", "Sibnet"]], "Основной источник"), { stack: true })}
+        ${srow("Запасной", "Если основной не открылся", single("fallback_source", p.fallback_source, [["aniboom", "Aniboom"], ["sibnet", "Sibnet"], ["none", "Без запасного"]], "Запасной источник"), { stack: true })}
+        ${srow("Качество", "", single("default_quality", p.default_quality, [["1080p", "1080p"], ["720p", "720p"], ["480p", "480p"]], "Качество"), { stack: true })}
+      `)}
+      ${scard("Поведение", "play", `
+        ${srow("Следующая серия сама", "После титров включать следующую серию", toggle("auto_next", p.auto_next, "Следующая серия сама"))}
+        ${srow("Пропускать опенинг", "Если известно, где он начинается и заканчивается", toggle("skip_opening", p.skip_opening, "Пропускать опенинг"))}
+      `)}`);
+  }
+  function renderSettingsNotify() {
+    const n = P().notifications;
+    return settingsPage("Уведомления", "Куда сообщать о сбоях парсера.", "notifications", `
+      ${scard("Почта", "mail", `
+        ${srow("Письма о сбоях", "", toggle("email_notifications", n.email_notifications, "Письма о сбоях"))}
+        ${srow("Адрес", "Можно несколько через запятую", `<input class="input" type="email" name="admin_email" value="${esc(n.admin_email)}" placeholder="ops@example.com" aria-label="Адрес почты" />`, { id: "row-email" })}
+      `)}
+      ${scard("Чат или сервис", "webhook", `
+        ${srow("Отправлять в чат", "Например, в Slack, Discord или Telegram-бота по веб-хуку", toggle("webhook_enabled", n.webhook_enabled, "Отправлять в чат"))}
+        ${srow("Адрес веб-хука", "Его выдаёт чат при создании интеграции", `<input class="input mono" name="webhook_url" value="${esc(n.webhook_url)}" placeholder="https://hooks.slack.com/services/…" aria-label="Адрес веб-хука" />`, { id: "row-webhook" })}
+      `)}`);
+  }
+  function renderSettingsNetwork() {
+    const g = P().general, a = P().advanced;
+    return settingsPage("Сеть и скорость", "Как парсер ходит в Shikimori и Kodik. Менять стоит, только если запросы упираются в ограничения.", "general", `
+      ${scard("Доступ к источникам", "plug", `
+        ${srow("Ключ Kodik", "Хранится на сервере, в интерфейсе его не видно и поменять нельзя. Так ключ не утечёт", `<span class="tag" data-tone="success">${icon("lock")}Задан на сервере</span>`)}
+        ${srow("Адрес Shikimori", "Зеркало, если основной адрес недоступен", single("shikimori_api_domain", g.shikimori_api_domain, [["https://shikimori.io/", "shikimori.io"], ["https://shikimori.one/", "shikimori.one"]], "Адрес Shikimori"), { stack: true })}
+        ${srow("Как представляться", "Имя программы в запросах. Менять не нужно", `<span class="input-link"><input class="input mono" name="user_agent" value="${esc(g.user_agent)}" aria-label="Имя программы в запросах" /><button type="button" class="button s ghost" data-action="reset-ua">Как было</button></span>`)}
+      `)}
+      ${scard("Прокси", "route", `
+        ${srow("Ходить через прокси", "Если источники блокируют сервер", toggle("proxy_enabled", g.proxy_enabled, "Ходить через прокси"))}
+        ${srow("Адрес и порт", "", `<span class="year-range"><input class="input mono" name="proxy_address" value="${esc(g.proxy_address)}" placeholder="proxy.example.com" aria-label="Адрес прокси" /><span>:</span><input class="input mono" name="proxy_port" value="${esc(g.proxy_port)}" placeholder="8080" inputmode="numeric" aria-label="Порт" style="max-width:110px" /></span>`, { id: "row-proxy" })}
+      `)}
+      ${scard("Скорость", "gauge", `
+        ${srow("Одновременных запросов", "Больше — быстрее, но выше риск получить отказ «слишком много запросов»", range("async_semaphores", a.async_semaphores, { min: 1, max: 20, step: 1, format: "parallel" }), { stack: true })}
+        ${srow("Пауза между запросами", "Помогает не упираться в ограничения Shikimori", range("request_delay_ms", a.request_delay_ms, { min: 0, max: 2000, step: 50, format: "ms" }), { stack: true })}
+      `)}`);
   }
 
   /* ==========================================================================
      Подтверждение и уведомления
      ========================================================================== */
-  function confirmDialog({ title, text, tone = "info", icon: ic = "lightbulb", requestKey, body, ok = "Подтвердить", onOk, danger = false }) {
+  function confirmDialog({ title, text, tone = "info", icon: ic = "lightbulb", requestKey, body, extra = "", ok = "Подтвердить", onOk, danger = false }) {
     const dlg = $("#confirm");
+    if (dlg.open) dlg.close();
     const ep = requestKey ? C.endpoints[requestKey] : null;
     const path = ep ? ep[1].replace(/\{(\w+)\}/g, (_, k) => (body && body[`__${k}`]) || `{${k}}`) : "";
     const visibleBody = body ? Object.fromEntries(Object.entries(body).filter(([k]) => !k.startsWith("__"))) : null;
     dlg.innerHTML = `<div class="dialog-body" data-tone="${tone}"><h2 id="confirm-title">${icon(ic)}${esc(title)}</h2>${text ? `<p>${text}</p>` : ""}
-      ${ep ? `<div class="request"><div><b>${ep[0]}</b> /api/v1${esc(path)}</div>${visibleBody && Object.keys(visibleBody).length ? `<div>${esc(JSON.stringify(visibleBody))}</div>` : ""}<span>Доступ: ${esc(ep[2])}${ep[3] ? ` · ${esc(ep[3])}` : ""}</span></div>` : ""}</div>
+      ${ep ? `<details class="request"><summary>${icon("chevron-right", "icon-s")}Что уйдёт на сервер</summary><div><b>${ep[0]}</b> /api/v1${esc(path)}</div>${visibleBody && Object.keys(visibleBody).length ? `<div>${esc(JSON.stringify(visibleBody))}</div>` : ""}<span>Доступ: ${esc(ep[2])}${ep[3] ? ` · ${esc(ep[3])}` : ""}</span>${extra}</details>` : ""}</div>
       <div class="dialog-foot"><button type="button" class="button" data-dialog="cancel">Отмена</button><button type="button" class="button ${danger ? "danger" : "primary"}" data-dialog="ok">${esc(ok)}</button></div>`;
     refreshIcons(dlg);
     dlg.onclick = event => {
@@ -986,17 +1342,17 @@
     const map = {
       "bulk.anime": d.action === "delete"
         ? { title: `Удалить ${ids.length} ${C.plural(ids.length, "тайтл", "тайтла", "тайтлов")}?`, text: "Тайтлы, их серии, источники, комментарии, избранное и места в коллекциях пропадут навсегда. Отменить нельзя. Если тайтл просто не нужен в синхронизации, лучше добавить его в исключения.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить навсегда", body: { ids, action: "delete" } }
-        : { title: `Сменить статус у ${ids.length} ${C.plural(ids.length, "тайтла", "тайтлов", "тайтлов")}`, text: "Внимание: значение «Анонс» запишется как <code>anons</code>, а синхронизация и модерация понимают только <code>announced</code>.", body: { ids, action: "update_status", new_status: $("#bulk-status")?.value } },
+        : { title: `Сменить статус у ${ids.length} ${C.plural(ids.length, "тайтла", "тайтлов", "тайтлов")}`, text: "Новый статус запишется всем выбранным тайтлам сразу.", icon: "refresh-ccw", ok: "Сменить", body: { ids, action: "update_status", new_status: $("#bulk-status")?.value } },
       "import.single": { title: "Импортировать из Kodik", text: "Данные возьмутся из Kodik и Shikimori. Если не хватит постера или описания, тайтл уйдёт на модерацию.", icon: "download", ok: "Импортировать", body: { shikimori_id: d.shikimori ? Number(d.shikimori) : null, kodik_id: d.kodik } },
       "moderation.approve": { title: `Одобрить ${ids.length} ${C.plural(ids.length, "тайтл", "тайтла", "тайтлов")}`, text: "Одобренные появятся на сайте. Сервер ещё раз проверит каждый и пропустит неготовые.", icon: "check-check", ok: "Одобрить", body: { anime_ids: ids } },
-      "conflicts.resolve": { title: "Закрыть конфликт как «верно»", text: "Тайтл не изменится: конфликт просто уйдёт из очереди. Если Shikimori ID неверный, исправьте его в редакторе тайтла.", icon: "check", ok: "Закрыть", body: { strategy: "keep", __id: d.id } },
+      "conflicts.resolve": { title: "Закрыть конфликт как «верно»", text: "Тайтл не изменится: конфликт просто уйдёт из очереди. Если номер Shikimori неверный, исправьте его на странице тайтла.", icon: "check", ok: "Закрыть", body: { strategy: "keep", __id: d.id } },
       "comments.delete": { title: `Удалить ${name}?`, text: "Текст заменится на «[удалено]», ответы останутся.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
       "jobs.trigger": op ? (() => {
         const type = op.dry && dryChoice === "real" ? op.job_type : (op.dry || op.job_type);
         return { title: `Запустить: ${op.title}${op.dry ? (dryChoice === "real" ? " (настоящий)" : " (пробный)") : ""}`, text: `${esc(op.summary)}${op.blocks ? ` <strong>Займёт очередь на ${esc(op.duration)}:</strong> плановые задачи и бэкап будут ждать.` : ""}`, icon: op.danger ? "triangle-alert" : "play", tone: op.danger ? "warning" : "info", ok: "Запустить", body: { parser_name: op.parser, job_type: type } };
       })() : {},
       "jobs.stop": { title: `Остановить ${name}?`, text: "Сделанное до остановки сохранится. Остальное подхватит следующий запуск.", danger: true, tone: "danger", icon: "square", ok: "Остановить", body: { __id: d.id } },
-      "jobs.delete": { title: `Удалить ${name} из истории?`, text: "Мониторинг считает отказы по истории задач.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
+      "jobs.delete": { title: `Убрать ${name} из истории?`, text: "Мониторинг считает отказы по истории задач.", danger: true, tone: "danger", icon: "trash-2", ok: "Убрать", body: { __id: d.id } },
       "jobs.clear": { title: "Очистить готовые задачи?", text: "Удалятся все строки со статусом «Готово». Проверки «запаздывание расписания» и «отказы за сутки» на время потеряют данные.", danger: true, tone: "warning", icon: "eraser", ok: "Очистить", body: { status: "completed" } },
       "schedule.runNow": { title: `Запустить сейчас: ${name}`, text: "Задача встанет в общую очередь.", icon: "play", ok: "Запустить", body: { __id: d.id } },
       "schedule.delete": { title: `Удалить расписание ${name}?`, text: "Задача перестанет запускаться сама. Монитор перестанет её проверять.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
@@ -1011,13 +1367,11 @@
       "anime.refresh": { title: `Перечитать ${name} из Kodik`, text: "Серии и озвучки обновятся по Kodik. Ручные правки в полях, которые пишет Kodik, перезапишутся.", icon: "refresh-cw", ok: "Перечитать", body: { __slug: d.slug } },
       "anime.refreshPoster": { title: `Постер для ${name}`, text: "Постер скачается из Shikimori и заменит текущий.", icon: "image-down", ok: "Взять постер", body: { __slug: d.slug } },
       "episodes.delete": { title: `Удалить ${name}?`, text: "Серия, её источники, комментарии к ней и прогресс просмотра пропадут.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
-      "releases.delete": { title: `Удалить источник ${name}?`, text: "", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
+      "releases.delete": { title: `Удалить источник ${name}?`, text: "Если источник временно не работает, лучше выключить его: тогда его можно вернуть одним переключателем.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
       "avatars.delete": { title: `Удалить аватар ${name}?`, text: "У пользователей, которые его выбрали, аватар сбросится.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
       "decorations.delete": { title: `Удалить рамку ${name}?`, text: "У пользователей, которые её выбрали, рамка сбросится.", danger: true, tone: "danger", icon: "trash-2", ok: "Удалить", body: { __id: d.id } },
-      "avatars.upload": { title: "Загрузить картинку", text: "Файл уходит полем <code>file</code> в multipart-запросе.", icon: "upload", ok: "Выбрать файл", body: { __id: d.id } },
-      "decorations.upload": { title: "Загрузить картинку", text: "Файл уходит полем <code>file</code> в multipart-запросе.", icon: "upload", ok: "Выбрать файл", body: { __id: d.id } },
-      "site.update": { title: "Изменить настройку сайта", text: "Значение сохранится в базе, <strong>но сайт его не читает</strong>: ничего не поменяется, пока бэкенд не начнёт его учитывать.", tone: "warning", icon: "unplug", ok: "Всё равно сохранить", body: { [d.key]: el.checked } },
-      "parserSettings.list": { title: "Выгрузить старые настройки", text: "Сохраните как память о том, что было. После выгрузки вкладки можно удалять из интерфейса.", icon: "file-json", ok: "Выгрузить" },
+      "avatars.upload": { title: "Загрузить картинку", text: "Выберите файл PNG, JPG или WebP. Он заменит текущую картинку.", icon: "upload", ok: "Выбрать файл", body: { __id: d.id } },
+      "decorations.upload": { title: "Загрузить картинку", text: "Выберите файл PNG, JPG или WebP. Он заменит текущую картинку.", icon: "upload", ok: "Выбрать файл", body: { __id: d.id } },
     };
     return { requestKey: key, ...(map[key] || { title: "Отправить запрос" }) };
   }
@@ -1027,10 +1381,10 @@
      ========================================================================== */
   function cmdItems() {
     const out = [];
-    sections.forEach(s => s.pages.forEach(p => out.push({ group: "Страницы", icon: s.icon, label: p.title, hint: s.label, run: () => go(p.id) })));
-    D.anime.forEach(a => out.push({ group: "Тайтлы", icon: "clapperboard", label: a.title, hint: a.slug, run: () => { go("catalog/titles"); setTimeout(() => titleEditor(a), 60); } }));
+    sections.forEach(s => s.pages.forEach(p => out.push({ group: "Страницы", icon: p.icon || s.icon, label: p.title, hint: s.label, run: () => go(p.id) })));
+    D.anime.forEach(a => out.push({ group: "Тайтлы", icon: "clapperboard", label: a.title, hint: a.title_en || "", run: () => go(`catalog/titles/${a.slug}`) }));
     D.operations.filter(o => o.works).forEach(o => out.push({ group: "Запустить", icon: "play", label: o.title, hint: o.duration, run: () => { go("parser/run"); setTimeout(() => $(`[data-op="${o.key}"]`)?.click(), 120); } }));
-    D.users.forEach(u => out.push({ group: "Люди", icon: "user", label: u.username, hint: u.email, run: () => { go("people/users"); setTimeout(() => userDrawer(u), 60); } }));
+    D.users.forEach(u => out.push({ group: "Люди", icon: "user", label: u.username, hint: u.email, run: () => go(`people/users/${u.id}`) }));
     out.push({ group: "Вид", icon: "palette", label: "Сменить палитру", hint: "Сакура / Обсидиан", run: togglePalette });
     out.push({ group: "Вид", icon: "sun-moon", label: "Сменить тему", hint: "Тёмная / светлая", run: toggleTheme });
     return out;
@@ -1075,13 +1429,23 @@
     "parser/run": renderRun, "parser/jobs": renderJobs, "parser/schedule": renderSchedule, "parser/logs": renderLogs, "parser/blacklist": renderBlacklist,
     "stand/checks": renderChecks, "stand/resources": renderResources, "stand/backups": renderBackups, "stand/audit": renderAudit,
     "people/users": renderUsers, "people/access": renderAccess, "people/cosmetics": renderCosmetics,
-    settings: renderSettings,
+    settings: renderSettingsOverview, "settings/site": renderSettingsSite, "settings/import": renderSettingsImport, "settings/updates": renderSettingsUpdates,
+    "settings/images": renderSettingsImages, "settings/texts": renderSettingsFields, "settings/taxonomy": renderSettingsTaxonomy, "settings/stopwords": renderSettingsStopwords,
+    "settings/player": renderSettingsPlayer, "settings/notify": renderSettingsNotify, "settings/network": renderSettingsNetwork,
   };
-  function routeFromHash() {
-    const key = location.hash.replace(/^#\/?/, "").split("?")[0];
-    return renderers[key] ? key : "pult";
+  /* Страницы одной записи: адрес списка плюс номер или slug. */
+  const details = { "catalog/titles": renderTitlePage, "parser/jobs": renderJobPage, "people/users": renderUserPage };
+  function parseHash() {
+    const [path, query = ""] = location.hash.replace(/^#\/?/, "").split("?");
+    const params = Object.fromEntries(new URLSearchParams(query));
+    if (renderers[path]) return { route: path, param: null, params };
+    const cut = path.lastIndexOf("/");
+    const base = path.slice(0, cut), param = decodeURIComponent(path.slice(cut + 1));
+    if (cut > 0 && details[base] && param) return { route: base, param, params };
+    return { route: "pult", param: null, params };
   }
   function go(route) { if (location.hash !== `#/${route}`) location.hash = `#/${route}`; else render(); }
+  const pageHtml = () => (state.param ? details[state.route](state.param) : renderers[state.route]());
 
   function refreshIcons(scope = document) {
     if (!window.lucide) return;
@@ -1100,31 +1464,45 @@
       requestAnimationFrame(step);
     });
   }
+  /* Снимок формы сразу после отрисовки: с ним сравниваются правки. */
+  function snapshotForms(scope) { $$("form[data-edit]", scope).forEach(form => { form.dataset.initial = JSON.stringify(C.readForm(form)); }); }
+  function paint(main) {
+    const tabs = state.param ? "" : sectionTabs();
+    main.innerHTML = `<div class="page ${state.param ? "is-detail" : ""}">${tabs}${pageHtml()}</div>`;
+    refreshIcons(main);
+    $$(".range", main).forEach(syncRange);
+    snapshotForms(main);
+    updateDirty();
+  }
+  let lastHash = location.hash;
   function render() {
-    const next = routeFromHash();
-    const changed = next !== state.route;
-    state.route = next;
+    const next = parseHash();
+    const changed = next.route !== state.route || next.param !== state.param;
+    state.route = next.route;
+    state.param = next.param;
+    if (changed) { state.editing = { schedule: null, episode: null, release: null }; state.paramTitle = ""; }
+    if (next.params.ep) state.editing.episode = next.params.ep;
+    lastHash = location.hash;
     const swap = () => {
-      renderChrome();
       const main = $("#main");
-      main.innerHTML = `<div class="page">${renderers[state.route]()}</div>`;
-      refreshIcons(document);
+      paint(main);
+      renderChrome();
+      refreshIcons($("#shell"));
       countUp(main);
-      document.title = `${pages[state.route].title} — Kitsu`;
+      document.title = `${state.param ? state.paramTitle : pages[state.route].title} — Kitsu`;
+      if (next.params.ep) $(".ep-row.is-open")?.scrollIntoView({ block: "center" });
     };
     if (changed && document.startViewTransition && !reduceMotion.matches) {
       root.classList.add("is-routing");
       document.startViewTransition(swap).finished.finally(() => root.classList.remove("is-routing"));
     } else swap();
-    if (changed) { window.scrollTo({ top: 0, behavior: "instant" }); $("#main").focus({ preventScroll: true }); }
-    closeSubnav();
+    if (changed && !next.params.ep) { window.scrollTo({ top: 0, behavior: "instant" }); $("#main").focus({ preventScroll: true }); }
   }
   function rerenderMain() {
     const y = window.scrollY;
     const main = $("#main");
-    main.innerHTML = `<div class="page">${renderers[state.route]()}</div>`;
+    paint(main);
     $$(".reveal", main).forEach(el => el.classList.remove("reveal"));
-    refreshIcons(main);
     renderChrome();
     refreshIcons($("#shell"));
     window.scrollTo(0, y);
@@ -1135,7 +1513,7 @@
     const meta = $('meta[name="theme-color"]');
     if (meta) meta.content = getComputedStyle(root).getPropertyValue("--canvas").trim() || "#0e0b12";
   }
-  function withTransition(fn, origin) {
+  function withTransition(fn) {
     if (document.startViewTransition && !reduceMotion.matches) document.startViewTransition(fn);
     else fn();
   }
@@ -1143,7 +1521,8 @@
     withTransition(() => {
       if (root.dataset.palette === "obsidian") delete root.dataset.palette; else root.dataset.palette = "obsidian";
       try { localStorage.setItem("kitsu-palette", root.dataset.palette === "obsidian" ? "obsidian" : "sakura"); } catch (_) {}
-      rerenderMain();
+      /* Обложки рисуются под палитру; формы с правками не трогаем, чтобы не потерять введённое. */
+      if (!state.dirty) rerenderMain(); else renderChrome();
       applyThemeColor();
     });
   }
@@ -1156,50 +1535,186 @@
       applyThemeColor();
     });
   }
-  function openSubnav() {
-    $("#subnav").classList.add("is-open");
-    $("#scrim").classList.add("is-open");
-    $$("[data-action='subnav']").forEach(b => b.setAttribute("aria-expanded", "true"));
-    $(".subnav-link", $("#subnav"))?.focus();
-  }
-  function closeSubnav() {
-    const sub = $("#subnav");
-    if (!sub.classList.contains("is-open")) return;
-    sub.classList.remove("is-open");
-    if ($("#drawer").hidden) $("#scrim").classList.remove("is-open");
-    $$("[data-action='subnav']").forEach(b => b.setAttribute("aria-expanded", "false"));
-  }
 
-  /* ---------- Формы ---------- */
-  function validateAndSave(kind, requestKey) {
-    const form = $(`#drawer form[data-form]`);
-    const payload = C.readForm(form);
-    const errs = C.errors(kind, payload);
+  /* ==========================================================================
+     Формы: правки, панель сохранения, защита от ухода
+     ========================================================================== */
+  const formDirty = form => JSON.stringify(C.readForm(form)) !== form.dataset.initial;
+  function updateDirty() {
+    const main = $("#main");
+    const pageForms = $$("form[data-edit]", main).filter(f => !f.closest(".inline-editor"));
+    const pageDirty = pageForms.some(formDirty);
+    const inlineDirty = $$(".inline-editor form[data-edit]", main).some(formDirty);
+    const bar = $("[data-savebar]", main);
+    if (bar) { bar.hidden = !pageDirty; main.classList.toggle("has-savebar", pageDirty); }
+    state.dirty = pageDirty || inlineDirty;
+  }
+  function formChanged(form) {
+    if (!form) return;
+    const preview = $("[data-access-preview]", form);
+    if (preview) {
+      const role = D.roles.find(r => r.id === $("[name='role_id']", form).value);
+      preview.innerHTML = accessPreview(C.effectiveAccess({ is_superuser: $("[name='is_superuser']", form).checked }, role));
+      refreshIcons(preview);
+    }
+    if (form.closest("#main")) updateDirty();
+  }
+  const TRANSLIT = { а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "e", ж: "zh", з: "z", и: "i", й: "y", к: "k", л: "l", м: "m", н: "n", о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f", х: "h", ц: "ts", ч: "ch", ш: "sh", щ: "sch", ъ: "", ы: "y", ь: "", э: "e", ю: "yu", я: "ya" };
+  const slugify = text => String(text || "").toLowerCase().split("").map(ch => TRANSLIT[ch] ?? ch).join("").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  function showErrors(form, errs) {
     $$("[data-error-for]", form).forEach(node => { node.hidden = true; node.textContent = ""; });
     $$("[aria-invalid]", form).forEach(node => node.removeAttribute("aria-invalid"));
-    if (errs.length) {
-      errs.forEach(err => {
-        const node = $(`[data-error-for="${err.field}"]`, form), input = $(`[name="${err.field}"]`, form);
-        if (node) { node.hidden = false; node.textContent = err.text; }
-        input?.setAttribute("aria-invalid", "true");
-      });
-      const first = $(`[name="${errs[0].field}"]`, form);
-      const panel = first?.closest("[data-panel]");
-      if (panel?.hidden) $(`[data-tab="${panel.dataset.panel}"]`)?.click();
-      first?.focus();
-      toast("Проверьте форму", `${errs.length} ${C.plural(errs.length, "поле требует", "поля требуют", "полей требуют")} внимания`, "danger", "triangle-alert");
+    errs.forEach(err => {
+      const node = $(`[data-error-for="${err.field}"]`, form), input = $(`[name="${err.field}"]`, form);
+      if (node) { node.hidden = false; node.textContent = err.text; }
+      input?.setAttribute("aria-invalid", "true");
+    });
+    if (!errs.length) return false;
+    const first = $(`[name="${errs[0].field}"]`, form);
+    first?.scrollIntoView({ block: "center" });
+    first?.focus({ preventScroll: true });
+    toast("Проверьте форму", `${errs.length} ${C.plural(errs.length, "поле требует", "поля требуют", "полей требуют")} внимания`, "danger", "triangle-alert");
+    return true;
+  }
+  const SETTINGS_TITLE = Object.fromEntries(D.settings.parserArchive.map(c => [c.category, c.title]));
+  function coerce(original, value) {
+    if (Array.isArray(original)) return Array.isArray(value) ? value : value ? String(value).split(",").map(x => x.trim()).filter(Boolean) : [];
+    if (typeof original === "number") return value == null || value === "" ? null : Number(value);
+    if (typeof original === "boolean") return !!value;
+    return value ?? "";
+  }
+  function saveSettings(form, payload) {
+    const initial = JSON.parse(form.dataset.initial || "{}");
+    const changed = Object.keys(payload).filter(key => JSON.stringify(payload[key]) !== JSON.stringify(initial[key]));
+    if (!changed.length) { toast("Нет изменений", "Всё уже сохранено.", "info", "check"); return; }
+    const done = key => () => { form.dataset.initial = JSON.stringify(C.readForm(form)); updateDirty(); mockDone(key); };
+    if (form.dataset.category === "site") {
+      const body = Object.fromEntries(changed.map(key => [key, payload[key]]));
+      confirmDialog({ title: "Сохранить настройки сайта", text: "Значения сохранятся в базе. <strong>Сайт их пока не читает</strong>: на страницах ничего не поменяется, пока бэкенд не начнёт их учитывать.", tone: "warning", icon: "unplug", requestKey: "site.update", body, ok: "Сохранить", onOk: done("site.update") });
       return;
     }
+    /* Сервер заменяет config категории целиком, поэтому уходит вся категория, а не только правка. */
+    const categoryOf = key => Object.keys(D.parserConfig).find(cat => key in D.parserConfig[cat]);
+    const cats = [...new Set(changed.map(categoryOf).filter(Boolean))];
+    const bodies = cats.map(cat => {
+      const config = { ...D.parserConfig[cat] };
+      Object.keys(config).forEach(key => { if (key in payload) config[key] = coerce(D.parserConfig[cat][key], payload[key]); });
+      return { config, description: SETTINGS_TITLE[cat] || cat, __category: cat };
+    });
+    const more = bodies.slice(1).map(b => `<div><b>PATCH</b> /api/v1/dashboard/parsers/settings/${esc(b.__category)}</div><div>${esc(JSON.stringify({ config: b.config, description: b.description }))}</div>`).join("");
+    confirmDialog({ title: "Сохранить настройки", text: `${changed.length} ${C.plural(changed.length, "значение изменено", "значения изменены", "значений изменено")}. Они сохранятся в базе; текущий воркер их пока не читает.`, icon: "save", requestKey: "parserSettings.update", body: bodies[0], extra: more, ok: "Сохранить", onOk: done("parserSettings.update") });
+  }
+  function saveForm(form) {
+    const kind = form.dataset.edit, key = form.dataset.requestKey;
+    const payload = C.readForm(form);
+    if (kind.startsWith("settings-")) { saveSettings(form, payload); return; }
+    if (kind === "anime" && key === "anime.create" && !payload.slug && payload.title) {
+      payload.slug = slugify(payload.title);
+      const input = $("[name='slug']", form);
+      if (input) input.value = payload.slug;
+    }
+    if (showErrors(form, C.errors(kind, payload))) return;
     if (kind === "user" && payload.password === null) delete payload.password;
-    let body = payload;
-    if (requestKey.endsWith(".update")) {
+    let body = payload, text = "";
+    if (kind === "schedule") {
+      text = esc(freqSentence(payload.cron_expression));
+      if (key === "schedule.create") {
+        const op = D.operations.find(o => o.key === payload.operation);
+        body = { parser_name: op?.parser, job_type: op?.job_type, cron_expression: payload.cron_expression, is_active: payload.is_active };
+        text += " Сервер поставит первый запуск через час после создания, дальше — по расписанию.";
+      } else text += " Ближайший запуск останется прежним: сервер его не пересчитывает.";
+    }
+    if (key.endsWith(".update")) {
       /* PATCH меняет только присланные поля: отправляем лишь изменённое, иначе пустые поля затрут данные. */
       const initial = JSON.parse(form.dataset.initial || "{}");
-      body = Object.fromEntries(Object.entries(payload).filter(([key, value]) => JSON.stringify(value) !== JSON.stringify(initial[key])));
-      if (!Object.keys(body).length) { toast("Нет изменений", "Форма совпадает с тем, что уже сохранено.", "info", "check"); return; }
+      body = Object.fromEntries(Object.entries(body).filter(([k, v]) => JSON.stringify(v) !== JSON.stringify(initial[k])));
+      if (!Object.keys(body).length) { toast("Нет изменений", "Всё уже сохранено.", "info", "check"); return; }
       body = { ...body, __id: form.dataset.id };
     }
-    confirmDialog({ title: "Сохранить изменения", requestKey, body, icon: "save", ok: "Сохранить", onOk: () => { state.dirty = false; closeDrawer(true); mockDone(requestKey); } });
+    const inDialog = !!form.closest("#confirm");
+    const inline = form.closest(".inline-editor");
+    confirmDialog({ title: key.endsWith(".create") ? "Создать" : "Сохранить изменения", text, requestKey: key, body, icon: "save", ok: key.endsWith(".create") ? "Создать" : "Сохранить", onOk: () => {
+      mockDone(key);
+      if (inDialog) return;
+      if (inline) { closeInline(form); return; }
+      form.dataset.initial = JSON.stringify(C.readForm(form));
+      updateDirty();
+    } });
+  }
+  /* Раскрытие строки для правки на месте. Перерисовывается только список, чтобы не потерять правки в остальной странице. */
+  function redrawEpisodes() {
+    const item = animeBySlug(state.param);
+    const box = $("#episodes");
+    if (!item || !box) return;
+    box.outerHTML = episodesSection(item);
+    const fresh = $("#episodes");
+    refreshIcons(fresh);
+    snapshotForms(fresh);
+    updateDirty();
+    const open = $(".inline-editor.nested", fresh) || $(".ep-row.is-open", fresh);
+    if (open) { open.scrollIntoView({ block: "nearest", behavior: reduceMotion.matches ? "auto" : "smooth" }); }
+  }
+  function closeInline(form) {
+    if (form.dataset.edit === "schedule") { state.editing.schedule = null; rerenderMain(); return; }
+    if (form.dataset.edit === "release") state.editing.release = null;
+    else { state.editing.episode = null; state.editing.release = null; }
+    redrawEpisodes();
+  }
+  function guardInline(scopeSelector, run) {
+    const open = $$(`${scopeSelector} form[data-edit]`).filter(formDirty);
+    if (!open.length) { run(); return; }
+    confirmDialog({ title: "Закрыть без сохранения?", tone: "warning", icon: "triangle-alert", text: "Правки в открытой строке пропадут.", ok: "Закрыть", onOk: run });
+  }
+  function setField(form, name, value) {
+    const box = $(`[data-freq="${name}"]`, form);
+    if (box) { box.outerHTML = freqPicker(name, value, { allowFast: true }); return; }
+    const single1 = $(`[data-single="${name}"]`, form);
+    if (single1) { pickSingle(single1, String(value)); return; }
+    const multi1 = $(`[data-multi="${name}"]`, form);
+    if (multi1) {
+      const set = new Set((Array.isArray(value) ? value : String(value).split(",")).map(x => x.trim()).filter(Boolean));
+      $$("button[data-value]", multi1).forEach(b => setMultiButton(b, set.has(b.dataset.value)));
+      syncMulti(multi1);
+      return;
+    }
+    const chips1 = $(`[data-chips="${name}"]`, form);
+    if (chips1) {
+      $$(".chip", chips1).forEach(c => c.remove());
+      const list = (Array.isArray(value) ? value : String(value).split(",")).map(x => x.trim()).filter(Boolean);
+      $(".chips-entry", chips1).insertAdjacentHTML("beforebegin", list.map(chipItem).join(""));
+      syncChips(chips1);
+      return;
+    }
+    const input = $(`[name="${name}"]`, form);
+    if (!input) return;
+    if (input.type === "checkbox") input.checked = !!value;
+    else input.value = value;
+    if (input.type === "range") syncRange(input);
+  }
+  function pickSingle(group, value) {
+    $$("button[data-value]", group).forEach(b => { const on = b.dataset.value === value; b.setAttribute("aria-checked", String(on)); b.setAttribute("aria-pressed", String(on)); });
+    $("input[type=hidden]", group).value = value;
+  }
+  function setMultiButton(btn, on) {
+    btn.setAttribute("aria-pressed", String(on));
+  }
+  function syncMulti(group) { $("input[type=hidden]", group).value = $$("button[aria-pressed='true']", group).map(b => b.dataset.value).join(", "); }
+  function syncChips(box) { $("input[type=hidden]", box).value = $$(".chip", box).map(c => c.dataset.chip).join(", "); refreshIcons(box); }
+  function syncRange(input) {
+    const text = RANGE_FORMAT[input.dataset.format](input.value);
+    const out = $(`[data-range-out="${input.name}"]`, input.closest(".range-wrap"));
+    if (out) out.textContent = text;
+    input.setAttribute("aria-valuetext", text);
+    input.style.setProperty("--fill", `${((input.value - input.min) / (input.max - input.min)) * 100}%`);
+  }
+  function addChip(entry) {
+    const box = entry.closest("[data-chips]");
+    const values = entry.value.split(",").map(x => x.trim()).filter(Boolean);
+    const have = new Set($$(".chip", box).map(c => c.dataset.chip.toLowerCase()));
+    values.filter(v => !have.has(v.toLowerCase())).forEach(v => entry.insertAdjacentHTML("beforebegin", chipItem(v)));
+    entry.value = "";
+    syncChips(box);
+    formChanged(box.closest("form"));
   }
 
   /* ---------- События ---------- */
@@ -1210,44 +1725,28 @@
       case "palette": togglePalette(); break;
       case "theme": toggleTheme(); break;
       case "cmdk": openCmdk(); break;
-      case "subnav": $("#subnav").classList.contains("is-open") ? closeSubnav() : openSubnav(); break;
-      case "close-drawer": closeDrawer(); break;
       case "refresh": toast("Макет: данные не обновляются", "При переносе кнопка повторит GET /monitoring/health.", "info", "refresh-cw"); break;
-      case "new-title": titleEditor(null); break;
-      case "edit-title": titleEditor(el.dataset.id ? find(D.anime) : D.anime.find(x => x.slug === el.dataset.slug) || { title: D.moderation.find(m => m.slug === el.dataset.slug)?.title || el.dataset.slug, slug: el.dataset.slug, status: "ongoing", kind: "tv", poster: false, description: false, genres: [], studios: [], needs_moderation: true, id: "demo" }); break;
-      case "title-menu": {
-        const item = find(D.anime);
-        confirmDialog({ title: item.title, icon: "more-horizontal", text: `<div style="display:grid;gap:8px"><button type="button" class="button" data-sub="refresh">${icon("refresh-cw")}Перечитать из Kodik</button><button type="button" class="button" data-sub="poster">${icon("image-down")}Взять постер из Shikimori</button><a class="button" href="../public/anime.html" target="_blank" rel="noopener">${icon("external-link")}Открыть на сайте</a></div>`, ok: "Закрыть" });
-        $("#confirm").addEventListener("click", e => {
-          const sub = e.target.closest("[data-sub]");
-          if (!sub) return;
-          $("#confirm").close();
-          const fake = document.createElement("button");
-          fake.dataset.request = sub.dataset.sub === "refresh" ? "anime.refresh" : "anime.refreshPoster";
-          fake.dataset.slug = item.slug; fake.dataset.name = item.title;
-          runRequest(fake);
-        }, { once: true });
-        break;
-      }
       case "clear-selection": state.titles.selected.clear(); rerenderMain(); break;
-      case "new-episode": episodeDrawer(null); break;
-      case "open-episode": episodeDrawer(find(D.episodes)); break;
-      case "edit-release": releaseDrawer(el.dataset.id ? find(D.releases) : null); break;
-      case "open-job": jobDrawer(find(D.jobs)); break;
-      case "new-schedule": scheduleDrawer(null); break;
-      case "edit-schedule": scheduleDrawer(find(D.schedules)); break;
-      case "save-schedule": {
-        const cron = cronFromForm();
-        const form = $("#drawer form");
-        const op = D.operations.find(o => o.key === $("[name='operation']", form)?.value);
-        const body = el.dataset.id ? { cron_expression: cron, is_active: $("[name='is_active']", form).checked, __id: el.dataset.id } : { parser_name: op?.parser, job_type: op?.job_type, cron_expression: cron, is_active: $("[name='is_active']", form).checked };
-        confirmDialog({ title: "Сохранить расписание", text: esc(C.describeCron(cron).text), requestKey: el.dataset.id ? "schedule.update" : "schedule.create", body, icon: "calendar-clock", ok: "Сохранить", onOk: () => { closeDrawer(true); mockDone(el.dataset.id ? "schedule.update" : "schedule.create"); } });
+      case "toggle-episode": guardInline("#episodes", () => { state.editing.episode = state.editing.episode === el.dataset.id ? null : el.dataset.id; state.editing.release = null; redrawEpisodes(); }); break;
+      case "toggle-release": guardInline("#episodes .inline-editor.nested", () => { state.editing.release = state.editing.release === el.dataset.id ? null : el.dataset.id; redrawEpisodes(); }); break;
+      case "toggle-schedule": guardInline(".sched-list", () => { state.editing.schedule = state.editing.schedule === el.dataset.id ? null : el.dataset.id; rerenderMain(); $(".sched.is-open select, .sched.is-open button")?.focus(); }); break;
+      case "save-inline": saveForm(el.closest("form")); break;
+      case "save-page": $$("#main form[data-edit]").filter(f => !f.closest(".inline-editor") && formDirty(f)).forEach(saveForm); break;
+      case "save-dialog": saveForm($("#confirm form[data-edit]")); break;
+      case "reset-form": rerenderMain(); toast("Правки отменены", "", "info", "undo-2"); break;
+      case "new-cosmetic": cosmeticDialog(el.dataset.kind, null); break;
+      case "edit-cosmetic": cosmeticDialog(el.dataset.kind, el.dataset.kind === "avatar" ? find(D.avatars) : find(D.decorations)); break;
+      case "apply-preset": {
+        const preset = GRAB_PRESETS[el.dataset.presetId];
+        const form = el.closest(".page").querySelector("form[data-edit]");
+        Object.entries(preset.values).forEach(([name, value]) => setField(form, name, value));
+        refreshIcons(form);
+        $$("[data-action='apply-preset']").forEach(b => b.setAttribute("aria-pressed", String(b === el)));
+        formChanged(form);
+        toast(`Набор «${preset.label}» подставлен`, "Проверьте значения и нажмите «Сохранить» внизу.", "info", "wand-sparkles");
         break;
       }
-      case "open-user": userDrawer(find(D.users)); break;
-      case "new-cosmetic": cosmeticDrawer(el.dataset.kind, null); break;
-      case "edit-cosmetic": cosmeticDrawer(el.dataset.kind, el.dataset.kind === "avatar" ? find(D.avatars) : D.decorations.find(x => String(x.id) === el.dataset.id)); break;
-      case "save-form": validateAndSave(el.dataset.kind, el.dataset.requestKey); break;
+      case "reset-ua": { const form = el.closest("form"); setField(form, "user_agent", "KitsuEngine/2.0"); formChanged(form); break; }
       default: break;
     }
   }
@@ -1266,7 +1765,7 @@
     const segEl = event.target.closest("[data-seg]");
     if (segEl) {
       const name = segEl.dataset.seg, value = segEl.dataset.value;
-      if (name === "titles") { state.titles.filter = value; }
+      if (name === "titles") state.titles.filter = value;
       if (name === "conflicts") state.conflicts.status = value;
       if (name === "jobs") state.jobs.status = value;
       if (name === "logs") state.logs.level = value;
@@ -1277,23 +1776,25 @@
     }
     const dryEl = event.target.closest("[data-dry]");
     if (dryEl) { $$(`[data-dry="${dryEl.dataset.dry}"]`).forEach(b => b.setAttribute("aria-pressed", String(b === dryEl))); return; }
-    const tab = event.target.closest("[role='tab'][data-tab]");
-    if (tab) {
-      const scope = tab.closest(".drawer");
-      $$("[role='tab']", scope).forEach(t => t.setAttribute("aria-selected", String(t === tab)));
-      $$("[data-panel]", scope).forEach(p => { p.hidden = p.dataset.panel !== tab.dataset.tab; });
-      return;
+    const singleBtn = event.target.closest("[data-single] button[data-value]");
+    if (singleBtn) { pickSingle(singleBtn.closest("[data-single]"), singleBtn.dataset.value); formChanged(singleBtn.closest("form")); return; }
+    const weekday = event.target.closest("[data-freq-weekday] button");
+    if (weekday) { $$("button", weekday.parentElement).forEach(b => b.setAttribute("aria-pressed", String(b === weekday))); syncFreq(weekday.closest("[data-freq]")); formChanged(weekday.closest("form")); return; }
+    const multiBtn = event.target.closest("[data-multi] button[data-value]");
+    if (multiBtn) { setMultiButton(multiBtn, multiBtn.getAttribute("aria-pressed") !== "true"); syncMulti(multiBtn.closest("[data-multi]")); formChanged(multiBtn.closest("form")); return; }
+    const chipX = event.target.closest("[data-chip-remove]");
+    if (chipX) { const box = chipX.closest("[data-chips]"); chipX.closest(".chip").remove(); syncChips(box); formChanged(box.closest("form")); $(".chips-entry", box).focus(); return; }
+    const chipsBox = event.target.closest(".chips-input");
+    if (chipsBox && event.target === chipsBox) { $(".chips-entry", chipsBox).focus(); return; }
+    const insert = event.target.closest("[data-insert]");
+    if (insert) {
+      const input = $("[data-tpl-input]", insert.closest(".tpl"));
+      const start = input.selectionStart ?? input.value.length, end = input.selectionEnd ?? start;
+      input.value = `${input.value.slice(0, start)}${insert.dataset.insert}${input.value.slice(end)}`;
+      input.focus();
+      input.setSelectionRange(start + insert.dataset.insert.length, start + insert.dataset.insert.length);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
     }
-    const preset = event.target.closest("[data-preset]");
-    if (preset) {
-      $$("[data-preset]").forEach(p => p.setAttribute("aria-pressed", String(p === preset)));
-      $$("[data-show]").forEach(f => { f.hidden = !f.dataset.show.split(" ").includes(preset.dataset.preset); });
-      state.dirty = true; $("[data-dirty]")?.removeAttribute("hidden");
-      updateCronPreview();
-      return;
-    }
-    if (event.target.id === "scrim") { if (!$("#drawer").hidden) closeDrawer(); else closeSubnav(); }
-    if (event.target.closest(".subnav-link")) closeSubnav();
   });
 
   document.addEventListener("change", event => {
@@ -1308,21 +1809,19 @@
       filteredTitles().forEach(item => (t.checked ? state.titles.selected.add(item.id) : state.titles.selected.delete(item.id)));
       rerenderMain();
     }
-    if (t.closest("#drawer form")) { state.dirty = true; $("[data-dirty]")?.removeAttribute("hidden"); }
-    if (t.matches("[data-role-select]")) {
-      const form = t.closest("form");
-      const role = D.roles.find(r => r.id === $("[name='role_id']", form).value);
-      const access = C.effectiveAccess({ is_superuser: $("[name='is_superuser']", form).checked }, role);
-      $("[data-access-preview]", form).innerHTML = accessPreview(access);
-      refreshIcons($("[data-access-preview]", form));
-    }
-    if (t.matches("[data-cron]")) updateCronPreview();
+    if (t.matches("[data-freq-kind], [data-freq-hour], [data-freq-minute]")) syncFreq(t.closest("[data-freq]"));
+    if (t.matches(".chips-entry") && t.value.trim()) { addChip(t); return; }
+    if (t.closest("form[data-edit]")) formChanged(t.closest("form[data-edit]"));
   });
 
   let searchTimer;
   document.addEventListener("input", event => {
     const t = event.target;
-    if (t.closest("#drawer form")) { state.dirty = true; $("[data-dirty]")?.removeAttribute("hidden"); }
+    if (t.matches(".range")) syncRange(t);
+    if (t.matches("[data-tpl-input]")) { const out = $("[data-tpl-preview]", t.closest(".tpl")); out.innerHTML = tplPreview(t.value); }
+    if (t.matches("input[type=color]")) { const out = $("[data-color-out]", t.closest(".color-input")); if (out) out.textContent = t.value; }
+    if (t.matches("[data-prefix-input]")) { const out = $("[data-prefix-out]", t.closest(".prefix-input")); if (out) out.textContent = `${t.value}драма`; }
+    if (t.closest("form[data-edit]") && !t.matches(".chips-entry")) formChanged(t.closest("form[data-edit]"));
     if (t.matches("[data-input='titles-q']")) {
       state.titles.q = t.value;
       clearTimeout(searchTimer);
@@ -1331,38 +1830,55 @@
     if (t.matches("[data-input='users-q']")) {
       state.users.q = t.value;
       clearTimeout(searchTimer);
-      searchTimer = setTimeout(() => { const pos = t.selectionStart; rerenderMain(); const input = $("[data-input='users-q']"); input.focus(); input.setSelectionRange(pos, pos); }, 120);
+      searchTimer = setTimeout(() => { $("#user-rows").innerHTML = userRows(); refreshIcons($("#user-rows")); }, 120);
     }
-    if (t.matches("[data-cron]")) updateCronPreview();
   });
 
   document.addEventListener("submit", event => {
+    const edit = event.target.closest("form[data-edit]");
+    if (edit) { event.preventDefault(); saveForm(edit); return; }
     const form = event.target.closest("[data-form]");
     if (!form) return;
     event.preventDefault();
     if (form.dataset.form === "import-search") { state.importQ = form.q.value; rerenderMain(); $("[data-form='import-search'] input")?.focus(); }
     if (form.dataset.form === "blacklist") {
-      const body = C.readForm(form);
-      if (!body.shikimori_id && !body.kodik_id && !body.slug) { toast("Укажите хотя бы один признак", "Shikimori ID, Kodik ID или slug", "warning", "triangle-alert"); return; }
+      const value = form.target_value.value.trim();
+      const kind = $("[name='target']", form).value;
+      if (!value) { toast("Укажите, что исключить", "Номер Shikimori, номер Kodik или адрес тайтла", "warning", "triangle-alert"); $("[name='target_value']", form).focus(); return; }
+      const body = kind === "shikimori_id" ? { shikimori_id: Number(value) } : { [kind]: value };
+      if (kind === "shikimori_id" && !Number.isInteger(body.shikimori_id)) { toast("Номер Shikimori — только цифры", "", "warning", "triangle-alert"); return; }
       confirmDialog({ title: "Добавить в исключения", text: "Синхронизация и импорт перестанут добавлять этот тайтл. Уже существующий тайтл не удалится.", requestKey: "blacklist.create", body, icon: "ban", ok: "Добавить", onOk: () => mockDone("blacklist.create") });
     }
   });
 
   document.addEventListener("keydown", event => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); openCmdk(); return; }
-    if (event.key === "Escape") {
-      if ($("#cmdk").open || $("#confirm").open) return;
-      if (!$("#drawer").hidden) { closeDrawer(); return; }
-      closeSubnav();
+    const t = event.target;
+    if (t.matches?.(".chips-entry")) {
+      if ((event.key === "Enter" || event.key === ",") && t.value.trim()) { event.preventDefault(); addChip(t); return; }
+      if (event.key === "Enter") { event.preventDefault(); return; }
+      if (event.key === "Backspace" && !t.value) { const last = $$(".chip", t.parentElement).pop(); if (last) { last.remove(); syncChips(t.parentElement); formChanged(t.closest("form")); } return; }
     }
-    if (event.key === "/" && !/input|textarea|select/i.test(document.activeElement?.tagName || "") && !$("#cmdk").open) { event.preventDefault(); openCmdk(); }
+    if (event.key === "Enter" && t.matches?.("form[data-edit] input:not([type=checkbox])") && !t.closest(".inline-editor") && !t.closest("#confirm")) { event.preventDefault(); return; }
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s" && state.dirty) { event.preventDefault(); const form = t.closest?.("form[data-edit]") || $$("#main form[data-edit]").find(formDirty); if (form) saveForm(form); return; }
+    if (event.key === "/" && !/input|textarea|select/i.test(document.activeElement?.tagName || "") && !$("#cmdk").open && !$("#confirm").open) { event.preventDefault(); openCmdk(); }
   });
 
-  window.addEventListener("hashchange", render);
+  /* Уход со страницы с несохранёнными правками: спросить, а не терять молча. */
+  window.addEventListener("hashchange", () => {
+    if (state.dirty && location.hash !== lastHash) {
+      const target = location.hash;
+      history.replaceState(null, "", lastHash || "#/pult");
+      confirmDialog({ title: "Уйти без сохранения?", tone: "warning", icon: "triangle-alert", text: "На этой странице есть несохранённые правки. Если уйти, они пропадут.", ok: "Уйти", danger: true, onOk: () => { state.dirty = false; location.hash = target; } });
+      return;
+    }
+    render();
+  });
+  window.addEventListener("beforeunload", event => { if (state.dirty) { event.preventDefault(); event.returnValue = ""; } });
   window.addEventListener("scroll", () => $("#shell").classList.toggle("is-scrolled", window.scrollY > 4), { passive: true });
 
   function initInputModality() {
-    document.addEventListener("pointerdown", event => { document.documentElement.dataset.inputModality = "pointer"; }, { capture: true, passive: true });
+    document.addEventListener("pointerdown", () => { document.documentElement.dataset.inputModality = "pointer"; }, { capture: true, passive: true });
     document.addEventListener("keydown", event => { if (["Tab", "Enter", " ", "Escape", "ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) document.documentElement.dataset.inputModality = "keyboard"; }, true);
   }
   initInputModality();
@@ -1379,7 +1895,7 @@
     }, 2400);
   }
 
-  window.KitsuAdmin = { renderers, state, toneForStatus, labelForStatus, describeRequest, sections };
+  window.KitsuAdmin = { renderers, details, state, toneForStatus, labelForStatus, describeRequest, sections };
   render();
   applyThemeColor();
   tickLive();

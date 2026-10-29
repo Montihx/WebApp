@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#0e0b12" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <title>Kitsu — пульт управления</title>
-    <meta name="description" content="Шаблон админки Kitsu: каталог, очереди, парсер, стенд, люди и честные настройки" />
+    <meta name="description" content="Шаблон админки Kitsu: каталог, очереди, парсер, стенд, люди и понятные настройки" />
     <script>
       (() => {
         try {
@@ -16,7 +16,7 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=v4-1" />
+    <link rel="stylesheet" href="./styles.css?v=v5-1" />
   </head>
   <body>
     <a class="skip-link" href="#main">К содержимому</a>
@@ -36,13 +36,8 @@
         </div>
       </nav>
 
-      <aside class="subnav" id="subnav" aria-label="Страницы раздела"></aside>
-
       <div class="main-col">
         <header class="topbar">
-          <button type="button" class="icon-btn topbar-menu" data-action="subnav" aria-label="Открыть меню раздела" aria-controls="subnav" aria-expanded="false">
-            <i data-lucide="panel-left"></i>
-          </button>
           <nav class="crumbs" id="crumbs" aria-label="Где вы"></nav>
           <div class="topbar-spacer"></div>
           <a class="live-chip" id="live-chip" href="#/parser/jobs" hidden></a>
@@ -61,15 +56,13 @@
       <nav class="mobile-nav" id="mobile-nav" aria-label="Разделы"></nav>
     </div>
 
-    <div class="scrim" id="scrim"></div>
-    <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden></aside>
     <dialog class="dialog" id="confirm" aria-labelledby="confirm-title"></dialog>
     <dialog class="dialog cmdk" id="cmdk" aria-label="Поиск и команды"></dialog>
     <div class="toast-region" id="toasts" role="status" aria-live="polite"></div>
 
     <script src="./vendor/lucide.min.js"></script>
-    <script src="./data.js?v=v4-1"></script>
-    <script src="./contracts.js?v=v4-1"></script>
-    <script src="./app.js?v=v4-1"></script>
+    <script src="./data.js?v=v5-1"></script>
+    <script src="./contracts.js?v=v5-1"></script>
+    <script src="./app.js?v=v5-1"></script>
   </body>
 </html>
