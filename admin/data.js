@@ -359,13 +359,15 @@
   /* Текущие значения parser_settings.config по категориям (GET /dashboard/parsers/settings).
      Значения по умолчанию взяты из вкладок текущего дашборда (frontend/components/dashboard/parsers/tabs). */
   const parserConfig = {
-    general: { shikimori_api_domain: "https://shikimori.io/", proxy_enabled: false, proxy_address: "", proxy_port: "", user_agent: "KitsuEngine/2.0" },
+    general: { kodik_api_key: "(как пришло из базы, не меняется)", shikimori_api_domain: "https://shikimori.io/", proxy_enabled: false, proxy_address: "", proxy_port: "", user_agent: "KitsuEngine/2.0" },
     grabbing: {
       source_mode: "shikimori", kodik_types: "anime,anime-serial", min_score: 6, if_camrip: false, if_lgbt: true,
       year_start: 1995, year_end: 2026, kinds_allowed: ["tv", "movie", "ova", "ona"],
       allowed_countries: "", blocked_countries: "", unblocked_countries: "", allowed_years: "", blocked_years: "",
       allowed_genres: "", blocked_genres: "хентай, яой, юри", mpaa_rating: "", audio_type: "any", voice_kind: "", sort_order: "year_desc",
       cron_auto_add: "*/30 * * * *", cron_release_updates: "0 * * * *",
+      /* Поля без элементов в интерфейсе: сервер заменяет config целиком, поэтому они уходят обратно как пришли. */
+      includes: "", filter: "",
     },
     updates: { auto_update: true, update_frequency: "hourly", detect_episode_change: true, detect_metadata_change: false, force_shikimori_score: true, notify_on_fail: true },
     images: { localize_images: true, optimize_webp: true, quality_percent: 100, max_width: 1200, enable_watermark: false, watermark_text: "KITSU" },

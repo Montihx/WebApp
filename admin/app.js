@@ -846,7 +846,8 @@
     const n = Math.min(item.episodes_aired || 0, 6);
     return Array.from({ length: n }, (_, i) => {
       const number = item.episodes_aired - i;
-      return { id: `syn-${item.slug}-${number}`, anime: item.title, anime_slug: item.slug, season: 1, episode: number, title: null, aired_at: null, is_filler: false, is_recap: false, releases: 1 + (hash(item.slug + number) % 4) };
+      /* Только для вида списка: у такой строки нет настоящего id, поэтому её нельзя править и удалять. */
+      return { id: `syn-${item.slug}-${number}`, synthetic: true, anime: item.title, anime_slug: item.slug, season: 1, episode: number, title: null, aired_at: null, is_filler: false, is_recap: false, releases: 1 + (hash(item.slug + number) % 4) };
     });
   }
   function releasesFor(ep) {
@@ -854,7 +855,7 @@
     if (real.length) return real;
     return Array.from({ length: ep.releases || 0 }, (_, i) => {
       const seed = hash(ep.id + i);
-      return { id: `${ep.id}-r${i}`, anime: ep.anime, episode: ep.episode, source: "kodik", translation_type: i === 2 ? "subtitles" : "voice", translation_team: TEAMS[seed % TEAMS.length], translation_language: "ru", quality: i % 2 ? "720p" : "1080p", is_active: true, is_verified: i === 0, url: `https://kodik.info/seria/${100000 + (seed % 899999)}/${(seed % 65535).toString(16)}/720p` };
+      return { id: `${ep.id}-r${i}`, synthetic: true, anime: ep.anime, episode: ep.episode, source: "kodik", translation_type: i === 2 ? "subtitles" : "voice", translation_team: TEAMS[seed % TEAMS.length], translation_language: "ru", quality: i % 2 ? "720p" : "1080p", is_active: true, is_verified: i === 0, url: `https://kodik.info/seria/${100000 + (seed % 899999)}/${(seed % 65535).toString(16)}/720p` };
     });
   }
 
@@ -943,14 +944,15 @@
   function episodesSection(item) {
     const eps = episodesFor(item);
     const editing = state.editing.episode;
+    const sample = eps.some(ep => ep.synthetic);
     const rows = eps.map(ep => {
-      const open = editing === ep.id;
+      const open = editing === ep.id && !ep.synthetic;
       return `<div class="ep-row ${open ? "is-open" : ""}">
         <div class="ep-line">
           <span class="ep-num mono">${ep.episode}</span>
           <div class="ep-title"><strong>${esc(ep.title || `${ep.episode} серия`)}</strong><small>Сезон ${ep.season}${ep.aired_at ? ` · вышла ${at(ep.aired_at)}` : ""}</small></div>
           <div class="ep-tags">${ep.is_filler ? tag("Филлер", "warning") : ""}${ep.is_recap ? tag("Рекап", "info") : ""}<span class="muted ep-src">${ep.releases} ${C.plural(ep.releases, "источник", "источника", "источников")}</span></div>
-          <button type="button" class="button s ${open ? "" : "ghost"}" data-action="toggle-episode" data-id="${ep.id}" aria-expanded="${open}">${icon(open ? "chevron-up" : "pencil")}${open ? "Свернуть" : "Изменить"}</button>
+          ${ep.synthetic ? tag("Пример", "neutral") : `<button type="button" class="button s ${open ? "" : "ghost"}" data-action="toggle-episode" data-id="${ep.id}" aria-expanded="${open}">${icon(open ? "chevron-up" : "pencil")}${open ? "Свернуть" : "Изменить"}</button>`}
         </div>
         ${open ? episodeEditor(item, ep) : ""}
       </div>`;
@@ -959,6 +961,7 @@
     return `<section class="card" id="episodes"><div class="card-head"><h2>${icon("list-video")}Серии и источники видео</h2><button type="button" class="button s" data-action="toggle-episode" data-id="new">${icon("plus")}Добавить серию</button></div>
       <div class="card-body flush">
         ${note("info", "lightbulb", "Серии и озвучки обычно приходят из Kodik сами. Здесь правят номер, сезон, отметки «филлер» и «рекап» и выключают нерабочие источники.")}
+        ${sample ? note("neutral", "flask-conical", "В демонстрационных данных серий этого тайтла нет: строки ниже только показывают, как выглядит список, и не правятся. В рабочей админке список приходит с сервера, и каждую серию можно открыть.") : ""}
         ${adding ? `<div class="ep-row is-open">${episodeEditor(item, null)}</div>` : ""}
         <div class="ep-list">${rows || `<p class="muted" style="padding:16px var(--card-pad)">Серий пока нет.</p>`}</div>
       </div></section>`;
@@ -983,7 +986,8 @@
         <div class="inline-actions">${!isNew ? `<button type="button" class="button s ghost danger-text" ${request("episodes.delete", { id: ep.id, name: `${item.title}, серия ${ep.episode}` })}>${icon("trash-2")}Удалить серию</button>` : ""}<span class="grow"></span><button type="button" class="button s ghost" data-action="toggle-episode" data-id="${isNew ? "new" : ep.id}">Отмена</button><button type="button" class="button s primary" data-action="save-inline">${icon("save")}${isNew ? "Добавить" : "Сохранить серию"}</button></div>`)}
       ${isNew ? "" : `<div class="rel-block"><div class="rel-head"><strong>${icon("film", "icon-s")}Источники видео</strong><button type="button" class="button s ghost" data-action="toggle-release" data-id="new-${ep.id}">${icon("plus")}Добавить источник</button></div>
         ${state.editing.release === `new-${ep.id}` ? releaseEditor(ep, null) : ""}
-        ${rels.map(r => `<div class="rel-row"><div class="rel-line">${icon("play")}<div><strong>${esc(r.translation_team)}</strong><small>${r.translation_type === "voice" ? "Озвучка" : "Субтитры"} · ${esc(LANG[r.translation_language] || r.translation_language)} · ${esc(r.quality || "качество не указано")} · ${esc(SOURCE[r.source] || r.source)}</small></div>${r.is_active ? (r.is_verified ? tag("Проверен", "success") : tag("Работает", "info")) : tag("Выключен", "neutral")}<button type="button" class="icon-btn s" data-action="toggle-release" data-id="${r.id}" aria-label="Изменить источник ${esc(r.translation_team)}">${icon("pencil")}</button></div>${state.editing.release === r.id ? releaseEditor(ep, r) : ""}</div>`).join("")}
+        ${rels.map(r => `<div class="rel-row"><div class="rel-line">${icon("play")}<div><strong>${esc(r.translation_team)}</strong><small>${r.translation_type === "voice" ? "Озвучка" : "Субтитры"} · ${esc(LANG[r.translation_language] || r.translation_language)} · ${esc(r.quality || "качество не указано")} · ${esc(SOURCE[r.source] || r.source)}</small></div>${r.is_active ? (r.is_verified ? tag("Проверен", "success") : tag("Работает", "info")) : tag("Выключен", "neutral")}${r.synthetic ? tag("Пример", "neutral") : `<button type="button" class="icon-btn s" data-action="toggle-release" data-id="${r.id}" aria-label="Изменить источник ${esc(r.translation_team)}">${icon("pencil")}</button>`}</div>${state.editing.release === r.id && !r.synthetic ? releaseEditor(ep, r) : ""}</div>`).join("")}
+        ${rels.some(r => r.synthetic) ? `<p class="muted" style="font-size:12px">Источники с пометкой «Пример» — демонстрация вида списка, их нельзя править.</p>` : ""}
       </div>`}
     </div>`;
   }
