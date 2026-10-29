@@ -149,10 +149,13 @@ test('related titles render as posters with an ofuda and the current one is mark
   assert.match(source, /ofuda ofuda--relation ofuda--rel-\$\{tone\}/);
   assert.match(source, /alt="Постер «\$\{esc\(row.title\)\}»"/);
 });
-test('schedule rows carry a blurred still of the same title and a moving now line', () => {
+test('schedule and updates rows carry a blurred still; the clock sits in the card header', () => {
   const source = read('public/content.js');
   assert.match(source, /class="air-backdrop" aria-hidden="true"><img src="\$\{esc\(row.local_poster\)\}" alt=""/);
+  assert.match(source, /schedule-item--update" href="\$\{href\(row.slug\)\}"><span class="air-backdrop" aria-hidden="true">/);
+  assert.match(source, /closest\('\.schedule-head'\)\?\.querySelector\('\.section-kicker'\)\?\.insertAdjacentHTML\('afterend', `<p class="air-clock"/);
+  assert.doesNotMatch(source, /air-now/, 'no clock line between rows');
   const refresh = source.slice(source.indexOf('    function refresh()'), source.indexOf('    let timer'));
-  assert.match(refresh, /insertBefore\(line, next\)/);
+  assert.match(refresh, /#schedule-now/);
   assert.doesNotMatch(refresh, /innerHTML/);
 });

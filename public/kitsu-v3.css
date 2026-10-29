@@ -2671,7 +2671,7 @@ a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
    Расписание: строка серии на размытом кадре этого же тайтла
    ========================================================================== */
 :root .schedule-card .schedule-item--air {
-  grid-template-columns: 92px 52px minmax(0, 1fr);
+  grid-template-columns: 52px minmax(0, 1fr) auto;
   gap: 14px; min-height: 96px; padding: 12px 16px 12px 14px; overflow: hidden; isolation: isolate;
 }
 :root .schedule-card .schedule-item--air .air-backdrop { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
@@ -2683,15 +2683,15 @@ a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
 /* Слева — почти сплошная подложка под временем и названием, вправо кадр проступает. */
 :root .schedule-card .schedule-item--air .air-backdrop::after {
   content: ""; position: absolute; inset: 0;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 94%, transparent) 0%, color-mix(in srgb, var(--surface) 80%, transparent) 50%, color-mix(in srgb, var(--surface) 30%, transparent) 100%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 92%, transparent) 0%, color-mix(in srgb, var(--surface) 62%, transparent) 55%, color-mix(in srgb, var(--surface) 80%, transparent) 100%);
 }
 :root .schedule-card .schedule-item--air:hover .air-backdrop img { opacity: 0.8; }
-:root .schedule-card .schedule-item--air .air-time { display: grid; gap: 2px; align-content: center; justify-items: start; text-align: left; }
+:root .schedule-card .schedule-item--air .air-time { display: grid; gap: 4px; align-content: center; justify-items: end; text-align: right; }
 :root .schedule-card .schedule-item--air .air-time > b {
-  display: block; font: 400 1.375rem/1.2 var(--font-heading); text-align: left; white-space: nowrap;
+  display: block; font: 400 1.375rem/1.2 var(--font-heading); text-align: right; white-space: nowrap;
   background: var(--accent-grad); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
 }
-:root .schedule-card .schedule-item--air .air-time > span { display: block; text-align: left; text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.6875rem; }
+:root .schedule-card .schedule-item--air .air-time > span { display: block; text-align: right; color: var(--text-secondary); -webkit-text-fill-color: var(--text-secondary); font-size: 0.75rem; }
 :root .schedule-card .schedule-item--air .air-poster { width: 52px; height: 74px; border-radius: 10px; }
 :root .schedule-card .schedule-item--air .air-copy { display: grid; gap: 4px; min-width: 0; }
 :root .schedule-card .schedule-item--air .air-copy strong { font-size: 1rem; }
@@ -2700,15 +2700,20 @@ a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
 :root .schedule-card .schedule-item--air.is-aired .air-time > b { background: none; color: var(--text-muted); -webkit-text-fill-color: var(--text-muted); }
 :root .schedule-card .schedule-item--air.is-aired .air-poster { filter: saturate(0.6); }
 
-/* «Сейчас у вас 11:32»: тонкая линия лисьего огня между вышедшими и ещё не вышедшими. */
-.air-now { position: relative; display: flex; align-items: center; gap: 10px; margin: 2px 0; color: var(--kitsunebi-text); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-.air-now::before { content: ""; width: 8px; height: 8px; flex: none; border-radius: 2px; background: var(--kitsunebi); box-shadow: 0 0 10px var(--kitsunebi-glow); transform: rotate(45deg); }
-.air-now::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--kitsunebi), transparent); }
-.air-now b { font-family: var(--font-mono); font-weight: 600; letter-spacing: 0; color: var(--text); }
+/* «Сейчас у вас 12:23» — в шапке карточки расписания, справа. */
+:root .schedule-card .schedule-head:has(.air-clock) { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; column-gap: 12px; }
+:root .schedule-card .schedule-head:has(.air-clock) > h2 { flex: 1 0 100%; }
+.air-clock {
+  margin: 0;
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--kitsunebi-text); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.air-clock::before { content: ""; width: 8px; height: 8px; flex: none; border-radius: 2px; background: var(--kitsunebi); box-shadow: 0 0 10px var(--kitsunebi-glow); transform: rotate(45deg); }
+.air-clock b { color: var(--text); font: 600 0.9375rem/1 var(--font-mono); letter-spacing: 0; }
 :root .schedule-empty strong { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 400; letter-spacing: 0.02em; }
 :root .schedule-empty svg { color: var(--accent-text); }
 @media (max-width: 420px) {
-  :root .schedule-card .schedule-item--air { grid-template-columns: 70px 44px minmax(0, 1fr); gap: 10px; padding: 10px 12px 10px 10px; }
+  :root .schedule-card .schedule-item--air { grid-template-columns: 44px minmax(0, 1fr) auto; gap: 10px; padding: 10px 12px 10px 10px; }
   :root .schedule-card .schedule-item--air .air-time > b { font-size: 1.125rem; }
   :root .schedule-card .schedule-item--air .air-poster { width: 44px; height: 62px; }
 }
