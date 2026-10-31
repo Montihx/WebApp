@@ -92,6 +92,127 @@
     });
   }
 
+  // Comments: GET /interactions/comments?anime_id=… returns a flat list (oldest first, deleted rows
+  // excluded); the tree is built from parent_id, depth 0..3. The template signs in a demo user so
+  // every action is visible; the guest sees .login-comment-box instead of the form.
+  function initComments() {
+    const list = $('#comment-thread'), form = $('[data-comment-form]');
+    if (!list || !form) return;
+    const ME = { id: 'me', username: 'kitsune_fan' };
+    const ago = minutes => new Date(Date.now() - minutes * 60000).toISOString().slice(0, 19);
+    const comments = [
+      { id: 'c1', user: { id: 'u1', username: 'akira_k' }, content: 'Пересматриваю третий раз и каждый раз замечаю новые детали. Сцена в библиотеке до сих пор держит в напряжении.', parent_id: null, likes_count: 24, created_at: ago(3 * 1440 + 40) },
+      { id: 'c2', user: ME, content: 'Согласен. Особенно музыка в этот момент — без неё сцена работала бы вдвое слабее.', parent_id: 'c1', likes_count: 6, created_at: ago(2 * 1440 + 300), is_edited: true },
+      { id: 'c3', user: { id: 'u2', username: 'mononoke' }, content: 'Композитор тот же, что и у второго сезона, поэтому так узнаётся.', parent_id: 'c2', likes_count: 2, created_at: ago(1440 + 90) },
+      { id: 'c4', user: { id: 'u3', username: 'neko_sensei' }, content: 'Кто смотрит впервые: не читайте описания следующих серий, там много раскрывают.', parent_id: null, episode: 3, likes_count: 41, created_at: ago(400) },
+      { id: 'c5', user: ME, content: 'Озвучка AniLibria здесь лучше, чем субтитры передают характер героя.', parent_id: null, likes_count: 0, created_at: ago(35) },
+    ].map(c => ({ ...c, liked: false }));
+    const byId = new Map(comments.map(c => [c.id, c]));
+    const depth = c => { let d = 0, p = c.parent_id; while (p && byId.has(p)) { d += 1; p = byId.get(p).parent_id; } return d; };
+    const agoLabel = value => {
+      const minutes = Math.max(0, Math.round((Date.now() - M.parseDateAsUtc(value)) / 60000));
+      if (minutes < 1) return 'только что';
+      if (minutes < 60) return `${minutes} мин назад`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `${hours} ${M.plural(hours, 'час', 'часа', 'часов')} назад`;
+      const days = Math.floor(hours / 24);
+      return days === 1 ? 'вчера' : `${days} ${M.plural(days, 'день', 'дня', 'дней')} назад`;
+    };
+    const avatar = user => `<span class="comment-avatar${user.id === ME.id ? ' comment-avatar--me' : ''}" aria-hidden="true">${esc(user.username[0].toUpperCase())}</span>`;
+    const editorHtml = (mode, value = '') => `<form class="comment-inline" data-inline="${mode}" novalidate><textarea rows="2" maxlength="2000" data-comment-input aria-label="${mode === 'edit' ? 'Изменить комментарий' : 'Ваш ответ'}">${esc(value)}</textarea><div class="comment-composer__foot"><span class="comment-limit" data-comment-limit aria-live="polite"></span><button class="button button--secondary" type="button" data-cancel>Отмена</button><button class="button button--primary" type="submit"${value.trim().length >= 3 ? '' : ' disabled'}>${mode === 'edit' ? 'Сохранить' : 'Ответить'}</button></div></form>`;
+    function itemHtml(c) {
+      const own = c.user.id === ME.id, d = depth(c);
+      const children = comments.filter(row => row.parent_id === c.id);
+      const body = c.deleted
+        ? `<p class="comment-text comment-text--deleted">Комментарий удалён</p>`
+        : `<p class="comment-text">${esc(c.content)}</p>
+          <div class="comment-actions">
+            <button type="button" class="comment-like${c.liked ? ' is-liked' : ''}" data-like aria-pressed="${c.liked}" aria-label="Нравится, ${c.likes_count}"><i data-lucide="heart"></i><span>${c.likes_count || ''}</span></button>
+            ${d < 3 ? '<button type="button" data-reply><i data-lucide="reply"></i>Ответить</button>' : ''}
+            ${own ? '<button type="button" data-edit><i data-lucide="pencil"></i>Изменить</button><button type="button" class="comment-delete" data-delete><i data-lucide="trash-2"></i>Удалить</button>' : ''}
+          </div>`;
+      return `<li class="comment" data-comment-id="${c.id}" style="--depth:${d}">
+        <article class="comment-card${own ? ' is-own' : ''}" aria-label="Комментарий ${esc(c.user.username)}">
+          ${avatar(c.user)}
+          <div class="comment-main">
+            <header class="comment-head"><strong>${esc(c.user.username)}</strong>${own ? '<span class="comment-tag">вы</span>' : ''}${c.episode ? `<span class="comment-tag comment-tag--episode">к ${c.episode} серии</span>` : ''}<time datetime="${c.created_at}">${agoLabel(c.created_at)}</time>${c.is_edited && !c.deleted ? '<span class="comment-edited">изменено</span>' : ''}</header>
+            ${body}
+          </div>
+        </article>
+        ${children.length ? `<ol class="comment-replies">${children.map(itemHtml).join('')}</ol>` : ''}
+      </li>`;
+    }
+    function render() {
+      const visible = comments.filter(c => !c.deleted || comments.some(r => r.parent_id === c.id));
+      list.innerHTML = visible.filter(c => !c.parent_id).map(itemHtml).join('');
+      const count = comments.filter(c => !c.deleted).length;
+      $('#comments .section-count').textContent = count;
+      document.querySelectorAll('[data-field="comments_count"]').forEach(node => { node.textContent = count; });
+      $('#comments .comments-empty').hidden = count > 0;
+      window.lucide?.createIcons?.({ attrs: { 'aria-hidden': 'true' }, root: list });
+    }
+    // Length rule from the API: 3..2000 characters; the counter appears near the limit.
+    function watch(scope) {
+      const input = scope.querySelector('[data-comment-input]'), submit = scope.querySelector('[type="submit"]'), limit = scope.querySelector('[data-comment-limit]');
+      const sync = () => {
+        const n = input.value.trim().length;
+        submit.disabled = n < 3 || n > 2000;
+        limit.textContent = n > 1800 ? `${n} / 2000` : n > 0 && n < 3 ? 'Минимум 3 символа' : '';
+      };
+      input.addEventListener('input', sync); sync();
+      return input;
+    }
+    const mainInput = watch(form);
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const content = mainInput.value.trim();
+      if (content.length < 3) return;
+      comments.push({ id: `n${Date.now()}`, user: ME, content, parent_id: null, likes_count: 0, created_at: new Date().toISOString().slice(0, 19), liked: false });
+      byId.set(comments.at(-1).id, comments.at(-1));
+      mainInput.value = ''; mainInput.dispatchEvent(new Event('input'));
+      render();
+      list.lastElementChild?.scrollIntoView({ block: 'nearest' });
+    });
+    list.addEventListener('click', event => {
+      const button = event.target.closest('button');
+      const li = event.target.closest('[data-comment-id]');
+      if (!button || !li) return;
+      const c = byId.get(li.dataset.commentId), card = li.querySelector(':scope > .comment-card .comment-main');
+      if (button.matches('[data-like]')) {
+        // POST /comments/{id}/like toggles; the API does not say whether you already liked — state is local.
+        c.liked = !c.liked; c.likes_count += c.liked ? 1 : -1;
+        button.classList.toggle('is-liked', c.liked); button.setAttribute('aria-pressed', String(c.liked));
+        button.setAttribute('aria-label', `Нравится, ${c.likes_count}`); button.querySelector('span').textContent = c.likes_count || '';
+      } else if (button.matches('[data-reply], [data-edit]')) {
+        card.querySelector('.comment-inline')?.remove();
+        const mode = button.matches('[data-edit]') ? 'edit' : 'reply';
+        card.insertAdjacentHTML('beforeend', editorHtml(mode, mode === 'edit' ? c.content : ''));
+        const inline = card.querySelector('.comment-inline');
+        const input = watch(inline); input.focus();
+        inline.addEventListener('submit', submitEvent => {
+          submitEvent.preventDefault();
+          const content = input.value.trim();
+          if (content.length < 3) return;
+          if (mode === 'edit') Object.assign(c, { content, is_edited: true }); // PATCH /comments/{id}
+          else { const reply = { id: `n${Date.now()}`, user: ME, content, parent_id: c.id, likes_count: 0, created_at: new Date().toISOString().slice(0, 19), liked: false }; comments.push(reply); byId.set(reply.id, reply); } // POST /comments/{id}/reply
+          render();
+        });
+      } else if (button.matches('[data-cancel]')) {
+        button.closest('.comment-inline')?.remove();
+      } else if (button.matches('[data-delete]')) {
+        // Two-step: the first press turns into a confirmation right in place.
+        if (!button.classList.contains('is-confirming')) {
+          button.classList.add('is-confirming'); button.lastChild.textContent = 'Точно удалить?';
+          setTimeout(() => { if (button.isConnected) { button.classList.remove('is-confirming'); button.lastChild.textContent = 'Удалить'; } }, 4000);
+          return;
+        }
+        c.deleted = true; // DELETE /comments/{id}: soft delete; the list stops returning it
+        render();
+      }
+    });
+    render();
+  }
+
   function initSchedule() {
     const section = $('#schedule');
     if (!section) return;
@@ -199,7 +320,7 @@
     addEventListener('pageshow', event => { if (event.persisted) { refresh(); timer = setInterval(refresh, 60000); } });
     document.addEventListener('visibilitychange', refresh);
   }
-  if (document.body.dataset.page === 'anime') initTitle();
+  if (document.body.dataset.page === 'anime') { initTitle(); initComments(); }
   if (document.body.dataset.page === 'home') initSchedule();
   // Preserve the template entrypoint while giving the franchise a coherent example.
   document.querySelectorAll('.anime-card, .feature-slide, .continue-card, .landscape-card, .search-result').forEach(card => {
