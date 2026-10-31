@@ -2611,48 +2611,79 @@ html[data-theme="light"] .title-backdrop-plane {
 :root .relation-head [aria-expanded="false"] .watch-order-chevron { transform: rotate(-90deg); }
 :root .relation-head #watch-order-toggle:hover .watch-order-chevron { color: var(--accent-text); }
 #watch-order-count { min-width: 26px; padding: 2px 7px; border-radius: 6px; background: var(--surface-raised); color: var(--text-secondary); font: 600 0.8125rem/1.4 var(--font-mono); text-align: center; }
-.relation-nav { display: none; gap: 4px; }
-.watch-order.is-scrollable .relation-nav:not([hidden]) { display: flex; }
-/* На телефоне ленту листают пальцем: стрелки не отнимают место у заголовка. */
-@media (max-width: 720px) { .watch-order.is-scrollable .relation-nav:not([hidden]) { display: none; } }
-.relation-arrow { border: 0 !important; background: none !important; box-shadow: none !important; color: var(--text-secondary); }
-.relation-arrow:hover:not(:disabled) { color: var(--accent-text); }
-.relation-arrow:disabled { opacity: 0.3; cursor: default; }
+/* «Красная нить»: тайтлы франшизы висят на одной нити в порядке просмотра,
+   как таблички эма у святилища. Узел нити — номер, связь — прямо на постере. */
 :root #watch-order-list.relation-track {
-  display: flex; gap: 14px; margin: 14px calc(var(--page-gutter, 16px) * -1) 0; padding: 4px var(--page-gutter, 16px) 10px;
+  --thread: var(--accent-2);
+  position: relative; display: flex; gap: 16px; margin: 10px calc(var(--page-gutter, 16px) * -1) 0; padding: 0 var(--page-gutter, 16px) 12px;
   list-style: none; overflow-x: auto; overscroll-behavior-x: contain;
-  scroll-snap-type: x mandatory; scroll-padding-inline: var(--page-gutter, 16px); scrollbar-width: none;
+  scroll-snap-type: x proximity; scroll-padding-inline: var(--page-gutter, 16px); scrollbar-width: none;
 }
 :root #watch-order-list.relation-track::-webkit-scrollbar { display: none; }
 :root #watch-order-list.relation-track:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
-:root #watch-order-list.relation-track > li { flex: 0 0 clamp(112px, 30vw, 148px); border: 0; scroll-snap-align: start; }
+/* Где есть ещё — край ленты растворяется: стрелки не нужны. */
+:root #watch-order-list.relation-track.has-more-right { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent); }
+:root #watch-order-list.relation-track.has-more-left { -webkit-mask-image: linear-gradient(90deg, transparent, #000 56px); mask-image: linear-gradient(90deg, transparent, #000 56px); }
+:root #watch-order-list.relation-track.has-more-left.has-more-right { -webkit-mask-image: linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent); }
+:root #watch-order-list.relation-track > li {
+  position: relative; flex: 0 0 clamp(118px, 31vw, 150px); padding-top: 34px; border: 0; scroll-snap-align: start;
+}
+/* Нить: тянется через всю ленту, от первой таблички до последней. */
+:root #watch-order-list.relation-track > li::before {
+  content: ""; position: absolute; top: 12px; left: -8px; right: -8px; height: 2px; border-radius: 1px;
+  background: var(--thread); opacity: 0.75;
+}
+:root #watch-order-list.relation-track > li:first-child::before { left: 50%; }
+:root #watch-order-list.relation-track > li:last-child::before { right: 50%; }
+:root #watch-order-list.relation-track > li:only-child::before { display: none; }
+/* Подвес от узла к табличке. */
+:root #watch-order-list.relation-track > li::after {
+  content: ""; position: absolute; top: 20px; left: calc(50% - 1px); width: 2px; height: 16px; background: var(--thread); opacity: 0.55;
+}
 :root .watch-order :is(ol, ul) > li > .relation-card { border-radius: 0; }
 .relation-card { display: grid; gap: 8px; align-content: start; color: var(--text); text-decoration: none; }
+.thread-knot {
+  position: absolute; z-index: 2; top: 3px; left: calc(50% - 10px); width: 20px; height: 20px;
+  display: grid; place-items: center; transform: rotate(45deg); border-radius: 4px;
+  background: var(--surface); box-shadow: inset 0 0 0 2px var(--thread);
+  color: var(--text); font: 700 10px/1 var(--font-mono);
+}
+.thread-knot > span { transform: rotate(-45deg); }
+/* Табличка висит чуть криво и выпрямляется под рукой. */
 .relation-poster {
   position: relative; display: block; aspect-ratio: 2 / 3; overflow: hidden;
   border: 1px solid var(--glass-line); border-radius: 10px; background: var(--surface-raised);
-  transition: transform var(--dur-2) var(--ease-out), border-color var(--dur-2);
+  transform: rotate(var(--tilt, -1.2deg)); transform-origin: 50% -16px;
+  transition: transform var(--dur-3) var(--ease-spring), border-color var(--dur-2), box-shadow var(--dur-2);
+  box-shadow: 0 14px 26px -18px rgba(0, 0, 0, 0.7);
 }
+:root #watch-order-list.relation-track > li:nth-child(2n) .relation-poster { --tilt: 1deg; }
+:root #watch-order-list.relation-track > li:nth-child(3n) .relation-poster { --tilt: -0.6deg; }
 .relation-poster > img { width: 100%; height: 100%; object-fit: cover; }
-a.relation-card:hover .relation-poster { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+a.relation-card:hover .relation-poster, a.relation-card:focus-visible .relation-poster { --tilt: 0deg; border-color: color-mix(in srgb, var(--thread) 70%, transparent); }
 a.relation-card:focus-visible { outline: none; }
 a.relation-card:focus-visible .relation-poster { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
-.relation-card.is-current .relation-poster { border: 2px solid var(--accent); }
-:root .ofuda--relation { top: 0; left: 8px; padding: 7px 5px 8px; border-top: 0; border-radius: 0 0 6px 6px; background: rgba(var(--media-ink-rgb), 0.82); backdrop-filter: none; }
-:root .ofuda--relation .ofuda__jp { display: block !important; font-size: 16px; line-height: 1; opacity: 1; }
-:root .ofuda--rel-before { --ofuda-tone: var(--accent-2); }
-:root .ofuda--rel-after { --ofuda-tone: var(--accent); }
-:root .ofuda--rel-side { --ofuda-tone: var(--text-muted); }
-:root .ofuda--rel-current { --ofuda-tone: var(--accent); box-shadow: inset 0 2px 0 var(--accent); }
-.relation-step {
-  position: absolute; z-index: 3; right: 6px; bottom: 6px; min-width: 22px; padding: 3px 5px;
-  border-radius: 4px; background: rgba(var(--media-ink-rgb), 0.78);
-  color: var(--media-text); font: 600 12px/1 var(--font-mono); text-align: center;
+.relation-card.is-current .relation-poster { --tilt: 0deg; border: 2px solid var(--accent); box-shadow: 0 16px 34px -18px var(--accent-glow); }
+.thread-current .thread-knot { background: var(--accent); box-shadow: 0 0 12px var(--accent-glow); color: var(--primary-fg); }
+/* Иероглиф связи — тушью в углу, как печать на табличке. */
+.relation-kanji {
+  position: absolute; z-index: 2; top: 6px; left: 6px; padding: 4px 4px 5px; border-radius: 4px;
+  background: rgba(var(--media-ink-rgb), 0.8); color: var(--media-text);
+  font: 400 15px/1 var(--font-heading);
 }
-.relation-copy { display: grid; gap: 3px; min-width: 0; }
-.relation-kind { overflow: hidden; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.06em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; color: var(--text-muted); }
-.relation-kind--before { color: var(--accent-2-text, var(--accent-text)); }
-.relation-kind--after, .relation-kind--current { color: var(--accent-text); }
+/* Связь словами — лентой поперёк низа постера. */
+.relation-band {
+  position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; display: flex; align-items: baseline; justify-content: space-between; gap: 6px;
+  padding: 26px 8px 7px; background: linear-gradient(0deg, rgba(var(--media-ink-rgb), 0.92) 35%, rgba(var(--media-ink-rgb), 0));
+  color: var(--media-text);
+}
+.relation-band b { overflow: hidden; font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.07em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.relation-band span { flex: none; color: var(--media-text-dim); font: 600 0.6875rem/1 var(--font-mono); }
+.relation-band--before b { color: #ffb3d6; }
+.relation-band--after b { color: #d9c2ff; }
+.relation-band--current { background: linear-gradient(0deg, color-mix(in srgb, var(--accent) 88%, black) 35%, transparent); }
+.relation-band--current b, .relation-band--current span { color: #fff; }
+.relation-copy { display: grid; gap: 3px; min-width: 0; padding-top: 2px; }
 .relation-copy strong {
   display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
   font-size: 0.875rem; font-weight: 700; line-height: 1.3;
@@ -2660,7 +2691,10 @@ a.relation-card:focus-visible .relation-poster { outline: 2px solid var(--focus-
 a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
 .relation-meta { display: flex; flex-wrap: wrap; gap: 0 8px; color: var(--text-muted); font-size: 0.75rem; }
 @media (min-width: 900px) {
-  :root #watch-order-list.relation-track { margin-inline: 0; padding-inline: 0; scroll-padding-inline: 0; }
+  :root #watch-order-list.relation-track { margin-inline: 0; padding-inline: 4px; scroll-padding-inline: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .relation-poster { transform: none; transition: none; }
 }
 
 /* ==========================================================================
