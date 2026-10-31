@@ -1310,15 +1310,7 @@
 
 :root .episode-strip__nav { border-radius: 10px; }
 
-:root .player-release {
-  border: 1px solid var(--glass-line);
-  border-radius: 18px;
-  background: var(--glass);
-}
-
 /* --- Связанные аниме ------------------------------------------------------- */
-:root .watch-path li::before,
-:root .watch-path::before { background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
 
 :root .watch-order h2 button { color: var(--text); }
 
@@ -1378,15 +1370,6 @@
 }
 
 :root .episode-chip.is-selected { outline: 0; box-shadow: 0 10px 24px -10px var(--accent-glow), 0 0 0 3px var(--accent-soft); }
-
-:root .player-release summary {
-  padding: 14px 18px;
-  cursor: pointer;
-  font-weight: 700;
-}
-
-:root .player-release[open] summary { border-bottom: 1px solid var(--glass-line); }
-:root .player-release > :not(summary) { padding-inline: 18px; }
 
 :root .title-hero::before,
 :root .title-hero::after { opacity: 0.025; }
@@ -1504,7 +1487,7 @@
 :root .theme-switch span { border-radius: 4px; }
 
 /* Метки и чипы — тоже без «таблеток» */
-:root :is(.hero-kind-badge, .feature-slide .hero-score, .status-pill, .continue-progress-copy strong, .bookmark-status-bar, .section-count, #schedule-days .day-tab__count, .watch-order-score, .watch-order :is(.badge, .chip, [class*="pill"])) {
+:root :is(.hero-kind-badge, .feature-slide .hero-score, .status-pill, .continue-progress-copy strong, .bookmark-status-bar, .section-count, #schedule-days .day-tab__count, .watch-order :is(.badge, .chip, [class*="pill"])) {
   border-radius: 7px;
 }
 :root :is([class*="badge"], [class*="chip"], [class*="pill"]):not([class*="dot"]) { border-radius: 7px; }
@@ -1530,7 +1513,7 @@
 }
 
 :root .card-facts > span { overflow: visible; text-overflow: clip; white-space: nowrap; }
-:root .card-title-row h3 { overflow-wrap: anywhere; hyphens: auto; }
+:root .card-title-row h3 { overflow-wrap: break-word; hyphens: manual; }
 
 /* Заголовок и подзаголовок не слипаются */
 :root :is(.section-heading, .continue-heading, .schedule-head) h2 + p,
@@ -1630,8 +1613,7 @@
    Никаких круглых и «таблеточных» форм: всё — прямоугольники со скруглением
    ========================================================================== */
 :root .poster-action { border-radius: 10px; }
-:root :is(.watch-relation, .watch-relation.is-current) { border-radius: 7px; }
-:root .watch-path__node { border-radius: 12px; }
+
 :root .title-poster .hanko { border-radius: 16px; }
 :root :is(.player-timeline, .player-timeline span, .continue-progress, .continue-progress span, .kz-scroll-progress, .feature-slider__progress, .feature-slider__progress span) { border-radius: 2px; }
 :root :is(.notification-dot, .status-pill > span, .live-dot, [class*="dot"]) { border-radius: 2px; }
@@ -2042,141 +2024,14 @@
 :root .section-count { min-width: 32px; text-align: center; }
 
 /* --- Связанные аниме ------------------------------------------------------ */
-:root .watch-path {
-  position: relative;
-  margin: 28px 0 20px;
-  padding: 4px 4px 8px;
-}
-
-:root .watch-path__step + .watch-path__step::before {
-  bottom: 21px;
-  border-top: 0;
-  height: 2px;
-  border-radius: 1px;
-  background: repeating-linear-gradient(90deg, var(--line-strong) 0 6px, transparent 6px 12px);
-}
-
-:root .watch-path__step.is-reached + .watch-path__step.is-reached::before { background: var(--accent-grad); }
-
-:root .watch-path__label {
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-}
-
-:root .watch-path__node {
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--glass-line);
-  border-radius: 12px;
-  background: var(--surface-raised);
-  color: var(--text-secondary);
-  transition: transform var(--dur-2) var(--ease-spring), border-color var(--dur-2);
-}
-
-:root .watch-path__step:hover .watch-path__node { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
-:root .watch-path__step.is-movie:hover .watch-path__node { transform: rotate(45deg) translateY(-2px); }
-
-:root .watch-path__step.is-current .watch-path__node {
-  border-color: transparent;
-  background: var(--accent-grad);
-  box-shadow: 0 0 0 6px var(--accent-softer), 0 14px 30px -10px var(--accent-glow);
-  color: var(--primary-fg);
-}
-
-:root .watch-path__step.is-movie .watch-path__node { border-radius: 8px; }
 
 :root #watch-order-list { display: grid; gap: 10px; margin-top: 8px; }
 :root #watch-order-list li + li { border-top: 0; }
 
-:root .watch-order-row {
-  position: relative;
-  display: grid;
-  grid-template-columns: 36px 60px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 18px;
-  padding: 12px 20px 12px 14px;
-  border: 1px solid var(--glass-line);
-  border-radius: 18px;
-  background: color-mix(in srgb, var(--surface) 65%, transparent);
-  transition: border-color var(--dur-2), background var(--dur-2), transform var(--dur-2) var(--ease-out);
-}
-
-:root a.watch-order-row:hover {
-  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
-  background: linear-gradient(90deg, var(--accent-softer), color-mix(in srgb, var(--surface) 65%, transparent) 60%);
-  transform: translateX(4px);
-}
-
 /* Стрелка перехода — иконка без подложки, появляется при наведении */
-:root a.watch-order-row::after {
-  width: 18px;
-  height: 18px;
-  background: var(--accent-text);
-  content: "";
-  opacity: 0;
-  transform: translateX(-6px);
-  transition: opacity var(--dur-2), transform var(--dur-2) var(--ease-out);
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E") center / contain no-repeat;
-}
-
-:root a.watch-order-row:hover::after { opacity: 1; transform: none; }
-
-:root .watch-order-row[aria-current="page"] {
-  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
-  background:
-    linear-gradient(90deg, var(--accent-soft), transparent 70%),
-    color-mix(in srgb, var(--surface) 70%, transparent);
-  box-shadow: 0 20px 44px -30px var(--accent-glow);
-}
-
-:root .watch-order-row[aria-current="page"]::before {
-  position: absolute;
-  top: 16px;
-  bottom: 16px;
-  left: -1px;
-  width: 3px;
-  border-radius: 2px;
-  background: var(--accent-grad);
-  box-shadow: 0 0 12px var(--accent-glow);
-  content: "";
-}
-
-:root .watch-order-index {
-  color: color-mix(in srgb, var(--text-muted) 70%, transparent);
-  font-size: 1.5rem;
-  text-align: center;
-}
-
-:root .watch-order-row[aria-current="page"] .watch-order-index {
-  background: var(--accent-grad);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-:root .watch-order-row > img {
-  width: 60px;
-  height: 84px;
-  border-radius: 10px;
-  outline: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
-  box-shadow: 0 12px 24px -14px rgba(0, 0, 0, 0.8);
-}
-
-:root .watch-order-copy { display: grid; gap: 8px; min-width: 0; }
-:root .watch-order-copy > strong { font-size: 1.0625rem; line-height: 1.3; }
-:root .watch-order-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 0.875rem; }
-:root .watch-order-meta > span:not(.watch-relation):not(.watch-order-score) + span:not(.watch-relation)::before { margin-right: 12px; color: var(--line-strong); content: "/"; }
-
-:root .watch-relation { padding: 3px 10px; border-color: var(--glass-line); background: color-mix(in srgb, var(--text) 4%, transparent); color: var(--text-secondary); }
-:root .watch-relation.is-current { border-color: transparent; background: var(--accent-grad); color: var(--primary-fg); }
-:root .watch-order-score { display: inline-flex; align-items: center; gap: 4px; color: var(--kin-text); }
 
 @media (max-width: 720px) {
-  :root .watch-order-row { grid-template-columns: 24px 48px minmax(0, 1fr); gap: 12px; padding: 10px 12px 10px 8px; }
-  :root .watch-order-row > img { width: 48px; height: 68px; }
-  :root a.watch-order-row::after { display: none; }
-  :root .watch-order-index { font-size: 1.125rem; }
+
   :root .schedule-card .schedule-item { grid-template-columns: 48px minmax(0, 1fr) auto; gap: 12px; min-height: 80px; }
   :root .schedule-card .schedule-item img { width: 48px; height: 62px; }
   :root .schedule-card .schedule-list { max-height: 400px; }
@@ -2222,22 +2077,17 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root .schedule-card .schedule-item,
-  :root .watch-order-row,
-  :root .watch-path__node { transition: none; }
+  :root .schedule-card .schedule-item{ transition: none; }
 }
 
 /* Фильм на маршруте — ромб; цифра внутри стоит прямо */
-:root .watch-path__step.is-movie .watch-path__node { width: 34px; height: 34px; margin: 5px 0; border-radius: 6px; transform: rotate(45deg); }
-:root .watch-path__step.is-movie .watch-path__node > span { display: block; transform: rotate(-45deg); line-height: 1; }
 
 /* Аватар гостя — просто иконка, без плитки */
 :root .login-comment-box .avatar-placeholder { width: 28px; height: 28px; background: none; box-shadow: none; color: var(--accent-text); }
 :root .login-comment-box .avatar-placeholder svg { display: block; width: 24px; height: 24px; }
 :root .login-comment-box .avatar-placeholder::after { content: none; }
 /* Мета связанных: без разделителей, чтобы перенос не начинал строку со знака */
-:root .watch-order-meta > span:not(.watch-relation):not(.watch-order-score) + span:not(.watch-relation)::before { content: none; }
-:root .watch-order-meta { gap: 6px 14px; }
+
 :root .schedule-card .schedule-item time { gap: 5px; line-height: 1.15; border-radius: 0; }
 :root .schedule-card .schedule-item time > span { line-height: 1.2; }
 :root .schedule-card .schedule-item time > b { line-height: 1.1; }
@@ -2821,7 +2671,7 @@ a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
   padding: 3px 5px 2px; border-radius: 3px;
   background: #ffcb70; color: #2a1600;
   font: 400 0.6875rem/1 var(--font-heading); letter-spacing: 0.02em;
-  transform: rotate(-4deg);
+  transform: rotate(-2deg);
   box-shadow: 0 0 0 1px rgba(42, 22, 0, 0.35), 0 4px 10px -4px rgba(0, 0, 0, 0.7);
   pointer-events: none;
 }
@@ -2830,7 +2680,7 @@ a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
 
 /* Закладка: прямая тонкая полоса по низу постера, цвет статуса насыщенный, текст белый. */
 :root .anime-card .bookmark-status-bar {
-  min-height: 20px; padding: 0 8px; justify-content: flex-start; gap: 5px;
+  min-height: 20px; padding: 0 8px; justify-content: center; gap: 5px;
   border-radius: 0 !important; border-top: 0;
   background: color-mix(in srgb, var(--bookmark-color) 58%, #000) !important;
   backdrop-filter: none; box-shadow: inset 0 2px 0 var(--bookmark-color); text-shadow: none;
@@ -2843,3 +2693,8 @@ a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
 @container (max-width: 130px) {
   :root .anime-card .bookmark-status-bar { min-height: 18px; padding: 0 5px; font-size: 0.5625rem; letter-spacing: 0.02em; }
 }
+
+/* В расписании день уже написан над списком — под временем его не повторяем. */
+:root #schedule-items .schedule-item--air .air-time > span { display: none; }
+/* Число выбранного дня водяным знаком наезжало на строки — убрано: дата уже написана над списком. */
+:root .schedule-card:has(#schedule-days)::after { display: none; }
