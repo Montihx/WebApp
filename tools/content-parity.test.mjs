@@ -167,3 +167,12 @@ test('day strip says how busy each day is and the list is headed by the date in 
   assert.match(source, /id="schedule-today" hidden>К сегодня/);
   assert.match(source, /\$\('#schedule-today'\).hidden = activeKey === M.dateKey\(new Date\(\)\)/);
 });
+
+test('related titles are a scrollable carousel with arrows and no separate route strip', () => {
+  const html = read('public/anime.html'), source = read('public/content.js');
+  assert.match(html, /<ol class="relation-track" id="watch-order-list"/);
+  assert.equal((html.match(/data-relation-scroll=/g) || []).length, 2);
+  assert.doesNotMatch(html + source, /watch-order-path|watch-order-toggle/);
+  assert.match(source, /button.disabled = button.dataset.relationScroll === '-1'/);
+  assert.match(read('public/kitsu-v3.css'), /scroll-snap-type: x mandatory/);
+});
