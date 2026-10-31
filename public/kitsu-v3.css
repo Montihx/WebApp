@@ -2207,7 +2207,7 @@
 }
 @media (max-width: 900px) {
   :root .title-hero { --title-poster-width: min(46vw, 200px, 30dvh); }
-  :root .related-rail { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: clamp(108px, 30vw, 132px); }
+  :root .related-rail { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: clamp(94px, 25vw, 112px); }
 }
 :root .poster-action { display: none !important; }
 
@@ -2487,7 +2487,7 @@ html[data-theme="light"] .title-backdrop-plane {
 :root #watch-order-list.relation-track.has-more-left { -webkit-mask-image: linear-gradient(90deg, transparent, #000 56px); mask-image: linear-gradient(90deg, transparent, #000 56px); }
 :root #watch-order-list.relation-track.has-more-left.has-more-right { -webkit-mask-image: linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent); }
 :root #watch-order-list.relation-track > li {
-  position: relative; flex: 0 0 clamp(106px, 27vw, 124px); padding-top: 34px; border: 0; scroll-snap-align: start;
+  position: relative; flex: 0 0 clamp(88px, 23vw, 112px); padding-top: 34px; border: 0; scroll-snap-align: start;
 }
 /* Нить: тянется через всю ленту, от первой таблички до последней. */
 :root #watch-order-list.relation-track > li::before {
@@ -2544,6 +2544,8 @@ a.relation-card:focus-visible .relation-poster { outline: 2px solid var(--focus-
 .relation-band--after b { color: #d9c2ff; }
 .relation-band--current { background: linear-gradient(0deg, color-mix(in srgb, var(--accent) 88%, black) 35%, transparent); }
 .relation-band--current b, .relation-band--current span { color: #fff; }
+/* На маленьких табличках подпись мельче и без разрядки — «Продолжение» и «Альтернатива» влезают целиком. */
+@media (max-width: 520px) { .relation-band { padding-inline: 4px; } .relation-band b { font-size: 0.5625rem; letter-spacing: 0; } }
 .relation-copy { display: grid; gap: 3px; min-width: 0; padding-top: 2px; }
 .relation-copy strong {
   display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
