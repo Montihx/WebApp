@@ -2787,3 +2787,63 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 :root .notification-item:not(.is-unread) .notification-icon--poster img { opacity: 0.7; }
 :root .popover-head button:disabled { opacity: 0.45; cursor: default; background: none; }
 :root .notification-dot[hidden] { display: none; }
+
+/* ==========================================================================
+   Комментарии: форма, лента и ответы на «нити». Без кругов и плашек под иконками.
+   ========================================================================== */
+:root :is(.login-comment-box, .comments-empty)[hidden] { display: none; }
+:root .comment-composer { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 14px; margin-top: 18px; }
+:root .comment-avatar {
+  display: grid; place-items: center; width: 40px; height: 40px; flex: none;
+  border: 1px solid var(--glass-line); border-radius: 8px;
+  background: color-mix(in srgb, var(--accent-2) 22%, var(--surface));
+  color: var(--text); font-family: var(--font-heading); font-size: 1rem; line-height: 1;
+}
+:root .comment-avatar--me { border-color: transparent; background: var(--accent-grad); color: var(--primary-fg); }
+:root .comment-composer__body, :root .comment-inline { display: grid; gap: 8px; min-width: 0; }
+:root :is(.comment-composer, .comment-inline) textarea {
+  width: 100%; min-height: 76px; padding: 12px 14px; resize: vertical;
+  border: 1px solid var(--glass-line); border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent); color: var(--text);
+  font: inherit; font-size: 0.9375rem; line-height: 1.5;
+}
+:root :is(.comment-composer, .comment-inline) textarea:focus { border-color: color-mix(in srgb, var(--accent) 60%, transparent); outline: none; box-shadow: 0 0 0 3px var(--accent-softer); }
+:root .comment-composer__foot { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+:root .comment-limit { margin-right: auto; color: var(--text-muted); font-size: 0.8125rem; font-family: var(--font-mono); }
+:root .comment-composer__foot .button { min-height: 36px; height: 36px; padding-inline: 14px; font-size: 0.875rem; }
+:root .comment-composer__foot .button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+:root .comment-composer__foot .button svg { width: 16px; height: 16px; }
+
+:root .comment-thread, :root .comment-replies { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+:root .comment-thread { margin-top: 26px; }
+:root .comment-thread > .comment + .comment { border-top: 1px solid var(--glass-line); }
+:root .comment { padding: 16px 0 0; }
+:root .comment-thread > .comment { padding-bottom: 16px; }
+:root .comment-card { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 14px; }
+:root .comment-main { display: grid; gap: 6px; min-width: 0; }
+:root .comment-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+:root .comment-head strong { font-size: 0.9375rem; font-weight: 700; }
+:root .comment-head time, :root .comment-edited { color: var(--text-muted); font-size: 0.8125rem; }
+:root .comment-edited { font-style: italic; }
+:root .comment-tag { padding: 1px 6px; border-radius: 4px; background: var(--accent-softer); color: var(--accent-text); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+:root .comment-tag--episode { background: var(--kitsunebi-soft); color: var(--kitsunebi-text); }
+:root .comment-text { margin: 0; color: var(--text); font-size: 0.9375rem; line-height: 1.6; overflow-wrap: anywhere; white-space: pre-line; }
+:root .comment-text--deleted { color: var(--text-muted); font-style: italic; }
+:root .comment-actions { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 2px; }
+:root .comment-actions button {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0;
+  border: 0; background: none; color: var(--text-muted); font: inherit; font-size: 0.8125rem; font-weight: 600; cursor: pointer;
+}
+:root .comment-actions button:hover { color: var(--accent-text); }
+:root .comment-actions svg { width: 16px; height: 16px; }
+:root .comment-like.is-liked { color: var(--accent-text); }
+:root .comment-like.is-liked svg { fill: currentColor; }
+:root .comment-delete:hover, :root .comment-delete.is-confirming { color: var(--red); }
+:root .comment-inline { margin-top: 8px; }
+/* Ответы висят на нити: вертикальная линия от аватара родителя. */
+:root .comment-replies { position: relative; margin-left: 19px; padding-left: 21px; border-left: 2px solid color-mix(in srgb, var(--accent-2) 45%, transparent); }
+@media (max-width: 560px) {
+  :root .comment-card, :root .comment-composer { grid-template-columns: 32px minmax(0, 1fr); gap: 10px; }
+  :root .comment-avatar { width: 32px; height: 32px; font-size: 0.875rem; border-radius: 6px; }
+  :root .comment-replies { margin-left: 15px; padding-left: 12px; }
+}
