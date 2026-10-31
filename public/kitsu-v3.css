@@ -2603,11 +2603,18 @@ html[data-theme="light"] .title-backdrop-plane {
    Связанные тайтлы: карусель небольших постеров в порядке просмотра
    ========================================================================== */
 .relation-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.relation-head h2 { display: flex; align-items: center; gap: 10px; margin: 0; font-size: clamp(1.25rem, 2.4vw, 1.625rem); }
-.relation-head h2 svg { width: 20px; height: 20px; color: var(--accent-text); }
+.relation-head h2 { flex: 1; min-width: 0; margin: 0; font-size: clamp(1.25rem, 2.4vw, 1.625rem); }
+:root .relation-head #watch-order-toggle { display: flex; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 10px; max-width: 100%; min-height: 44px; white-space: nowrap; padding: 0; border: 0; background: none; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+:root .relation-head #watch-order-toggle > span:first-of-type { overflow: hidden; text-overflow: ellipsis; }
+:root .relation-head #watch-order-toggle > svg:first-child { flex: none; width: 20px; height: 20px; color: var(--accent-text); }
+:root .relation-head .watch-order-chevron { flex: none; width: 20px; height: 20px; color: var(--text-secondary); transition: transform var(--dur-2) var(--ease-out); }
+:root .relation-head [aria-expanded="false"] .watch-order-chevron { transform: rotate(-90deg); }
+:root .relation-head #watch-order-toggle:hover .watch-order-chevron { color: var(--accent-text); }
 #watch-order-count { min-width: 26px; padding: 2px 7px; border-radius: 6px; background: var(--surface-raised); color: var(--text-secondary); font: 600 0.8125rem/1.4 var(--font-mono); text-align: center; }
 .relation-nav { display: none; gap: 4px; }
-.watch-order.is-scrollable .relation-nav { display: flex; }
+.watch-order.is-scrollable .relation-nav:not([hidden]) { display: flex; }
+/* На телефоне ленту листают пальцем: стрелки не отнимают место у заголовка. */
+@media (max-width: 720px) { .watch-order.is-scrollable .relation-nav:not([hidden]) { display: none; } }
 .relation-arrow { border: 0 !important; background: none !important; box-shadow: none !important; color: var(--text-secondary); }
 .relation-arrow:hover:not(:disabled) { color: var(--accent-text); }
 .relation-arrow:disabled { opacity: 0.3; cursor: default; }
