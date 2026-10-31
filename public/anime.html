@@ -25,8 +25,8 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="./styles.css?v=v3-16" />
-    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-16" />
+    <link rel="stylesheet" href="./styles.css?v=v3-17" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-17" />
   </head>
   <body data-page="anime">
     <a class="skip-link" href="#main-content">К основному содержимому</a>
@@ -165,13 +165,13 @@
       <section class="content-section watch-order" id="watch-order" aria-labelledby="franchise-title" hidden>
         <div class="page-container">
           <div class="relation-head">
-            <h2 id="franchise-title"><i data-lucide="link"></i>Связанные аниме <span id="watch-order-count"></span></h2>
-            <div class="relation-nav">
+            <h2 id="franchise-title"><button type="button" id="watch-order-toggle" aria-expanded="false" aria-controls="watch-order-list"><i data-lucide="link"></i><span>Связанные аниме</span><span id="watch-order-count"></span><i data-lucide="chevron-down" class="watch-order-chevron"></i></button></h2>
+            <div class="relation-nav" hidden>
               <button type="button" class="icon-button relation-arrow" data-relation-scroll="-1" aria-controls="watch-order-list" aria-label="Предыдущие"><i data-lucide="chevron-left"></i></button>
               <button type="button" class="icon-button relation-arrow" data-relation-scroll="1" aria-controls="watch-order-list" aria-label="Следующие"><i data-lucide="chevron-right"></i></button>
             </div>
           </div>
-          <ol class="relation-track" id="watch-order-list" aria-label="Порядок просмотра" tabindex="0"></ol>
+          <ol class="relation-track" id="watch-order-list" aria-label="Порядок просмотра" tabindex="0" hidden></ol>
         </div>
       </section>
       <section class="content-section player-section" id="player" aria-labelledby="player-title">
@@ -390,7 +390,7 @@
     <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
     <script src="./vendor/lucide.min.js"></script>
     <script src="./content-model.js?v=original-parity-12"></script>
-    <script src="./content.js?v=v3-16"></script>
-    <script src="./app.js?v=v3-16"></script>
+    <script src="./content.js?v=v3-17"></script>
+    <script src="./app.js?v=v3-17"></script>
   </body>
 </html>

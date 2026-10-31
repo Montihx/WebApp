@@ -83,8 +83,14 @@
     }));
     track.addEventListener('scroll', syncArrows, { passive: true });
     addEventListener('resize', syncArrows);
-    // Start with the current title in view, without moving the page.
-    requestAnimationFrame(() => {
+    // Collapsed by default; on opening, the current title is brought into view without moving the page.
+    const toggle = $('#watch-order-toggle'), nav = section.querySelector('.relation-nav');
+    toggle.addEventListener('click', () => {
+      const expanded = toggle.getAttribute('aria-expanded') !== 'true';
+      toggle.setAttribute('aria-expanded', String(expanded));
+      track.hidden = !expanded;
+      nav.hidden = !expanded;
+      if (!expanded) return;
       const current = track.querySelector('.is-current')?.closest('li');
       if (current) track.scrollLeft = Math.max(0, current.offsetLeft - track.offsetLeft - 16);
       syncArrows();
