@@ -2767,3 +2767,10 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 }
 :root :is(.hero-tags a, .hero-kind-badge) { background-color: rgba(var(--media-ink-rgb), 0.72); }
 .kz-ambient.is-paused .kz-mote { animation-play-state: paused; }
+
+/* Главный слайдер на телефоне: верх был пустым кадром на ~100px над текстом.
+   Высота теперь от экрана, но заметно ниже, отступ сверху меньше; текст прижат вниз. */
+@media (max-width: 720px) {
+  :root .feature-slider { height: clamp(440px, 56svh, 580px); min-height: 440px; }
+  :root .hero-copy { padding-top: 40px; }
+}
