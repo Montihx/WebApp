@@ -62,38 +62,33 @@
     if (!list.length) return;
     $('#watch-order-count').textContent = `${list.length}`;
     $('#watch-order-count').setAttribute('aria-label', `${list.length} ${M.plural(list.length, 'тайтл', 'тайтла', 'тайтлов')}`);
-    // Carousel of small posters in watch order: number, relation kanji on the ofuda, relation in words under the poster.
+    // "Red thread": the franchise hangs on one thread in watch order. Each poster carries its relation on itself.
     $('#watch-order-list').innerHTML = list.map((row, index) => {
-      const label = row.is_current ? 'Вы здесь' : (M.relations[row.relation] || row.relation || 'Связано');
+      const label = row.is_current ? 'Вы здесь' : (M.relationShort[row.relation] || M.relations[row.relation] || row.relation || 'Связано');
       const tone = row.is_current ? 'current' : M.relationTone(row.relation);
       const kanji = row.is_current ? '今' : (M.relationKanji[row.relation] || '縁');
       const meta = [row.year, row.kind ? M.kindLabel(row.kind) : '', row.episodes_total > 1 ? `${row.episodes_total} эп.` : ''].filter(Boolean).map(part => `<span>${esc(part)}</span>`).join('');
-      const content = `<span class="relation-poster"><img src="${esc(row.poster_url)}" alt="Постер «${esc(row.title)}»" width="150" height="216" loading="lazy" referrerpolicy="no-referrer"><span class="ofuda ofuda--relation ofuda--rel-${tone}" aria-hidden="true"><span class="ofuda__jp">${kanji}</span></span><span class="relation-step" aria-hidden="true">${index + 1}</span></span><span class="relation-copy"><span class="relation-kind relation-kind--${tone}" title="${esc(label)}">${esc(label)}</span><strong>${esc(row.title)}</strong><span class="relation-meta">${meta}</span></span>`;
-      return `<li>${row.is_current ? `<div class="relation-card is-current" aria-current="page">${content}</div>` : `<a class="relation-card" href="${href(row.slug)}">${content}</a>`}</li>`;
+      const content = `<span class="thread-knot" aria-hidden="true"><span>${index + 1}</span></span><span class="relation-poster"><img src="${esc(row.poster_url)}" alt="Постер «${esc(row.title)}»" width="150" height="216" loading="lazy" referrerpolicy="no-referrer"><span class="relation-kanji" aria-hidden="true">${kanji}</span><span class="relation-band relation-band--${tone}" title="${esc(row.is_current ? label : (M.relations[row.relation] || label))}"><b>${esc(label)}</b></span></span><span class="relation-copy"><strong>${esc(row.title)}</strong><span class="relation-meta">${meta}</span></span>`;
+      return `<li class="thread-${tone}">${row.is_current ? `<div class="relation-card is-current" aria-current="page">${content}</div>` : `<a class="relation-card" href="${href(row.slug)}">${content}</a>`}</li>`;
     }).join('');
     const track = $('#watch-order-list');
-    const arrows = [...document.querySelectorAll('[data-relation-scroll]')];
-    const syncArrows = () => {
+    const syncEdges = () => {
       const max = track.scrollWidth - track.clientWidth - 2;
-      arrows.forEach(button => { button.disabled = button.dataset.relationScroll === '-1' ? track.scrollLeft <= 2 : track.scrollLeft >= max; });
-      section.classList.toggle('is-scrollable', max > 0);
+      track.classList.toggle('has-more-left', track.scrollLeft > 2);
+      track.classList.toggle('has-more-right', track.scrollLeft < max);
     };
-    arrows.forEach(button => button.addEventListener('click', () => {
-      track.scrollBy({ left: Number(button.dataset.relationScroll) * track.clientWidth * 0.8, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-    }));
-    track.addEventListener('scroll', syncArrows, { passive: true });
-    addEventListener('resize', syncArrows);
+    track.addEventListener('scroll', syncEdges, { passive: true });
+    addEventListener('resize', syncEdges);
     // Collapsed by default; on opening, the current title is brought into view without moving the page.
-    const toggle = $('#watch-order-toggle'), nav = section.querySelector('.relation-nav');
+    const toggle = $('#watch-order-toggle');
     toggle.addEventListener('click', () => {
       const expanded = toggle.getAttribute('aria-expanded') !== 'true';
       toggle.setAttribute('aria-expanded', String(expanded));
       track.hidden = !expanded;
-      nav.hidden = !expanded;
       if (!expanded) return;
       const current = track.querySelector('.is-current')?.closest('li');
-      if (current) track.scrollLeft = Math.max(0, current.offsetLeft - track.offsetLeft - 16);
-      syncArrows();
+      if (current) track.scrollLeft = Math.max(0, current.offsetLeft - track.offsetLeft - 24);
+      syncEdges();
     });
   }
 

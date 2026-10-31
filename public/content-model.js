@@ -4,6 +4,8 @@
   const relations = { Prequel: 'Предыстория', Sequel: 'Продолжение', Parent: 'Основная история', 'Side story': 'Другая история', Summary: 'Обобщение', Alternative: 'Альтернативная история', 'Alternative setting': 'Альтернативная история', Other: 'Прочее', Franchise: 'Франшиза', Adaptation: 'Адаптация' };
   // Kanji on the ofuda over a related poster; the Russian caption next to it is the real label.
   const relationKanji = { Prequel: '前', Sequel: '続', Parent: '本', 'Side story': '外', Summary: '総', Alternative: '異', 'Alternative setting': '異', Other: '他', Franchise: '系', Adaptation: '原' };
+  // One word for the band on a related poster; the full name stays in the accessible label.
+  const relationShort = { Prequel: 'Предыстория', Sequel: 'Продолжение', Parent: 'Основа', 'Side story': 'Ответвление', Summary: 'Пересказ', Alternative: 'Альтернатива', 'Alternative setting': 'Альтернатива', Other: 'Связано', Franchise: 'Франшиза', Adaptation: 'Первоисточник' };
   // Tone of the ofuda stripe: what came before, what comes after, everything else.
   const relationTone = relation => ({ Prequel: 'before', Parent: 'before', Sequel: 'after' }[relation] || 'side');
   function plural(n, one, few, many) {
@@ -97,5 +99,5 @@
     [33352, 'violet-evergarden', 'Вайолет Эвергарден', 13],
     [54857, 're-zero-3', 'Re:Zero 3', 0, 'announced'],
   ]) titles[slug] = { id: String(id), slug, title, episodes_total: episodes, status, kind: 'tv', poster_url: poster(id), related: [], description: 'Демонстрационные данные карточки из каталога шаблона. Полные сведения, описание и доступные релизы загружаются из Anime response при интеграции.' };
-  window.KitsuContent = { relations, relationKanji, relationTone, plural, airLabel, kindLabel, parseDateAsUtc, dateKey, formatCountdown, countdownState, watchOrder, mergeSchedule, scheduleDays, updateLabel, titles, poster };
+  window.KitsuContent = { relations, relationShort, relationKanji, relationTone, plural, airLabel, kindLabel, parseDateAsUtc, dateKey, formatCountdown, countdownState, watchOrder, mergeSchedule, scheduleDays, updateLabel, titles, poster };
 })();

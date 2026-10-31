@@ -146,7 +146,7 @@ test('every relation has a caption, a kanji for its ofuda and a tone', () => {
 test('related titles render as posters with an ofuda and the current one is marked', () => {
   const source = read('public/content.js');
   assert.match(source, /class="relation-card is-current" aria-current="page"/);
-  assert.match(source, /ofuda ofuda--relation ofuda--rel-\$\{tone\}/);
+  assert.match(source, /class="relation-kanji" aria-hidden="true">\$\{kanji\}/);
   assert.match(source, /alt="Постер «\$\{esc\(row.title\)\}»"/);
 });
 test('schedule and updates rows carry a blurred still; the clock sits in the card header', () => {
@@ -168,13 +168,18 @@ test('day strip says how busy each day is and the list is headed by the date in 
   assert.match(source, /\$\('#schedule-today'\).hidden = activeKey === M.dateKey\(new Date\(\)\)/);
 });
 
-test('related titles are a scrollable carousel with arrows and no separate route strip', () => {
+test('related titles hang on one thread: no arrows, relation on the poster, collapsed by default', () => {
   const html = read('public/anime.html'), source = read('public/content.js');
   assert.match(html, /<ol class="relation-track" id="watch-order-list"/);
-  assert.equal((html.match(/data-relation-scroll=/g) || []).length, 2);
-  assert.doesNotMatch(html + source, /watch-order-path/);
-  assert.match(html, /id="watch-order-toggle" aria-expanded="false" aria-controls="watch-order-list"/, 'collapsed by default');
+  assert.doesNotMatch(html + source, /data-relation-scroll|relation-nav|watch-order-path/);
+  assert.match(html, /id="watch-order-toggle" aria-expanded="false" aria-controls="watch-order-list"/);
   assert.match(html, /id="watch-order-list"[^>]*hidden><\/ol>/);
-  assert.match(source, /button.disabled = button.dataset.relationScroll === '-1'/);
-  assert.match(read('public/kitsu-v3.css'), /scroll-snap-type: x mandatory/);
+  assert.match(source, /class="relation-band relation-band--\$\{tone\}" title="[^"]*"><b>\$\{esc\(label\)\}<\/b>/);
+  assert.match(source, /classList.toggle\('has-more-right'/);
+})
+test('every relation has a short band label that fits a small poster', () => {
+  for (const key of Object.keys(M.relations)) {
+    assert.ok(M.relationShort[key], key);
+    assert.ok(M.relationShort[key].length <= 13, `${key}: ${M.relationShort[key]}`);
+  }
 });
