@@ -1498,7 +1498,10 @@
     };
     if (changed && document.startViewTransition && !reduceMotion.matches) {
       root.classList.add("is-routing");
-      document.startViewTransition(swap).finished.finally(() => root.classList.remove("is-routing"));
+      /* A newer navigation may skip this transition: that is expected, not an error. */
+      const t = document.startViewTransition(swap);
+      t.ready.catch(() => {});
+      t.finished.catch(() => {}).finally(() => root.classList.remove("is-routing"));
     } else swap();
     if (changed && !next.params.ep) { window.scrollTo({ top: 0, behavior: "instant" }); $("#main").focus({ preventScroll: true }); }
   }
@@ -1518,7 +1521,7 @@
     if (meta) meta.content = getComputedStyle(root).getPropertyValue("--canvas").trim() || "#0e0b12";
   }
   function withTransition(fn) {
-    if (document.startViewTransition && !reduceMotion.matches) document.startViewTransition(fn);
+    if (document.startViewTransition && !reduceMotion.matches) { const t = document.startViewTransition(fn); t.ready.catch(() => {}); t.finished.catch(() => {}); }
     else fn();
   }
   function togglePalette() {

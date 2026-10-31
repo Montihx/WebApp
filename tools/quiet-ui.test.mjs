@@ -39,7 +39,7 @@ test('shared focus tokens cover both themes and restore a neutral keyboard ring'
   assert.match(tokens, /@media \(forced-colors: active\)\s*\{\s*:root, html\[data-theme="light"\] \{ --focus-ring: Highlight;/);
   for (const area of ['public', 'admin']) {
     assert.match(read(`${area}/styles.css`), /:focus-visible\s*\{\s*outline: 2px solid var\(--focus-ring\)/);
-    assert.match(read(`${area}/index.html`), area === 'admin' ? /app\.js\?v=v5-1/ : /app\.js\?v=v3-24/);
+    assert.match(read(`${area}/index.html`), area === 'admin' ? /app\.js\?v=v5-2/ : /app\.js\?v=v3-25/);
   }
 });
 
@@ -65,5 +65,15 @@ test('decorative icon wrappers do not regain boxes through older CSS layers', ()
         assert.ok(['transparent', 'none', '0'].includes(value), `${area} ${selectors.trim()}: ${property}: ${value}`);
       }
     }
+  }
+});
+
+test('icon subset covers every icon name in the templates and stays small', () => {
+  const vendor = read('public/vendor/lucide.min.js');
+  assert.equal(vendor, read('admin/vendor/lucide.min.js'));
+  assert.ok(vendor.length < 120000, `${vendor.length} bytes`);
+  const table = JSON.parse(vendor.match(/const ICONS = (\{.*?\});\n/s)[1]);
+  for (const file of ['public/index.html', 'public/anime.html', 'admin/index.html']) {
+    for (const [, name] of read(file).matchAll(/data-lucide="([a-z0-9-]+)"/g)) assert.ok(table[name], `${file}: ${name}`);
   }
 });
