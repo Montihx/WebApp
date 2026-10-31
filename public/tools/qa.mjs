@@ -482,14 +482,16 @@ const posterFactsChecks = [
   !animeSource.includes('class="score-badge"'),
   count(indexSource, /class="card-facts"/g) >= 9,
   count(animeSource, /class="card-facts"/g) >= 4,
-  /class="card-facts"><span>\d+ \/ (?:\d+|\?) эп\.<\/span><b/.test(indexSource),
+  /class="card-facts"><span>\d+ \/ (?:\d+|\?) эп\.<\/span><\/p>/.test(indexSource),
+  count(indexSource, /class="poster-score/g) >= 7,
+  !/class="anime-card"[\s\S]*?class="ofuda/.test(indexSource),
 ];
 add(
   "html.posterFacts",
   "HTML: серии и рейтинг под названием",
   posterFactsChecks.every(Boolean),
   posterFactsChecks.every(Boolean)
-    ? "рейтинг и количество серий убраны с изображения; под названием показаны вышедшие/всего серии и компактная оценка"
+    ? "оценка — в углу постера вместо статуса; под названием — серии"
     : "на постере остались лишние badges или карточки потеряли строку серий/рейтинга",
 );
 const heroSlideCount = count(indexSource, /data-hero-slide\b/g);

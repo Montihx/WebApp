@@ -2810,3 +2810,32 @@ a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
   :root #schedule-days .day-tab { flex-basis: 64px; min-width: 64px; }
   :root .schedule-card .schedule-item--air .schedule-countdown { white-space: normal; }
 }
+
+/* ==========================================================================
+   Карточка: в углу постера — оценка (статус тайтла на карточке не пишем);
+   закладка — тонкой прямой полосой по низу постера
+   ========================================================================== */
+.poster-score {
+  position: absolute; z-index: 3; top: 8px; left: 8px; display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 7px 4px 6px; border-radius: 6px;
+  background: rgba(var(--media-ink-rgb), 0.74); backdrop-filter: blur(8px);
+  color: var(--media-text); font: 400 0.8125rem/1 var(--font-heading); letter-spacing: 0.02em; pointer-events: none;
+}
+.poster-score svg { width: 12px; height: 12px; fill: #ffcb70; }
+.poster-score.is-unrated { color: var(--media-text-dim); }
+.anime-card.is-bookmark-menu-open .poster-score { opacity: 0; }
+
+:root .anime-card .bookmark-status-bar {
+  min-height: 20px; padding: 0 8px; justify-content: flex-start; gap: 5px;
+  border-radius: 0; border-top: 2px solid var(--bookmark-color);
+  background: color-mix(in srgb, var(--bookmark-color) 22%, rgba(var(--media-ink-rgb), 0.92));
+  backdrop-filter: none; box-shadow: none; text-shadow: none;
+  color: #fff; font-size: 0.625rem; font-weight: 700; letter-spacing: 0.06em;
+}
+:root .anime-card:hover .bookmark-status-bar { background: color-mix(in srgb, var(--bookmark-color) 30%, rgba(var(--media-ink-rgb), 0.92)); }
+:root .anime-card .bookmark-status-bar::after { display: none; }
+:root .anime-card .bookmark-status-bar::before { width: 10px; height: 10px; background: var(--bookmark-color); }
+:root .anime-card.has-bookmark-status .poster-action { bottom: 26px; }
+@container (max-width: 130px) {
+  :root .anime-card .bookmark-status-bar { min-height: 18px; padding: 0 5px; font-size: 0.5625rem; letter-spacing: 0.02em; }
+}
