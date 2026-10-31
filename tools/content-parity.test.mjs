@@ -159,3 +159,11 @@ test('schedule and updates rows carry a blurred still; the clock sits in the car
   assert.match(refresh, /#schedule-now/);
   assert.doesNotMatch(refresh, /innerHTML/);
 });
+
+test('day strip says how busy each day is and the list is headed by the date in words', () => {
+  const source = read('public/content.js');
+  assert.match(source, /day-tab__load\$\{day.count \? '' : ' is-quiet'\}">\$\{day.count \? `\$\{day.count\} \$\{M.plural\(day.count, 'серия', 'серии', 'серий'\)\}` : 'затишье'\}/);
+  assert.match(source, /data-calendar-day="\$\{day.key\}" aria-label="/, 'aria-label sits inside the button tag');
+  assert.match(source, /id="schedule-today" hidden>К сегодня/);
+  assert.match(source, /\$\('#schedule-today'\).hidden = activeKey === M.dateKey\(new Date\(\)\)/);
+});

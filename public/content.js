@@ -101,7 +101,7 @@
       const today = M.dateKey(new Date());
       const days = M.scheduleDays(schedule);
       if (!days.some(day => day.key === activeKey)) activeKey = today;
-      $('#schedule-days').innerHTML = days.map(day => `<button type="button" class="day-tab${day.key === activeKey ? ' is-active' : ''}${day.key === today ? ' is-today' : ''}" role="tab" id="day-${day.key}" aria-controls="schedule-items" aria-selected="${day.key === activeKey}" tabindex="${day.key === activeKey ? '0' : '-1'}" data-calendar-day="${day.key}"><span class="day-tab__dow">${fmt(day.date, { weekday: 'short' })}</span><span class="day-tab__num">${day.date.getDate()}</span><span class="day-tab__mon">${fmt(day.date, { month: 'short' })}</span>${day.count ? `<span class="day-tab__count">${day.count}</span>` : ''}</button>`).join('');
+      $('#schedule-days').innerHTML = days.map(day => `<button type="button" class="day-tab${day.key === activeKey ? ' is-active' : ''}${day.key === today ? ' is-today' : ''}" role="tab" id="day-${day.key}" aria-controls="schedule-items" aria-selected="${day.key === activeKey}" tabindex="${day.key === activeKey ? '0' : '-1'}" data-calendar-day="${day.key}" aria-label="${fmt(day.date, { weekday: 'long', day: 'numeric', month: 'long' })}: ${day.count ? `${day.count} ${M.plural(day.count, 'серия', 'серии', 'серий')}` : 'серий нет'}"><span class="day-tab__dow">${fmt(day.date, { weekday: 'short' })}</span><span class="day-tab__num">${day.date.getDate()}</span><span class="day-tab__load${day.count ? '' : ' is-quiet'}">${day.count ? `${day.count} ${M.plural(day.count, 'серия', 'серии', 'серий')}` : 'затишье'}</span></button>`).join('');
     }
     // One row per episode: big local time, poster, title over a blurred still of the same title.
     function airRow(row) {
@@ -111,7 +111,18 @@
     // "Сейчас у вас" lives in the card header, not between rows.
     const clock = () => fmt(new Date(), { hour: '2-digit', minute: '2-digit' });
     $('#schedule-title')?.closest('.schedule-head')?.querySelector('.section-kicker')?.insertAdjacentHTML('afterend', `<p class="air-clock" aria-live="off"><span>Сейчас у вас</span><b id="schedule-now">${clock()}</b></p>`);
+    // Over the list: the selected date in words and a way back to today.
+    $('#schedule-items').insertAdjacentHTML('beforebegin', '<div class="air-dayhead"><strong id="schedule-date"></strong><button type="button" class="air-today" id="schedule-today" hidden>К сегодня<i data-lucide="arrow-right"></i></button></div>');
+    $('#schedule-today').addEventListener('click', () => { selectDay(M.dateKey(new Date())); $('#schedule-days .is-active')?.scrollIntoView?.({ inline: 'center', block: 'nearest' }); });
+    window.lucide?.createIcons?.({ attrs: { 'aria-hidden': 'true' } });
+    function renderDayHead() {
+      const [y, m, d] = activeKey.split('-').map(Number);
+      const text = fmt(new Date(y, m - 1, d), { weekday: 'long', day: 'numeric', month: 'long' });
+      $('#schedule-date').textContent = text.charAt(0).toUpperCase() + text.slice(1);
+      $('#schedule-today').hidden = activeKey === M.dateKey(new Date());
+    }
     function renderItems() {
+      renderDayHead();
       const rows = schedule.filter(row => M.dateKey(M.parseDateAsUtc(row.next_episode_at)) === activeKey);
       const panel = $('#schedule-items');
       panel.setAttribute('aria-labelledby', `day-${activeKey}`);

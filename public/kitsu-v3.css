@@ -2736,3 +2736,25 @@ a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
 @media (prefers-reduced-motion: reduce) {
   .next-episode__fire { animation: none; }
 }
+
+/* ==========================================================================
+   Дни расписания: под датой — сколько серий или «затишье»; над списком — дата словами
+   ========================================================================== */
+:root #schedule-days .day-tab { flex: 0 0 72px; min-width: 72px; gap: 3px; padding: 9px 4px 8px; }
+:root #schedule-days .day-tab__load { display: block; font-size: 0.6875rem; font-weight: 700; line-height: 1.2; white-space: nowrap; color: var(--accent-text); }
+:root #schedule-days .day-tab__load.is-quiet { color: var(--text-muted); font-weight: 600; }
+:root #schedule-days .day-tab.is-active .day-tab__load { color: var(--primary-fg); }
+:root #schedule-days .day-tab__count { display: none; }
+.air-dayhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 32px; margin: 4px 0 10px; }
+.air-dayhead strong { color: var(--text-secondary); font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.air-today {
+  display: inline-flex; align-items: center; gap: 6px; flex: none; min-height: 32px; padding: 0 2px;
+  border: 0; background: none; color: var(--accent-text); font: inherit; font-size: 0.8125rem; font-weight: 700; cursor: pointer;
+}
+.air-today:hover { text-decoration: underline; text-underline-offset: 3px; }
+.air-today svg { width: 15px; height: 15px; transition: transform var(--dur-1) var(--ease-out); }
+.air-today:hover svg { transform: translateX(2px); }
+@media (max-width: 440px) {
+  :root #schedule-days .day-tab { flex-basis: 64px; min-width: 64px; }
+  :root .schedule-card .schedule-item--air .schedule-countdown { white-space: normal; }
+}
