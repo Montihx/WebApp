@@ -1298,7 +1298,7 @@
         });
         if (catalogCount) {
           const visible = catalogCards.filter((card) => !card.classList.contains("is-filtered-out")).length;
-          catalogCount.textContent = `Показано ${visible} из ${catalogCards.length} в примере`;
+          catalogCount.textContent = `Показано ${visible} из ${catalogCards.length}`;
         }
       });
     });

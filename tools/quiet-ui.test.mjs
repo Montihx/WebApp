@@ -39,7 +39,7 @@ test('shared focus tokens cover both themes and restore a neutral keyboard ring'
   assert.match(tokens, /@media \(forced-colors: active\)\s*\{\s*:root, html\[data-theme="light"\] \{ --focus-ring: Highlight;/);
   for (const area of ['public', 'admin']) {
     assert.match(read(`${area}/styles.css`), /:focus-visible\s*\{\s*outline: 2px solid var\(--focus-ring\)/);
-    assert.match(read(`${area}/index.html`), area === 'admin' ? /app\.js\?v=v5-1/ : /app\.js\?v=v3-23/);
+    assert.match(read(`${area}/index.html`), area === 'admin' ? /app\.js\?v=v5-1/ : /app\.js\?v=v3-24/);
   }
 });
 

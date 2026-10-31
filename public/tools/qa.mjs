@@ -482,7 +482,7 @@ const posterFactsChecks = [
   !animeSource.includes('class="score-badge"'),
   count(indexSource, /class="card-facts"/g) >= 9,
   count(animeSource, /class="card-facts"/g) >= 4,
-  /class="card-facts"><span>\d+ \/ (?:\d+|\?) эп\.<\/span><\/p>/.test(indexSource),
+  /class="card-facts"><span>(?:\d+ эп\.|Анонс)<\/span><\/p>/.test(indexSource),
   count(indexSource, /class="poster-score/g) >= 7,
   !/class="anime-card"[\s\S]*?class="ofuda/.test(indexSource),
 ];
