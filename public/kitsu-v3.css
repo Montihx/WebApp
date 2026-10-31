@@ -636,7 +636,7 @@
   transition: transform 120ms linear, box-shadow var(--dur-3) var(--ease-out), border-color var(--dur-2);
 }
 
-:root .anime-card .poster-frame img { border-radius: calc(var(--card-radius) - 1px); transition: transform 700ms var(--ease-out), filter var(--dur-3); }
+:root .anime-card .poster-frame img { transition: transform 700ms var(--ease-out), filter var(--dur-3); }
 :root .anime-card:is(:hover, :focus-within) .poster-frame img { transform: scale(1.06); }
 
 /* Блик за курсором */
@@ -2728,9 +2728,10 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 /* Закладка: прямая тонкая полоса по низу постера, цвет статуса насыщенный, текст белый. */
 :root .anime-card .bookmark-status-bar {
   min-height: 20px; padding: 0 8px; justify-content: center; gap: 5px;
-  /* Верх прямой, низ повторяет скругление постера: во время смены статуса WebKit
-     выносит полосу в отдельный слой и перестаёт её обрезать — углы были квадратными. */
-  border-radius: 0 0 calc(var(--card-radius) - 1px) calc(var(--card-radius) - 1px) !important; border-top: 0;
+  /* Верх прямой, низ — ровно по внешнему краю постера: полоса ложится поверх его
+     рамки (−1px), поэтому ни квадратных углов, ни тёмного ободка между полосой и рамкой. */
+  right: -1px; bottom: -1px; left: -1px;
+  border-radius: 0 0 var(--card-radius) var(--card-radius) !important; border-top: 0;
   background: color-mix(in srgb, var(--bookmark-color) 58%, #000) !important;
   backdrop-filter: none; box-shadow: inset 0 2px 0 var(--bookmark-color); text-shadow: none;
   color: #fff; font-size: 0.625rem; font-weight: 800; letter-spacing: 0.07em;
@@ -2741,6 +2742,13 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 :root .anime-card.has-bookmark-status .poster-action { bottom: 26px; }
 @container (max-width: 130px) {
   :root .anime-card .bookmark-status-bar { min-height: 18px; padding: 0 5px; font-size: 0.5625rem; letter-spacing: 0.02em; }
+}
+
+/* Safari на телефонах перестаёт обрезать скруглением постера то, что сейчас
+   анимируется (полоса закладки, картинка в меню статуса). Маска заставляет
+   обрезать всегда; на сенсорных экранах свечение при наведении не нужно. */
+@media (hover: none) {
+  :root .anime-card .poster-frame { -webkit-mask-image: linear-gradient(#000, #000); mask-image: linear-gradient(#000, #000); }
 }
 
 /* В расписании день уже написан над списком — под временем его не повторяем. */
