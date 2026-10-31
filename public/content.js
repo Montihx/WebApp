@@ -37,11 +37,11 @@
         if (title.score > 0) { hanko.textContent = title.score; hanko.setAttribute('aria-label', `Оценка ${title.score}`); }
       }
       const next = nextEpisode[title.slug], air = next && M.airLabel(next.at);
-      const nextChip = air ? `<span class="next-episode next-episode--${air.status}" data-next-at="${next.at}" title="${esc(fmt(M.parseDateAsUtc(next.at), { weekday: 'short', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }))}"><span class="next-episode__fire" aria-hidden="true"></span><b>${next.episode} серия</b><span data-next-label>${air.label}</span></span>` : '';
+      // Next episode sits on the poster itself, as a torn-off ticket stub along its bottom edge.
+      const nextStub = air ? `<span class="air-stub air-stub--${air.status}" data-next-at="${next.at}" title="${esc(fmt(M.parseDateAsUtc(next.at), { weekday: 'short', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }))}"><span class="air-stub__kanji" aria-hidden="true">次回</span><span class="air-stub__body"><b>${next.episode} серия</b><span data-next-label>${air.label}</span></span></span>` : '';
       $('.title-status-line').innerHTML = `<span class="status-pill status-pill--${status}">${statusLabel}</span><span>${M.kindLabel(title.kind)}</span>${title.year ? `<span>${title.year}</span>` : ''}`;
-      // Under the title on every width (the status line itself is hidden on phones).
-      if (nextChip) $('.title-heading-row').insertAdjacentHTML('afterend', nextChip);
-      if (air) setInterval(() => { const chip = $('.next-episode'), state = M.airLabel(chip?.dataset.nextAt); if (!chip || !state) return; chip.className = `next-episode next-episode--${state.status}`; chip.querySelector('[data-next-label]').textContent = state.label; }, 60000);
+      if (nextStub) $('.title-poster').insertAdjacentHTML('beforeend', nextStub);
+      if (air) setInterval(() => { const stub = $('.air-stub'), state = M.airLabel(stub?.dataset.nextAt); if (!stub || !state) return; stub.className = `air-stub air-stub--${state.status}`; stub.querySelector('[data-next-label]').textContent = state.label; }, 60000);
       const facts = $('.title-meta-list');
       facts.innerHTML = `${title.year ? `<li><i data-lucide="map-pin"></i><span>Япония, ${title.year} г.</span></li>` : ''}<li><i data-lucide="monitor-play"></i><span>${title.episodes_total} эп.</span></li><li><i data-lucide="calendar-days"></i><span>${M.kindLabel(title.kind)}, ${statusLabel.toLowerCase()}</span></li>${title.studio ? `<li><i data-lucide="users"></i><span>Студия ${esc(title.studio)}</span></li>` : ''}${title.rating ? `<li><i data-lucide="shield-check"></i><span>Возрастной рейтинг ${esc(title.rating)}</span></li>` : ''}`;
       $('.genre-links').textContent = title.slug.startsWith('steins-gate') ? 'Фантастика, триллер' : '';
