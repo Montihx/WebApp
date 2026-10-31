@@ -1631,7 +1631,9 @@
 :root .poster-bookmark-button { border-radius: 7px; }
 
 /* Иконочные кнопки при наведении: только цвет иконки */
-:root :is(button, a):not(:has(> span:not(.sr-only):not(:empty))):is(:hover, :active, [aria-expanded="true"]):has(> svg:only-child, > i:only-child) { background: none; box-shadow: none; border-color: transparent; }
+/* Явный список вместо :has() на каждой ссылке: тот селектор пересчитывался при каждом движении
+   мыши и цеплял кнопки с текстом («Смотреть» теряла заливку при наведении). */
+:root :is(.icon-button, .title-mobile-toolbar__button, .poster-bookmark-button, .bookmark-menu__close, .continue-remove, .episode-strip__nav, .feature-slider__arrow, .mobile-menu-button, .search-clear, .search-filter-toggle, .player-controls > button, .continue-nav > button):is(:hover, :active, [aria-expanded="true"]) { background: none; box-shadow: none; border-color: transparent; }
 :root :is(.rail-arrow, .continue-nav button, .section-heading button, .title-community-action--notify, .episode-strip__nav),
 :root :is(.rail-arrow, .continue-nav button, .section-heading button, .title-community-action--notify, .episode-strip__nav):hover { background: none; box-shadow: none; border-color: transparent; }
 :root :is(.rail-arrow, .continue-nav button, .section-heading button, .title-community-action--notify, .episode-strip__nav):hover svg { color: var(--accent-text); }
@@ -2698,3 +2700,15 @@ a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
 :root #schedule-items .schedule-item--air .air-time > span { display: none; }
 /* Число выбранного дня водяным знаком наезжало на строки — убрано: дата уже написана над списком. */
 :root .schedule-card:has(#schedule-days)::after { display: none; }
+
+/* ==========================================================================
+   Производительность: размытие подложки (backdrop-filter) пересчитывается каждый кадр
+   прокрутки — оставлено только у шапки и открытых меню. Повторяющимся элементам
+   (метки слайдера, жанры, бирки, полосы) хватает плотной подложки.
+   ========================================================================== */
+:root :is(.hero-tags a, .hero-kind-badge, .feature-slide strong, .ofuda, .bookmark-status-bar, .poster-score, .player-tabs, .schedule-item, .day-tab, .landscape-card *, .continue-card *) {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+:root :is(.hero-tags a, .hero-kind-badge) { background-color: rgba(var(--media-ink-rgb), 0.72); }
+.kz-ambient.is-paused .kz-mote { animation-play-state: paused; }

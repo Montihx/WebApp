@@ -812,7 +812,9 @@
     layer.className = "kz-ambient";
     layer.setAttribute("aria-hidden", "true");
     const rnd = seeded(7);
-    for (let i = 0; i < 18; i += 1) {
+    // Fewer petals on phones; all of them stop while the hero is off-screen.
+    const count = window.matchMedia("(max-width: 720px)").matches ? 6 : 10;
+    for (let i = 0; i < count; i += 1) {
       const p = document.createElement("span");
       p.className = "kz-mote";
       p.style.setProperty("--x", `${(rnd() * 100).toFixed(1)}%`);
@@ -823,20 +825,31 @@
       layer.append(p);
     }
     hero.append(layer);
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(([entry]) => layer.classList.toggle("is-paused", !entry.isIntersecting)).observe(hero);
+    }
+    document.addEventListener("visibilitychange", () => layer.classList.toggle("is-paused", document.hidden));
   }
 
   function initPosterTilt() {
     if (reducedMotion.matches || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    document.addEventListener("pointermove", (event) => {
-      const frame = event.target.closest?.(".anime-card .poster-frame, .continue-poster");
-      if (!frame) return;
+    // Pointer moves arrive faster than frames: read layout and write styles at most once per frame.
+    let pending = null;
+    const apply = () => {
+      const { frame, x0, y0 } = pending; pending = null;
       const r = frame.getBoundingClientRect();
-      const x = (event.clientX - r.left) / r.width;
-      const y = (event.clientY - r.top) / r.height;
+      const x = (x0 - r.left) / r.width;
+      const y = (y0 - r.top) / r.height;
       frame.style.setProperty("--rx", `${((0.5 - y) * 9).toFixed(2)}deg`);
       frame.style.setProperty("--ry", `${((x - 0.5) * 11).toFixed(2)}deg`);
       frame.style.setProperty("--mx", `${(x * 100).toFixed(1)}%`);
       frame.style.setProperty("--my", `${(y * 100).toFixed(1)}%`);
+    };
+    document.addEventListener("pointermove", (event) => {
+      const frame = event.target.closest?.(".anime-card .poster-frame, .continue-poster");
+      if (!frame) return;
+      if (!pending) requestAnimationFrame(apply);
+      pending = { frame, x0: event.clientX, y0: event.clientY };
     }, { passive: true });
     document.addEventListener("pointerout", (event) => {
       const frame = event.target.closest?.(".anime-card .poster-frame, .continue-poster");
@@ -854,12 +867,15 @@
     bar.className = "kz-scroll-progress";
     bar.setAttribute("aria-hidden", "true");
     header.append(bar);
-    const update = () => {
-      const max = document.documentElement.scrollHeight - innerHeight;
-      bar.style.transform = `scaleX(${max > 0 ? Math.min(1, scrollY / max) : 0})`;
-    };
+    // Page height is measured only when it can change, not on every scroll event.
+    let max = 1, queued = false;
+    const measure = () => { max = document.documentElement.scrollHeight - innerHeight; };
+    const draw = () => { queued = false; bar.style.transform = `scaleX(${max > 0 ? Math.min(1, scrollY / max) : 0})`; };
+    const update = () => { if (!queued) { queued = true; requestAnimationFrame(draw); } };
     addEventListener("scroll", update, { passive: true });
-    update();
+    addEventListener("resize", () => { measure(); update(); });
+    if ("ResizeObserver" in window) new ResizeObserver(() => { measure(); update(); }).observe(document.body);
+    measure(); update();
   }
 
   const paletteNames = { sakura: "Сакура", obsidian: "Обсидиан" };
@@ -888,7 +904,9 @@
           root.style.setProperty("--kz-x", `${event.clientX || innerWidth - 40}px`);
           root.style.setProperty("--kz-y", `${event.clientY || 30}px`);
           root.classList.add("kz-palette-switching");
-          document.startViewTransition(swap).finished.finally(() => root.classList.remove("kz-palette-switching"));
+          const t = document.startViewTransition(swap);
+          t.ready.catch(() => {});
+          t.finished.catch(() => {}).finally(() => root.classList.remove("kz-palette-switching"));
         } else swap();
       });
     });
@@ -946,7 +964,9 @@
         const next = root.dataset.theme === "light" ? "dark" : "light";
         // Progressive enhancement: crossfade the palette where View Transitions exist.
         if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-          document.startViewTransition(() => setTheme(next));
+          const t = document.startViewTransition(() => setTheme(next));
+          t.ready.catch(() => {});
+          t.finished.catch(() => {});
         } else {
           setTheme(next);
         }
