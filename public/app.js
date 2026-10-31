@@ -444,8 +444,7 @@
       statusBar.className = "bookmark-status-bar";
       statusBar.dataset.bookmarkStatusBar = "";
       statusBar.hidden = true;
-      // The list status reads as words under the poster, in the status colour; the poster keeps only the ribbon.
-      ($(".card-facts", card) || poster).prepend(statusBar);
+      poster.append(statusBar);
 
       trigger.classList.add("poster-bookmark-button");
       trigger.dataset.bookmarkTrigger = "";

@@ -166,6 +166,8 @@ const bookmarkCssTokens = [
   "[data-bookmark-tone=\"watching\"]",
   "justify-content: center",
   "min-height: 22px",
+  "padding: 2px 8px",
+  "border-top: 2px solid var(--bookmark-color)",
 ];
 const missingBookmarkCss = bookmarkCssTokens.filter((token) => !css.includes(token));
 const bookmarkPosterLayoutChecks = [
@@ -480,16 +482,16 @@ const posterFactsChecks = [
   !animeSource.includes('class="score-badge"'),
   count(indexSource, /class="card-facts"/g) >= 9,
   count(animeSource, /class="card-facts"/g) >= 4,
-  /class="card-facts"><span class="card-episodes">(?:\d+ эп\.|Скоро)<\/span><\/p>/.test(indexSource),
-  count(indexSource, /class="poster-score"/g) >= 7,
-  !/class="anime-card"[\s\S]*?ofuda--released/.test(indexSource),
+  /class="card-facts"><span>\d+ \/ (?:\d+|\?) эп\.<\/span><\/p>/.test(indexSource),
+  count(indexSource, /class="poster-score/g) >= 7,
+  !/class="anime-card"[\s\S]*?class="ofuda/.test(indexSource),
 ];
 add(
   "html.posterFacts",
   "HTML: серии и рейтинг под названием",
   posterFactsChecks.every(Boolean),
   posterFactsChecks.every(Boolean)
-    ? "под названием одна строка: статус списка и серии; оценка — печатью на постере, у вышедших нет лишней метки"
+    ? "оценка — в углу постера вместо статуса; под названием — серии"
     : "на постере остались лишние badges или карточки потеряли строку серий/рейтинга",
 );
 const heroSlideCount = count(indexSource, /data-hero-slide\b/g);
