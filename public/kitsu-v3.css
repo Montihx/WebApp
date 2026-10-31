@@ -2550,25 +2550,61 @@ a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
 }
 
 /* ==========================================================================
-   Следующая серия под названием: лисий огонь — только для «выходит сейчас»
+   Следующая серия — отрывной корешок билета по низу постера.
+   Слева иероглифы 次回 («в следующий раз»), линия перфорации, справа номер
+   и отсчёт. Свечение лисьего огня — только у «выходит сегодня/скоро».
    ========================================================================== */
-.next-episode {
-  display: inline-flex; align-items: center; gap: 8px; width: fit-content; max-width: 100%;
-  margin-top: 12px; padding: 6px 12px 6px 10px;
-  border: 1px solid color-mix(in srgb, var(--kitsunebi) 45%, transparent); border-radius: var(--radius-sm);
-  background: var(--kitsunebi-soft); color: var(--kitsunebi-text);
-  font-size: 0.875rem; font-weight: 600; white-space: nowrap;
+:root .air-stub {
+  position: absolute; z-index: 2;
+  right: -1px; bottom: -1px; left: -1px;
+  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: stretch;
+  border: 1px solid color-mix(in srgb, var(--stub-fire) 40%, var(--glass-line));
+  border-top: 0;
+  border-bottom-left-radius: inherit; border-bottom-right-radius: inherit;
+  /* Корешок всегда тёмный (лежит на кадре), поэтому в светлой теме берём светлые тона огня. */
+  --stub-fire: var(--kitsunebi);
+  --stub-done: var(--green);
+  background: rgba(var(--media-ink-rgb), 0.94);
+  color: var(--media-text);
+  /* Рваный край отрыва по верху — мелкие треугольные зубцы, без кругов. */
+  -webkit-mask: conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / 8px 5px repeat-x, linear-gradient(#000 0 0) bottom / 100% calc(100% - 5px) no-repeat;
+  mask: conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / 8px 5px repeat-x, linear-gradient(#000 0 0) bottom / 100% calc(100% - 5px) no-repeat;
+  padding-top: 5px;
+  white-space: nowrap;
 }
-.next-episode b { color: var(--text); font-weight: 700; }
-.next-episode__fire {
-  flex: none; width: 8px; height: 8px; border-radius: 2px; background: var(--kitsunebi);
-  box-shadow: 0 0 10px var(--kitsunebi-glow); transform: rotate(45deg);
-  animation: kitsunebi-flicker 3s ease-in-out infinite;
+/* Мягкий переход кадра в корешок, чтобы не было ступеньки (под постером тёмная подложка). */
+:root .title-poster:has(.air-stub) img { -webkit-mask-image: linear-gradient(to bottom, #000 62%, rgba(0, 0, 0, 0.3)); mask-image: linear-gradient(to bottom, #000 62%, rgba(0, 0, 0, 0.3)); }
+:root .air-stub__kanji {
+  display: grid; place-items: center;
+  padding: 7px 9px;
+  border-right: 1px dashed color-mix(in srgb, var(--stub-fire) 55%, transparent);
+  color: var(--stub-fire);
+  font-family: var(--font-heading); font-size: 0.8125rem; line-height: 1.05;
+  writing-mode: vertical-rl; text-orientation: upright; letter-spacing: 0.08em;
+  text-shadow: 0 0 10px var(--kitsunebi-glow);
 }
-.next-episode--past { border-color: color-mix(in srgb, var(--green) 45%, transparent); background: var(--green-soft); color: var(--green); }
-.next-episode--past .next-episode__fire { background: var(--green); box-shadow: none; animation: none; }
-@media (max-width: 720px) {
-  .next-episode { order: 1; margin-top: 14px; }
+:root .air-stub__body { display: grid; align-content: center; gap: 1px; min-width: 0; padding: 8px 12px 10px; }
+:root .air-stub__body b {
+  overflow: hidden; text-overflow: ellipsis;
+  color: var(--media-text); font-family: var(--font-heading); font-size: 0.9375rem; font-weight: 400; line-height: 1.15;
+}
+:root .air-stub__body [data-next-label] {
+  overflow: hidden; text-overflow: ellipsis;
+  color: var(--stub-fire); font-size: 0.8125rem; font-weight: 600; line-height: 1.2;
+}
+:root .air-stub--soon .air-stub__kanji,
+:root .air-stub--today .air-stub__kanji { animation: kitsunebi-flicker 3s ease-in-out infinite; }
+:root .air-stub--past { border-color: color-mix(in srgb, var(--stub-done) 45%, var(--glass-line)); }
+:root .air-stub--past .air-stub__kanji { border-right-color: color-mix(in srgb, var(--stub-done) 55%, transparent); color: var(--stub-done); text-shadow: none; }
+:root .air-stub--past [data-next-label] { color: var(--stub-done); }
+/* Печать с оценкой уходит наверх, чтобы не наползать на корешок. */
+:root .title-poster:has(.air-stub) .hanko { top: -10px; bottom: auto; }
+html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a; }
+@media (max-width: 900px) {
+  :root .air-stub__kanji { padding: 6px 7px; font-size: 0.75rem; }
+  :root .air-stub__body { padding: 6px 9px 8px; }
+  :root .air-stub__body b { font-size: 0.875rem; }
+  :root .air-stub__body [data-next-label] { font-size: 0.75rem; }
 }
 
 /* ==========================================================================
@@ -2638,7 +2674,7 @@ a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
   :root .schedule-card .schedule-item--air .air-genres { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .next-episode__fire { animation: none; }
+  :root .air-stub__kanji { animation: none; }
 }
 
 /* ==========================================================================
