@@ -2776,3 +2776,14 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
   :root .feature-slider { height: clamp(440px, 56svh, 580px); min-height: 440px; }
   :root .hero-copy { padding-top: 40px; }
 }
+
+/* Уведомления: у бэкенда один тип — новая серия, иконка = постер тайтла.
+   Непрочитанное — метка огня слева и яркий заголовок; прочитанное — приглушено. */
+:root .notification-item { grid-template-columns: 34px minmax(0, 1fr) auto; }
+:root .notification-icon--poster { display: block; padding: 0; }
+:root .notification-icon--poster img { display: block; width: 34px; height: 50px; border: 1px solid var(--glass-line); border-radius: 4px; object-fit: cover; background: var(--media-ink); }
+:root .notification-item.is-unread::before { opacity: 1; background: var(--kitsunebi); box-shadow: 0 0 10px var(--kitsunebi-glow); }
+:root .notification-item:not(.is-unread) strong { color: var(--text-muted); font-weight: 600; }
+:root .notification-item:not(.is-unread) .notification-icon--poster img { opacity: 0.7; }
+:root .popover-head button:disabled { opacity: 0.45; cursor: default; background: none; }
+:root .notification-dot[hidden] { display: none; }

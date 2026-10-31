@@ -46,7 +46,8 @@
     searchRecentCleared: false,
     lastDrawerFocus: null,
     listStatus: "none",
-    subscription: storage.get(`kitsu-demo-subscription-${titleId()}`, titleId() === "19" ? storage.get("kitsu-demo-subscription", "none") : "none"),
+    // В preferences.anime_notifications встречаются true, "episode", "dubbing", "all"; уведомление о новой серии получают все, кроме "none".
+    subscription: (value => value === "none" ? "none" : "episode")(storage.get(`kitsu-demo-subscription-${titleId()}`, titleId() === "19" ? storage.get("kitsu-demo-subscription", "none") : "none")),
     selectedEpisode: 1,
     playing: false,
     muted: false,
@@ -663,7 +664,7 @@
         if (filter.dataset.searchFilter === "rating") {
           return Number(item.dataset[key] || 0) >= Number(filter.value);
         }
-        return (item.dataset[key] || "").split(" ").includes(filter.value);
+        return (item.dataset[key] || "").split("|").includes(filter.value);
       });
       const matches = matchesQuery && matchesFilters;
       item.hidden = !matches;
@@ -992,11 +993,30 @@
       toggleMenu(event.currentTarget, $("#notification-popover"));
     });
 
+    // Непрочитанные: счётчик на колокольчике = GET /notifications/unread-count.
+    const syncUnread = () => {
+      const unread = $$(".notification-item.is-unread").length;
+      const dot = $(".notification-dot");
+      if (dot) {
+        dot.hidden = unread === 0;
+        dot.setAttribute("aria-label", `${unread} ${unreadWord(unread)}`);
+      }
+      const markAll = $('[data-mark-read]');
+      if (markAll) markAll.disabled = unread === 0;
+    };
+    const unreadWord = n => (n % 10 === 1 && n % 100 !== 11 ? "новое уведомление" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "новых уведомления" : "новых уведомлений");
+    // Переход по уведомлению отмечает его прочитанным (PATCH /notifications/{id}/read).
+    $$(".notification-item[data-notification-id]").forEach((item) => item.addEventListener("click", () => {
+      item.classList.remove("is-unread");
+      syncUnread();
+    }));
     $('[data-mark-read]')?.addEventListener("click", () => {
-      $(".notification-dot")?.remove();
+      $$(".notification-item.is-unread").forEach((item) => item.classList.remove("is-unread"));
+      syncUnread();
       closeMenu($("#notification-trigger"), $("#notification-popover"));
       showToast("Уведомления прочитаны", "Непрочитанных уведомлений больше нет.", "info");
     });
+    syncUnread();
 
     $("#mobile-menu-trigger")?.addEventListener("click", openDrawer);
     $("#mobile-menu-close")?.addEventListener("click", () => closeDrawer());
@@ -1334,8 +1354,11 @@
     const catalogSort = $("#catalog-sort");
     if (catalogSort && grid) {
       catalogSort.addEventListener("change", () => {
-        const ordered = catalogSort.value === "score"
-          ? catalogCards.slice().sort((a, b) => Number(b.dataset.score || 0) - Number(a.dataset.score || 0))
+        // Как sort_by у GET /anime/: score — оценка, затем число голосов; popular — число голосов
+        // (score_count), затем оценка; по умолчанию — порядок обновления, его даёт сервер.
+        const by = (first, second) => (a, b) => Number(b.dataset[first] || 0) - Number(a.dataset[first] || 0) || Number(b.dataset[second] || 0) - Number(a.dataset[second] || 0);
+        const ordered = catalogSort.value === "score" ? catalogCards.slice().sort(by("score", "votes"))
+          : catalogSort.value === "popular" ? catalogCards.slice().sort(by("votes", "score"))
           : catalogCards;
         ordered.forEach((card) => grid.appendChild(card));
       });
@@ -1359,8 +1382,6 @@
 
   const subscriptionLabels = {
     episode: "Новые серии",
-    dubbing: "Новые озвучки",
-    all: "Все обновления",
     none: "Уведомления",
   };
 
@@ -1472,7 +1493,7 @@
   };
 
   function syncReleaseSummary() {
-    const source = $("#source-select")?.value || "Kodik";
+    const source = "Kodik"; // единственный источник видео; режим плеера на подписи не влияет
     const translation = $("#translation-select")?.value || "AniLibria.TV";
     const type = translation === "Субтитры" ? "Субтитры" : "Озвучка";
     const language = translation === "Субтитры" ? "Русские" : "Русский";
@@ -1765,7 +1786,7 @@
 
     $("#source-select")?.addEventListener("change", (event) => {
       syncReleaseSummary();
-      showToast("Источник выбран", event.currentTarget.value, "info");
+      showToast("Плеер выбран", event.currentTarget.selectedOptions[0]?.textContent || "", "info");
     });
 
     const playerOptionGroups = new Map();
