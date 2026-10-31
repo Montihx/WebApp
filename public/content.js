@@ -60,24 +60,34 @@
     const list = M.watchOrder(title.related, title);
     section.hidden = list.length < 2;
     if (!list.length) return;
-    $('#watch-order-count').textContent = `${list.length} ${M.plural(list.length, 'тайтл', 'тайтла', 'тайтлов')}`;
-    // Posters with the relation on an ofuda: 前 before, 続 after, 今 for the page you are on.
+    $('#watch-order-count').textContent = `${list.length}`;
+    $('#watch-order-count').setAttribute('aria-label', `${list.length} ${M.plural(list.length, 'тайтл', 'тайтла', 'тайтлов')}`);
+    // Carousel of small posters in watch order: number, relation kanji on the ofuda, relation in words under the poster.
     $('#watch-order-list').innerHTML = list.map((row, index) => {
       const label = row.is_current ? 'Вы здесь' : (M.relations[row.relation] || row.relation || 'Связано');
       const tone = row.is_current ? 'current' : M.relationTone(row.relation);
       const kanji = row.is_current ? '今' : (M.relationKanji[row.relation] || '縁');
       const meta = [row.year, row.kind ? M.kindLabel(row.kind) : '', row.episodes_total > 1 ? `${row.episodes_total} эп.` : ''].filter(Boolean).map(part => `<span>${esc(part)}</span>`).join('');
-      const content = `<span class="relation-poster"><img src="${esc(row.poster_url)}" alt="Постер «${esc(row.title)}»" width="150" height="216" loading="lazy" referrerpolicy="no-referrer"><span class="ofuda ofuda--relation ofuda--rel-${tone}"><span class="ofuda__jp" aria-hidden="true">${kanji}</span><span class="ofuda__ru">${esc(label)}</span></span><span class="relation-step" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span></span><span class="relation-copy"><strong>${esc(row.title)}</strong><span class="relation-meta">${meta}</span></span>`;
+      const content = `<span class="relation-poster"><img src="${esc(row.poster_url)}" alt="Постер «${esc(row.title)}»" width="150" height="216" loading="lazy" referrerpolicy="no-referrer"><span class="ofuda ofuda--relation ofuda--rel-${tone}" aria-hidden="true"><span class="ofuda__jp">${kanji}</span></span><span class="relation-step" aria-hidden="true">${index + 1}</span></span><span class="relation-copy"><span class="relation-kind relation-kind--${tone}" title="${esc(label)}">${esc(label)}</span><strong>${esc(row.title)}</strong><span class="relation-meta">${meta}</span></span>`;
       return `<li>${row.is_current ? `<div class="relation-card is-current" aria-current="page">${content}</div>` : `<a class="relation-card" href="${href(row.slug)}">${content}</a>`}</li>`;
     }).join('');
-    // Decorative route over the same list: years above numbered stops, films as diamonds.
-    const currentIndex = list.findIndex(row => row.is_current);
-    $('#watch-order-path').innerHTML = list.map((row, index) => `<li class="watch-path__step${row.is_current ? ' is-current' : ''}${index <= currentIndex ? ' is-reached' : ''}${row.kind === 'movie' ? ' is-movie' : ''}"><span class="watch-path__label">${row.is_current ? 'Вы здесь' : (row.year || '—')}</span><span class="watch-path__node"><span>${index + 1}</span></span></li>`).join('');
-    $('#watch-order-toggle').addEventListener('click', event => {
-      const expanded = event.currentTarget.getAttribute('aria-expanded') !== 'true';
-      event.currentTarget.setAttribute('aria-expanded', String(expanded));
-      $('#watch-order-list').hidden = !expanded;
-      $('#watch-order-path').hidden = !expanded;
+    const track = $('#watch-order-list');
+    const arrows = [...document.querySelectorAll('[data-relation-scroll]')];
+    const syncArrows = () => {
+      const max = track.scrollWidth - track.clientWidth - 2;
+      arrows.forEach(button => { button.disabled = button.dataset.relationScroll === '-1' ? track.scrollLeft <= 2 : track.scrollLeft >= max; });
+      section.classList.toggle('is-scrollable', max > 0);
+    };
+    arrows.forEach(button => button.addEventListener('click', () => {
+      track.scrollBy({ left: Number(button.dataset.relationScroll) * track.clientWidth * 0.8, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    }));
+    track.addEventListener('scroll', syncArrows, { passive: true });
+    addEventListener('resize', syncArrows);
+    // Start with the current title in view, without moving the page.
+    requestAnimationFrame(() => {
+      const current = track.querySelector('.is-current')?.closest('li');
+      if (current) track.scrollLeft = Math.max(0, current.offsetLeft - track.offsetLeft - 16);
+      syncArrows();
     });
   }
 
