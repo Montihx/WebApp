@@ -62,14 +62,14 @@
     if (!list.length) return;
     $('#watch-order-count').textContent = `${list.length}`;
     $('#watch-order-count').setAttribute('aria-label', `${list.length} ${M.plural(list.length, 'тайтл', 'тайтла', 'тайтлов')}`);
-    // "Red thread": the franchise hangs on one thread in watch order. Each poster carries its relation on itself.
+    // Wide cards in watch order, built like schedule rows: the title's own art blurred behind,
+    // the relation as the first word, the order number as a large watermark.
     $('#watch-order-list').innerHTML = list.map((row, index) => {
-      const label = row.is_current ? 'Вы здесь' : (M.relationShort[row.relation] || M.relations[row.relation] || row.relation || 'Связано');
+      const label = row.is_current ? 'Вы здесь' : (M.relations[row.relation] || row.relation || 'Связано');
       const tone = row.is_current ? 'current' : M.relationTone(row.relation);
-      const kanji = row.is_current ? '今' : (M.relationKanji[row.relation] || '縁');
       const meta = [row.year, row.kind ? M.kindLabel(row.kind) : '', row.episodes_total > 1 ? `${row.episodes_total} эп.` : ''].filter(Boolean).map(part => `<span>${esc(part)}</span>`).join('');
-      const content = `<span class="thread-knot" aria-hidden="true"><span>${index + 1}</span></span><span class="relation-poster"><img src="${esc(row.poster_url)}" alt="Постер «${esc(row.title)}»" width="150" height="216" loading="lazy" referrerpolicy="no-referrer"><span class="relation-kanji" aria-hidden="true">${kanji}</span><span class="relation-band relation-band--${tone}" title="${esc(row.is_current ? label : (M.relations[row.relation] || label))}"><b>${esc(label)}</b></span></span><span class="relation-copy"><strong>${esc(row.title)}</strong><span class="relation-meta">${meta}</span></span>`;
-      return `<li class="thread-${tone}">${row.is_current ? `<div class="relation-card is-current" aria-current="page">${content}</div>` : `<a class="relation-card" href="${href(row.slug)}">${content}</a>`}</li>`;
+      const content = `<span class="rel-art" aria-hidden="true"><img src="${esc(row.poster_url)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span><span class="rel-order" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><img class="rel-poster" src="${esc(row.poster_url)}" alt="Постер «${esc(row.title)}»" width="150" height="216" loading="lazy" referrerpolicy="no-referrer"><span class="rel-copy"><span class="rel-kind rel-kind--${tone}">${esc(label)}</span><strong>${esc(row.title)}</strong><span class="rel-meta">${meta}</span></span>`;
+      return `<li>${row.is_current ? `<div class="rel-card is-current" aria-current="page">${content}</div>` : `<a class="rel-card" href="${href(row.slug)}">${content}</a>`}</li>`;
     }).join('');
     const track = $('#watch-order-list');
     const syncEdges = () => {
