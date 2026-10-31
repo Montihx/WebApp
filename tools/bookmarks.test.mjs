@@ -131,12 +131,7 @@ test('restoring a saved status paints both title controls without writing storag
   assert.equal(f.stored.size, 0);
 });
 
-test('bookmark text remains readable in both themes and on poster bands', () => {
-  const styles = readFileSync(new URL('../public/styles.css', import.meta.url), 'utf8');
-  const bandStyles = styles.match(/\.bookmark-status-bar\s*\{([^}]+)\}/s)?.[1] || '';
-  // Bind the contrast calculation to the actual shipped foreground/background.
-  assert.match(bandStyles, /color:\s*#ffffff;/);
-  assert.match(bandStyles, /background:\s*color-mix\(in srgb, var\(--bookmark-color\) 28%, #101012\)/);
+test('bookmark text stays readable in both themes, under the poster and on tinted controls', () => {
   const css = readFileSync(new URL('../tokens.css', import.meta.url), 'utf8');
   const blocks = [...css.matchAll(/(:root|html\[data-theme="light"\])\s*\{([^}]+)\}/g)];
   const rgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
@@ -151,11 +146,10 @@ test('bookmark text remains readable in both themes and on poster bands', () => 
         const bg = rgb(tokens.surface).map((v, i) => rgb(tokens[key])[i] * tint + v * (1 - tint));
         assert.ok(contrast(fg, bg) >= 4.5, `${theme}: ${status} tint ${tint}`);
       }
-      const band = rgb('#101012').map((v, i) => rgb(tokens[key])[i] * .28 + v * .72);
-      assert.ok(contrast(rgb('#ffffff'), band) >= 4.5, `${theme}: poster ${status}`);
+      for (const canvas of [tokens.canvas, tokens.surface]) assert.ok(contrast(fg, rgb(canvas)) >= 4.5, `${theme}: ${status} under poster`);
     }
   }
-});
+})
 
 test('existing title status migrates on read and newer card status takes precedence', () => {
   const f = fixture();
@@ -168,20 +162,19 @@ test('existing title status migrates on read and newer card status takes precede
   assert.equal(f.context.getBookmarkStatus('52991'), 'planned');
 });
 
-test('reference palette keeps the same semantic hues in every theme', () => {
+test('bookmark palette keeps one set of hues, defined once', () => {
   const css = readFileSync(new URL('../tokens.css', import.meta.url), 'utf8');
-  const expected = {planned: '#3b82f6', watching: '#22c55e', completed: '#a855f7', 'on-hold': '#eab308', dropped: '#ef4444'};
+  const expected = {planned: '#7aa7ff', watching: '#4fd6a0', completed: '#c4a1ff', 'on-hold': '#f2c66d', dropped: '#ff7a85'};
   for (const [key, color] of Object.entries(expected)) {
     const values = [...css.matchAll(new RegExp('--bookmark-' + key + ':\\s*(#[a-f0-9]+)', 'g'))].map(match => match[1]);
     assert.deepEqual(values, [color], key);
   }
 });
 
-test('poster status bar stays compact and carries no decorative pulse', () => {
+test('list status is a coloured word under the poster, not a band over the art', () => {
   const css = readFileSync(new URL('../public/styles.css', import.meta.url), 'utf8');
   const block = css.match(/\.bookmark-status-bar\s*\{([^}]+)\}/s)?.[1] || '';
-  assert.match(block, /min-height:\s*22px/);
-  assert.match(block, /padding:\s*2px 8px/);
-  assert.match(block, /border-top:\s*2px solid var\(--bookmark-color\)/);
-  assert.doesNotMatch(css, /\.bookmark-status-bar::before/);
+  assert.match(block, /color:\s*var\(--bookmark-text\)/);
+  assert.doesNotMatch(block, /position:\s*absolute/);
+  assert.match(readFileSync(new URL('../public/app.js', import.meta.url), 'utf8'), /\(\$\("\.card-facts", card\) \|\| poster\)\.prepend\(statusBar\)/);
 });

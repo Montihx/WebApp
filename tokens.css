@@ -101,17 +101,19 @@
   --radius-xl: 18px;
   --radius-pill: 8px;
 
-  /* Shared bookmark colors from the profile statistics reference. */
-  --bookmark-planned: #3b82f6;
-  --bookmark-planned-text: #60a5fa;
-  --bookmark-watching: #22c55e;
-  --bookmark-watching-text: #4ade80;
-  --bookmark-completed: #a855f7;
-  --bookmark-completed-text: #c084fc;
-  --bookmark-on-hold: #eab308;
-  --bookmark-on-hold-text: #facc15;
-  --bookmark-dropped: #ef4444;
-  --bookmark-dropped-text: #f87171;
+  /* Bookmark colours in the site's own palette: the same meanings (green — watching,
+     blue — planned, violet — completed, gold — on hold, red — dropped), softened to sit
+     next to sakura and lavender instead of stock UI colours. */
+  --bookmark-planned: #7aa7ff;
+  --bookmark-planned-text: #a3c1ff;
+  --bookmark-watching: #4fd6a0;
+  --bookmark-watching-text: #79e3b9;
+  --bookmark-completed: #c4a1ff;
+  --bookmark-completed-text: #d6bdff;
+  --bookmark-on-hold: #f2c66d;
+  --bookmark-on-hold-text: #f6d792;
+  --bookmark-dropped: #ff7a85;
+  --bookmark-dropped-text: #ff9ea6;
   --ease: 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
@@ -240,11 +242,11 @@ html[data-theme="light"] {
   --grain-opacity: 0.05;
   --seigaiha-opacity: 0.05;
   --seigaiha-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='28' fill='none' stroke='%231d1524' stroke-width='1.2'%3E%3Cpath d='M-26 14a26 26 0 0 1 52 0M-19 14a19 19 0 0 1 38 0M-12 14a12 12 0 0 1 24 0M30 14a26 26 0 0 1 52 0M37 14a19 19 0 0 1 38 0M44 14a12 12 0 0 1 24 0M2 28a26 26 0 0 1 52 0M9 28a19 19 0 0 1 38 0M16 28a12 12 0 0 1 24 0'/%3E%3C/svg%3E");
-  --bookmark-planned-text: #1d4ed8;
-  --bookmark-watching-text: #166534;
-  --bookmark-completed-text: #7e22ce;
-  --bookmark-on-hold-text: #854d0e;
-  --bookmark-dropped-text: #b91c1c;
+  --bookmark-planned-text: #2552b8;
+  --bookmark-watching-text: #12704c;
+  --bookmark-completed-text: #6b35c4;
+  --bookmark-on-hold-text: #7a5600;
+  --bookmark-dropped-text: #b3202f;
 }
 
 /* Светлый «Обсидиан»: известняк и тёмный янтарь. */

@@ -2510,56 +2510,17 @@
 :root .bookmark-menu:not(.bookmark-menu--sheet) .bookmark-menu__remove { min-height: 26px; flex: none; }
 
 /* ==========================================================================
-   Полоса статуса на постере: во всю ширину низа, тёмное стекло,
-   цветная кромка сверху, иконка и подпись в цвете статуса
+   Карточка тайтла: на постере — только закладка-лента, «Выходит»/«Анонс» и оценка;
+   под постером — название и одна строка: статус списка цветом · серии
    ========================================================================== */
-:root .anime-card .bookmark-status-bar {
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 3;
-  display: flex;
-  min-height: 28px;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 0 8px;
-  border: 0;
-  border-top: 0;
-  border-radius: 0 0 var(--card-radius) var(--card-radius);
-  background:
-    linear-gradient(0deg, color-mix(in srgb, var(--bookmark-color) 26%, rgba(var(--media-ink-rgb), 0.92)), color-mix(in srgb, var(--bookmark-color) 12%, rgba(var(--media-ink-rgb), 0.78)));
-  backdrop-filter: blur(10px) saturate(1.3);
-  box-shadow: none;
-  color: color-mix(in srgb, var(--bookmark-color) 45%, #ffffff);
-  font-size: 0.6875rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
-}
-
-/* Светящаяся кромка */
-:root .anime-card .bookmark-status-bar::after {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--bookmark-color) 18%, var(--bookmark-color) 82%, transparent);
-  box-shadow: 0 0 12px var(--bookmark-color);
-  content: "";
-}
-
-/* Иконка статуса */
+:root .anime-card .card-facts { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 2px 6px; min-width: 0; font-family: var(--font-body); }
+:root .anime-card .card-facts > * { flex: none; }
+:root .anime-card .card-facts > .card-episodes { color: var(--text-muted); font-family: var(--font-body); font-size: 0.75rem; }
+:root .anime-card .bookmark-status-bar { font-family: var(--font-body); font-weight: 700; position: static; min-height: 0; padding: 0; border: 0; background: none; box-shadow: none; text-shadow: none; backdrop-filter: none; font-size: 0.75rem; letter-spacing: 0; text-transform: none; color: var(--bookmark-text); }
+:root .anime-card .bookmark-status-bar::after { display: none; }
 :root .anime-card .bookmark-status-bar::before {
-  width: 12px;
-  height: 12px;
-  flex: none;
-  background: currentColor;
-  content: "";
-  -webkit-mask: var(--kz-status-icon) center / contain no-repeat;
-  mask: var(--kz-status-icon) center / contain no-repeat;
+  width: 11px; height: 11px; flex: none; background: var(--bookmark-color); content: "";
+  -webkit-mask: var(--kz-status-icon) center / contain no-repeat; mask: var(--kz-status-icon) center / contain no-repeat;
 }
 :root .anime-card[data-bookmark-tone="watching"] { --kz-status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000' stroke='none'%3E%3Cpath d='M7 4.5v15l12-7.5z'/%3E%3C/svg%3E"); }
 :root .anime-card[data-bookmark-tone="planned"] { --kz-status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E"); }
@@ -2567,18 +2528,35 @@
 :root .anime-card[data-bookmark-tone="on_hold"] { --kz-status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 5v14M15 5v14'/%3E%3C/svg%3E"); }
 :root .anime-card[data-bookmark-tone="dropped"] { --kz-status-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3C/svg%3E"); }
 
-/* На наведении полоса уступает место свечению постера, но остаётся читаемой */
-:root .anime-card:hover .bookmark-status-bar { background: linear-gradient(0deg, color-mix(in srgb, var(--bookmark-color) 34%, rgba(var(--media-ink-rgb), 0.92)), color-mix(in srgb, var(--bookmark-color) 16%, rgba(var(--media-ink-rgb), 0.78))); }
 
-@container (max-width: 130px) {
-  :root .anime-card .bookmark-status-bar { min-height: 24px; font-size: 0.625rem; letter-spacing: 0.02em; }
-  :root .anime-card .bookmark-status-bar::before { width: 10px; height: 10px; }
+/* Закладка висит лентой от верхнего края постера: цвет статуса, без плашки. */
+:root .anime-card .poster-bookmark-button { top: -2px; right: 8px; width: 34px; height: 40px; }
+:root .anime-card .poster-bookmark-button svg { width: 26px; height: 30px; stroke-width: 1.6; }
+:root .anime-card .poster-bookmark-button.is-active svg { color: var(--bookmark-color); fill: var(--bookmark-color); stroke: rgba(var(--media-ink-rgb), 0.55); }
+
+/* «Выходит» / «Анонс»: горизонтальная метка вместо вертикальной бирки; у вышедших — ничего. */
+.air-chip {
+  position: absolute; z-index: 3; top: 8px; left: 8px; display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 8px; border-radius: 6px;
+  background: rgba(var(--media-ink-rgb), 0.74); backdrop-filter: blur(8px);
+  color: var(--media-text); font-size: 0.6875rem; font-weight: 700; line-height: 1.2; white-space: nowrap; pointer-events: none;
 }
-/* Самые узкие постеры: длинное «Запланировано» помещается без иконки и разрядки. */
-@container (max-width: 118px) {
-  :root .anime-card .bookmark-status-bar { padding: 0 4px; letter-spacing: 0; }
-  :root .anime-card .bookmark-status-bar::before { display: none; }
+.air-chip__dot { width: 7px; height: 7px; flex: none; border-radius: 2px; background: var(--kitsunebi); box-shadow: 0 0 8px var(--kitsunebi-glow); transform: rotate(45deg); animation: kitsunebi-flicker 3s ease-in-out infinite; }
+.air-chip--announced { color: #ffd0e5; }
+/* Узкий постер: у «Выходит» остаётся только огонёк — подпись есть в названии раздела и на странице тайтла. */
+@container (max-width: 135px) {
+  .air-chip--ongoing { gap: 0; padding: 6px; font-size: 0; }
+  .air-chip--ongoing .air-chip__dot { width: 8px; height: 8px; }
 }
+.anime-card.is-bookmark-menu-open .air-chip, .anime-card.is-bookmark-menu-open .poster-score { opacity: 0; }
+
+/* Оценка — маленькой печатью-ханко в углу постера. */
+.poster-score {
+  position: absolute; z-index: 3; left: 8px; bottom: 8px; padding: 3px 6px 2px; border-radius: 4px;
+  background: var(--hanko-bg); color: var(--hanko-fg); font: 400 0.8125rem/1.1 var(--font-heading); letter-spacing: 0.02em;
+  box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.6); pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) { .air-chip__dot { animation: none; } }
 
 /* Светлая тема: фон тайтла под текстом шапки — почти бумага, а не серая каша.
    Раньше арт под 60% непрозрачности давал фон около #7c727e, и мета-строка,
