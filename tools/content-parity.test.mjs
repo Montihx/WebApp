@@ -145,8 +145,8 @@ test('every relation has a caption, a kanji for its ofuda and a tone', () => {
 });
 test('related titles render as posters with an ofuda and the current one is marked', () => {
   const source = read('public/content.js');
-  assert.match(source, /class="rel-card is-current" aria-current="page"/);
-  assert.match(source, /class="rel-order" aria-hidden="true">/);
+  assert.match(source, /class="relation-card is-current" aria-current="page"/);
+  assert.match(source, /class="relation-kanji" aria-hidden="true">\$\{kanji\}/);
   assert.match(source, /alt="Постер «\$\{esc\(row.title\)\}»"/);
 });
 test('schedule and updates rows carry a blurred still; the clock sits in the card header', () => {
@@ -168,14 +168,13 @@ test('day strip says how busy each day is and the list is headed by the date in 
   assert.match(source, /\$\('#schedule-today'\).hidden = activeKey === M.dateKey\(new Date\(\)\)/);
 });
 
-test('related titles are wide art cards: no arrows, relation first, collapsed by default', () => {
+test('related titles hang on one thread: no arrows, relation on the poster, collapsed by default', () => {
   const html = read('public/anime.html'), source = read('public/content.js');
   assert.match(html, /<ol class="relation-track" id="watch-order-list"/);
   assert.doesNotMatch(html + source, /data-relation-scroll|relation-nav|watch-order-path/);
   assert.match(html, /id="watch-order-toggle" aria-expanded="false" aria-controls="watch-order-list"/);
   assert.match(html, /id="watch-order-list"[^>]*hidden><\/ol>/);
-  assert.match(source, /class="rel-kind rel-kind--\$\{tone\}">\$\{esc\(label\)\}/);
-  assert.match(source, /class="rel-art" aria-hidden="true"><img src="\$\{esc\(row.poster_url\)\}" alt=""/);
+  assert.match(source, /class="relation-band relation-band--\$\{tone\}" title="[^"]*"><b>\$\{esc\(label\)\}<\/b>/);
   assert.match(source, /classList.toggle\('has-more-right'/);
 })
 test('every relation has a short band label that fits a small poster', () => {
