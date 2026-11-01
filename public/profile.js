@@ -58,7 +58,7 @@
     me: {
       id: "u-demo", username: "kitsune_noa", bio: "Смотрю по вечерам, пишу заметки к каждому сезону. Люблю спокойные истории про дорогу и тихих героев.",
       avatar_url: null, cover_url: null, is_verified: true, created_at: "2026-03-12T09:20:00",
-      role: { name: "Зритель" }, decoration: null,
+      role: { name: "Зритель" }, is_superuser: false, last_seen_at: ago(120000), decoration: null,
     },
     publicStats: { favorites_count: 15, comments_count: 42, followers_count: 27, following_count: 19 },
     watchStats: { total_seconds_watched: 1284000, total_episodes_watched: 912 },
@@ -209,8 +209,17 @@
       $("[data-name]").textContent = me.username;
       document.title = `${me.username} — профиль Kitsu · Кицунэ`;
       const since = new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(new Date(me.created_at));
-      $("[data-chips]").innerHTML = `${me.role?.name ? `<span class="pf-chip"><i data-lucide="user-round"></i>${esc(me.role.name)}</span>` : ""}${me.is_verified ? '<span class="pf-chip pf-chip--ok"><i data-lucide="badge-check"></i>Почта подтверждена</span>' : '<span class="pf-chip pf-chip--warn"><i data-lucide="mail-warning"></i>Почта не подтверждена</span>'}<span class="pf-chip"><i data-lucide="calendar-days"></i>С нами с ${esc(since)}</span>`;
-      $("[data-bio]").textContent = me.bio || "Пока без описания.";
+      const role = $("[data-role]");
+      const roleName = me.is_superuser ? "Администратор" : me.role?.name;
+      role.hidden = !roleName; role.innerHTML = roleName ? `<i data-lucide="${me.is_superuser ? "crown" : "user-round"}"></i>${esc(roleName)}` : "";
+      // Онлайн — по last_seen_at: сервер обновляет его не чаще, чем раз в несколько минут.
+      const seen = me.last_seen_at ? Date.now() - new Date(me.last_seen_at).getTime() : Infinity;
+      const online = seen < 5 * 60000;
+      $("[data-online]").classList.toggle("is-on", online);
+      $("[data-online]").innerHTML = `<i></i>${online ? "онлайн" : me.last_seen_at ? `был(а) ${esc(fmtAgo(me.last_seen_at))}` : "не заходил(а)"}`;
+      $("[data-avatar]").classList.toggle("is-online", online);
+      $("[data-chips]").innerHTML = `${me.is_verified ? '<span class="pf-chip pf-chip--ok"><i data-lucide="badge-check"></i>Почта подтверждена</span>' : '<span class="pf-chip pf-chip--warn"><i data-lucide="mail-warning"></i>Почта не подтверждена</span>'}<span class="pf-chip"><i data-lucide="calendar-days"></i>С нами с ${esc(since)}</span>`;
+      $("[data-bio]").textContent = me.bio || "Статус не установлен";
       const av = $("[data-avatar]");
       av.innerHTML = me.avatar_url ? `<img src="${esc(me.avatar_url)}" alt="" />` : `<span>${esc(me.username.charAt(0).toUpperCase())}</span>`;
       if (me.decoration?.image_url) av.insertAdjacentHTML("beforeend", `<img class="pf-avatar__deco" src="${esc(me.decoration.image_url)}" alt="" />`);
@@ -497,6 +506,8 @@
   document.addEventListener("visibilitychange", () => document.body.classList.toggle("is-hidden-tab", document.hidden));
   icons(document);
   initNav(); initHeroPointer(); initChart(); initMarks(); initDialog();
+  // Настройки профиля — следующий пункт плана; до него кнопка честно говорит об этом.
+  $("[data-edit]").addEventListener("click", () => toast("Скоро", "Страница настроек профиля ещё готовится"));
   loadHero(); loadHistory(); loadCols();
   $("[data-history-more]").addEventListener("click", () => loadHistory(true));
 })();
