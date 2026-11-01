@@ -453,7 +453,7 @@ html[data-theme="light"] .button.danger:hover { color: #fff; }
 .tag[data-tone] { background: var(--ts); color: var(--t); }
 .dot { display: inline-block; flex: none; width: 8px; height: 8px; border-radius: var(--radius-2xs); background: var(--t, var(--text-muted)); }
 .progress { display: block; flex: 1 1 auto; min-width: 40px; position: relative; height: 6px; border-radius: var(--radius-2xs); background: var(--surface-hover); overflow: hidden; }
-.progress > i { position: absolute; inset: 0 auto 0 0; width: var(--p, 0%); border-radius: var(--radius-2xs); background: var(--fill-progress); }
+.progress > i { position: absolute; inset: 0 auto 0 0; width: var(--p, 0%); border-radius: var(--radius-2xs); background: color-mix(in srgb, var(--text-muted) 70%, transparent); }
 .progress.live > i { background: var(--kitsunebi); }
 .progress.thin { height: 4px; }
 
@@ -694,7 +694,7 @@ table.data .check { width: 44px; }
 .rank .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 .rank .v { font: 500 12.5px/1 var(--font-mono); color: var(--text-secondary); }
 .hbar { grid-column: 2 / -1; height: 4px; border-radius: var(--radius-2xs); background: var(--surface-hover); overflow: hidden; }
-.hbar i { display: block; height: 100%; width: var(--p); border-radius: var(--radius-2xs); background: var(--fill-progress); transform-origin: left; }
+.hbar i { display: block; height: 100%; width: var(--p); border-radius: var(--radius-2xs); background: var(--accent); transform-origin: left; }
 
 /* ==========================================================================
    Парсер
