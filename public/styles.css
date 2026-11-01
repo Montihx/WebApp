@@ -6304,15 +6304,22 @@ html[data-theme="light"] .brand-mark {
 .player-timeline { background: rgba(var(--media-text-rgb), 0.24); }
 .player-timeline span { background: var(--accent); }
 
-/* ---- Mobile bottom navigation: ink surface, a flat line at the top edge over the active item ---- */
+/* ---- Mobile bottom navigation: same look as the profile section tabs (.pf-nav): page surface, muted labels, accent text and a line for the active item ---- */
 @media (max-width: 720px) {
   .mobile-bottom-nav {
-    border-top: 1px solid rgba(var(--media-text-rgb), 0.12);
-    background: var(--media-ink);
+    border-top: 1px solid var(--line);
+    background: var(--canvas);
     box-shadow: none;
   }
 
-  .mobile-bottom-nav a { color: var(--media-text-dim); }
+  .mobile-bottom-nav a {
+    gap: 2px;
+    color: var(--text-muted);
+    transition: color var(--dur-2);
+  }
+
+  .mobile-bottom-nav svg { width: 18px; height: 18px; }
+  .mobile-bottom-nav span { font-size: 0.75rem; font-weight: 600; }
 
   .mobile-bottom-nav a::before {
     top: -1px;
@@ -6329,7 +6336,8 @@ html[data-theme="light"] .brand-mark {
 
   .mobile-bottom-nav a::after { content: none; }
 
-  .mobile-bottom-nav a.is-active { color: var(--accent-on-ink); }
+  .mobile-bottom-nav a:hover,
+  .mobile-bottom-nav a.is-active { color: var(--accent-text); }
   .mobile-bottom-nav a.is-active::before { transform: scaleX(1); transition-duration: var(--dur-2); transition-timing-function: var(--ease-out); }
 }
 
