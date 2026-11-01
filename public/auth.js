@@ -141,13 +141,19 @@
   }));
 
   // Свет под курсором: подсветка карточки идёт за мышью (только с указателем-мышью).
-  const card = $(".auth-card"), glow = $(".auth-card__glow");
+  const card = $(".auth-card"), glow = $(".auth-card__glow"), art = $(".auth-art");
   if (matchMedia("(hover: hover) and (pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
     let frame = 0, x = 0, y = 0;
     card.addEventListener("pointermove", (event) => {
       const box = card.getBoundingClientRect();
       x = event.clientX - box.left; y = event.clientY - box.top;
-      if (!frame) frame = requestAnimationFrame(() => { frame = 0; glow.style.transform = `translate3d(${x}px, ${y}px, 0)`; });
+      if (!frame) frame = requestAnimationFrame(() => {
+        frame = 0;
+        glow.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        // Постеры едут навстречу курсору: от -1 до 1 по каждой оси.
+        art.style.setProperty("--mx", ((x / box.width) * 2 - 1).toFixed(3));
+        art.style.setProperty("--my", ((y / box.height) * 2 - 1).toFixed(3));
+      });
     });
   }
 

@@ -2962,7 +2962,7 @@ html[data-theme="light"] .auth-scene::after { background: radial-gradient(65% 75
 :root .auth-fire--3 { left: 62%; bottom: 62%; }
 :root .auth-fire--4 { left: 24%; bottom: 48%; }
 
-:root .auth-layout { position: relative; z-index: 3; display: grid; place-items: center; width: min(460px, 100% - 32px); min-height: calc(100dvh - 90px); margin: 0 auto; padding: 8px 0 56px; }
+:root .auth-layout { position: relative; z-index: 3; display: grid; place-items: center; width: min(960px, 100% - 32px); min-height: calc(100dvh - 90px); margin: 0 auto; padding: 8px 0 56px; }
 :root .auth-gate { position: relative; width: 100%; }
 /* Тёплое свечение под карточкой: одна статичная подложка, без пересчёта при анимации. */
 :root .auth-gate::before { position: absolute; z-index: -1; inset: 40px 8px -16px; content: ""; background: var(--accent-glow); filter: blur(56px); opacity: 0.4; }
@@ -2970,8 +2970,8 @@ html[data-theme="light"] .auth-scene::after { background: radial-gradient(65% 75
 /* Карточка: обычный прямоугольник со скруглением. Контур — тусклая линия, по ней бежит огонёк. */
 :root .auth-card {
   --edge: 1.5px;
-  position: relative; isolation: isolate; display: grid; gap: 20px; overflow: hidden; color: var(--text);
-  padding: 30px clamp(20px, 3vw, 32px) 30px; border-radius: 16px;
+  position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr); overflow: hidden; color: var(--text);
+  border-radius: 16px;
   background: color-mix(in srgb, var(--accent) 30%, var(--glass-line));
   animation: auth-in 700ms var(--ease-out) both;
 }
@@ -2980,7 +2980,7 @@ html[data-theme="light"] .auth-scene::after { background: radial-gradient(65% 75
   background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 13%, transparent), transparent 42%), var(--surface);
 }
 :root .auth-card__spark {
-  position: absolute; z-index: -2; left: 50%; top: 50%; width: calc(100% + 700px); aspect-ratio: 1; pointer-events: none;
+  position: absolute; z-index: -2; left: 50%; top: 50%; width: max(calc(100% + 240px), 860px); aspect-ratio: 1; pointer-events: none;
   background: conic-gradient(from 0deg, transparent 0 66%, var(--accent) 84%, var(--accent-2) 95%, transparent 100%);
   transform: translate(-50%, -50%); animation: auth-orbit 7s linear infinite; will-change: transform;
 }
@@ -2993,6 +2993,29 @@ html[data-theme="light"] .auth-scene::after { background: radial-gradient(65% 75
 :root .auth-card:hover .auth-card__glow { opacity: 1; }
 :root .auth-card.is-leaving { animation: auth-out 420ms var(--ease-ink) both; }
 @keyframes auth-out { to { opacity: 0; transform: translateY(-18px) scale(1.02); } }
+
+:root .auth-pane { position: relative; z-index: 1; display: grid; gap: 20px; align-content: center; padding: 36px clamp(22px, 4vw, 44px); }
+
+/* Витрина слева: размытая обложка, три постера веером, плашка продолжения. Постеры плавают и чуть едут за курсором. */
+:root .auth-art { position: relative; z-index: 1; isolation: isolate; display: grid; align-content: end; min-height: 560px; overflow: hidden; padding: 24px; color: var(--media-text, #fff); background: rgb(var(--media-ink-rgb)); }
+:root .auth-art__bg { position: absolute; z-index: -2; left: -20%; top: -20%; width: 140%; height: 140%; object-fit: cover; filter: blur(30px) saturate(1.25); opacity: 0.75; }
+:root .auth-art::after { position: absolute; z-index: -1; inset: 0; content: ""; background: linear-gradient(180deg, rgba(var(--media-ink-rgb), 0.05) 0%, rgba(var(--media-ink-rgb), 0.5) 58%, rgba(var(--media-ink-rgb), 0.94) 100%), linear-gradient(135deg, color-mix(in srgb, var(--accent) 26%, transparent), transparent 60%); }
+:root .auth-art__stack { position: absolute; inset: 0 0 170px; }
+:root .auth-art__slot { position: absolute; display: block; width: 46%; aspect-ratio: 2 / 3; translate: calc(var(--mx, 0) * var(--d) * 14px) calc(var(--my, 0) * var(--d) * 10px); animation: auth-poster-in 900ms var(--ease-out) both; }
+:root .auth-art__slot img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 12px; box-shadow: 0 30px 56px -20px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.1); animation: auth-float 7s ease-in-out infinite; }
+:root .auth-art__slot--c { z-index: 3; left: 24%; top: 9%; width: 54%; animation-delay: 160ms; }
+:root .auth-art__slot--l { z-index: 1; left: 4%; top: 19%; rotate: -9deg; scale: 0.82; animation-delay: 320ms; }
+:root .auth-art__slot--r { z-index: 2; right: 4%; top: 15%; rotate: 8deg; scale: 0.86; animation-delay: 480ms; }
+:root .auth-art__slot--l img { animation-delay: -2.4s; } :root .auth-art__slot--r img { animation-delay: -4.6s; }
+@keyframes auth-float { 50% { transform: translateY(-9px); } }
+@keyframes auth-poster-in { from { opacity: 0; transform: translateY(46px); } }
+:root .auth-art__cap { position: relative; display: grid; gap: 6px; padding: 14px 16px 16px; border-radius: 12px; background: rgba(var(--media-ink-rgb), 0.62); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12); backdrop-filter: blur(10px); animation: auth-rise 700ms var(--ease-out) 600ms both; }
+:root .auth-art__label { color: var(--accent-on-ink, #d8bbff); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+:root .auth-art__cap b { font-family: var(--font-heading); font-size: 1.125rem; font-weight: 400; line-height: 1.2; }
+:root .auth-art__meta { color: rgba(255, 255, 255, 0.78); font-size: 0.8125rem; }
+:root .auth-art__bar { height: 4px; margin-top: 4px; overflow: hidden; border-radius: 2px; background: rgba(255, 255, 255, 0.2); }
+:root .auth-art__bar i { display: block; width: 62%; height: 100%; border-radius: 2px; background: var(--accent-grad); transform-origin: 0 50%; animation: auth-fill 1400ms var(--ease-out) 900ms both; }
+@keyframes auth-fill { from { transform: scaleX(0); } }
 
 /* Вкладки: подсветка выезжает под активной. */
 :root .auth-tabs { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--glass-line); }
@@ -3096,20 +3119,32 @@ html[data-theme="light"] .auth-scene::after { background: radial-gradient(65% 75
 @keyframes auth-stamp { from { clip-path: inset(0 100% 0 0); transform: translateY(-14px) rotate(-8deg); } to { clip-path: inset(0 0 0 0); } }
 @keyframes auth-twinkle { 0%, 100% { opacity: 0.1; transform: rotate(45deg) scale(0.5); } 50% { opacity: 1; transform: rotate(45deg) scale(1); } }
 
-body[data-page="auth"].is-hidden-tab .auth-card__spark { animation-play-state: paused; }
+body[data-page="auth"].is-hidden-tab .auth-art__slot img, body[data-page="auth"].is-hidden-tab .auth-card__spark { animation-play-state: paused; }
 
+@media (max-width: 860px) {
+  :root .auth-layout { width: min(480px, 100% - 32px); }
+  :root .auth-card { grid-template-columns: minmax(0, 1fr); }
+  :root .auth-art { min-height: 150px; padding: 0; }
+  :root .auth-art__stack { inset: 0; }
+  :root .auth-art__cap { display: none; }
+  :root .auth-art__slot { width: 24%; top: 24%; }
+  :root .auth-art__slot--c { left: 38%; top: 14%; width: 25%; }
+  :root .auth-art__slot--l { left: 14%; top: 30%; } :root .auth-art__slot--r { right: 14%; top: 26%; }
+  :root .auth-pane { padding: 26px 20px 24px; }
+}
 @media (max-width: 900px) {
   :root .auth-reel { grid-template-columns: repeat(3, 1fr); opacity: 0.32; }
   :root .auth-reel__col:nth-child(4) { display: none; }
   :root .auth-layout { min-height: 0; padding-top: 12px; }
 }
 @media (max-width: 420px) {
-  :root .auth-card { padding: 24px 16px 22px; gap: 18px; border-radius: 14px; }
+  :root .auth-card { border-radius: 14px; }
   :root .auth-top { padding: 14px 16px; }
+  :root .auth-pane { padding: 22px 16px 20px; gap: 18px; }
   :root .auth-view h2 { font-size: 1.5rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  :root .auth-reel__col, :root .auth-fire, :root .auth-card, :root .auth-card__spark, :root .auth-view > *, :root .auth-error, :root .auth-field__box, :root .auth-seal svg, :root .auth-seal::before, :root .auth-seal::after, :root .auth-submit.is-busy svg { animation: none !important; }
+  :root .auth-reel__col, :root .auth-fire, :root .auth-card, :root .auth-card__spark, :root .auth-art__slot, :root .auth-art__slot img, :root .auth-art__cap, :root .auth-art__bar i, :root .auth-view > *, :root .auth-error, :root .auth-field__box, :root .auth-seal svg, :root .auth-seal::before, :root .auth-seal::after, :root .auth-submit.is-busy svg { animation: none !important; }
   :root .auth-card__spark { transform: translate(-50%, -50%) rotate(40deg); }
   :root .auth-fire { opacity: 0.6; }
   :root .auth-tabs__thumb, :root .auth-field__bar, :root .auth-field__label, :root .auth-submit, :root .auth-submit svg { transition: none; }

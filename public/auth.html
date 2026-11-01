@@ -61,6 +61,22 @@
           <span class="auth-card__spark" aria-hidden="true"></span>
           <span class="auth-card__glow" aria-hidden="true"></span>
           <h1 class="sr-only" id="auth-title">Аккаунт Kitsu</h1>
+          <!-- Слева — витрина: постеры веером и плашка «продолжить просмотр» (то, что даёт аккаунт). Только картинка, без текста-призывов. -->
+          <aside class="auth-art" aria-hidden="true">
+            <img class="auth-art__bg" src="https://shikimori.one/system/animes/original/5114.jpg" alt="" decoding="async" referrerpolicy="no-referrer" />
+            <div class="auth-art__stack">
+              <span class="auth-art__slot auth-art__slot--l" style="--d: 0.5"><img class="" src="https://shikimori.one/system/animes/original/9253.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /></span>
+              <span class="auth-art__slot auth-art__slot--r" style="--d: 0.7"><img class="" src="https://shikimori.one/system/animes/original/33352.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /></span>
+              <span class="auth-art__slot auth-art__slot--c" style="--d: 1"><img class="" src="https://shikimori.one/system/animes/original/52991.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /></span>
+            </div>
+            <div class="auth-art__cap">
+              <span class="auth-art__label">Продолжить просмотр</span>
+              <b>Провожающая в последний путь Фрирен</b>
+              <span class="auth-art__meta">Серия 12 · осталось 9 мин</span>
+              <span class="auth-art__bar"><i></i></span>
+            </div>
+          </aside>
+          <div class="auth-pane">
 
           <div class="auth-tabs" role="tablist" aria-label="Вход или регистрация" data-auth-tabs><span class="auth-tabs__thumb" aria-hidden="true"></span>
             <a class="auth-tab" href="#login" role="tab" data-auth-tab="login">Вход</a>
@@ -145,6 +161,7 @@
             <h2>Пароль изменён</h2>
             <p class="auth-lead">Теперь войдите с новым паролем.</p>
             <a class="button button--primary auth-submit" href="#login"><span>Войти</span><i data-lucide="arrow-right" aria-hidden="true"></i></a>
+          </div>
           </div>
         </section>
       </div>
