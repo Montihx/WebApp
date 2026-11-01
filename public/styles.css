@@ -983,13 +983,14 @@ html[data-theme="light"] .theme-icon--moon {
 
 .hero-kind-badge {
   display: inline-flex;
-  min-height: 24px;
+  min-height: 26px;
   align-items: center;
-  padding: 0 8px;
-  border: 1px solid color-mix(in srgb, var(--hero-accent) 46%, transparent);
+  padding: 0 11px;
+  border: 1px solid rgba(var(--media-text-rgb), 0.24);
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--hero-accent) 16%, rgba(10, 10, 12, 0.42));
-  color: color-mix(in srgb, var(--hero-accent) 72%, white);
+  background: rgba(var(--media-ink-rgb), 0.72);
+  color: var(--media-text);
+  font-weight: 700;
 }
 
 .hero-score {
@@ -3740,21 +3741,26 @@ button.title-community-action:hover {
   gap: 10px;
 }
 
+/* Статус тайтла: одно определение; «выходит» отличается только цветом. */
 .status-pill {
   display: inline-flex;
-  height: 27px;
+  min-height: 28px;
   align-items: center;
-  gap: 7px;
-  padding: 0 9px;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
   border-radius: var(--radius-sm);
-  background: var(--green-soft);
+  background: color-mix(in srgb, currentColor 12%, transparent);
   color: var(--green);
+  font-size: var(--fs-1);
+  font-weight: 700;
+  letter-spacing: 0.04em;
 }
 
 .status-pill > span {
   width: 6px;
   height: 6px;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-2xs);
   background: currentColor;
 }
 
@@ -6441,15 +6447,6 @@ html[data-theme="light"] .brand-mark {
 .feature-slide .hero-subtitle,
 .feature-slide .hero-description { color: var(--media-text-dim); }
 
-.hero-kind-badge {
-  min-height: 24px;
-  padding: 0 10px;
-  border: 1px solid rgba(var(--media-text-rgb), 0.34);
-  border-radius: var(--radius-sm);
-  background: rgba(var(--media-ink-rgb), 0.5);
-  color: var(--media-text);
-}
-
 .hero-copy h2 {
   max-width: 11em;
   margin: 14px 0 0;
@@ -6803,25 +6800,7 @@ html[data-theme="light"] .brand-mark {
 }
 
 /* ---- Kitsunebi: live status and the current episode, nothing else ---- */
-.status-pill {
-  position: relative;
-  border-radius: var(--radius-sm);
-}
-
-.status-pill--ongoing {
-  background: var(--kitsunebi-soft);
-  color: var(--kitsunebi);
-}
-
-.status-pill > span { position: relative; }
-
-.status-pill--ongoing > span::after {
-  position: absolute;
-  inset: -5px;
-  border-radius: var(--radius-xs);
-  content: "";
-  opacity: 0.7;
-}
+.status-pill--ongoing { color: var(--kitsunebi); }
 
 .episode-card { position: relative; }
 
@@ -6830,14 +6809,6 @@ html[data-theme="light"] .brand-mark {
   box-shadow: none;
 }
 
-.episode-card.is-selected::after {
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  box-shadow: 0 0 18px 1px var(--kitsunebi-soft), inset 0 0 0 1px var(--kitsunebi);
-  content: "";
-  pointer-events: none;
-}
 
 .episode-card.is-selected .episode-state { color: var(--kitsunebi); }
 

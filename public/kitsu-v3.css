@@ -226,17 +226,6 @@
   text-transform: none;
 }
 
-:root .hero-kind-badge {
-  min-height: 26px;
-  padding: 0 11px;
-  border: 1px solid rgba(var(--media-text-rgb), 0.24);
-  border-radius: var(--radius-sm);
-  background: rgba(var(--media-ink-rgb), 0.72);
-  color: var(--media-text);
-  font-weight: 700;
-}
-
-
 :root .feature-slide .hero-tags a {
   padding: 6px 13px;
   border: 1px solid rgba(var(--media-text-rgb), 0.2);
@@ -823,20 +812,6 @@
 :root .title-community-action { transition: background var(--dur-1), color var(--dur-1); }
 :root .title-community-action:hover { background: var(--accent-softer); }
 :root .title-community-action strong { font-family: var(--font-mono); font-weight: 600; }
-
-:root .status-pill {
-  gap: 8px;
-  min-height: 28px;
-  padding: 0 12px;
-  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
-  border-radius: var(--radius-sm);
-  background: color-mix(in srgb, currentColor 12%, transparent);
-  font-size: var(--fs-1);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-:root .status-pill > span { box-shadow: 0 0 8px currentColor; }
 
 :root .title-status-line { gap: 12px; color: var(--text-muted); font-weight: 600; }
 
