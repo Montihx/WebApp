@@ -150,7 +150,7 @@
       if (!frame) frame = requestAnimationFrame(() => {
         frame = 0;
         glow.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-        // Постеры едут навстречу курсору: от -1 до 1 по каждой оси.
+        // Портрет едет навстречу курсору: от -1 до 1 по каждой оси.
         art.style.setProperty("--mx", ((x / box.width) * 2 - 1).toFixed(3));
         art.style.setProperty("--my", ((y / box.height) * 2 - 1).toFixed(3));
       });
