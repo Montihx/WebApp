@@ -330,7 +330,6 @@
   font-weight: 700;
 }
 
-
 :root .feature-slide .hero-tags a {
   padding: 6px 13px;
   border: 1px solid rgba(var(--media-text-rgb), 0.2);
@@ -559,7 +558,7 @@
   color: var(--media-text);
 }
 
-:root :is(.rail-arrow, .continue-nav button, .section-heading--continue button) {
+:root :is(.continue-nav button, .section-heading--continue button)  {
   border-radius: 3px;
 }
 
@@ -797,8 +796,7 @@
   color: var(--text);
 }
 
-:root #schedule-days .day-tab__dow,
-:root #schedule-days .day-tab__mon {
+:root #schedule-days .day-tab__dow {
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -812,24 +810,9 @@
   color: var(--primary-fg);
 }
 
-:root #schedule-days .day-tab.is-active :is(.day-tab__num, .day-tab__dow, .day-tab__mon) { color: var(--primary-fg); opacity: 1; }
+:root #schedule-days .day-tab.is-active :is(.day-tab__num, .day-tab__dow)  { color: var(--primary-fg); opacity: 1; }
 
 :root #schedule-days .day-tab.is-today:not(.is-active) { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
-
-:root #schedule-days .day-tab__count {
-  top: -7px;
-  right: -7px;
-  min-width: 20px;
-  height: 20px;
-  border: 2px solid var(--canvas);
-  border-radius: 8px;
-  background: var(--accent-2);
-  color: var(--primary-fg);
-  font-size: 0.6875rem;
-  font-weight: 800;
-}
-
-:root #schedule-days .day-tab.is-active .day-tab__count { background: var(--surface-raised); color: var(--text); }
 
 :root .schedule-list { gap: 10px; }
 
@@ -889,60 +872,26 @@
 }
 
 /* --- Сезон, редакция, коллекции ------------------------------------------- */
-:root .landscape-card,
-:root .story-card {
+:root .landscape-card {
   overflow: hidden;
   border: 1px solid var(--glass-line);
   border-radius: 20px;
   transition: transform var(--dur-3) var(--ease-out), box-shadow var(--dur-3), border-color var(--dur-2);
 }
 
-:root .landscape-card:hover,
-:root .story-card:hover {
+:root .landscape-card:hover {
   border-color: color-mix(in srgb, var(--accent) 55%, transparent);
   box-shadow: 0 30px 60px -30px var(--accent-glow);
   transform: translateY(-4px);
 }
 
-:root .landscape-card img,
-:root .story-card img { transition: transform 900ms var(--ease-out); }
+:root .landscape-card img { transition: transform 900ms var(--ease-out); }
 
-:root .landscape-card:hover img,
-:root .story-card:hover img { transform: scale(1.06); }
-
-:root .collection-card {
-  border: 1px solid var(--glass-line);
-  border-radius: 20px;
-  background: var(--glass);
-  transition: border-color var(--dur-2), background var(--dur-2), transform var(--dur-2) var(--ease-out);
-}
-
-:root .collection-card:hover {
-  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
-  background: linear-gradient(90deg, var(--accent-softer), var(--glass));
-  transform: translateY(-2px);
-}
-
-:root .collection-stack img {
-  border: 2px solid var(--canvas);
-  border-radius: 10px;
-  box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.7);
-  transition: transform var(--dur-3) var(--ease-spring);
-}
+:root .landscape-card:hover img { transform: scale(1.06); }
 
 /* Веер постеров при наведении. Только там, где наведение настоящее: на телефоне
    «наведение» залипает после касания, и веер торчал за край карточки.
    Карточка держит отступ, поворот небольшой — веер всегда внутри рамки. */
-:root .collection-card { padding-inline: 14px; }
-:root .collection-stack { margin-inline: 4px; }
-@media (hover: hover) and (pointer: fine) {
-  :root .collection-card:hover .collection-stack img:nth-child(1) { transform: rotate(-6deg) translateY(2px); }
-  :root .collection-card:hover .collection-stack img:nth-child(2) { transform: translateY(-5px); }
-  :root .collection-card:hover .collection-stack img:nth-child(3) { transform: rotate(6deg) translateY(2px); }
-}
-@media (hover: none) {
-  :root .collection-card:hover { background: var(--glass); transform: none; }
-}
 
 /* --- Подвал ---------------------------------------------------------------- */
 :root .site-footer {
@@ -1459,8 +1408,7 @@
 :root .poster-bookmark-button.is-active svg { color: var(--bookmark-text, var(--accent-text)); fill: currentColor; }
 
 /* Оценка: звезда и число без плашки */
-:root .card-facts > b,
-:root .card-facts > b.is-unrated {
+:root .card-facts > b {
   min-height: 0;
   padding: 0;
   background: none;
@@ -1480,7 +1428,7 @@
 :root .theme-switch span { border-radius: 4px; }
 
 /* Метки и чипы — тоже без «таблеток» */
-:root :is(.hero-kind-badge, .feature-slide .hero-score, .status-pill, .continue-progress-copy strong, .bookmark-status-bar, .section-count, #schedule-days .day-tab__count, .watch-order :is(.badge, .chip, [class*="pill"])) {
+:root :is(.hero-kind-badge, .feature-slide .hero-score, .status-pill, .continue-progress-copy strong, .bookmark-status-bar, .section-count, .watch-order :is(.badge, .chip, [class*="pill"]))  {
   border-radius: 7px;
 }
 :root :is([class*="badge"], [class*="chip"], [class*="pill"]):not([class*="dot"]) { border-radius: 7px; }
@@ -1562,8 +1510,7 @@
 :root #watch-order-toggle { flex-wrap: wrap; row-gap: 6px; max-width: 100%; }
 
 /* Иконочные кнопки на телефоне: без рамок и подложек */
-:root :is(.icon-button, .mobile-menu-button, .title-mobile-toolbar__button, .episode-strip__nav, .rail-arrow),
-:root :is(.icon-button, .mobile-menu-button, .title-mobile-toolbar__button, .episode-strip__nav, .rail-arrow):hover {
+:root :is(.icon-button, .mobile-menu-button, .title-mobile-toolbar__button, .episode-strip__nav),:root :is(.icon-button, .mobile-menu-button, .title-mobile-toolbar__button, .episode-strip__nav):hover {
   border-color: transparent;
   background: none;
   box-shadow: none;
@@ -1609,7 +1556,7 @@
 
 :root .title-poster .hanko { border-radius: 16px; }
 :root :is(.player-timeline, .player-timeline span, .continue-progress, .continue-progress span, .kz-scroll-progress, .feature-slider__progress, .feature-slider__progress span) { border-radius: 2px; }
-:root :is(.notification-dot, .status-pill > span, .live-dot, [class*="dot"]) { border-radius: 2px; }
+:root :is(.notification-dot, .status-pill > span, [class*="dot"])  { border-radius: 2px; }
 :root .continue-card :is([class*="progress"] > span, [class*="progress"]) { border-radius: 2px; }
 :root #watch-order-count { border-radius: 7px; }
 :root .ofuda { border-radius: 4px; }
@@ -1627,9 +1574,8 @@
 /* Явный список вместо :has() на каждой ссылке: тот селектор пересчитывался при каждом движении
    мыши и цеплял кнопки с текстом («Смотреть» теряла заливку при наведении). */
 :root :is(.icon-button, .title-mobile-toolbar__button, .poster-bookmark-button, .bookmark-menu__close, .continue-remove, .episode-strip__nav, .feature-slider__arrow, .mobile-menu-button, .search-clear, .search-filter-toggle, .player-controls > button, .continue-nav > button):is(:hover, :active, [aria-expanded="true"]) { background: none; box-shadow: none; border-color: transparent; }
-:root :is(.rail-arrow, .continue-nav button, .section-heading button, .title-community-action--notify, .episode-strip__nav),
-:root :is(.rail-arrow, .continue-nav button, .section-heading button, .title-community-action--notify, .episode-strip__nav):hover { background: none; box-shadow: none; border-color: transparent; }
-:root :is(.rail-arrow, .continue-nav button, .section-heading button, .title-community-action--notify, .episode-strip__nav):hover svg { color: var(--accent-text); }
+:root :is(.continue-nav button, .section-heading button, .title-community-action--notify, .episode-strip__nav),:root :is(.continue-nav button, .section-heading button, .title-community-action--notify, .episode-strip__nav):hover { background: none; box-shadow: none; border-color: transparent; }
+:root :is(.continue-nav button, .section-heading button, .title-community-action--notify, .episode-strip__nav):hover svg  { color: var(--accent-text); }
 
 /* Поиск становится иконкой — без рамки */
 @media (max-width: 1100px) {
@@ -1701,7 +1647,6 @@
 
 :root #schedule-days .day-tab__num { font-size: 1.5rem; line-height: 1.1; }
 :root #schedule-days .day-tab__dow { font-size: 0.6875rem; }
-:root #schedule-days .day-tab__mon { font-size: 0.625rem; opacity: 0.8; }
 
 :root #schedule-days .day-tab.is-today:not(.is-active)::after {
   position: absolute;
@@ -1713,16 +1658,6 @@
   background: var(--accent-grad);
   content: "";
   transform: translateX(-50%);
-}
-
-:root #schedule-days .day-tab__count {
-  top: -8px;
-  right: -6px;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  border: 2px solid var(--surface);
-  border-radius: 6px;
 }
 
 /* Строки: обложка, текст, время; линия-«таймлайн» слева */
@@ -2508,7 +2443,7 @@ a.relation-card:hover .relation-poster, a.relation-card:focus-visible .relation-
 a.relation-card:focus-visible { outline: none; }
 a.relation-card:focus-visible .relation-poster { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
 .relation-card.is-current .relation-poster { --tilt: 0deg; border: 2px solid var(--accent); box-shadow: 0 16px 34px -18px var(--accent-glow); }
-.thread-current .thread-knot { background: var(--accent); box-shadow: 0 0 12px var(--accent-glow); color: var(--primary-fg); }
+
 /* Иероглиф связи — тушью в углу, как печать на табличке. */
 .relation-kanji {
   position: absolute; z-index: 2; top: 6px; left: 6px; padding: 4px 4px 5px; border-radius: 4px;
@@ -2678,7 +2613,7 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 :root #schedule-days .day-tab__load { display: block; font-size: 0.6875rem; font-weight: 700; line-height: 1.2; white-space: nowrap; color: var(--accent-text); }
 :root #schedule-days .day-tab__load.is-quiet { color: var(--text-muted); font-weight: 600; }
 :root #schedule-days .day-tab.is-active .day-tab__load { color: var(--primary-fg); }
-:root #schedule-days .day-tab__count { display: none; }
+
 .air-dayhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 32px; margin: 4px 0 10px; }
 .air-dayhead strong { color: var(--text-secondary); font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
 .air-today {
@@ -3797,16 +3732,11 @@ body[data-page="bookmarks"].is-hidden-tab .pf-skel { animation-play-state: pause
 
 /* Список: строка с постером, фактами и кнопкой статуса. */
 
-:root .bm-score { color: var(--kin-text); font-family: var(--font-mono); font-weight: 700; }
-:root .bm-progress { display: flex; align-items: center; gap: 10px; }
-
 :root .bm-empty, :root .bm-gate { margin-top: 8px; }
 :root .bm-gate { width: min(560px, 100%); margin: 6vh auto 0; padding: 40px 24px; }
 
 /* Уведомление с действием («Вернуть»). */
 :root .toast:has(.toast-action) { grid-template-columns: 34px minmax(0, 1fr) auto 24px; }
-:root .toast .toast-action { width: auto; height: 32px; padding: 0 10px; border-radius: 8px; color: var(--accent-text); font-size: 0.8125rem; font-weight: 700; white-space: nowrap; }
-:root .toast .toast-action:hover { background: var(--accent-soft); }
 
 @media (max-width: 720px) {
   :root .bm { padding-bottom: calc(var(--mobile-nav-height) + 40px + env(safe-area-inset-bottom, 0px)); }

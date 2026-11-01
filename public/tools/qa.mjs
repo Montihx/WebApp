@@ -298,7 +298,6 @@ const titleMobileCssTokens = [
   ".mobile-subscribe-dialog",
   ".title-community-actions",
   ".title-subscription-icon",
-  ".title-meta-flag",
   "@keyframes bottom-sheet-in",
 ];
 const missingTitleMobileCss = titleMobileCssTokens.filter((token) => !css.includes(token));

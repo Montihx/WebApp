@@ -28,7 +28,7 @@ test('public and admin buttons use one size scale through every cascade layer', 
 
 test('large standalone title, player and drawer actions retain compact touch targets', () => {
   for (const selector of ['.wide-link', '.title-list-dialog__options > button', '.title-list-dialog__remove',
-    '.player-main-button', '.drawer-search', '.mobile-drawer-nav a', '.title-mobile-watch', '.load-more-button']) {
+    '.player-main-button', '.drawer-search', '.mobile-drawer-nav a', '.title-mobile-watch']) {
     const body = rules(publicCss, selector).filter(body => body.includes('min-height:')).at(-1);
     assert.ok(body, selector);
     assert.match(body, /min-height:\s*var\(--control-touch-height\);/, selector);
@@ -58,14 +58,14 @@ test('both title counters are wired to the shared saved-state style without a pe
 
 test('changed styles and scripts use a fresh cache version per area', () => {
   // Админка v5 версионируется отдельно от публичной части.
-  const versions = { public: 'v3-38', admin: 'v5-2' };
+  const versions = { public: 'v3-39', admin: 'v5-2' };
   for (const page of ['public/index.html', 'public/anime.html', 'admin/index.html']) {
     const version = versions[page.split('/')[0]];
     assert.ok(read(page).includes(`./styles.css?v=${version}`), page);
     assert.ok(read(page).includes(`./app.js?v=${version}`), page);
   }
   // tokens.css is linked from the page next to styles.css, so both load in parallel (no @import chain).
-  for (const page of ['public/index.html', 'public/anime.html']) assert.ok(read(page).includes('../tokens.css?v=v3-38'), page);
+  for (const page of ['public/index.html', 'public/anime.html']) assert.ok(read(page).includes('../tokens.css?v=v3-39'), page);
   assert.ok(read('admin/index.html').includes('../tokens.css?v=v5-2'));
   assert.doesNotMatch(publicCss + adminCss, /@import/);
 });
