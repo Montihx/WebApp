@@ -145,9 +145,11 @@
     const h = Math.floor(total / 60); const m = total % 60;
     return m ? `${h} ч ${m} мин` : `${h} ч`;
   }
+  // Время из API — наивный UTC без «Z»: new Date() прочёл бы его как местное и сдвинул на часовой пояс.
+  const utc = (v) => window.KitsuContent?.parseDateAsUtc(v) || new Date(v);
   const rtf = new Intl.RelativeTimeFormat("ru", { numeric: "auto" });
   function fmtAgo(iso) {
-    const diff = (new Date(iso).getTime() - Date.now()) / 1000;
+    const diff = (utc(iso).getTime() - Date.now()) / 1000;
     const abs = Math.abs(diff);
     if (abs < 3600) return rtf.format(Math.round(diff / 60), "minute");
     if (abs < 86400) return rtf.format(Math.round(diff / 3600), "hour");
@@ -243,12 +245,12 @@
       const [me, stats] = await Promise.all([api.me(), api.publicStats(DEMO.me.id)]);
       $("[data-name]").textContent = me.username;
       document.title = `${me.username} — профиль Kitsu · Кицунэ`;
-      const since = new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(new Date(me.created_at));
+      const since = new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(utc(me.created_at));
       const role = $("[data-role]");
       const roleName = me.is_superuser ? "Администратор" : me.role?.name;
       role.hidden = !roleName; role.innerHTML = roleName ? `<i data-lucide="${me.is_superuser ? "crown" : "user-round"}"></i>${esc(roleName)}` : "";
       // Онлайн — по last_seen_at: сервер обновляет его не чаще, чем раз в несколько минут.
-      const seen = me.last_seen_at ? Date.now() - new Date(me.last_seen_at).getTime() : Infinity;
+      const seen = me.last_seen_at ? Date.now() - utc(me.last_seen_at).getTime() : Infinity;
       const online = seen < 5 * 60000;
       $("[data-online]").classList.toggle("is-on", online);
       $("[data-online]").innerHTML = `<i></i>${online ? "онлайн" : me.last_seen_at ? `был(а) ${esc(fmtAgo(me.last_seen_at))}` : "не заходил(а)"}`;
@@ -397,7 +399,7 @@
   function paintMarks() {
     const panel = $("[data-marks]");
     panel.setAttribute("aria-labelledby", `tab-${marks.tab}`);
-    const rows = marks.list.filter((f) => f.category === marks.tab).sort((x, y) => new Date(y.updated_at) - new Date(x.updated_at));
+    const rows = marks.list.filter((f) => f.category === marks.tab).sort((x, y) => utc(y.updated_at) - utc(x.updated_at));
     const cat = CATEGORIES.find((c) => c.id === marks.tab);
     if (!rows.length) {
       panel.innerHTML = `<div class="pf-state-wrap">${emptyBox(cat.icon, `В «${cat.label}» пока пусто`, marks.list.length ? "Перенесите сюда тайтл из другого списка через меню на карточке." : "Добавляйте тайтлы в закладки со страницы аниме — они появятся здесь.", '<a class="button button--secondary" href="./index.html#catalog"><i data-lucide="compass"></i><span>Открыть каталог</span></a>')}</div>`;

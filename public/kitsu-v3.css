@@ -3705,3 +3705,28 @@ body[data-page="user"].is-hidden-tab .pf-skel { animation-play-state: paused; }
 /* Имя автора комментария ведёт в профиль. */
 :root .comment-author { color: inherit; text-decoration: none; transition: color var(--dur-2); }
 :root .comment-author:hover, :root .comment-author:focus-visible { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
+
+/* Доработки по ревью и замечаниям владельца. */
+/* Метка оценки скрыта атрибутом hidden у тайтлов без оценки — правило display выше не должно её возвращать. */
+:root .poster-score[hidden], :root .title-poster .hanko[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) { :root .pf-hero { animation: none; } }
+
+/* Счётчики профиля — всегда в один ряд, как в рабочем проекте: крупное число, под ним подпись, без разделителей. */
+:root .pf-counts { grid-auto-flow: column; grid-template-columns: repeat(4, auto); justify-content: center; gap: 0 clamp(18px, 6vw, 44px); margin-top: 22px; }
+:root .pf-counts > div { padding: 0; border-left: 0; min-width: 0; }
+:root .pf-counts dt { font-size: 0.75rem; }
+@media (max-width: 720px) {
+  :root .pf-counts { grid-auto-flow: column; grid-template-columns: repeat(4, minmax(0, auto)); gap: 0 clamp(12px, 5vw, 28px); }
+  :root .pf-counts > div, :root .pf-counts > div:nth-child(odd) { padding: 0; border-left: 0; }
+  :root .pf-counts dd { font-size: 1.25rem; }
+}
+@media (max-width: 380px) {
+  :root .pf-counts { gap: 0 10px; }
+  :root .pf-counts dt { font-size: 0.6875rem; }
+}
+
+/* Нижнее меню: балка над активным пунктом больше не торчит над панелью и не наезжает на содержимое. */
+@media (max-width: 720px) {
+  .mobile-bottom-nav a::before { top: 0; }
+  .mobile-bottom-nav a::after { top: 7px; }
+}
