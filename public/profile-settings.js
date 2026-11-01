@@ -153,13 +153,8 @@
     });
   }
 
-  function toast(title, message, tone = "success") {
-    const region = $("#toast-region"); $$(".toast.is-leaving", region).forEach((n) => n.remove());
-    const el = document.createElement("div"); el.className = `toast toast--${tone}`; el.setAttribute("role", tone === "danger" ? "alert" : "status");
-    el.innerHTML = `<span class="toast-icon"><i data-lucide="${tone === "danger" ? "circle-alert" : "check"}"></i></span><span><strong>${esc(title)}</strong><small>${esc(message)}</small></span><button type="button" aria-label="Закрыть уведомление"><i data-lucide="x"></i></button>`;
-    const close = () => { el.classList.add("is-leaving"); setTimeout(() => el.remove(), 190); };
-    $("button", el).addEventListener("click", close); region.append(el); icons(el); setTimeout(close, 4200);
-  }
+  // Уведомление — общее (app.js, window.KitsuToast): один вид и одно поведение на всех страницах.
+  const toast = (title, message, tone = "success") => window.KitsuToast?.(title, message, tone);
 
   /* ---------- Состояние формы ---------- */
   // saved — что на сервере; draft — что в форме. avatar.mode: keep | file | collection | remove.

@@ -141,16 +141,57 @@
   ]) titles[slug] = { id: String(id), slug, title, episodes_total: episodes, episodes_aired: status === 'announced' ? 0 : episodes, status, kind: 'tv', poster_url: poster(id), related: [], description: 'Демонстрационные данные карточки из каталога шаблона. Полные сведения, описание и доступные релизы загружаются из Anime response при интеграции.' };
   // У «Ван-Пис» число серий заранее неизвестно (episodes_total = null в API); полоса серий в демо всё равно рисует вышедшие.
   titles['one-piece'].episodes_total_api = null;
+  // ОДНА оценка на тайтл для всех мест демо (постер каталога, слайдер, поиск, ханко, профиль, «Закладки»):
+  // у сервера это одно поле anime.score, значит и в шаблоне одно и то же число. Показывается через formatScore.
+  const SCORES = { monster: 8.88, frieren: 9.31, 'fullmetal-alchemist-brotherhood': 9.1, 'steins-gate': 9.07, 'cowboy-bebop': 8.75, 'attack-on-titan': 8.55,
+    'jujutsu-kaisen': 8.6, 'one-piece': 8.7, mushishi: 8.7, 'vinland-saga': 8.75, 'violet-evergarden': 8.68, 'hunter-x-hunter': 9.04, 'death-note': 8.62,
+    'demon-slayer': 8.45, 'my-hero-academia': 7.9 };
+  Object.entries(SCORES).forEach(([slug, score]) => { if (titles[slug]) titles[slug].score = score; });
+  // ЕДИНЫЙ словарь статусов закладки: порядок, подписи и значки. Им пользуются все места, где статус выбирают
+  // или показывают (кнопка и меню на постере, меню на странице тайтла, профиль, «Закладки»). Порядок — как в API.
+  const bookmarkStatuses = [
+    { key: 'watching', label: 'Смотрю', icon: 'play' },
+    { key: 'completed', label: 'Просмотрено', icon: 'check' },
+    { key: 'planned', label: 'Запланировано', icon: 'clock' },
+    { key: 'on_hold', label: 'Отложено', icon: 'pause' },
+    { key: 'dropped', label: 'Брошено', icon: 'minus' },
+  ];
+  const bookmarkRemove = { label: 'Убрать из списка', icon: 'bookmark-minus' };
+  // ЕДИНЫЙ формат оценки: как отдаёт API, но без хвостовых нулей — 8.88, 9.1, 9.
+  const scoreFormat = new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+  const formatScore = value => (Number(value) > 0 ? scoreFormat.format(Number(value)) : '');
+  // ЕДИНАЯ карточка тайтла — та же разметка, что у карточек каталога на главной (.anime-card). Кнопку закладки,
+  // метку статуса на постере и меню к ней подключает app.js: window.KitsuBookmarks.bind(контейнер).
+  // facts — строка под названием (по умолчанию «N эп.»); оценка — только на постере, второй раз не пишется.
+  const escHtml = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  function episodesShort(a) {
+    if (a.status === 'announced' || a.status === 'anons') return 'Анонс';
+    const n = a.episodes_total || a.episodes_aired; return n ? `${n} эп.` : '';
+  }
+  // Подпись под карточкой закладки — одна для профиля и «Закладок»: в «Смотрю» — на какой серии остановились
+  // (из GET /interactions/watch-history/me), иначе — то же, что в каталоге («N эп.»).
+  function bookmarkFacts(f, progress) {
+    const total = f.anime.episodes_total;
+    return f.category === 'watching' && progress?.episode ? `Серия ${progress.episode}${total ? ` из ${total}` : ''}` : episodesShort(f.anime);
+  }
+  function animeCard(a, { facts = episodesShort(a), extra = '', style = '' } = {}) {
+    const href = `./anime.html?title=${encodeURIComponent(a.slug)}`; const score = formatScore(a.score);
+    return `<article class="anime-card" data-status="${escHtml(a.status || 'released')}"${style ? ` style="${escHtml(style)}"` : ''}>
+      <a class="poster-frame" href="${href}"><img decoding="async" src="${escHtml(a.poster_url)}" alt="Постер аниме «${escHtml(a.title)}»" loading="lazy" referrerpolicy="no-referrer" />${score ? `<span class="poster-score" aria-label="Оценка ${score}">${score}</span>` : ''}</a>
+      <div class="card-title-row"><a href="${href}"><h3>${escHtml(a.title)}</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить «${escHtml(a.title)}» в список"><i data-lucide="bookmark"></i></button></div>
+      ${facts ? `<p class="card-facts"><span>${escHtml(facts)}</span></p>` : ''}${extra}
+    </article>`;
+  }
   // Демо-закладки — одни на весь шаблон: кнопка «В закладки» на тайтле и в каталоге (app.js), раздел закладок
   // в профиле и страница «Закладки». Хранилище — то же, что у app.js: localStorage["kitsu-demo-bookmark-status-<id>"]
   // = статус или "none"; время правки — "kitsu-demo-bookmark-updated-<id>". В приложении всё это — GET/POST/DELETE /interactions/favorites.
   const LIBRARY_SEED = [
-    // slug, статус, user_score, часов назад изменено, часов назад добавлено, оценка тайтла
-    ['monster', 'watching', null, 3, 900, 8.9], ['jujutsu-kaisen', 'watching', 8, 40, 600, 8.5], ['one-piece', 'watching', null, 90, 2000, 8.7], ['vinland-saga', 'watching', 9, 15, 300, 8.7],
-    ['steins-gate', 'completed', 10, 210, 2800, 9.1], ['cowboy-bebop', 'completed', 9, 220, 2600, 8.8], ['fullmetal-alchemist-brotherhood', 'completed', 10, 230, 2500, 9.1],
-    ['hunter-x-hunter', 'completed', 9, 240, 2400, 9.0], ['attack-on-titan', 'completed', 8, 250, 2300, 8.5], ['death-note', 'completed', 8, 260, 2200, 8.6],
-    ['frieren', 'planned', null, 12, 50, 9.3], ['mushishi', 'planned', null, 5, 60, 8.6], ['violet-evergarden', 'planned', null, 6, 70, 8.4], ['demon-slayer', 'planned', null, 7, 80, 8.4],
-    ['my-hero-academia', 'on_hold', 6, 30, 1500, 7.9],
+    // slug, статус, user_score, часов назад изменено, часов назад добавлено (оценка тайтла — из SCORES выше)
+    ['monster', 'watching', null, 3, 900], ['jujutsu-kaisen', 'watching', 8, 40, 600], ['one-piece', 'watching', null, 90, 2000], ['vinland-saga', 'watching', 9, 15, 300],
+    ['steins-gate', 'completed', 10, 210, 2800], ['cowboy-bebop', 'completed', 9, 220, 2600], ['fullmetal-alchemist-brotherhood', 'completed', 10, 230, 2500],
+    ['hunter-x-hunter', 'completed', 9, 240, 2400], ['attack-on-titan', 'completed', 8, 250, 2300], ['death-note', 'completed', 8, 260, 2200],
+    ['frieren', 'planned', null, 12, 50], ['mushishi', 'planned', null, 5, 60], ['violet-evergarden', 'planned', null, 6, 70], ['demon-slayer', 'planned', null, 7, 80],
+    ['my-hero-academia', 'on_hold', 6, 30, 1500],
   ];
   const LIBRARY_STATUSES = ['watching', 'completed', 'planned', 'on_hold', 'dropped'];
   const librarySeedById = () => Object.fromEntries(LIBRARY_SEED.map(row => [titles[row[0]].id, row]));
@@ -175,7 +216,7 @@
           id: `f-${id}`, anime_id: `a-${title.slug}`, category, user_score: row?.[2] ?? null,
           created_at: row ? naive(now - row[4] * 3600000) : updated || naive(now), updated_at: updated || (row ? naive(now - row[3] * 3600000) : naive(now)),
           anime: { id: `a-${title.slug}`, slug: title.slug, title: title.title, poster_url: title.poster_url, episodes_total: 'episodes_total_api' in title ? title.episodes_total_api : title.episodes_total,
-            episodes_aired: title.episodes_aired ?? title.episodes_total, score: row?.[5] ?? title.score ?? null, status: title.status || 'released', kind: title.kind || 'tv' },
+            episodes_aired: title.episodes_aired ?? title.episodes_total, score: title.score ?? null, status: title.status || 'released', kind: title.kind || 'tv' },
         });
       }
       return out;
@@ -188,5 +229,5 @@
       return at;
     },
   };
-  window.KitsuContent = { library, ageLabel, seasonLabel, weekdayLabel, episodesLabel, lastUpdateLabel, relations, relationShort, relationKanji, relationTone, plural, airLabel, kindLabel, parseDateAsUtc, dateKey, formatCountdown, countdownState, watchOrder, mergeSchedule, scheduleDays, updateLabel, titles, poster };
+  window.KitsuContent = { animeCard, bookmarkFacts, episodesShort, bookmarkStatuses, bookmarkRemove, formatScore, library, ageLabel, seasonLabel, weekdayLabel, episodesLabel, lastUpdateLabel, relations, relationShort, relationKanji, relationTone, plural, airLabel, kindLabel, parseDateAsUtc, dateKey, formatCountdown, countdownState, watchOrder, mergeSchedule, scheduleDays, updateLabel, titles, poster };
 })();
