@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const pages = ["index.html", "anime.html"];
+// Все страницы для общих проверок документа; у auth.html нет шапки сайта и поиска.
+const allPages = [...pages, "auth.html"];
 const results = [];
 
 function add(id, label, pass, detail) {
@@ -77,7 +79,8 @@ function contrastRatio(foreground, background) {
 }
 
 const required = [
-  ...pages,
+  ...allPages,
+  "auth.js",
   "styles.css",
   "app.js",
   "vendor/lucide.min.js",
@@ -90,7 +93,7 @@ const required = [
 const missingRequired = required.filter((file) => !existsSync(resolve(root, file)));
 add("files.required", "Обязательные файлы", missingRequired.length === 0, missingRequired.length ? `Не найдены: ${missingRequired.join(", ")}` : `${required.length} файлов на месте`);
 
-for (const page of pages) {
+for (const page of allPages) {
   const source = read(page);
   const ids = [...source.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
   const duplicates = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
@@ -645,7 +648,7 @@ function checkPagesLinks(filesToScan) {
   return problems;
 }
 
-const pagesLinkProblems = checkPagesLinks([...pages, "styles.css", "app.js"]);
+const pagesLinkProblems = checkPagesLinks([...allPages, "styles.css", "app.js", "auth.js"]);
 add("pages.linkSafety", "Pages: относительные пути и регистр", pagesLinkProblems.length === 0, pagesLinkProblems.length ? pagesLinkProblems.join("; ") : "нет ведущих слэшей, все относительные пути существуют с совпадающим регистром");
 
 const failed = results.filter((result) => result.status === "fail");

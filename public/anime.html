@@ -25,9 +25,9 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="../tokens.css?v=v3-33" />
-    <link rel="stylesheet" href="./styles.css?v=v3-33" />
-    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-33" />
+    <link rel="stylesheet" href="../tokens.css?v=v3-34" />
+    <link rel="stylesheet" href="./styles.css?v=v3-34" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-34" />
   </head>
   <body data-page="anime">
     <a class="skip-link" href="#main-content">К основному содержимому</a>
@@ -66,7 +66,7 @@
               <a class="notification-item" href="./anime.html?title=jujutsu-kaisen" data-notification-id="n3"><span class="notification-icon notification-icon--poster"><img src="https://shikimori.one/system/animes/original/40748.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span><span><strong>Новый эпизод: Магическая битва</strong><small>Серия 47 уже доступна. Озвучки: AniLibria.TV.</small></span><time>вчера</time></a>
             </div>
           </div>
-          <a class="header-login" href="#login" data-prototype-action="Авторизация станет доступна после подключения шаблона к приложению.">Войти</a>
+          <a class="header-login" href="./auth.html#login">Войти</a>
         </div>
         <button class="mobile-menu-button" type="button" id="mobile-menu-trigger" aria-label="Открыть меню"><i data-lucide="menu"></i></button>
       </div>
@@ -241,7 +241,7 @@
           <div class="comments-main">
             <div class="section-heading"><div><p class="section-kicker">Обсуждение</p><h2 id="comments-title">Комментарии</h2></div><span class="section-count">0</span></div>
             <!-- Гостю вместо формы показывается эта плашка (без токена POST /interactions/comments отдаёт 401). -->
-            <div class="login-comment-box" hidden><span class="avatar-placeholder"><i data-lucide="user"></i></span><div><strong>Оставить комментарий</strong><p>Авторизуйтесь, чтобы написать комментарий, ответить или поставить отметку.</p></div><button class="button button--secondary" type="button" data-prototype-action="Авторизация станет доступна после подключения шаблона к приложению."><i data-lucide="log-in"></i>Войти</button></div>
+            <div class="login-comment-box" hidden><span class="avatar-placeholder"><i data-lucide="user"></i></span><div><strong>Оставить комментарий</strong><p>Авторизуйтесь, чтобы написать комментарий, ответить или поставить отметку.</p></div><a class="button button--secondary" href="./auth.html#login"><i data-lucide="log-in"></i>Войти</a></div>
             <!-- Форма: POST /interactions/comments {content, anime_id[, episode_id]}; длина 3–2000 символов. -->
             <form class="comment-composer" data-comment-form novalidate>
               <span class="comment-avatar comment-avatar--me" aria-hidden="true">K</span>
@@ -399,7 +399,7 @@
     <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
     <script src="./vendor/lucide.min.js"></script>
     <script src="./content-model.js?v=original-parity-13"></script>
-    <script src="./content.js?v=v3-33"></script>
-    <script src="./app.js?v=v3-33"></script>
+    <script src="./content.js?v=v3-34"></script>
+    <script src="./app.js?v=v3-34"></script>
   </body>
 </html>
