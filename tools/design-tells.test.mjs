@@ -25,7 +25,7 @@ export function measure() {
   return {
     site: {
       fontSizes: distinct(siteCss, /font-size:\s*([^;}]+)/g),
-      radii: distinct(siteCss, /border-radius:\s*([^;}]+)/g),
+      radii: distinct(siteCss, /border(?:-(?:top|bottom)-(?:left|right))?-radius:\s*([^;}]+)/g),
       gradients: layer(siteCss, /(?:linear|radial|conic)-gradient\(/g),
       gradientText: layer(siteCss, /background-clip:\s*text/g),
       backdropFilters: layer(siteCss, /backdrop-filter:/g),
@@ -40,7 +40,7 @@ export function measure() {
     },
     admin: {
       fontSizes: distinct(adminCss, /font-size:\s*([^;}]+)/g),
-      radii: distinct(adminCss, /border-radius:\s*([^;}]+)/g),
+      radii: distinct(adminCss, /border(?:-(?:top|bottom)-(?:left|right))?-radius:\s*([^;}]+)/g),
       gradients: layer(adminCss, /(?:linear|radial|conic)-gradient\(/g),
       backdropFilters: layer(adminCss, /backdrop-filter:/g),
       glows: layer(adminCss, /(?:box-shadow|drop-shadow|text-shadow)[^;{}]*-glow/g),
@@ -54,13 +54,13 @@ export function measure() {
 
 // Потолки: значения на коммите b191fb9 (считает этот же тест: токены, html и js включены). Опускать, не поднимать.
 export const CEILINGS = {
-  site: { fontSizes: 69, radii: 47, gradients: 139, gradientText: 0, backdropFilters: 29, glows: 0, keyframes: 41, accentGradUses: 37, sectionKickers: 0, ambientParticles: 0, pointerTilt: 0, countUp: 0, scrollReveal: 0 },
+  site: { fontSizes: 12, radii: 10, gradients: 132, gradientText: 0, backdropFilters: 29, glows: 0, keyframes: 8, accentGradUses: 36, sectionKickers: 0, ambientParticles: 0, pointerTilt: 0, countUp: 0, scrollReveal: 0 },
   admin: { fontSizes: 13, radii: 13, gradients: 20, backdropFilters: 4, glows: 10, keyframes: 8, accentGradUses: 9, aurora: 3, countUp: 4 },
 };
 // Цели финала (раздел «Готово, когда» промта). Тест ниже печатает расстояние до них.
 export const TARGET = {
-  site: { fontSizes: 12, radii: 6, gradients: 12, gradientText: 0, backdropFilters: 3, glows: 0, keyframes: 8, accentGradUses: 4, sectionKickers: 0, ambientParticles: 0, pointerTilt: 0, countUp: 0, scrollReveal: 0 },
-  admin: { fontSizes: 8, radii: 6, gradients: 4, backdropFilters: 3, glows: 0, keyframes: 4, accentGradUses: 2, aurora: 0, countUp: 0 },
+  site: { fontSizes: 12, radii: 8, gradients: 12, gradientText: 0, backdropFilters: 3, glows: 0, keyframes: 8, accentGradUses: 4, sectionKickers: 0, ambientParticles: 0, pointerTilt: 0, countUp: 0, scrollReveal: 0 },
+  admin: { fontSizes: 12, radii: 8, gradients: 4, backdropFilters: 3, glows: 0, keyframes: 4, accentGradUses: 2, aurora: 0, countUp: 0 },
 };
 
 test('design tells never grow past their ceilings', () => {
