@@ -195,7 +195,6 @@ add(
 );
 
 const headerSearchChecks = [
-  css.includes("@keyframes header-search-in"),
   css.includes(".search-dialog::backdrop"),
   css.includes(".search-filters"),
   css.includes(".search-recent"),
@@ -252,9 +251,6 @@ const kitsuneCssTokens = [
   ".hanko",
   "var(--grain-url)",
   "var(--seigaiha-url)",
-  "@keyframes hero-zoom",
-  "@keyframes kitsunebi-flicker",
-  "animation-timeline: view()",
   "@view-transition",
 ];
 const missingKitsuneCss = kitsuneCssTokens.filter((token) => !css.includes(token));
@@ -299,7 +295,7 @@ const titleMobileCssTokens = [
   ".title-community-actions",
   ".title-subscription-icon",
   ".title-meta-flag",
-  "@keyframes bottom-sheet-in",
+  "@keyframes sheet-in",
 ];
 const missingTitleMobileCss = titleMobileCssTokens.filter((token) => !css.includes(token));
 const titleMobileLayoutChecks = [

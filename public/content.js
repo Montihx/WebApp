@@ -286,7 +286,7 @@
     }
     // "Сейчас у вас" lives in the card header, not between rows.
     const clock = () => fmt(new Date(), { hour: '2-digit', minute: '2-digit' });
-    $('#schedule-title')?.closest('.schedule-head')?.querySelector('.section-kicker')?.insertAdjacentHTML('afterend', `<p class="air-clock" aria-live="off"><span>Сейчас у вас</span><b id="schedule-now">${clock()}</b></p>`);
+    $('#schedule-title')?.insertAdjacentHTML('afterend', `<p class="air-clock" aria-live="off"><span>Сейчас у вас</span><b id="schedule-now">${clock()}</b></p>`);
     // Over the list: the selected date in words and a way back to today.
     $('#schedule-items').insertAdjacentHTML('beforebegin', '<div class="air-dayhead"><strong id="schedule-date"></strong><button type="button" class="air-today" id="schedule-today" hidden>К сегодня<i data-lucide="arrow-right"></i></button></div>');
     $('#schedule-today').addEventListener('click', () => { selectDay(M.dateKey(new Date())); $('#schedule-days .is-active')?.scrollIntoView?.({ inline: 'center', block: 'nearest' }); });

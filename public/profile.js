@@ -149,16 +149,7 @@
   const fmtShort = (iso) => new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" }).format(new Date(`${iso}T12:00:00Z`));
   const plural = (n, one, few, many) => { const a = Math.abs(n) % 100; const b = a % 10; return a > 10 && a < 20 ? many : b > 1 && b < 5 ? few : b === 1 ? one : many; };
 
-  function countUp(node, to, format = (v) => nf.format(Math.round(v))) {
-    if (reduced || to === 0) { node.textContent = format(to); return; }
-    const start = performance.now();
-    const step = (now) => {
-      const t = Math.min(1, (now - start) / 900);
-      node.textContent = format(to * (1 - Math.pow(1 - t, 3)));
-      if (t < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }
+  const showNumber = (node, to, format = (v) => nf.format(Math.round(v))) => { node.textContent = format(to); };
 
   // Уведомление — общее (app.js, window.KitsuToast): один вид и одно поведение на всех страницах.
   const toast = (title, message, tone = "success") => window.KitsuToast?.(title, message, tone);
@@ -258,7 +249,7 @@
       });
       const counts = [["В закладках", stats.favorites_count], ["Комментарии", stats.comments_count], ["Подписчики", stats.followers_count], ["Подписки", stats.following_count]];
       $("[data-counts]").innerHTML = counts.map(([label, value]) => `<div><dt>${label}</dt><dd data-n="${value}">0</dd></div>`).join("");
-      $$("[data-counts] dd").forEach((dd) => countUp(dd, Number(dd.dataset.n)));
+      $$("[data-counts] dd").forEach((dd) => showNumber(dd, Number(dd.dataset.n)));
       icons(hero);
     } catch (err) {
       if (err.status === 401) { guestGate(); return; }
@@ -315,12 +306,12 @@
           <div><dt>Активных дней</dt><dd>${active} <small>из ${days}</small></dd></div>
           <div><dt>Серий за период</dt><dd>${eps}</dd></div>
         </dl>`;
-      countUp($("[data-hours]", total), Math.round(hours));
+      showNumber($("[data-hours]", total), Math.round(hours));
       plot.classList.toggle("is-empty", sum === 0);
       plot.innerHTML = view.rows.map((r, i) => `<span class="pf-bar${r.seconds ? "" : " is-zero"}" style="--v:${(r.seconds / max).toFixed(3)};--i:${i}" data-i="${i}"></span>`).join("")
         + `<div class="pf-axis" aria-hidden="true">${days <= 7 ? view.rows.map((r) => `<span>${esc(new Intl.DateTimeFormat("ru-RU", { weekday: "short" }).format(new Date(`${r.date}T12:00:00Z`)))}</span>`).join("") : `<span>${esc(fmtShort(view.rows[0].date))}</span><span>${esc(fmtShort(view.rows[Math.floor(days / 2)].date))}</span><span>${esc(fmtShort(view.rows[days - 1].date))}</span>`}</div>`;
       plot.style.setProperty("--n", days); plot.dataset.dense = String(days > 30);
-      plot.classList.remove("is-loading", "is-in"); void plot.offsetWidth; plot.classList.add("is-in");
+      plot.classList.remove("is-loading");
       view.touched = false; setActive(sum ? view.best : days - 1, false);
       if (!sum) $("[data-read]").textContent = "За этот период просмотров не было.";
     } catch (_) {
@@ -489,24 +480,12 @@
     if ("IntersectionObserver" in window) {
       const spy = new IntersectionObserver((entries) => entries.forEach((en) => { if (en.isIntersecting) set(en.target.id); }), { rootMargin: "-35% 0px -55% 0px" });
       targets.forEach((t) => spy.observe(t));
-      const rev = new IntersectionObserver((entries) => entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("is-in"); rev.unobserve(en.target); } }), { rootMargin: "0px 0px -8% 0px" });
-      $$("[data-reveal]").forEach((n) => rev.observe(n));
-    } else $$("[data-reveal]").forEach((n) => n.classList.add("is-in"));
-  }
-
-  function initHeroPointer() {
-    if (!finePointer || reduced) return;
-    const hero = $("[data-hero]");
-    hero.addEventListener("pointermove", (e) => {
-      const r = hero.getBoundingClientRect();
-      hero.style.setProperty("--mx", ((e.clientX - r.left) / r.width - 0.5).toFixed(3));
-      hero.style.setProperty("--my", ((e.clientY - r.top) / r.height - 0.5).toFixed(3));
-    });
+    }
   }
 
   document.addEventListener("visibilitychange", () => document.body.classList.toggle("is-hidden-tab", document.hidden));
   icons(document);
-  initNav(); initHeroPointer(); initChart(); initMarks(); initDialog();
+  initNav(); initChart(); initMarks(); initDialog();
   loadHero(); loadHistory(); loadCols();
   $("[data-history-more]").addEventListener("click", () => loadHistory(true));
 })();
