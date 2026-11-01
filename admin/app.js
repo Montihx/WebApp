@@ -438,7 +438,7 @@
         <input class="box-check" type="checkbox" data-select="moderation" value="${item.id}" ${okay ? "" : "disabled"} aria-label="Выбрать «${esc(item.title)}»" />
         ${thumb({ title: item.title, poster_url: item.poster_url })}
         <div><h4>${esc(item.title)}</h4><div class="why">${reasons.map(r => tag(REASON[r] || r, "warning", r === "no_video" ? "video-off" : r === "poster_url" ? "image-off" : "file-x")).join("")}${statusTag(item.status)}<span class="muted" style="font-size:12px">${ago(item.updated_at)}</span></div></div>
-        <div class="mod-actions">${okay ? `<button type="button" class="button s" ${request("moderation.approve", { ids: item.id })}>${icon("check")}Одобрить</button>` : `<span class="muted" style="font-size:12px;align-self:center">Сначала заполните</span>`}<a class="button s ${okay ? "ghost" : "primary"}" href="#/catalog/titles/${esc(item.slug)}">${icon("pencil")}Заполнить</a></div>
+        <div class="mod-actions">${okay ? `<button type="button" class="button s" ${request("moderation.approve", { ids: item.id })}>${icon("check")}Одобрить</button>` : `<span class="muted" style="font-size:12px;align-self:center">Сначала заполните</span>`}<a class="button s ghost" href="#/catalog/titles/${esc(item.slug)}">${icon("pencil")}Заполнить</a></div>
       </div>`;
     }).join("")}</div></section>`;
   }
