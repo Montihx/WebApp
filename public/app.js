@@ -825,79 +825,6 @@
     });
   }
 
-  function initAmbient() {
-    const hero = $(".hero-section");
-    if (!hero || reducedMotion.matches) return;
-    const layer = document.createElement("div");
-    layer.className = "kz-ambient";
-    layer.setAttribute("aria-hidden", "true");
-    const rnd = seeded(7);
-    // Fewer petals on phones; all of them stop while the hero is off-screen.
-    const count = window.matchMedia("(max-width: 720px)").matches ? 6 : 10;
-    for (let i = 0; i < count; i += 1) {
-      const p = document.createElement("span");
-      p.className = "kz-mote";
-      p.style.setProperty("--x", `${(rnd() * 100).toFixed(1)}%`);
-      p.style.setProperty("--delay", `${(-rnd() * 14).toFixed(2)}s`);
-      p.style.setProperty("--dur", `${(9 + rnd() * 9).toFixed(2)}s`);
-      p.style.setProperty("--drift", `${(rnd() * 120 - 60).toFixed(0)}px`);
-      p.style.setProperty("--s", (0.6 + rnd() * 0.9).toFixed(2));
-      layer.append(p);
-    }
-    hero.append(layer);
-    if ("IntersectionObserver" in window) {
-      new IntersectionObserver(([entry]) => layer.classList.toggle("is-paused", !entry.isIntersecting)).observe(hero);
-    }
-    document.addEventListener("visibilitychange", () => layer.classList.toggle("is-paused", document.hidden));
-  }
-
-  function initPosterTilt() {
-    if (reducedMotion.matches || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    // Pointer moves arrive faster than frames: read layout and write styles at most once per frame.
-    let pending = null;
-    const apply = () => {
-      const { frame, x0, y0 } = pending; pending = null;
-      const r = frame.getBoundingClientRect();
-      const x = (x0 - r.left) / r.width;
-      const y = (y0 - r.top) / r.height;
-      frame.style.setProperty("--rx", `${((0.5 - y) * 9).toFixed(2)}deg`);
-      frame.style.setProperty("--ry", `${((x - 0.5) * 11).toFixed(2)}deg`);
-      frame.style.setProperty("--mx", `${(x * 100).toFixed(1)}%`);
-      frame.style.setProperty("--my", `${(y * 100).toFixed(1)}%`);
-    };
-    document.addEventListener("pointermove", (event) => {
-      const frame = event.target.closest?.(".anime-card .poster-frame, .continue-poster");
-      if (!frame) return;
-      if (!pending) requestAnimationFrame(apply);
-      pending = { frame, x0: event.clientX, y0: event.clientY };
-    }, { passive: true });
-    document.addEventListener("pointerout", (event) => {
-      const frame = event.target.closest?.(".anime-card .poster-frame, .continue-poster");
-      if (frame && !frame.contains(event.relatedTarget)) {
-        frame.style.removeProperty("--rx");
-        frame.style.removeProperty("--ry");
-      }
-    });
-  }
-
-  function initScrollProgress() {
-    const header = $("#site-header");
-    if (!header) return;
-    const bar = document.createElement("span");
-    bar.className = "kz-scroll-progress";
-    bar.setAttribute("aria-hidden", "true");
-    header.append(bar);
-    // Page height is measured only when it can change, not on every scroll event.
-    let max = 1, queued = false;
-    const measure = () => { max = document.documentElement.scrollHeight - innerHeight; };
-    const draw = () => { queued = false; bar.style.transform = `scaleX(${max > 0 ? Math.min(1, scrollY / max) : 0})`; };
-    const update = () => { if (!queued) { queued = true; requestAnimationFrame(draw); } };
-    addEventListener("scroll", update, { passive: true });
-    addEventListener("resize", () => { measure(); update(); });
-    if ("ResizeObserver" in window) new ResizeObserver(() => { measure(); update(); }).observe(document.body);
-    measure(); update();
-  }
-
   const paletteNames = { sakura: "Сакура", obsidian: "Обсидиан" };
   function applyPalette(name) {
     const next = paletteNames[name] ? name : "sakura";
@@ -945,9 +872,6 @@
     setTimeout(syncScheduleDay, 400);
     document.addEventListener("click", (event) => { if (event.target.closest?.("#schedule-days .day-tab")) requestAnimationFrame(syncScheduleDay); });
     initPalette();
-    initAmbient();
-    initPosterTilt();
-    initScrollProgress();
     refreshIcons();
     initRovingTabs();
     initTabIndicators();
@@ -1176,15 +1100,12 @@
   }
 
   function initSeasonLabel() {
-    const kicker = $("#season-kicker");
     const title = $("#season-title");
-    if (!kicker || !title) return;
+    if (!title) return;
     const now = new Date();
     const year = now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear();
     const meta = seasonMeta[currentSeasonKey(now)];
-    kicker.innerHTML = `<i data-lucide="${meta.icon}"></i>Сезон`;
     title.textContent = `${meta.label} ${year}`;
-    refreshIcons();
   }
 
   function initTabIndicators() {

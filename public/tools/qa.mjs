@@ -253,7 +253,6 @@ const kitsuneCssTokens = [
   "var(--grain-url)",
   "var(--seigaiha-url)",
   "@keyframes hero-zoom",
-  "@keyframes kitsunebi-flicker",
   "animation-timeline: view()",
   "@view-transition",
 ];
