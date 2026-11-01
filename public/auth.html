@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0e0b12" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>Вход — Kitsu · Кицунэ</title>
+    <meta name="description" content="Вход, регистрация и восстановление пароля Kitsu" />
+    <script>
+      (() => {
+        try {
+          if (localStorage.getItem("kitsu-palette") === "obsidian") document.documentElement.dataset.palette = "obsidian";
+          const saved = localStorage.getItem("kitsu-theme");
+          if (saved === "light" || saved === "dark") {
+            document.documentElement.dataset.theme = saved;
+          } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            document.documentElement.dataset.theme = "dark";
+          } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+            document.documentElement.dataset.theme = "light";
+          }
+        } catch (_) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="../tokens.css?v=v3-34" />
+    <link rel="stylesheet" href="./styles.css?v=v3-34" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-34" />
+  </head>
+  <!--
+    Экраны входа. Один файл, экран выбирается по хэшу: #login, #register, #forgot, #reset, #verify,
+    служебные #sent-verify, #sent-reset, #reset-done. Письма бэкенда ведут на /verify-email?token&uid и
+    /reset-password?token&uid (mailer.go) — в приложении это маршруты, здесь — auth.html?token&uid#verify|#reset.
+    Правила полей взяты из backend-go/internal/handlers/auth.go.
+  -->
+  <body data-page="auth">
+    <a class="skip-link" href="#auth-main">К основному содержимому</a>
+    <header class="auth-top">
+      <a class="brand" href="./index.html" aria-label="Kitsu — главная">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M1.5 6.2c9 2.6 20 2.6 29 0l-1.3 4.6c-8.6 2.2-17.8 2.2-26.4 0z"/><path d="M6 13.4h20v2.6H6z"/><path d="M8.2 11h3v17.5h-3zM20.8 11h3v17.5h-3z"/></svg>
+        <span class="brand-word">KITSU<span>.</span></span>
+      </a>
+      <a class="auth-back" href="./index.html"><i data-lucide="arrow-left"></i>На главную</a>
+    </header>
+
+    <main class="auth-layout" id="auth-main">
+      <aside class="auth-art" aria-hidden="true">
+        <div class="auth-art__posters">
+          <img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" decoding="async" referrerpolicy="no-referrer" />
+          <img src="https://shikimori.one/system/animes/original/19.jpg" alt="" decoding="async" referrerpolicy="no-referrer" />
+          <img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" decoding="async" referrerpolicy="no-referrer" />
+          <img src="https://shikimori.one/system/animes/original/33352.jpg" alt="" decoding="async" referrerpolicy="no-referrer" />
+          <img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" decoding="async" referrerpolicy="no-referrer" />
+          <img src="https://shikimori.one/system/animes/original/1.jpg" alt="" decoding="async" referrerpolicy="no-referrer" />
+        </div>
+        <div class="auth-art__copy">
+          <span class="auth-art__kanji">入口</span>
+          <strong>Закладки, прогресс серий и уведомления о новых сериях — на любом устройстве.</strong>
+        </div>
+      </aside>
+
+      <section class="auth-card" aria-labelledby="auth-title">
+        <h1 class="sr-only" id="auth-title">Аккаунт Kitsu</h1>
+
+        <div class="auth-tabs" role="tablist" aria-label="Вход или регистрация" data-auth-tabs>
+          <a class="auth-tab" href="#login" role="tab" data-auth-tab="login">Вход</a>
+          <a class="auth-tab" href="#register" role="tab" data-auth-tab="register">Регистрация</a>
+        </div>
+
+        <!-- POST /auth/login/access-token (form: username = ПОЧТА, password). 401 «Incorrect email or password»,
+             403 «Account is disabled», 429 после 5 попыток в минуту. -->
+        <form class="auth-view" data-view="login" novalidate>
+          <h2>С возвращением</h2>
+          <p class="auth-lead">Войдите по почте, указанной при регистрации.</p>
+          <label class="auth-field"><span>Почта</span><input type="email" name="email" autocomplete="email" inputmode="email" required /></label>
+          <label class="auth-field"><span>Пароль</span><span class="auth-password"><input type="password" name="password" autocomplete="current-password" required /><button type="button" data-toggle-password aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button></span></label>
+          <p class="auth-error" data-error role="alert" hidden></p>
+          <button class="button button--primary auth-submit" type="submit">Войти</button>
+          <a class="auth-link" href="#forgot">Забыли пароль?</a>
+          <p class="auth-demo">Для проверки ошибок: пароль <code>wrong</code> — неверный пароль, почта <code>banned@kitsu.local</code> — отключённый аккаунт, шестая попытка за минуту — лимит.</p>
+        </form>
+
+        <!-- POST /auth/register {email, username, password}: имя 3–50, пароль 8–128, почта и имя уникальны.
+             После регистрации бэкенд сам отправляет письмо подтверждения (ссылка живёт 24 часа). Лимит — 3 в час. -->
+        <form class="auth-view" data-view="register" novalidate hidden>
+          <h2>Новый аккаунт</h2>
+          <p class="auth-lead">После регистрации придёт письмо со ссылкой для подтверждения почты.</p>
+          <label class="auth-field"><span>Имя пользователя</span><input type="text" name="username" autocomplete="username" minlength="3" maxlength="50" required /><small>От 3 до 50 символов, видно в комментариях.</small></label>
+          <label class="auth-field"><span>Почта</span><input type="email" name="email" autocomplete="email" inputmode="email" required /></label>
+          <label class="auth-field"><span>Пароль</span><span class="auth-password"><input type="password" name="password" autocomplete="new-password" minlength="8" maxlength="128" required /><button type="button" data-toggle-password aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button></span><small data-password-hint>Не меньше 8 символов.</small></label>
+          <p class="auth-error" data-error role="alert" hidden></p>
+          <button class="button button--primary auth-submit" type="submit">Создать аккаунт</button>
+          <p class="auth-demo">Для проверки ошибок: имя <code>admin</code> или почта <code>taken@kitsu.local</code> уже заняты.</p>
+        </form>
+
+        <!-- POST /auth/forgot-password {email}: ответ всегда одинаковый, чтобы нельзя было узнать, есть ли такой адрес. Лимит — 3 в час. -->
+        <form class="auth-view" data-view="forgot" novalidate hidden>
+          <a class="auth-link auth-link--back" href="#login"><i data-lucide="arrow-left"></i>Ко входу</a>
+          <h2>Восстановление пароля</h2>
+          <p class="auth-lead">Пришлём ссылку для нового пароля. Она действует 1 час.</p>
+          <label class="auth-field"><span>Почта</span><input type="email" name="email" autocomplete="email" inputmode="email" required /></label>
+          <p class="auth-error" data-error role="alert" hidden></p>
+          <button class="button button--primary auth-submit" type="submit">Отправить ссылку</button>
+        </form>
+
+        <!-- POST /auth/reset-password {user_id, token, new_password}: 400 «Invalid or expired reset token»,
+             если ссылка старше часа или пароль уже меняли по ней. -->
+        <form class="auth-view" data-view="reset" novalidate hidden>
+          <h2>Новый пароль</h2>
+          <p class="auth-lead">Придумайте пароль не короче 8 символов.</p>
+          <label class="auth-field"><span>Новый пароль</span><span class="auth-password"><input type="password" name="password" autocomplete="new-password" minlength="8" maxlength="128" required /><button type="button" data-toggle-password aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button></span></label>
+          <label class="auth-field"><span>Ещё раз</span><input type="password" name="repeat" autocomplete="new-password" required /></label>
+          <p class="auth-error" data-error role="alert" hidden></p>
+          <button class="button button--primary auth-submit" type="submit">Сохранить пароль</button>
+          <p class="auth-demo">Чтобы увидеть устаревшую ссылку, откройте <a href="?expired=1#reset">с пометкой expired</a>.</p>
+        </form>
+
+        <div class="auth-view auth-state" data-view="verify" hidden>
+          <span class="auth-state__mark" data-verify-mark aria-hidden="true">証</span>
+          <h2 data-verify-title>Почта подтверждена</h2>
+          <p class="auth-lead" data-verify-text>Спасибо! Аккаунт подтверждён.</p>
+          <a class="button button--primary auth-submit" href="./index.html" data-verify-action>На главную</a>
+          <p class="auth-demo">Ссылка из письма: GET /auth/verify-email?token&amp;uid. <a href="?expired=1#verify">Устаревшая ссылка</a>.</p>
+        </div>
+
+        <div class="auth-view auth-state" data-view="sent-verify" hidden>
+          <span class="auth-state__mark" aria-hidden="true">便</span>
+          <h2>Проверьте почту</h2>
+          <p class="auth-lead">Мы отправили письмо на <strong data-sent-email>адрес из формы</strong>. Перейдите по ссылке в нём в течение 24 часов, чтобы подтвердить почту.</p>
+          <a class="button button--primary auth-submit" href="./index.html">На главную</a>
+          <!-- POST /auth/send-verification (нужен вход), не чаще 3 раз в час. -->
+          <button class="auth-link" type="button" data-resend>Письмо не пришло? Отправить ещё раз</button>
+          <p class="auth-note" data-resend-note aria-live="polite"></p>
+        </div>
+
+        <div class="auth-view auth-state" data-view="sent-reset" hidden>
+          <span class="auth-state__mark" aria-hidden="true">便</span>
+          <h2>Ссылка отправлена</h2>
+          <p class="auth-lead">Если адрес <strong data-sent-email>из формы</strong> есть в Kitsu, на него пришло письмо. Ссылка действует 1 час.</p>
+          <a class="button button--secondary auth-submit" href="#login">Ко входу</a>
+        </div>
+
+        <div class="auth-view auth-state" data-view="reset-done" hidden>
+          <span class="auth-state__mark" aria-hidden="true">済</span>
+          <h2>Пароль изменён</h2>
+          <p class="auth-lead">Теперь войдите с новым паролем.</p>
+          <a class="button button--primary auth-submit" href="#login">Войти</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="./vendor/lucide.min.js"></script>
+    <script src="./auth.js?v=v3-34"></script>
+  </body>
+</html>
