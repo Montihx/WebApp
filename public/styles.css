@@ -825,7 +825,7 @@ html[data-theme="light"] .theme-icon--moon {
 .schedule-head h2,
 .continue-heading h2 {
   font-family: var(--font-heading);
-  font-size: var(--fs-h1);
+  font-size: var(--fs-h2);
   font-weight: 400;
   letter-spacing: -0.005em;
   line-height: 1.08;

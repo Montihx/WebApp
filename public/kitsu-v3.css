@@ -2148,48 +2148,32 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 }
 
 /* ==========================================================================
-   Расписание: строка серии на размытом кадре этого же тайтла
+   Расписание и обновления: плоская строка — постер, название, время
    ========================================================================== */
-/* Кадр виден: лёгкое размытие, затемнение тушью — плотнее под названием и временем, по центру картинка. */
 :root .schedule-card .schedule-item--air,
 :root .schedule-card .schedule-item--air:has(.schedule-countdown) {
   grid-template-columns: 48px minmax(0, 1fr) auto;
-  flex: none; gap: 12px; min-height: min-content; padding: 10px 14px 10px 10px; overflow: clip; isolation: isolate;
-  border: 0; border-radius: var(--radius-lg); background: rgb(var(--media-ink-rgb));
-  color: var(--media-text);
+  flex: none; gap: 12px; min-height: min-content; padding: 10px 12px 10px 10px;
+  border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-raised);
+  color: var(--text);
 }
 :root .schedule-card .schedule-item--air::before,
 :root .schedule-card .schedule-item--air:has(.schedule-countdown)::before { display: none; }
 :root .schedule-card .schedule-item--air:hover,
-:root .schedule-card .schedule-item--air:has(.schedule-countdown):hover { border: 0; background: rgb(var(--media-ink-rgb)); transform: translateX(3px); }
-:root .schedule-card .schedule-item--air .air-backdrop { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-:root .schedule-card .schedule-item--air .air-backdrop img {
-  position: absolute; inset: -12px; width: calc(100% + 24px); height: calc(100% + 24px); max-width: none;
-  border-radius: 0; outline: 0; object-fit: cover; object-position: center 25%;
-  filter: blur(5px) saturate(1.15); opacity: 1; transform: none;
-  transition: filter var(--dur-2) var(--ease-out);
-}
-:root .schedule-card .schedule-item--air .air-backdrop::after {
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(90deg, rgba(var(--media-ink-rgb), 0.9) 0%, rgba(var(--media-ink-rgb), 0.62) 45%, rgba(var(--media-ink-rgb), 0.45) 70%, rgba(var(--media-ink-rgb), 0.82) 100%);
-}
-:root .schedule-card .schedule-item--air:hover .air-backdrop img { filter: blur(3px) saturate(1.25); }
+:root .schedule-card .schedule-item--air:has(.schedule-countdown):hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); background: var(--surface-hover); }
 :root .schedule-card .schedule-item--air .air-time { display: grid; gap: 3px; align-content: center; justify-items: end; text-align: right; }
 :root .schedule-card .schedule-item--air .air-time > b {
   display: block; font: 400 1.375rem/1.15 var(--font-heading); text-align: right; white-space: nowrap;
-  background: none; color: var(--media-text); -webkit-text-fill-color: var(--media-text);
-  text-shadow: 0 1px 10px rgba(var(--media-ink-rgb), 0.7);
+  background: none; color: var(--text); -webkit-text-fill-color: var(--text);
 }
-:root .schedule-card .schedule-item--air .air-time > span { display: block; text-align: right; color: var(--media-text-dim); -webkit-text-fill-color: var(--media-text-dim); font-size: var(--fs-1); }
-:root .schedule-card .schedule-item--air .air-poster { width: 48px; height: 68px; border-radius: var(--radius-sm); outline: 1px solid rgba(255, 255, 255, 0.14); outline-offset: -1px; }
+:root .schedule-card .schedule-item--air .air-time > span { display: block; text-align: right; color: var(--text-muted); -webkit-text-fill-color: var(--text-muted); font-size: var(--fs-1); }
+:root .schedule-card .schedule-item--air .air-poster { width: 48px; height: 68px; border-radius: var(--radius-xs); }
 :root .schedule-card .schedule-item--air .air-copy { display: grid; gap: 3px; min-width: 0; }
-:root .schedule-card .schedule-item--air .air-copy strong { color: var(--media-text); font-size: var(--fs-3); text-shadow: 0 1px 10px rgba(var(--media-ink-rgb), 0.7); }
-:root .schedule-card .schedule-item--air .air-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--media-text-dim); }
+:root .schedule-card .schedule-item--air .air-copy strong { color: var(--text); font-size: var(--fs-3); }
+:root .schedule-card .schedule-item--air .air-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted); }
 :root .schedule-card .schedule-item--air .schedule-countdown { color: var(--kitsunebi-text); font-weight: 600; }
-:root[data-theme="light"] .schedule-card .schedule-item--air .schedule-countdown { color: #8fd8ff; }
-:root .schedule-card .schedule-item--air .air-done { color: #7fe3b5; font-weight: 600; }
-:root .schedule-card .schedule-item--air.is-aired .air-time > b { color: var(--media-text-dim); -webkit-text-fill-color: var(--media-text-dim); }
-:root .schedule-card .schedule-item--air.is-aired .air-backdrop img { filter: blur(5px) saturate(0.6); }
+:root .schedule-card .schedule-item--air .air-done { color: var(--green); font-weight: 600; }
+:root .schedule-card .schedule-item--air.is-aired .air-time > b { color: var(--text-muted); -webkit-text-fill-color: var(--text-muted); }
 :root .schedule-card .schedule-list:has(.schedule-item--air) { display: flex; flex-direction: column; gap: 8px; }
 
 /* «Сейчас у вас 12:23» — в шапке карточки расписания, справа. */
