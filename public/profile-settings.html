@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0e0b12" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>Настройки профиля — Kitsu · Кицунэ</title>
+    <meta name="description" content="Настройки профиля Kitsu: аватар, обложка, пароль и аккаунт" />
+    <script>
+      (() => {
+        try {
+          if (localStorage.getItem("kitsu-palette") === "obsidian") document.documentElement.dataset.palette = "obsidian";
+          const saved = localStorage.getItem("kitsu-theme");
+          if (saved === "light" || saved === "dark") {
+            document.documentElement.dataset.theme = saved;
+          } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            document.documentElement.dataset.theme = "dark";
+          } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+            document.documentElement.dataset.theme = "light";
+          }
+        } catch (_) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="../tokens.css?v=v3-35" />
+    <link rel="stylesheet" href="./styles.css?v=v3-35" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-35" />
+  </head>
+  <!--
+    Настройки профиля. Страница рисуется profile-settings.js; запросы записаны над методами `api` в скрипте.
+    Сохранение профиля, по порядку (как в рабочем проекте):
+      POST /users/me/avatar   multipart, поле file; jpeg/png/webp/gif, до 5 МБ → {avatar_url}
+      POST /users/me/cover    multipart, поле file; те же типы, до 15 МБ → {cover_url}
+      PUT  /users/me          {bio, gender: ""|male|female|other, avatar_url, cover_url, active_avatar_id, decoration_id (0 — снять), preferences{vk,telegram,discord,…}}
+    Списки для выбора: GET /avatar-collection/?category&skip&limit, GET /decorations/?skip&limit (только is_active).
+    Пароль: POST /auth/change-password {current_password, new_password 8–128} → новая пара токенов для этого устройства.
+    Все сеансы: POST /auth/logout-all (10 в час). Письмо: POST /auth/send-verification (3 в час; 400 «Email already verified»).
+    Проверка состояний: ?state=unverified — почта не подтверждена.
+    Демо: сохранённые значения лежат в localStorage браузера и подхватываются на profile.html.
+  -->
+  <body data-page="settings">
+    <a class="skip-link" href="#settings-main">К основному содержимому</a>
+    <header class="site-header site-header--solid" id="site-header">
+      <div class="header-inner">
+        <a class="brand" href="./index.html" aria-label="Kitsu — главная">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M1.5 6.2c9 2.6 20 2.6 29 0l-1.3 4.6c-8.6 2.2-17.8 2.2-26.4 0z"/><path d="M6 13.4h20v2.6H6z"/><path d="M8.2 11h3v17.5h-3zM20.8 11h3v17.5h-3z"/></svg>
+          <span class="brand-word">KITSU<span>.</span></span>
+        </a>
+
+        <nav class="desktop-nav" aria-label="Основная навигация">
+          <a class="nav-link" href="./index.html#catalog">Каталог</a>
+          <a class="nav-link" href="./index.html#schedule">Расписание</a>
+          <a class="nav-link" href="./index.html#collections">Коллекции</a>
+          <a class="nav-link is-active" href="./profile.html" aria-current="page">Профиль</a>
+          <div class="nav-menu-wrap">
+            <button
+              class="nav-link nav-link--button"
+              type="button"
+              id="category-trigger"
+              aria-expanded="false"
+              aria-controls="category-menu"
+            >
+              Категории <i data-lucide="chevron-down"></i>
+            </button>
+            <div class="category-menu" id="category-menu" hidden>
+              <div class="category-column">
+                <p class="menu-caption">Жанры</p>
+                <a href="./index.html#catalog" data-filter-link="Экшен"><i data-lucide="swords"></i>Экшен</a>
+                <a href="./index.html#catalog" data-filter-link="Романтика"><i data-lucide="heart"></i>Романтика</a>
+                <a href="./index.html#catalog" data-filter-link="Фэнтези"><i data-lucide="wand-sparkles"></i>Фэнтези</a>
+                <a href="./index.html#catalog" data-filter-link="Драма"><i data-lucide="theater"></i>Драма</a>
+              </div>
+              <div class="category-column">
+                <p class="menu-caption">Тип</p>
+                <a href="./index.html#catalog" data-filter-link="tv"><i data-lucide="tv"></i>TV-сериалы</a>
+                <a href="./index.html#catalog" data-filter-link="movie"><i data-lucide="clapperboard"></i>Фильмы</a>
+                <a href="./index.html#catalog" data-filter-link="ova"><i data-lucide="disc-3"></i>OVA</a>
+                <a href="./index.html#catalog" data-filter-link="ona"><i data-lucide="radio-tower"></i>ONA</a>
+              </div>
+              <div class="category-column">
+                <p class="menu-caption">Подборки</p>
+                <a href="./index.html#catalog" data-filter-link="top"><i data-lucide="star"></i>Топ рейтинга</a>
+                <a href="./index.html#catalog" data-filter-link="ongoing"><i data-lucide="radio"></i>Онгоинги</a>
+                <a href="./index.html#season"><i data-lucide="calendar-days"></i>Сезон</a>
+                <a href="./index.html#collections"><i data-lucide="library"></i>Коллекции</a>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <div class="header-actions">
+          <button class="search-trigger" type="button" data-open-search aria-label="Открыть поиск" aria-expanded="false" aria-controls="search-dialog">
+            <i data-lucide="search"></i>
+            <span>Найти аниме</span>
+            <kbd>/</kbd>
+          </button>
+          <button class="icon-button palette-toggle" type="button" data-palette-toggle aria-label="Сменить палитру"><span class="palette-swatch" aria-hidden="true"></span></button>
+          <button class="icon-button" type="button" data-theme-toggle aria-label="Включить светлую тему">
+            <i data-lucide="sun" class="theme-icon theme-icon--sun"></i>
+            <i data-lucide="moon" class="theme-icon theme-icon--moon"></i>
+          </button>
+          <div class="popover-wrap">
+            <button
+              class="icon-button"
+              id="notification-trigger"
+              type="button"
+              aria-label="Уведомления"
+              aria-expanded="false"
+              aria-controls="notification-popover"
+            >
+              <i data-lucide="bell"></i>
+              <span class="notification-dot" aria-label="2 новых уведомления"></span>
+            </button>
+            <div class="notification-popover" id="notification-popover" hidden>
+              <div class="popover-head">
+                <strong>Уведомления</strong>
+                <button type="button" data-mark-read>Прочитать все</button>
+              </div>
+              <!-- Бэкенд создаёт уведомления одного типа — new_episode: title «Новый эпизод: …», message «Серия N уже доступна. Озвучки: …», icon = постер.
+                   Клик по уведомлению: PATCH /notifications/{id}/read; «Прочитать все»: POST /notifications/mark-all-read (оба живут в Python-бэкенде). -->
+              <a class="notification-item is-unread" href="./anime.html?title=one-piece" data-notification-id="n1"><span class="notification-icon notification-icon--poster"><img src="https://shikimori.one/system/animes/original/21.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span><span><strong>Новый эпизод: Ван-Пис</strong><small>Серия 1155 уже доступна. Озвучки: AniLibria.TV, AniDub Online.</small></span><time>12 мин</time></a>
+              <a class="notification-item is-unread" href="./anime.html?title=frieren" data-notification-id="n2"><span class="notification-icon notification-icon--poster"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span><span><strong>Новый эпизод: Провожающая в последний путь Фрирен</strong><small>Серия 28 уже доступна.</small></span><time>3 ч</time></a>
+              <a class="notification-item" href="./anime.html?title=jujutsu-kaisen" data-notification-id="n3"><span class="notification-icon notification-icon--poster"><img src="https://shikimori.one/system/animes/original/40748.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span><span><strong>Новый эпизод: Магическая битва</strong><small>Серия 47 уже доступна. Озвучки: AniLibria.TV.</small></span><time>вчера</time></a>
+            </div>
+          </div>
+          <a class="header-account" href="./profile.html" aria-label="Мой профиль"><span class="header-account__av" aria-hidden="true">K</span><span>kitsune_noa</span></a>
+        </div>
+
+        <button class="mobile-menu-button" type="button" id="mobile-menu-trigger" aria-label="Открыть меню">
+          <i data-lucide="menu"></i>
+        </button>
+      </div>
+    </header>
+
+    <aside class="mobile-drawer" id="mobile-drawer" aria-label="Мобильное меню" aria-hidden="true">
+      <div class="mobile-drawer-head">
+        <a class="brand" href="./index.html"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M1.5 6.2c9 2.6 20 2.6 29 0l-1.3 4.6c-8.6 2.2-17.8 2.2-26.4 0z"/><path d="M6 13.4h20v2.6H6z"/><path d="M8.2 11h3v17.5h-3zM20.8 11h3v17.5h-3z"/></svg><span class="brand-word">KITSU<span>.</span></span></a>
+        <button class="icon-button" type="button" id="mobile-menu-close" aria-label="Закрыть меню"><i data-lucide="x"></i></button>
+      </div>
+      <button class="drawer-search" type="button" data-open-search><i data-lucide="search"></i><span>Найти аниме</span></button>
+      <nav class="mobile-drawer-nav">
+        <a href="./index.html#catalog"><i data-lucide="layout-grid"></i><span>Каталог</span></a>
+        <a href="./index.html#schedule"><i data-lucide="calendar-days"></i><span>Расписание</span></a>
+        <a href="./index.html#collections"><i data-lucide="library"></i><span>Коллекции</span></a>
+        <a href="./profile.html" aria-current="page"><i data-lucide="circle-user-round"></i><span>Мой профиль</span></a>
+        <a href="#pf-history"><i data-lucide="history"></i><span>История просмотра</span></a>
+      </nav>
+      <div class="drawer-theme-row">
+        <span><i data-lucide="palette"></i>Оформление</span>
+        <button class="theme-switch" type="button" data-theme-toggle aria-label="Переключить тему"><span></span></button>
+      </div>
+      <div class="drawer-theme-row drawer-palette-row"><span><i data-lucide="flower-2"></i>Палитра</span><button type="button" data-palette-toggle aria-label="Сменить палитру"><span class="palette-swatch" aria-hidden="true"></span><span data-palette-label>Сакура</span></button></div>
+    </aside>
+    <div class="drawer-scrim" id="drawer-scrim" hidden></div>
+
+    <main class="st" id="settings-main">
+      <header class="st-head">
+        <a class="st-back" href="./profile.html"><i data-lucide="arrow-left"></i><span>Профиль</span></a>
+        <h1>Настройки</h1>
+      </header>
+
+      <div class="st-layout">
+        <div class="st-tabs" role="tablist" aria-label="Разделы настроек" data-tabs>
+          <button type="button" role="tab" id="tab-profile" aria-controls="panel-profile" data-tab="profile"><i data-lucide="user-round"></i><span>Профиль</span></button>
+          <button type="button" role="tab" id="tab-password" aria-controls="panel-password" data-tab="password"><i data-lucide="lock"></i><span>Пароль</span></button>
+          <button type="button" role="tab" id="tab-account" aria-controls="panel-account" data-tab="account"><i data-lucide="shield-check"></i><span>Аккаунт</span></button>
+          <span class="st-tabs__bar" aria-hidden="true"></span>
+        </div>
+
+        <div class="st-panels">
+          <!-- ===== Профиль ===== -->
+          <section class="st-panel" id="panel-profile" role="tabpanel" aria-labelledby="tab-profile" data-panel="profile" hidden>
+            <form class="st-form" data-profile-form novalidate>
+              <div class="st-preview" aria-label="Так профиль выглядит сейчас">
+                <div class="st-preview__cover" data-pv-cover aria-hidden="true"></div>
+                <div class="st-preview__row">
+                  <div class="pf-avatar st-preview__avatar" data-pv-avatar aria-hidden="true"></div>
+                  <div><strong data-pv-name>kitsune_noa</strong><span data-pv-meta></span></div>
+                </div>
+              </div>
+
+              <fieldset class="st-card">
+                <legend>Аватар</legend>
+                <div class="st-drop" data-drop="avatar">
+                  <input class="sr-only" id="avatar-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-file="avatar" />
+                  <label for="avatar-file" class="st-drop__area"><i data-lucide="image-plus"></i><span><strong>Загрузить свою картинку</strong><small data-drop-hint="avatar">Перетащите файл сюда или нажмите. JPG, PNG, WebP, GIF — до 5 МБ</small></span></label>
+                  <button class="st-link" type="button" data-clear="avatar" hidden><i data-lucide="undo-2"></i>Отменить выбор</button>
+                </div>
+                <p class="st-error" data-error="avatar" role="alert"></p>
+                <label class="pf-switch"><input type="checkbox" role="switch" data-remove-avatar /><span class="pf-switch__track" aria-hidden="true"><i></i></span><span class="pf-switch__text"><strong>Убрать аватар</strong><small>Останется буква имени</small></span></label>
+                <div class="st-sub"><h3>Или выберите из коллекции</h3><div class="st-chips" data-avatar-cats role="group" aria-label="Категория аватаров"></div></div>
+                <div class="st-picker" data-avatars role="radiogroup" aria-label="Аватар из коллекции"></div>
+                <div class="st-sub"><h3>Рамка вокруг аватара</h3></div>
+                <div class="st-picker st-picker--frames" data-frames role="radiogroup" aria-label="Рамка аватара"></div>
+              </fieldset>
+
+              <fieldset class="st-card">
+                <legend>Обложка профиля</legend>
+                <div class="st-drop st-drop--cover" data-drop="cover">
+                  <input class="sr-only" id="cover-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-file="cover" />
+                  <label for="cover-file" class="st-drop__area st-drop__area--cover" data-cover-area><span class="st-drop__shot" data-cover-shot aria-hidden="true"></span><span class="st-drop__over"><i data-lucide="image-plus"></i><span><strong>Выбрать обложку</strong><small data-drop-hint="cover">Перетащите файл или нажмите. До 15 МБ</small></span></span></label>
+                  <div class="st-drop__tools"><button class="st-link" type="button" data-clear="cover" hidden><i data-lucide="undo-2"></i>Отменить выбор</button><button class="st-link st-link--danger" type="button" data-remove-cover hidden><i data-lucide="trash-2"></i>Убрать обложку</button></div>
+                </div>
+                <p class="st-error" data-error="cover" role="alert"></p>
+              </fieldset>
+
+              <fieldset class="st-card">
+                <legend>О себе</legend>
+                <div class="pf-field">
+                  <label for="bio">Коротко о вас</label>
+                  <textarea id="bio" name="bio" rows="4" maxlength="500" placeholder="Что любите смотреть"></textarea>
+                  <span class="pf-field__count" data-bio-count>0 / 500</span>
+                </div>
+                <div class="st-sub"><h3 id="gender-label">Пол</h3>
+                  <div class="pf-seg st-seg" role="radiogroup" aria-labelledby="gender-label" data-gender>
+                    <button type="button" role="radio" data-gender-value="" aria-checked="true">Не указан</button>
+                    <button type="button" role="radio" data-gender-value="male" aria-checked="false">Мужской</button>
+                    <button type="button" role="radio" data-gender-value="female" aria-checked="false">Женский</button>
+                    <button type="button" role="radio" data-gender-value="other" aria-checked="false">Другой</button>
+                    <span class="pf-seg__thumb" aria-hidden="true"></span>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset class="st-card">
+                <legend>Соцсети</legend>
+                <p class="st-note">Показываются в профиле ссылками. Хранятся в настройках аккаунта.</p>
+                <div class="st-grid">
+                  <div class="pf-field"><label for="soc-vk">VK</label><input id="soc-vk" name="vk" type="text" autocomplete="off" placeholder="durov или ссылка" /></div>
+                  <div class="pf-field"><label for="soc-telegram">Telegram</label><input id="soc-telegram" name="telegram" type="text" autocomplete="off" placeholder="durov или ссылка" /></div>
+                  <div class="pf-field"><label for="soc-discord">Discord</label><input id="soc-discord" name="discord" type="text" autocomplete="off" placeholder="имя пользователя" /></div>
+                </div>
+              </fieldset>
+
+              <fieldset class="st-card">
+                <legend>Уведомления и безопасность</legend>
+                <p class="st-note st-note--warn"><i data-lucide="triangle-alert"></i>Эти два переключателя сохраняются в профиль, но сервер их пока не читает: двухфакторного входа и рассылок по ним в бэкенде нет.</p>
+                <label class="pf-switch"><input type="checkbox" role="switch" name="two_factor_enabled" /><span class="pf-switch__track" aria-hidden="true"><i></i></span><span class="pf-switch__text"><strong>Двухфакторная авторизация</strong><small>Не подключено</small></span></label>
+                <label class="pf-switch"><input type="checkbox" role="switch" name="unsubscribe_all_publications" /><span class="pf-switch__track" aria-hidden="true"><i></i></span><span class="pf-switch__text"><strong>Отписаться от всех публикаций</strong><small>Не подключено</small></span></label>
+              </fieldset>
+
+              <div class="st-save" data-save-bar aria-live="polite">
+                <span class="st-save__text" data-save-text>Нет изменений</span>
+                <button class="button button--secondary" type="button" data-reset disabled><i data-lucide="undo-2"></i><span>Сбросить</span></button>
+                <button class="button button--primary" type="submit" data-save disabled><i data-lucide="save"></i><span>Сохранить</span></button>
+              </div>
+            </form>
+          </section>
+
+          <!-- ===== Пароль ===== -->
+          <section class="st-panel" id="panel-password" role="tabpanel" aria-labelledby="tab-password" data-panel="password" hidden>
+            <form class="st-form" data-password-form novalidate>
+              <fieldset class="st-card">
+                <legend>Сменить пароль</legend>
+                <div class="pf-field st-pass"><label for="pw-current">Текущий пароль</label><input id="pw-current" name="current_password" type="password" autocomplete="current-password" /><button class="st-eye" type="button" data-eye aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button><small class="st-error" data-error="current" role="alert"></small></div>
+                <div class="pf-field st-pass"><label for="pw-new">Новый пароль</label><input id="pw-new" name="new_password" type="password" autocomplete="new-password" maxlength="128" /><button class="st-eye" type="button" data-eye aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button><div class="st-meter" data-meter aria-hidden="true"></div></div>
+                <div class="pf-field st-pass"><label for="pw-repeat">Повторите новый пароль</label><input id="pw-repeat" name="repeat" type="password" autocomplete="new-password" maxlength="128" /><button class="st-eye" type="button" data-eye aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button></div>
+                <ul class="st-rules" data-rules aria-label="Требования к паролю">
+                  <li data-rule="len"><i data-lucide="check"></i>От 8 до 128 символов</li>
+                  <li data-rule="diff"><i data-lucide="check"></i>Не совпадает с текущим</li>
+                  <li data-rule="same"><i data-lucide="check"></i>Повтор совпадает</li>
+                </ul>
+                <p class="st-note">После смены пароля этому устройству выдаётся новая пара токенов, на остальных устройствах нужно будет войти заново.</p>
+                <div class="st-actions"><button class="button button--primary" type="submit" data-pw-submit disabled><i data-lucide="lock"></i><span>Изменить пароль</span></button></div>
+              </fieldset>
+              <fieldset class="st-card">
+                <legend>Активные сеансы</legend>
+                <p class="st-note">Завершит вход на всех устройствах, включая это. Понадобится войти заново.</p>
+                <div class="st-actions"><button class="button button--secondary st-danger" type="button" data-logout-all><i data-lucide="log-out"></i><span>Выйти на всех устройствах</span></button></div>
+              </fieldset>
+            </form>
+          </section>
+
+          <!-- ===== Аккаунт ===== -->
+          <section class="st-panel" id="panel-account" role="tabpanel" aria-labelledby="tab-account" data-panel="account" hidden>
+            <div class="st-form">
+              <fieldset class="st-card">
+                <legend>Данные аккаунта</legend>
+                <dl class="st-facts" data-facts></dl>
+                <p class="st-note">Имя пользователя меняет только администратор: самому изменить его в бэкенде нельзя.</p>
+              </fieldset>
+              <fieldset class="st-card" data-verify-card>
+                <legend>Подтверждение почты</legend>
+                <div class="st-verify" data-verify></div>
+              </fieldset>
+              <fieldset class="st-card st-card--danger">
+                <legend>Опасная зона</legend>
+                <p class="st-note">Удаление аккаунта необратимо. Самостоятельного удаления в бэкенде нет: оно идёт через поддержку.</p>
+                <div class="st-actions"><button class="button button--secondary st-danger" type="button" data-delete><i data-lucide="trash-2"></i><span>Удалить аккаунт</span></button></div>
+              </fieldset>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <dialog class="search-dialog" id="search-dialog" aria-labelledby="search-title">
+      <div class="search-panel">
+        <div class="search-field-row"><i data-lucide="search"></i><input id="global-search" type="search" placeholder="Поиск аниме" autocomplete="off" aria-labelledby="search-title" /><button class="search-clear" type="button" data-search-clear aria-label="Очистить поиск" hidden><i data-lucide="x"></i></button><button class="search-filter-toggle" type="button" data-search-filter-toggle aria-label="Показать фильтры" aria-expanded="false" aria-controls="search-filters"><i data-lucide="sliders-horizontal"></i></button></div>
+        <div class="search-body">
+          <h2 class="sr-only" id="search-title">Поиск аниме</h2>
+          <div class="search-filters" id="search-filters" hidden>
+            <label class="search-filter"><span>Жанр</span><select data-search-filter="genre"><option value="">Все жанры</option><option value="Фэнтези">Фэнтези</option><option value="Приключения">Приключения</option><option value="Драма">Драма</option><option value="Триллер">Триллер</option></select><i data-lucide="chevron-down"></i></label>
+            <label class="search-filter"><span>Статус</span><select data-search-filter="status"><option value="">Любой статус</option><option value="released">Вышло</option><option value="ongoing">Онгоинг</option><option value="announced">Анонс</option></select><i data-lucide="chevron-down"></i></label>
+            <label class="search-filter"><span>Тип</span><select data-search-filter="type"><option value="">Все типы</option><option value="tv">TV</option><option value="ona">ONA</option><option value="movie">Фильм</option><option value="ova">OVA</option><option value="special">Спешл</option></select><i data-lucide="chevron-down"></i></label>
+            <label class="search-filter"><span>Год</span><select data-search-filter="year"><option value="">Любой год</option><option value="2023">2023</option><option value="2013">2013</option><option value="2004">2004</option><option value="1998">1998</option></select><i data-lucide="chevron-down"></i></label>
+            <label class="search-filter"><span>Оценка</span><select data-search-filter="rating"><option value="">Любая оценка</option><option value="9">От 9</option><option value="8">От 8</option></select><i data-lucide="chevron-down"></i></label>
+            <button class="search-reset" type="button" data-search-reset hidden><i data-lucide="rotate-ccw"></i>Сбросить всё</button>
+          </div>
+          <div class="search-recent" id="search-recent"><div class="search-section-head"><strong>Недавние</strong><button type="button" data-search-clear-recent>Очистить</button></div><button class="search-recent__item" type="button" data-search-suggest="синий экзорцист"><i data-lucide="clock-3"></i><span>Синий экзорцист [ТВ-4, часть 2]</span><i data-lucide="chevron-right"></i></button></div>
+          <div class="search-results" id="search-results">
+            <p class="search-results__label">Результаты</p>
+            <a class="search-result" href="./anime.html" data-search-item="монстр monster" data-search-genre="Триллер" data-search-status="released" data-search-type="tv" data-search-year="2004" data-search-rating="8.88"><img decoding="async" src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small>TV · 2004 <b class="search-result__score"><i data-lucide="star"></i>8.88</b></small></span><i data-lucide="chevron-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="провожающая в последний путь фрирен sousou frieren" data-search-genre="Фэнтези|Приключения" data-search-status="released" data-search-type="tv" data-search-year="2023" data-search-rating="9.31"><img decoding="async" src="https://shikimori.one/system/animes/original/52991.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Провожающая в последний путь Фрирен</strong><small>TV · 2023 <b class="search-result__score"><i data-lucide="star"></i>9.31</b></small></span><i data-lucide="chevron-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="ковбой бибоп cowboy bebop" data-search-genre="Приключения" data-search-status="released" data-search-type="tv" data-search-year="1998" data-search-rating="8.90"><img decoding="async" src="https://shikimori.one/system/animes/original/1.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>TV · 1998 <b class="search-result__score"><i data-lucide="star"></i>8.90</b></small></span><i data-lucide="chevron-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="атака титанов shingeki kyojin" data-search-genre="Драма" data-search-status="released" data-search-type="tv" data-search-year="2013" data-search-rating="8.55"><img decoding="async" src="https://shikimori.one/system/animes/original/16498.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>TV · 2013 <b class="search-result__score"><i data-lucide="star"></i>8.55</b></small></span><i data-lucide="chevron-right"></i></a>
+            <div class="search-empty" id="search-empty" hidden><i data-lucide="search-x"></i><strong>Ничего не найдено</strong><span>Проверьте написание или измените запрос.</span></div>
+          </div>
+          <a class="search-more" id="search-more" href="./index.html#catalog" data-close-search hidden><i data-lucide="arrow-right"></i><span>Найти в каталоге</span></a>
+          <p class="search-hint"><span class="search-hint__keys"><span><kbd>↑</kbd><kbd>↓</kbd> перемещение</span><span><kbd>Enter</kbd> открыть</span></span><span id="search-count" class="search-hint__count">Введите запрос</span></p>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="pf-dialog" id="confirm-dialog" aria-labelledby="confirm-title">
+      <div class="pf-form">
+        <header><h2 id="confirm-title">Подтвердите</h2><button class="pf-dialog__x" type="button" data-confirm-close aria-label="Закрыть"><i data-lucide="x"></i></button></header>
+        <p class="st-note" data-confirm-text></p>
+        <footer><button class="button button--secondary" type="button" data-confirm-close>Отмена</button><button class="button button--primary" type="button" data-confirm-ok><span>Подтвердить</span></button></footer>
+      </div>
+    </dialog>
+
+    <nav class="mobile-bottom-nav" aria-label="Мобильная навигация">
+      <a href="./index.html"><i data-lucide="house"></i><span>Главная</span></a>
+      <a href="./index.html#catalog"><i data-lucide="compass"></i><span>Обзор</span></a>
+      <a href="#pf-marks"><i data-lucide="bookmark"></i><span>Закладки</span></a>
+      <a class="is-active" href="./profile.html"><i data-lucide="circle-user-round"></i><span>Профиль</span></a>
+    </nav>
+
+    <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
+
+    <script src="./vendor/lucide.min.js"></script>
+    <script src="./content-model.js?v=original-parity-13"></script>
+    <script src="./content.js?v=v3-35"></script>
+    <script src="./app.js?v=v3-35"></script>
+    <script src="./profile-settings.js?v=v3-35"></script>
+  </body>
+</html>
