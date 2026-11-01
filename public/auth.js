@@ -11,27 +11,6 @@
   const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   let loginAttempts = [];
   let shown = null;
-  // Иероглиф и строка слева, офуда на карточке — у каждого экрана свои.
-  const SCENES = {
-    login: ["入口", "入", "Вход", "С возвращением. Закладки и прогресс серий ждут вас."],
-    register: ["新規", "新", "Новый", "Свой список, отметки серий и уведомления о новых сериях."],
-    forgot: ["鍵", "鍵", "Ключ", "Пароль забывается — аккаунт остаётся."],
-    reset: ["改", "改", "Пароль", "Новый пароль — и снова к сериям."],
-    verify: ["証", "証", "Почта", "Почта подтверждена — уведомления дойдут."],
-    "sent-verify": ["便", "便", "Письмо", "Письмо уже в пути."],
-    "sent-reset": ["便", "便", "Письмо", "Письмо уже в пути."],
-    "reset-done": ["済", "済", "Готово", "Готово. Можно входить."],
-  };
-  const restart = (node) => { node.classList.remove("is-changing"); void node.offsetWidth; node.classList.add("is-changing"); };
-  function paintScene(view) {
-    const scene = view === "verify" && expired ? ["期", "期", "Срок", "Ссылка устарела — отправим новую."] : SCENES[view];
-    const hero = $(".auth-hero"), ofuda = $("[data-ofuda]");
-    if ($("[data-hero-kanji]").textContent !== scene[0] && shown) { restart(hero); restart(ofuda); }
-    $("[data-hero-kanji]").textContent = scene[0];
-    $("[data-hero-line]").textContent = scene[3];
-    $("[data-ofuda-kanji]").textContent = scene[1];
-    $("[data-ofuda-label]").textContent = scene[2];
-  }
   // Ленты постеров и огни не крутятся на свёрнутой вкладке.
   document.addEventListener("visibilitychange", () => document.body.classList.toggle("is-hidden-tab", document.hidden));
 
@@ -47,9 +26,8 @@
       tab.classList.toggle("is-active", active);
       tab.setAttribute("aria-selected", String(active));
     });
-    paintScene(view);
     const entering = $(`[data-view="${view}"]`);
-    if (entering && shown && shown !== view) { entering.classList.remove("is-entering"); void entering.offsetWidth; entering.classList.add("is-entering"); }
+    if (entering) { entering.classList.remove("is-entering"); void entering.offsetWidth; entering.classList.add("is-entering"); }
     shown = view;
     document.title = `${{ login: "Вход", register: "Регистрация", forgot: "Восстановление пароля", reset: "Новый пароль", verify: "Подтверждение почты" }[view] || "Аккаунт"} — Kitsu · Кицунэ`;
     if (view === "verify") paintVerify();
@@ -60,12 +38,31 @@
   // GET /auth/verify-email: 400 «Invalid or expired verification token» после 24 часов.
   function paintVerify() {
     if (!expired) return;
-    $("[data-verify-mark]").textContent = "期";
+    const mark = $("[data-verify-mark]");
+    mark.innerHTML = '<i data-lucide="hourglass"></i>';
+    window.lucide?.createIcons({ attrs: { "aria-hidden": "true", "stroke-width": 1.6 }, root: mark });
     $("[data-verify-title]").textContent = "Ссылка устарела";
     $("[data-verify-text]").textContent = "Ссылка для подтверждения действует 24 часа. Войдите и отправьте письмо ещё раз из настроек профиля.";
     const action = $("[data-verify-action]");
     action.textContent = "Войти";
     action.href = "#login";
+  }
+
+  // Зелёная галочка у почты и имени, когда значение уже подходит под правила.
+  const RULES = { email: (v) => EMAIL.test(v), username: (v) => v.trim().length >= 3 && v.trim().length <= 50 };
+  function tick(input) {
+    const rule = RULES[input.name];
+    if (rule) input.closest(".auth-field")?.classList.toggle("is-valid", rule(input.value));
+    if (input.name === "password") meter(input);
+  }
+  // Восемь делений: по одному на символ до минимальной длины пароля, дальше — зелёное.
+  $$("[data-meter]").forEach((node) => { node.innerHTML = "<b></b>".repeat(8); });
+  function meter(input) {
+    const node = $("[data-meter]", input.closest(".auth-field"));
+    if (!node) return;
+    const n = Math.min(input.value.length, 8);
+    $$("b", node).forEach((cell, index) => cell.classList.toggle("is-on", index < n));
+    node.classList.toggle("is-full", input.value.length >= 8);
   }
 
   const fail = (form, message, field) => {
@@ -93,7 +90,8 @@
       if (loginAttempts.length > 5) return fail(form, "Слишком много попыток. Подождите минуту и попробуйте снова.");
       if (data.email.toLowerCase() === "banned@kitsu.local") return fail(form, "Этот аккаунт отключён. Напишите администрации, если считаете это ошибкой.");
       if (data.password === "wrong") return fail(form, "Неверная почта или пароль.", "password");
-      location.href = "./index.html";
+      $(".auth-card").classList.add("is-leaving");
+      setTimeout(() => { location.href = "./index.html"; }, 420);
       return true;
     },
     register(form, data) {
@@ -122,7 +120,7 @@
   };
 
   $$("form[data-view]").forEach((form) => {
-    form.addEventListener("input", () => clear(form));
+    form.addEventListener("input", (event) => { clear(form); tick(event.target); });
     form.addEventListener("submit", (event) => {
       event.preventDefault();
       const data = Object.fromEntries(new FormData(form));
@@ -133,7 +131,7 @@
   });
 
   $$("[data-toggle-password]").forEach((button) => button.addEventListener("click", () => {
-    const input = button.previousElementSibling;
+    const input = button.closest(".auth-field__box").querySelector("input");
     const visible = input.type === "password";
     input.type = visible ? "text" : "password";
     button.setAttribute("aria-pressed", String(visible));
@@ -141,6 +139,17 @@
     button.innerHTML = `<i data-lucide="${visible ? "eye-off" : "eye"}"></i>`;
     window.lucide?.createIcons({ attrs: { "aria-hidden": "true", "stroke-width": 1.8 }, root: button });
   }));
+
+  // Свет под курсором: подсветка карточки идёт за мышью (только с указателем-мышью).
+  const card = $(".auth-card"), glow = $(".auth-card__glow");
+  if (matchMedia("(hover: hover) and (pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    let frame = 0, x = 0, y = 0;
+    card.addEventListener("pointermove", (event) => {
+      const box = card.getBoundingClientRect();
+      x = event.clientX - box.left; y = event.clientY - box.top;
+      if (!frame) frame = requestAnimationFrame(() => { frame = 0; glow.style.transform = `translate3d(${x}px, ${y}px, 0)`; });
+    });
+  }
 
   // Подсказка к паролю меняется по мере ввода: сколько ещё символов нужно.
   const hint = $("[data-password-hint]");

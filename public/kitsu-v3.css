@@ -2928,13 +2928,6 @@ html[data-theme="light"] .auth-scene::after {
   background:
     linear-gradient(90deg, color-mix(in srgb, var(--canvas) 97%, transparent) 0%, color-mix(in srgb, var(--canvas) 86%, transparent) 50%, color-mix(in srgb, var(--canvas) 90%, transparent) 100%);
 }
-:root .auth-gate { position: relative; isolation: isolate; }
-/* Тории обрамляют карточку: перекладины над ней, столбы уходят вниз по бокам. */
-:root .auth-torii {
-  position: absolute; z-index: -1; top: -118px; left: 50%; width: 196%; height: auto; transform: translateX(-50%);
-  fill: var(--accent); opacity: 0.22; filter: drop-shadow(0 0 50px var(--accent-glow)); pointer-events: none;
-}
-html[data-theme="light"] .auth-torii { opacity: 0.16; }
 /* Лисьи огни: ромбы холодного огня, медленно плывут вверх и гаснут. */
 :root .auth-fire {
   position: absolute; z-index: 2; width: 14px; height: 14px; border-radius: 3px;
@@ -2960,106 +2953,167 @@ html[data-theme="light"] .auth-back { color: var(--text-muted); }
 :root .auth-back:hover { color: var(--accent-text); }
 :root .auth-back svg { width: 18px; height: 18px; }
 
-:root .auth-layout {
-  position: relative; z-index: 3; display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 440px); gap: clamp(24px, 6vw, 96px);
-  align-items: center; width: min(1180px, 100% - 32px); min-height: calc(100dvh - 90px); margin: 0 auto; padding: 8px 0 56px;
-}
-:root .auth-hero { display: grid; gap: 22px; align-content: center; }
-:root .auth-hero__kanji {
-  display: block; font-family: var(--font-heading); font-size: clamp(5rem, 13vw, 11rem); line-height: 0.9; letter-spacing: -0.02em;
-  background: var(--accent-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
-  filter: drop-shadow(0 18px 40px var(--accent-glow));
-}
-:root .auth-hero__line { max-width: 24ch; margin: 0; font-family: var(--font-heading); font-size: clamp(1.25rem, 2.4vw, 2rem); font-weight: 400; line-height: 1.2; }
-:root .auth-hero.is-changing > * { animation: auth-swap 520ms var(--ease-out) both; }
-:root .auth-hero.is-changing > :last-child { animation-delay: 80ms; }
-@keyframes auth-swap { from { opacity: 0; transform: translateY(14px); filter: blur(6px); } }
+/* ===== Форма ===== */
+/* Затемнение сцены: светлее в центре, у краёв темнее — взгляд идёт к карточке. */
+:root .auth-scene::after { background: radial-gradient(65% 75% at 50% 50%, rgba(var(--media-ink-rgb), 0.55), rgba(var(--media-ink-rgb), 0.92) 100%); }
+html[data-theme="light"] .auth-scene::after { background: radial-gradient(65% 75% at 50% 50%, color-mix(in srgb, var(--canvas) 80%, transparent), color-mix(in srgb, var(--canvas) 96%, transparent) 100%); }
+:root .auth-fire--1 { left: 30%; bottom: 22%; }
+:root .auth-fire--2 { left: 70%; bottom: 34%; }
+:root .auth-fire--3 { left: 62%; bottom: 62%; }
+:root .auth-fire--4 { left: 24%; bottom: 48%; }
 
-/* Карточка-талисман: тёмная бумага, сверху висит офуда текущего экрана. */
+:root .auth-layout { position: relative; z-index: 3; display: grid; place-items: center; width: min(460px, 100% - 32px); min-height: calc(100dvh - 90px); margin: 0 auto; padding: 8px 0 56px; }
+:root .auth-gate { position: relative; width: 100%; }
+/* Тёплое свечение под карточкой: одна статичная подложка, без пересчёта при анимации. */
+:root .auth-gate::before { position: absolute; z-index: -1; inset: 40px 8px -16px; content: ""; background: var(--accent-glow); filter: blur(56px); opacity: 0.4; }
+
+/* Карточка со срезанным углом и лисьими ушками сверху. Контур — тусклая линия, по ней бежит огонёк. */
 :root .auth-card {
-  position: relative; display: grid; gap: 20px; padding: 32px clamp(20px, 3vw, 32px) clamp(22px, 3vw, 32px);
-  border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--glass-line)); border-radius: 16px;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--accent) 9%, transparent), transparent 40%),
-    color-mix(in srgb, var(--surface) 94%, transparent);
-  box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.9), 0 0 0 1px var(--glass-hi) inset;
-  color: var(--text);
+  --ear: 24px; --cut: 26px; --edge: 1.5px; --e1: 30px; --e2: 52px; --e3: 74px;
+  position: relative; isolation: isolate; display: grid; gap: 20px; color: var(--text);
+  padding: calc(var(--ear) + 26px) clamp(20px, 3vw, 32px) 30px;
+  clip-path: polygon(0 var(--ear), var(--e1) var(--ear), var(--e2) 0, var(--e3) var(--ear), calc(100% - var(--e3)) var(--ear), calc(100% - var(--e2)) 0, calc(100% - var(--e1)) var(--ear), 100% var(--ear), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%);
+  background: color-mix(in srgb, var(--accent) 30%, var(--glass-line));
+  animation: auth-in 700ms var(--ease-out) both;
 }
-:root .auth-ofuda {
-  position: absolute; top: -64px; left: 26px; display: grid; justify-items: center; gap: 6px; width: 46px; padding: 10px 0 12px;
-  border-radius: 3px; background: var(--accent-grad); color: var(--primary-fg);
-  box-shadow: 0 16px 30px -12px var(--accent-glow); transform-origin: 50% -10px; animation: auth-sway 5s ease-in-out infinite;
+:root .auth-card::after {
+  position: absolute; z-index: -1; inset: var(--edge); content: "";
+  clip-path: polygon(0 var(--ear), var(--e1) var(--ear), var(--e2) 0, var(--e3) var(--ear), calc(100% - var(--e3)) var(--ear), calc(100% - var(--e2)) 0, calc(100% - var(--e1)) var(--ear), 100% var(--ear), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 13%, transparent), transparent 42%), var(--surface);
 }
-:root .auth-ofuda b { font-family: var(--font-heading); font-size: 1.375rem; font-weight: 400; line-height: 1; }
-:root .auth-ofuda span { writing-mode: vertical-rl; font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
-:root .auth-ofuda.is-changing { animation: auth-flip 560ms var(--ease-out), auth-sway 5s ease-in-out 560ms infinite; }
-@keyframes auth-sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
-@keyframes auth-flip { from { transform: rotateY(90deg); } }
+:root .auth-card__spark {
+  position: absolute; z-index: -2; left: 50%; top: 50%; width: calc(100% + 700px); aspect-ratio: 1; pointer-events: none;
+  background: conic-gradient(from 0deg, transparent 0 66%, var(--accent) 84%, var(--accent-2) 95%, transparent 100%);
+  transform: translate(-50%, -50%); animation: auth-orbit 7s linear infinite; will-change: transform;
+}
+@keyframes auth-orbit { to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes auth-in { from { opacity: 0; transform: translateY(26px) scale(0.97); } }
+:root .auth-card__glow {
+  position: absolute; z-index: 0; left: -170px; top: -170px; width: 340px; height: 340px; pointer-events: none; opacity: 0; transition: opacity 400ms;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 20%, transparent), transparent);
+}
+:root .auth-card:hover .auth-card__glow { opacity: 1; }
+:root .auth-card.is-leaving { animation: auth-out 420ms var(--ease-ink) both; }
+@keyframes auth-out { to { opacity: 0; transform: translateY(-18px) scale(1.02); } }
 
-:root .auth-tabs { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 10px; background: color-mix(in srgb, var(--canvas) 55%, transparent); }
+/* Вкладки: «косая» подсветка выезжает под активной. */
+:root .auth-tabs { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--glass-line); }
 :root .auth-tabs[hidden] { display: none; }
-:root .auth-tabs__thumb { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 8px; background: var(--accent-grad); box-shadow: 0 10px 24px -12px var(--accent-glow); transition: transform 360ms var(--ease-out); }
+:root .auth-tabs__thumb { position: absolute; top: 0; bottom: -1px; left: 0; width: 50%; transition: transform 520ms var(--ease-spring); }
+:root .auth-tabs__thumb::before { position: absolute; inset: 0 0 3px; content: ""; background: linear-gradient(0deg, var(--accent-soft), transparent); }
+:root .auth-tabs__thumb::after { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; content: ""; background: var(--accent-grad); clip-path: polygon(14px 0, 100% 0, calc(100% - 14px) 100%, 0 100%); box-shadow: 0 0 18px var(--accent-glow); }
 :root .auth-tabs:has([data-auth-tab="register"].is-active) .auth-tabs__thumb { transform: translateX(100%); }
-:root .auth-tab { position: relative; z-index: 1; display: grid; place-items: center; min-height: 40px; color: var(--text-muted); font-weight: 700; transition: color 240ms; }
-:root .auth-tab.is-active { color: var(--primary-fg); }
-:root .auth-view { display: grid; gap: 14px; }
+:root .auth-tab { position: relative; z-index: 1; display: grid; place-items: center; min-height: 48px; color: var(--text-muted); font-family: var(--font-heading); font-size: 1.0625rem; transition: color 240ms; }
+:root .auth-tab:hover { color: var(--text); }
+:root .auth-tab.is-active { color: var(--text); }
+
+:root .auth-view { position: relative; z-index: 1; display: grid; gap: 16px; }
 :root .auth-view[hidden] { display: none; }
-:root .auth-view.is-entering { animation: auth-swap 420ms var(--ease-out) both; }
-:root .auth-view h2 { margin: 0; font-family: var(--font-heading); font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 400; line-height: 1.1; }
-:root .auth-lead { margin: -4px 0 4px; color: var(--text-muted); font-size: 0.9375rem; line-height: 1.5; }
+:root .auth-view.is-entering > * { animation: auth-rise 560ms var(--ease-out) both; animation-delay: calc(var(--i, 0) * 60ms); }
+:root .auth-view > :nth-child(1) { --i: 0; } :root .auth-view > :nth-child(2) { --i: 1; } :root .auth-view > :nth-child(3) { --i: 2; } :root .auth-view > :nth-child(4) { --i: 3; }
+:root .auth-view > :nth-child(5) { --i: 4; } :root .auth-view > :nth-child(6) { --i: 5; } :root .auth-view > :nth-child(7) { --i: 6; } :root .auth-view > :nth-child(8) { --i: 7; }
+@keyframes auth-rise { from { opacity: 0; transform: translateY(16px); } }
+:root .auth-view h2 { margin: 0; font-family: var(--font-heading); font-size: clamp(1.5rem, 3vw, 1.875rem); font-weight: 400; line-height: 1.1; }
+:root .auth-lead { margin: -6px 0 2px; color: var(--text-muted); font-size: 0.9375rem; line-height: 1.5; }
 :root .auth-lead strong { color: var(--text); overflow-wrap: anywhere; }
-:root .auth-field { display: grid; gap: 6px; }
-:root .auth-field > span:first-child { color: var(--text-muted); font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.02em; }
-:root .auth-field input {
-  width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--glass-line); border-radius: 10px;
-  background: color-mix(in srgb, var(--canvas) 70%, transparent); color: var(--text); font: inherit; font-size: 1rem;
-  transition: border-color 200ms, box-shadow 200ms;
+
+/* Поле: подпись лежит внутри и всплывает при вводе, снизу прорисовывается линия-огонь. Верхний правый угол срезан. */
+:root .auth-field { display: grid; gap: 8px; }
+:root .auth-field__box { position: relative; display: block; clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); }
+:root .auth-field__box input {
+  display: block; width: 100%; min-height: 58px; padding: 25px 48px 8px 16px; border: 0; border-radius: 0;
+  background: color-mix(in srgb, var(--canvas) 64%, transparent); box-shadow: inset 0 -1px 0 var(--glass-line);
+  color: var(--text); font: inherit; font-size: 1rem; outline: none; transition: background 260ms;
 }
-:root .auth-field input:focus { border-color: color-mix(in srgb, var(--accent) 65%, transparent); outline: none; box-shadow: 0 0 0 3px var(--accent-softer), 0 10px 30px -18px var(--accent-glow); }
-:root .auth-field input[aria-invalid="true"] { border-color: var(--red); }
-:root .auth-field small { color: var(--text-muted); font-size: 0.8125rem; }
-:root .auth-field small.is-ok { color: var(--green); }
-:root .auth-password { position: relative; display: block; }
-:root .auth-password input { padding-right: 48px; }
-:root .auth-password button { position: absolute; top: 0; right: 0; display: grid; place-items: center; width: 48px; height: 48px; border: 0; background: none; color: var(--text-muted); cursor: pointer; }
-:root .auth-password button:hover { color: var(--accent-text); }
-:root .auth-password svg { width: 20px; height: 20px; }
-:root .auth-error { margin: 0; padding: 10px 12px; border-left: 3px solid var(--red); border-radius: 4px; background: color-mix(in srgb, var(--red) 12%, transparent); color: var(--text); font-size: 0.875rem; line-height: 1.45; }
+:root .auth-field__box input:focus { background: color-mix(in srgb, var(--accent) 9%, var(--canvas)); }
+:root .auth-field__label {
+  position: absolute; left: 16px; top: 18px; max-width: calc(100% - 64px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: var(--text-muted); font-size: 1rem; pointer-events: none; transform-origin: 0 0; transition: transform 280ms var(--ease-out), color 200ms;
+}
+:root .auth-field__box input:focus ~ .auth-field__label,
+:root .auth-field__box input:not(:placeholder-shown) ~ .auth-field__label,
+:root .auth-field__box input:-webkit-autofill ~ .auth-field__label { transform: translateY(-12px) scale(0.78); }
+:root .auth-field__box input:focus ~ .auth-field__label { color: var(--accent-text); }
+:root .auth-field__bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--accent-grad); transform: scaleX(0); transform-origin: 0 50%; transition: transform 460ms var(--ease-out); }
+:root .auth-field__box input:focus ~ .auth-field__bar { transform: scaleX(1); }
+:root .auth-field__box input[aria-invalid="true"] ~ .auth-field__bar { background: var(--red); transform: scaleX(1); }
+:root .auth-field__box input[aria-invalid="true"] ~ .auth-field__label { color: var(--red); }
+:root .auth-field__box:has(input[aria-invalid="true"]) { animation: auth-shake 380ms var(--ease-out); }
+@keyframes auth-shake { 20% { transform: translateX(-6px); } 45% { transform: translateX(5px); } 70% { transform: translateX(-3px); } }
+:root .auth-field__ok { position: absolute; top: 20px; right: 16px; width: 20px; height: 20px; color: var(--green); opacity: 0; transform: scale(0.4) rotate(-20deg); transition: opacity 240ms, transform 420ms var(--ease-spring); pointer-events: none; }
+:root .auth-field.is-valid .auth-field__ok { opacity: 1; transform: none; }
+:root .auth-field > small { color: var(--text-muted); font-size: 0.8125rem; line-height: 1.4; }
+:root .auth-field > small.is-ok { color: var(--green); }
+:root .auth-field__box button { position: absolute; top: 0; right: 0; display: grid; place-items: center; width: 52px; height: 100%; border: 0; background: none; color: var(--text-muted); cursor: pointer; transition: color 200ms; }
+:root .auth-field__box button:hover { color: var(--accent-text); }
+:root .auth-field__box button svg { width: 20px; height: 20px; }
+/* Деления пароля: по одному на символ до восьми, на восьми — зелёные. */
+:root .auth-meter { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; height: 6px; }
+:root .auth-meter b { background: var(--glass-line); clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%); transform-origin: 50% 100%; transition: background 220ms, transform 360ms var(--ease-spring); }
+:root .auth-meter b.is-on { background: var(--accent-grad); transform: scaleY(1.5); }
+:root .auth-meter.is-full b.is-on { background: var(--green); }
+
+:root .auth-error { margin: 0; padding: 11px 14px 11px 16px; border-left: 3px solid var(--red); background: color-mix(in srgb, var(--red) 12%, transparent); color: var(--text); font-size: 0.875rem; line-height: 1.45; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%); }
 :root .auth-error[hidden] { display: none; }
-:root .auth-error:not([hidden]) { animation: auth-shake 360ms var(--ease-out); }
-@keyframes auth-shake { 25% { transform: translateX(-4px); } 60% { transform: translateX(3px); } }
-:root .auth-submit { width: 100%; min-height: 50px; justify-content: center; font-size: 1rem; }
-:root .auth-submit.is-busy { opacity: 0.75; cursor: progress; }
-:root .auth-link { display: inline-flex; align-items: center; gap: 6px; justify-self: center; padding: 6px 0; border: 0; background: none; color: var(--accent-text); font: inherit; font-size: 0.9375rem; font-weight: 600; cursor: pointer; }
-:root .auth-link--back { justify-self: start; color: var(--text-muted); }
-:root .auth-link svg { width: 16px; height: 16px; }
+:root .auth-error:not([hidden]) { animation: auth-rise 360ms var(--ease-out); }
+
+/* Кнопка: срезаны два угла, блик пробегает при наведении, при отправке по низу идёт огонёк. */
+:root .button.auth-submit {
+  position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 56px; padding: 0 20px 0 24px;
+  border: 0; border-radius: 0 !important; background: var(--accent-grad); color: var(--primary-fg); font-size: 1rem; font-weight: 800; letter-spacing: 0.01em; text-decoration: none; cursor: pointer;
+  clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  box-shadow: none; transition: transform 200ms var(--ease-out), filter 200ms;
+}
+:root .button.auth-submit.button--secondary { background: color-mix(in srgb, var(--accent) 18%, var(--surface-raised)); color: var(--text); }
+:root .auth-submit:hover { filter: brightness(1.08); }
+:root .auth-submit:active { transform: scale(0.985); }
+:root .auth-submit::before { position: absolute; inset: 0 auto 0 0; width: 45%; content: ""; background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.5), transparent); transform: translateX(-140%) skewX(-18deg); }
+:root .auth-submit:hover::before { transform: translateX(300%) skewX(-18deg); transition: transform 760ms var(--ease-out); }
+:root .auth-submit::after { position: absolute; left: 0; bottom: 0; width: 38%; height: 4px; content: ""; background: var(--primary-fg); opacity: 0; transform: translateX(-100%); }
+:root .auth-submit.is-busy { cursor: progress; }
+:root .auth-submit.is-busy::after { opacity: 0.55; animation: auth-run 900ms linear infinite; }
+@keyframes auth-run { to { transform: translateX(270%); } }
+:root .auth-submit svg { flex: none; width: 20px; height: 20px; transition: transform 320ms var(--ease-out); }
+:root .auth-submit:hover svg { transform: translateX(6px); }
+:root .auth-submit.is-busy svg { animation: auth-dash 700ms ease-in-out infinite alternate; }
+@keyframes auth-dash { from { transform: translateX(0); } to { transform: translateX(8px); } }
+
+:root .auth-link { position: relative; display: inline-flex; align-items: center; gap: 6px; justify-self: center; padding: 6px 0; border: 0; background: linear-gradient(var(--accent-text), var(--accent-text)) no-repeat 0 100% / 0 2px; color: var(--accent-text); font: inherit; font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: background-size 360ms var(--ease-out); }
+:root .auth-link:hover { background-size: 100% 2px; }
+:root .auth-link--back { justify-self: start; color: var(--text-muted); background-image: linear-gradient(var(--text), var(--text)); }
+:root .auth-link svg { width: 16px; height: 16px; transition: transform 300ms var(--ease-out); }
+:root .auth-link--back:hover svg { transform: translateX(-4px); }
 :root .auth-demo, :root .auth-note { margin: 0; color: var(--text-muted); font-size: 0.8125rem; line-height: 1.5; }
-:root .auth-demo { padding-top: 12px; border-top: 1px dashed var(--glass-line); }
+:root .auth-demo { padding-top: 14px; border-top: 1px dashed var(--glass-line); }
 :root .auth-demo code { font-family: var(--font-mono); color: var(--text); }
 :root .auth-demo a { color: var(--accent-text); }
+
+/* Печать состояния: большая иконка проявляется слева направо, рядом всплывают огоньки. */
 :root .auth-state { justify-items: start; }
-:root .auth-state__mark { display: none; }
-:root .auth-state .auth-link { justify-self: start; }
+:root .auth-state .auth-submit { justify-self: stretch; }
+:root .auth-seal { position: relative; display: block; width: 72px; height: 72px; color: var(--accent-text); filter: drop-shadow(0 0 22px var(--accent-glow)); }
+:root .auth-seal svg { width: 72px; height: 72px; stroke-width: 1.4; animation: auth-stamp 900ms var(--ease-out) both; }
+:root .auth-seal::before, :root .auth-seal::after { position: absolute; width: 9px; height: 9px; content: ""; border-radius: 2px; background: #7de3ff; box-shadow: 0 0 14px 4px rgba(125, 227, 255, 0.5); transform: rotate(45deg); animation: auth-twinkle 3.2s ease-in-out infinite; }
+:root .auth-seal::before { top: 2px; right: -14px; }
+:root .auth-seal::after { bottom: 6px; right: -30px; width: 6px; height: 6px; animation-delay: 1.4s; }
+@keyframes auth-stamp { from { clip-path: inset(0 100% 0 0); transform: translateY(-14px) rotate(-8deg); } to { clip-path: inset(0 0 0 0); } }
+@keyframes auth-twinkle { 0%, 100% { opacity: 0.1; transform: rotate(45deg) scale(0.5); } 50% { opacity: 1; transform: rotate(45deg) scale(1); } }
+
+body[data-page="auth"].is-hidden-tab .auth-card__spark { animation-play-state: paused; }
 
 @media (max-width: 900px) {
-  :root .auth-layout { grid-template-columns: minmax(0, 1fr); width: min(480px, 100% - 32px); min-height: 0; gap: 18px; padding-top: 0; }
-  :root .auth-hero { gap: 8px; }
-  :root .auth-hero__kanji { font-size: clamp(3.5rem, 18vw, 5rem); }
-  :root .auth-hero__line { font-size: 1.125rem; }
   :root .auth-reel { grid-template-columns: repeat(3, 1fr); opacity: 0.32; }
   :root .auth-reel__col:nth-child(4) { display: none; }
-  :root .auth-torii { top: -54px; width: 150%; opacity: 0.16; }
-  :root .auth-ofuda { display: none; }
-  :root .auth-scene::after { background: linear-gradient(180deg, rgba(var(--media-ink-rgb), 0.82), rgba(var(--media-ink-rgb), 0.94) 50%); }
-  :root .auth-fire--1 { left: 80%; bottom: 6%; }
-  :root .auth-fire--3 { left: 10%; bottom: 12%; }
+  :root .auth-layout { min-height: 0; padding-top: 12px; }
 }
 @media (max-width: 420px) {
-  :root .auth-card { padding: 22px 16px 20px; border-radius: 14px; }
+  :root .auth-card { --ear: 18px; --cut: 20px; --e1: 20px; --e2: 36px; --e3: 52px; padding: calc(var(--ear) + 20px) 16px 22px; gap: 18px; }
   :root .auth-top { padding: 14px 16px; }
+  :root .auth-view h2 { font-size: 1.5rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  :root .auth-reel__col, :root .auth-fire, :root .auth-ofuda, :root .auth-hero > *, :root .auth-view, :root .auth-error { animation: none !important; }
+  :root .auth-reel__col, :root .auth-fire, :root .auth-card, :root .auth-card__spark, :root .auth-view > *, :root .auth-error, :root .auth-field__box, :root .auth-seal svg, :root .auth-seal::before, :root .auth-seal::after, :root .auth-submit.is-busy svg { animation: none !important; }
+  :root .auth-card__spark { transform: translate(-50%, -50%) rotate(40deg); }
   :root .auth-fire { opacity: 0.6; }
-  :root .auth-tabs__thumb { transition: none; }
+  :root .auth-tabs__thumb, :root .auth-field__bar, :root .auth-field__label, :root .auth-submit, :root .auth-submit svg { transition: none; }
 }
