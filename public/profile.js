@@ -104,9 +104,10 @@
   /* ---------- Слой запросов ---------- */
   const fail = () => { throw new Error("network"); };
   const api = {
-    // GET /users/me → FullUser: username, bio, avatar_url, cover_url, is_verified, created_at, role{name}, decoration{image_url}
+    // GET /users/me → FullUser: username, bio, avatar_url, cover_url, is_verified, created_at, role{name}, decoration{image_url}, preferences
+    // Без входа — 401: вместо профиля приглашение войти (?state=guest).
     // Демо: то, что сохранили в profile-settings.html, лежит в localStorage и перекрывает исходные значения.
-    async me() { await sleep(260); if (STATE === "error") fail(); let saved = {}; try { saved = JSON.parse(localStorage.getItem("kitsu-demo-profile") || "{}"); } catch (_) {} return { ...DEMO.me, ...saved }; },
+    async me() { await sleep(260); if (STATE === "error") fail(); if (STATE === "guest") { const e = new Error("Not authenticated"); e.status = 401; throw e; } let saved = {}; try { saved = JSON.parse(localStorage.getItem("kitsu-demo-profile") || "{}"); } catch (_) {} return { ...DEMO.me, ...saved }; },
     // GET /users/public/{user_id}/stats → {favorites_count, comments_count, followers_count, following_count}
     async publicStats() { await sleep(300); if (STATE === "error") fail(); return STATE === "empty" ? { favorites_count: 0, comments_count: 0, followers_count: 0, following_count: 0 } : DEMO.publicStats; },
     // GET /interactions/watch-stats/me → {total_seconds_watched, total_episodes_watched, updated_at}; без строки отдаёт нули
@@ -202,6 +203,39 @@
   }
   const emptyBox = (icon, title, text, action = "") => `<div class="pf-state"><i data-lucide="${icon}"></i><strong>${esc(title)}</strong><span>${esc(text)}</span>${action}</div>`;
 
+  /* ---------- Соцсети ---------- */
+  // Та же проверка стоит в profile-settings.js (parseSocial): там она не даёт сохранить неверное значение.
+  const SOCIAL = {
+    vk: { label: "VK", base: "https://vk.com/", hosts: ["vk.com", "m.vk.com", "vk.ru"], handle: /^[a-z0-9_.]{2,32}$/i },
+    telegram: { label: "Telegram", base: "https://t.me/", hosts: ["t.me", "telegram.me"], handle: /^[a-z0-9_]{5,32}$/i },
+    discord: { label: "Discord", base: "", hosts: [], handle: /^(?:[a-z0-9_.]{2,32}|[^#@:]{2,32}#\d{4})$/ },
+  };
+  function parseSocial(key, raw) {
+    const rule = SOCIAL[key]; let v = String(raw ?? "").trim();
+    if (!v) return { handle: "", href: "" };
+    if (rule.hosts.length && (/^https?:\/\//i.test(v) || /^([a-z0-9-]+\.)+[a-z]{2,}\//i.test(v))) {
+      let url; try { url = new URL(/^https?:/i.test(v) ? v : `https://${v}`); } catch (_) { return { handle: "", href: "", error: "link" }; }
+      if (!rule.hosts.includes(url.hostname.toLowerCase().replace(/^www\./, ""))) return { handle: "", href: "", error: "host" };
+      v = url.pathname.split("/").filter(Boolean)[0] || "";
+    }
+    v = v.replace(/^@/, "");
+    if (!rule.handle.test(v)) return { handle: "", href: "", error: "handle" };
+    return { handle: v, href: rule.base ? rule.base + v : "" };
+  }
+
+  // Без входа (GET /users/me → 401) — как в рабочем проекте: вместо профиля приглашение войти.
+  function guestGate() {
+    const main = $("#profile-main"); const hero = $("[data-hero]");
+    // Гость: в шапке сайта вместо аккаунта — «Войти», как на главной.
+    $$(".header-account").forEach((a) => a.outerHTML = '<a class="header-login" href="./auth.html#login">Войти</a>');
+    $$(":scope > :not([data-hero])", main).forEach((node) => { node.hidden = true; });
+    hero.classList.add("pf-hero--gate");
+    $(".pf-hero__body", hero).innerHTML = `<h1 id="pf-name">Войдите, чтобы открыть профиль</h1>
+      <p class="pf-bio">Здесь будут закладки, история просмотра, коллекции и время, проведённое за аниме.</p>
+      <div class="pf-actions"><a class="button button--primary" href="./auth.html#login"><i data-lucide="log-in"></i><span>Войти</span></a><a class="button button--secondary" href="./auth.html#register"><i data-lucide="user-plus"></i><span>Регистрация</span></a></div>`;
+    document.title = "Профиль — Kitsu · Кицунэ"; icons(hero); hero.classList.add("is-ready");
+  }
+
   /* ---------- Шапка ---------- */
   async function loadHero() {
     const hero = $("[data-hero]");
@@ -221,27 +255,36 @@
       $("[data-avatar]").classList.toggle("is-online", online);
       $("[data-chips]").innerHTML = `${me.is_verified ? '<span class="pf-chip pf-chip--ok"><i data-lucide="badge-check"></i>Почта подтверждена</span>' : '<span class="pf-chip pf-chip--warn"><i data-lucide="mail-warning"></i>Почта не подтверждена</span>'}<span class="pf-chip"><i data-lucide="calendar-days"></i>С нами с ${esc(since)}</span>`;
       $("[data-bio]").textContent = me.bio || "Статус не установлен";
+      // Показываем avatar_url, как рабочий проект. Аватар из коллекции настройки тоже записывают в avatar_url
+      // (active_avatar_id сервер не умеет сбрасывать), поэтому отдельной ветки для active_avatar нет.
       const av = $("[data-avatar]");
-      av.innerHTML = me.avatar_url ? `<img src="${esc(me.avatar_url)}" alt="" />` : `<span>${esc((me.active_avatar?.title || me.username).charAt(0).toUpperCase())}</span>`;
-      // active_avatar{title,image_url} и decoration{title,image_url}: в демо картинок нет, тон и рамка приходят номером.
-      if (me.active_avatar?.image_url) av.innerHTML = `<img src="${esc(me.active_avatar.image_url)}" alt="" />`;
-      if (me.active_avatar && !me.avatar_url) av.dataset.tone = me.active_avatar.tone ?? 0;
+      av.innerHTML = me.avatar_url ? `<img src="${esc(me.avatar_url)}" alt="" />` : `<span>${esc(me.username.charAt(0).toUpperCase())}</span>`;
+      // decoration{image_url} — рамка поверх аватара; в демо картинок рамок нет, рамка приходит номером.
       if (me.decoration?.image_url) av.insertAdjacentHTML("beforeend", `<img class="pf-avatar__deco" src="${esc(me.decoration.image_url)}" alt="" />`);
       if (me.decoration && me.decoration.frame != null) av.dataset.frame = me.decoration.frame;
       if (me.cover_url) { const cv = $("[data-cover]"); cv.style.backgroundImage = `url("${me.cover_url.replace(/"/g, "%22")}")`; cv.classList.add("has-image"); }
-      // Соцсети лежат в preferences.vk / telegram / discord (PUT /users/me мерджит preferences).
-      const socials = [["vk", "VK", "https://vk.com/"], ["telegram", "Telegram", "https://t.me/"], ["discord", "Discord", ""]]
-        .filter(([key]) => me.preferences?.[key]).map(([key, label, prefix]) => {
-          const value = String(me.preferences[key]).trim(); const href = /^https?:\/\//.test(value) ? value : prefix ? prefix + value.replace(/^@/, "") : "";
-          return href ? `<a class="pf-chip pf-chip--link" href="${esc(href)}" target="_blank" rel="noopener noreferrer"><i data-lucide="external-link"></i>${label}</a>` : `<span class="pf-chip"><i data-lucide="at-sign"></i>${label}: ${esc(value)}</span>`; }).join("");
+      // Соцсети лежат в preferences.vk / telegram / discord. Ссылку строим только на домен самой сети:
+      // чужой адрес под подписью «VK» не превращается в ссылку. Discord ссылки не имеет — имя копируется.
+      const socials = ["vk", "telegram", "discord"].map((key) => [key, parseSocial(key, me.preferences?.[key])]).filter(([, v]) => v.handle)
+        .map(([key, v]) => v.href
+          ? `<a class="pf-chip pf-chip--link" href="${esc(v.href)}" target="_blank" rel="noopener noreferrer"><i data-lucide="external-link"></i>${SOCIAL[key].label}<span class="sr-only"> (откроется в новой вкладке)</span></a>`
+          : `<button class="pf-chip pf-chip--link" type="button" data-copy="${esc(v.handle)}" aria-label="Скопировать имя в Discord: ${esc(v.handle)}"><i data-lucide="copy"></i>Discord: ${esc(v.handle)}</button>`).join("");
       $("[data-chips]").insertAdjacentHTML("beforeend", socials);
+      $("[data-copy]", hero)?.addEventListener("click", async (e) => {
+        const name = e.currentTarget.dataset.copy;
+        try { await navigator.clipboard.writeText(name); toast("Скопировано", `Имя в Discord: ${name}`); } catch (_) { toast("Не получилось скопировать", `Имя в Discord: ${name}`, "danger"); }
+      });
       const counts = [["В закладках", stats.favorites_count], ["Комментарии", stats.comments_count], ["Подписчики", stats.followers_count], ["Подписки", stats.following_count]];
       $("[data-counts]").innerHTML = counts.map(([label, value]) => `<div><dt>${label}</dt><dd data-n="${value}">0</dd></div>`).join("");
       $$("[data-counts] dd").forEach((dd) => countUp(dd, Number(dd.dataset.n)));
       icons(hero);
-    } catch (_) {
+    } catch (err) {
+      if (err.status === 401) { guestGate(); return; }
       $("[data-name]").textContent = "Профиль";
-      $("[data-bio]").textContent = "Не удалось загрузить данные профиля.";
+      $("[data-bio]").textContent = "Не удалось загрузить данные профиля. Проверьте соединение и повторите.";
+      $("[data-chips]").innerHTML = '<button class="button button--secondary" type="button" data-hero-retry><i data-lucide="refresh-cw"></i><span>Повторить</span></button>';
+      $("[data-hero-retry]").addEventListener("click", () => { $("[data-chips]").innerHTML = ""; loadHero(); });
+      icons(hero);
     }
     hero.classList.add("is-ready");
   }
@@ -331,7 +374,7 @@
     return `<li class="pf-card" style="--i:${Math.min(i, 11)}" data-card="${esc(f.anime_id)}">
       <a class="pf-card__poster" href="./anime.html?title=${encodeURIComponent(a.slug)}" aria-label="${esc(a.title)}">
         <img src="${esc(a.poster_url)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-poster="${esc(a.title)}" />
-        ${a.score ? `<span class="pf-card__score"><i data-lucide="star"></i>${a.score.toFixed(1)}</span>` : ""}
+        ${a.score ? `<span class="poster-score pf-card__score">${a.score.toFixed(1)}</span>` : ""}
         <span class="pf-card__eps">${total ? `${total} эп.` : `${a.episodes_aired} эп.`}</span>
       </a>
       <button class="pf-card__more" type="button" aria-haspopup="menu" aria-label="Изменить статус «${esc(a.title)}»" data-menu="${esc(f.anime_id)}"><i data-lucide="ellipsis"></i></button>
