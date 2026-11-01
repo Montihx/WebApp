@@ -2215,8 +2215,9 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 :root .anime-card .bookmark-status-bar::after { display: none !important; }
 :root .anime-card .bookmark-status-bar::before { width: 10px; height: 10px; background: #fff; opacity: 0.9; }
 :root .anime-card.has-bookmark-status .poster-action { bottom: 26px; }
-@container (max-width: 130px) {
-  :root .anime-card .bookmark-status-bar { min-height: 18px; padding: 0 5px; font-size: var(--fs-1); letter-spacing: 0.02em; }
+@container (max-width: 160px) {
+  :root .anime-card .bookmark-status-bar { min-height: 20px; padding: 0 3px; font-size: var(--fs-1); letter-spacing: 0; text-transform: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  :root .anime-card .bookmark-status-bar::before { display: none; }
 }
 
 /* Safari на телефонах перестаёт обрезать скруглением постера то, что сейчас
@@ -3150,10 +3151,6 @@ body[data-page="bookmarks"].is-hidden-tab .pf-skel { animation-play-state: pause
 :root .bm-head { display: grid; gap: 18px; margin-bottom: 22px; }
 :root .bm-head h1 { display: flex; align-items: baseline; gap: 14px; margin: 4px 0 0; font-family: var(--font-heading); font-size: var(--fs-h1); font-weight: 400; line-height: 1.05; }
 :root .bm-total { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.45em; font-weight: 700; }
-/* «Полка»: доли статусов одной полосой, цвет — как у статуса на постерах. */
-:root .bm-shelf { display: flex; gap: 3px; height: 8px; }
-:root .bm-shelf[hidden] { display: none; }
-:root .bm-shelf > span { flex: 0 0 calc(var(--share) - 3px); min-width: 6px; border-radius: var(--radius-2xs); background: var(--bookmark-color); transform-origin: left; }
 
 :root .bm-tabs { position: relative; display: flex; gap: 2px; margin: 0 0 16px; padding-bottom: 2px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--line); }
 :root .bm-tabs::-webkit-scrollbar { display: none; }
@@ -3202,7 +3199,6 @@ body[data-page="bookmarks"].is-hidden-tab .pf-skel { animation-play-state: pause
 }
 
 @media (prefers-reduced-motion: reduce) {
-   :root .bm-shelf > span { animation: none; }
   :root .bm-tabs__bar { transition: none; }
 }
 /* Свои вкладки (data-own-tabs) рисуют собственную полосу; общий .tab-indicator из app.js им не нужен. */
