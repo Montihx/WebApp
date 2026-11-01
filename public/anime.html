@@ -112,6 +112,8 @@
               </div>
               <div class="title-poster-actions">
                 <button class="button button--primary button--wide" type="button" data-scroll-player><i data-lucide="play"></i>Смотреть</button>
+                <!-- GET /anime/{slug}/last-update → {episode_number, season, translation_team, updated_at}; без релизов все поля null, подпись прячется. -->
+                <p class="title-last-update" data-last-update><i data-lucide="sparkles"></i><span>Добавлено: 74 серия · AniLibria</span><time datetime=""></time></p>
                 <div class="list-control">
                   <button class="button button--secondary button--wide" type="button" id="list-trigger" aria-expanded="false" aria-controls="list-menu"><span class="title-list-icon" aria-hidden="true"><i data-lucide="bookmark-plus"></i></span><span id="list-label" aria-live="polite">В закладки</span><i data-lucide="chevron-down"></i></button>
                   <div class="list-menu" id="list-menu" hidden>
@@ -134,7 +136,7 @@
             <div class="title-main-copy">
               <div class="title-status-line"><span class="status-pill status-pill--released"><span></span>Завершён</span><span>TV-сериал</span><span>2004</span></div>
               <div class="title-heading-row">
-                <div><h1 id="title-name">Монстр</h1><p>Monster</p></div>
+                <div><h1 id="title-name">Монстр</h1><p class="title-alt"><span data-title-en>Monster</span><abbr class="age-badge" data-age title="Возрастной рейтинг R — с 17 лет">17+</abbr></p></div>
                 <button class="icon-button title-info-button" type="button" data-open-titles aria-label="Все названия" aria-haspopup="dialog" aria-controls="titles-dialog"><i data-lucide="info"></i></button>
               </div>
               <div class="title-mobile-actions" aria-label="Основные действия">
@@ -143,13 +145,15 @@
                 <button class="title-mobile-count title-mobile-comment" type="button" data-scroll-comments aria-label="326 комментариев. Перейти к обсуждению"><i data-lucide="message-circle"></i><strong data-field="comments_count">326</strong></button>
               </div>
               <button class="button button--primary title-mobile-watch" type="button" data-scroll-player><i data-lucide="play"></i><span>Смотреть серию 1</span></button>
-              <ul class="title-meta-list" aria-label="Основные сведения о тайтле">
-                <li><i data-lucide="map-pin" aria-hidden="true"></i><span>Япония, 2004–2005 гг.</span></li>
-                <li><i data-lucide="monitor-play"></i><span>74 эп. по ~24 мин.</span></li>
-                <li><i data-lucide="calendar-days"></i><span>TV-сериал, завершён</span></li>
+              <p class="title-last-update title-last-update--mobile" data-last-update><i data-lucide="sparkles"></i><span>Добавлено: 74 серия · AniLibria</span><time datetime=""></time></p>
+              <!-- Факты — только из полей Anime: aired_on (сезон), episodes_aired/episodes_total, kind + status + next_episode_at (день выхода),
+                   score + score_count, studios. Страны, длительности серии, первоисточника и автора в бэкенде нет — их здесь нет. -->
+              <ul class="title-meta-list" aria-label="Основные сведения о тайтле" data-facts>
+                <li><i data-lucide="calendar-range" aria-hidden="true"></i><span>Весна 2004</span></li>
+                <li><i data-lucide="monitor-play"></i><span>74 эп.</span></li>
+                <li><i data-lucide="calendar-days"></i><span>ТВ-сериал, завершён</span></li>
                 <li><i data-lucide="star"></i><span>Оценка 8.88 · 12 400 оценок</span></li>
                 <li><i data-lucide="users"></i><span>Студия <a href="./index.html#catalog">Madhouse</a></span></li>
-                <li><i data-lucide="shield-check"></i><span>Возрастной рейтинг R-17</span></li>
               </ul>
               <div class="genre-links" aria-label="Жанры"><a href="./index.html#catalog">Драма</a>, <a href="./index.html#catalog">Детектив</a>, <a href="./index.html#catalog">Триллер</a>, <a href="./index.html#catalog">Психологическое</a></div>
               <div class="title-description" id="title-description">

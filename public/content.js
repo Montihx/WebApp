@@ -9,6 +9,46 @@
   const at = (day, hour, minute = 0) => { const now = new Date(); return new Date(now.getFullYear(), now.getMonth(), now.getDate() + day, hour, minute).toISOString(); };
   // Next aired episode for ongoing demo titles (in the app: anime.next_episode_at).
   const nextEpisode = { 'one-piece': { episode: 1156, at: at(2, 19, 30) } };
+  // GET /anime/{slug}/last-update — последний добавленный релиз (в демо — только у части тайтлов).
+  const lastUpdate = {
+    monster: { episode_number: 74, season: 1, translation_team: 'AniLibria', updated_at: at(-2, 14, 20) },
+    'one-piece': { episode_number: 1155, season: 1, translation_team: 'AniDUB', updated_at: at(-1, 21, 5) },
+    'steins-gate': { episode_number: 24, season: 1, translation_team: 'AniDUB', updated_at: at(-6, 20, 40) },
+  };
+  const rtf = new Intl.RelativeTimeFormat('ru', { numeric: 'auto' });
+  const agoLabel = iso => {
+    const date = M.parseDateAsUtc(iso); if (!date) return '';
+    const days = Math.round((date - Date.now()) / 86400000);
+    if (Math.abs(days) >= 1) return rtf.format(days, 'day');
+    const hours = Math.round((date - Date.now()) / 3600000);
+    return Math.abs(hours) >= 1 ? rtf.format(hours, 'hour') : 'только что';
+  };
+
+  // Факты о тайтле, возраст и «Добавлено: …» — из полей Anime и /last-update; одинаково для всех тайтлов.
+  function renderFacts(title) {
+    const status = title.status || 'released';
+    const age = M.ageLabel(title.rating); const badge = $('[data-age]');
+    if (badge) { badge.hidden = !age; if (age) { badge.textContent = age.short; badge.title = age.full; badge.setAttribute('aria-label', age.full); } }
+    const total = 'episodes_total_api' in title ? title.episodes_total_api : title.episodes_total;
+    const next = nextEpisode[title.slug]?.at || title.next_episode_at;
+    const schedule = status === 'ongoing' && next ? `выходит ${M.weekdayLabel(next)}` : { released: 'завершён', ongoing: 'выходит', announced: 'анонс' }[status];
+    const studios = title.studios || (title.studio ? [title.studio] : []);
+    const rows = [
+      ['calendar-range', esc(M.seasonLabel(title.aired_on, title.year))],
+      ['monitor-play', esc(M.episodesLabel({ status, episodes_aired: title.episodes_aired, episodes_total: total }))],
+      ['calendar-days', esc(`${M.kindLabel(title.kind)}, ${schedule}`)],
+      title.score > 0 ? ['star', `Оценка ${esc(title.score)}${title.score_count ? ` · ${new Intl.NumberFormat('ru-RU').format(title.score_count)} ${M.plural(title.score_count, 'оценка', 'оценки', 'оценок')}` : ''}`] : null,
+      studios.length ? ['users', `${studios.length > 1 ? 'Студии' : 'Студия'} ${studios.map(name => `<a href="./index.html#catalog">${esc(name)}</a>`).join(', ')}`] : null,
+    ].filter(row => row && row[1]);
+    $('[data-facts]').innerHTML = rows.map(([icon, text]) => `<li><i data-lucide="${icon}"></i><span>${text}</span></li>`).join('');
+    const update = lastUpdate[title.slug]; const label = M.lastUpdateLabel(update);
+    document.querySelectorAll('[data-last-update]').forEach(node => {
+      node.hidden = !label; if (!label) return;
+      node.querySelector('span').textContent = label;
+      const time = node.querySelector('time'); time.dateTime = update.updated_at || ''; time.textContent = update.updated_at ? agoLabel(update.updated_at) : '';
+    });
+    window.lucide?.createIcons?.({ attrs: { 'aria-hidden': 'true' }, root: $('[data-facts]') });
+  }
 
   function initTitle() {
     const requested = new URLSearchParams(location.search).get('title');
@@ -16,10 +56,11 @@
     document.body.dataset.animeId = title.id;
     document.body.dataset.episodesTotal = title.episodes_total;
     document.body.dataset.animePoster = title.poster_url;
+    renderFacts(title);
     if (title.slug !== 'monster') {
       document.title = `${title.title} — Kitsu`;
       $('#title-name').textContent = title.title;
-      $('#title-name').nextElementSibling.textContent = title.title_en || '';
+      $('[data-title-en]').textContent = title.title_en || '';
       $('.breadcrumbs span:last-child')?.replaceChildren(document.createTextNode(title.title));
       $('#mobile-list-title').textContent = title.title;
       document.querySelectorAll('.title-backdrop img, .title-poster img, .title-poster-wrap img, .player-stage-art img, .episode-thumb img').forEach(img => { img.src = title.poster_url; img.alt = img.closest('.title-poster') ? title.title : ''; });
@@ -42,8 +83,6 @@
       $('.title-status-line').innerHTML = `<span class="status-pill status-pill--${status}">${statusLabel}</span><span>${M.kindLabel(title.kind)}</span>${title.year ? `<span>${title.year}</span>` : ''}`;
       if (nextStub) $('.title-poster').insertAdjacentHTML('beforeend', nextStub);
       if (air) setInterval(() => { const stub = $('.air-stub'), state = M.airLabel(stub?.dataset.nextAt); if (!stub || !state) return; stub.className = `air-stub air-stub--${state.status}`; stub.querySelector('[data-next-label]').textContent = state.label; }, 60000);
-      const facts = $('.title-meta-list');
-      facts.innerHTML = `${title.year ? `<li><i data-lucide="map-pin"></i><span>Япония, ${title.year} г.</span></li>` : ''}<li><i data-lucide="monitor-play"></i><span>${title.episodes_total} эп.</span></li><li><i data-lucide="calendar-days"></i><span>${M.kindLabel(title.kind)}, ${statusLabel.toLowerCase()}</span></li>${title.studio ? `<li><i data-lucide="users"></i><span>Студия ${esc(title.studio)}</span></li>` : ''}${title.rating ? `<li><i data-lucide="shield-check"></i><span>Возрастной рейтинг ${esc(title.rating)}</span></li>` : ''}`;
       $('.genre-links').textContent = title.slug.startsWith('steins-gate') ? 'Фантастика, триллер' : '';
       $('#title-description p').textContent = title.description;
       $('#title-description-more').textContent = 'Демонстрационная карточка связанного тайтла. В рабочем проекте здесь отображается полное описание из Anime response.';
