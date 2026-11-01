@@ -1523,6 +1523,7 @@
     $("#stage-episode-title").textContent = `Серия ${number}`;
     syncReleaseSummary();
     syncPlayer();
+    paintTimeline(number);
     centerSelectedEpisode();
   }
 
@@ -1553,6 +1554,97 @@
     list.append(fragment);
   }
 
+  // --- Where the viewer stopped, per title -------------------------------------------------
+  // GET /interactions/watch-progress/kodik/{slug} → {"season:episode": {position_seconds,
+  // total_seconds, completed}}; PATCH /interactions/watch-progress/kodik saves the position;
+  // POST /interactions/stats/episode-complete counts a finished episode.
+  // GET /anime/{slug}/skip-times?season&episode → {opening:{start,end}, ending:{start,end}} or {}.
+  const DEMO_PROGRESS = {
+    "19": { "1:1": { completed: true }, "1:2": { completed: true }, "1:3": { completed: true }, "1:4": { completed: true }, "1:5": { position_seconds: 754, total_seconds: 1440 } },
+    "21": { "1:1153": { completed: true }, "1:1154": { completed: true }, "1:1155": { position_seconds: 312, total_seconds: 1430 } },
+  };
+  const DEMO_SKIP = { opening: { start: 0, end: 90 }, ending: { start: 1330, end: 1420 } };
+  const clock = (sec) => `${String(Math.floor(sec / 60)).padStart(2, "0")}:${String(Math.floor(sec % 60)).padStart(2, "0")}`;
+
+  function watchProgress() {
+    const key = `kitsu-demo-progress-${titleId()}`;
+    try { return JSON.parse(storage.get(key) || "null") || DEMO_PROGRESS[titleId()] || {}; } catch (_) { return DEMO_PROGRESS[titleId()] || {}; }
+  }
+  function saveWatchProgress(progress) { storage.set(`kitsu-demo-progress-${titleId()}`, JSON.stringify(progress)); }
+
+  function paintEpisodeProgress() {
+    const progress = watchProgress();
+    $$("[data-episode]").forEach((chip) => {
+      const row = progress[`1:${chip.dataset.episode}`];
+      const partial = row && !row.completed && row.total_seconds ? row.position_seconds / row.total_seconds : 0;
+      chip.classList.toggle("is-watched", Boolean(row?.completed));
+      chip.classList.toggle("is-partial", partial > 0);
+      chip.style.setProperty("--watched", partial ? `${Math.round(partial * 100)}%` : "0%");
+      const base = `Серия ${chip.dataset.episode}`;
+      chip.setAttribute("aria-label", row?.completed ? `${base}, просмотрена` : partial ? `${base}, остановились на ${clock(row.position_seconds)}` : base);
+    });
+  }
+
+  function paintTimeline(number) {
+    const timeline = $(".player-timeline");
+    const timeLabel = $(".player-controls time");
+    if (!timeline) return;
+    const row = watchProgress()[`1:${number}`];
+    const total = row?.total_seconds || 1440;
+    const position = row?.completed ? 0 : row?.position_seconds || 0;
+    const fill = $("span:not(.timeline-skip)", timeline);
+    if (fill) fill.style.width = `${(position / total) * 100}%`;
+    if (timeLabel) timeLabel.textContent = `${clock(position)} / ${clock(total)}`;
+    // Skip ranges are drawn only when the API returned them for this episode.
+    $$(".timeline-skip", timeline).forEach((node) => node.remove());
+    Object.entries(DEMO_SKIP).forEach(([kind, range]) => {
+      const mark = document.createElement("span");
+      mark.className = `timeline-skip timeline-skip--${kind}`;
+      mark.style.left = `${(range.start / total) * 100}%`;
+      mark.style.width = `${((range.end - range.start) / total) * 100}%`;
+      mark.title = `${kind === "opening" ? "Опенинг" : "Эндинг"} ${clock(range.start)}–${clock(range.end)}`;
+      timeline.append(mark);
+    });
+  }
+
+  function initResume() {
+    const stage = $("#player-stage");
+    if (!stage) return;
+    const progress = watchProgress();
+    const open = Object.entries(progress).filter(([, row]) => !row.completed && row.position_seconds > 0).sort((a, b) => Number(b[0].split(":")[1]) - Number(a[0].split(":")[1]))[0];
+    const banner = document.createElement("div");
+    banner.className = "player-resume";
+    banner.hidden = !open;
+    stage.append(banner);
+    paintEpisodeProgress();
+    if (!open) return;
+    const [, row] = open;
+    const number = row.episode || Number(open[0].split(":")[1]);
+    if ($(`[data-episode="${number}"]`)) selectEpisode(number);
+    banner.innerHTML = `<span class="player-resume__mark" aria-hidden="true">続</span><span class="player-resume__copy"><strong>Серия ${number} · ${clock(row.position_seconds)}</strong><small>Здесь вы остановились</small></span><button type="button" class="player-resume__go" data-resume><i data-lucide="play"></i>Продолжить</button><button type="button" class="player-resume__restart" data-restart aria-label="Смотреть серию с начала"><i data-lucide="rotate-ccw"></i><span>С начала</span></button>`;
+    refreshIcons();
+    $("[data-resume]", banner).addEventListener("click", () => { banner.hidden = true; state.playing = true; syncPlayer(); });
+    $("[data-restart]", banner).addEventListener("click", () => {
+      const all = watchProgress(); delete all[`1:${number}`]; saveWatchProgress(all);
+      banner.hidden = true; paintEpisodeProgress(); paintTimeline(number); state.playing = true; syncPlayer();
+    });
+  }
+
+  // Demo of the end of an episode: mark it watched and, with auto-next on, move to the next one.
+  function completeEpisode(number) {
+    const all = watchProgress();
+    all[`1:${number}`] = { completed: true, season: 1, episode: number };
+    saveWatchProgress(all);
+    paintEpisodeProgress();
+    const autoNext = $('[data-player-option="autonext"]')?.checked;
+    if (autoNext && $(`[data-episode="${number + 1}"]`)) {
+      selectEpisode(number + 1);
+      showToast(`Серия ${number} просмотрена`, `Включаем серию ${number + 1}.`, "info");
+    } else {
+      showToast(`Серия ${number} просмотрена`, "Отметка сохранена.", "info");
+    }
+  }
+
   function initPlayerChrome() {
     fillEpisodeStrip();
     const list = $("[data-episode-list]");
@@ -1578,6 +1670,12 @@
         }
       });
     });
+    paintTimeline(state.selectedEpisode || 1);
+    initResume();
+    // Clicking the end of the timeline stands in for the video ending.
+    $(".player-timeline")?.addEventListener("dblclick", () => completeEpisode(state.selectedEpisode || 1));
+    $("[data-mark-watched]")?.addEventListener("click", () => completeEpisode(state.selectedEpisode || 1));
+    $(".player-timeline")?.setAttribute("title", "Отрезки опенинга и эндинга отмечены на шкале");
   }
 
   function initTitleNames() {
@@ -1778,10 +1876,19 @@
       }
     });
 
+    // Озвучка запоминается для тайтла: PUT /interactions/preferences/kodik/{slug} {translator_id};
+    // каждый выбор засчитывается в популярность: POST /anime/{slug}/translations/{id}/view.
+    const translationKey = `kitsu-demo-translation-${titleId()}`;
+    const savedTranslation = storage.get(translationKey);
+    if (savedTranslation && $(`#translation-select option[value="${CSS.escape(savedTranslation)}"]`)) {
+      $("#translation-select").value = savedTranslation;
+      syncReleaseSummary();
+    }
     $("#translation-select")?.addEventListener("change", (event) => {
       const translation = event.currentTarget.value;
+      storage.set(translationKey, translation);
       syncReleaseSummary();
-      showToast("Перевод выбран", translation, "info");
+      showToast("Озвучка выбрана", `${translation} — запомним для этого тайтла.`, "info");
     });
 
     $("#source-select")?.addEventListener("change", (event) => {
@@ -1796,8 +1903,9 @@
       playerOptionGroups.get(option).push(input);
     });
     playerOptionGroups.forEach((inputs, option) => {
-      const key = `kitsu-demo-player-${option}`;
-      const saved = storage.get(key);
+      // Per title, like PUT /interactions/preferences/kodik/{slug} (skip_opening, skip_ending, auto_next).
+      const key = `kitsu-demo-player-${option}-${titleId()}`;
+      const saved = storage.get(key) ?? storage.get(`kitsu-demo-player-${option}`);
       const checked = saved === null ? inputs[0].checked : saved === "1";
       inputs.forEach((input) => {
         input.checked = checked;
