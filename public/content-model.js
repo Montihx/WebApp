@@ -134,8 +134,59 @@
     [37521, 'vinland-saga', 'Сага о Винланде', 24],
     [33352, 'violet-evergarden', 'Вайолет Эвергарден', 13],
     [54857, 're-zero-3', 'Re:Zero 3', 0, 'announced'],
+    [11061, 'hunter-x-hunter', 'Охотник х Охотник', 148],
+    [1535, 'death-note', 'Тетрадь смерти', 37],
+    [38000, 'demon-slayer', 'Клинок, рассекающий демонов', 26],
+    [31964, 'my-hero-academia', 'Моя геройская академия', 13],
   ]) titles[slug] = { id: String(id), slug, title, episodes_total: episodes, episodes_aired: status === 'announced' ? 0 : episodes, status, kind: 'tv', poster_url: poster(id), related: [], description: 'Демонстрационные данные карточки из каталога шаблона. Полные сведения, описание и доступные релизы загружаются из Anime response при интеграции.' };
   // У «Ван-Пис» число серий заранее неизвестно (episodes_total = null в API); полоса серий в демо всё равно рисует вышедшие.
   titles['one-piece'].episodes_total_api = null;
-  window.KitsuContent = { ageLabel, seasonLabel, weekdayLabel, episodesLabel, lastUpdateLabel, relations, relationShort, relationKanji, relationTone, plural, airLabel, kindLabel, parseDateAsUtc, dateKey, formatCountdown, countdownState, watchOrder, mergeSchedule, scheduleDays, updateLabel, titles, poster };
+  // Демо-закладки — одни на весь шаблон: кнопка «В закладки» на тайтле и в каталоге (app.js), раздел закладок
+  // в профиле и страница «Закладки». Хранилище — то же, что у app.js: localStorage["kitsu-demo-bookmark-status-<id>"]
+  // = статус или "none"; время правки — "kitsu-demo-bookmark-updated-<id>". В приложении всё это — GET/POST/DELETE /interactions/favorites.
+  const LIBRARY_SEED = [
+    // slug, статус, user_score, часов назад изменено, часов назад добавлено, оценка тайтла
+    ['monster', 'watching', null, 3, 900, 8.9], ['jujutsu-kaisen', 'watching', 8, 40, 600, 8.5], ['one-piece', 'watching', null, 90, 2000, 8.7], ['vinland-saga', 'watching', 9, 15, 300, 8.7],
+    ['steins-gate', 'completed', 10, 210, 2800, 9.1], ['cowboy-bebop', 'completed', 9, 220, 2600, 8.8], ['fullmetal-alchemist-brotherhood', 'completed', 10, 230, 2500, 9.1],
+    ['hunter-x-hunter', 'completed', 9, 240, 2400, 9.0], ['attack-on-titan', 'completed', 8, 250, 2300, 8.5], ['death-note', 'completed', 8, 260, 2200, 8.6],
+    ['frieren', 'planned', null, 12, 50, 9.3], ['mushishi', 'planned', null, 5, 60, 8.6], ['violet-evergarden', 'planned', null, 6, 70, 8.4], ['demon-slayer', 'planned', null, 7, 80, 8.4],
+    ['my-hero-academia', 'on_hold', 6, 30, 1500, 7.9],
+  ];
+  const LIBRARY_STATUSES = ['watching', 'completed', 'planned', 'on_hold', 'dropped'];
+  const librarySeedById = () => Object.fromEntries(LIBRARY_SEED.map(row => [titles[row[0]].id, row]));
+  const library = {
+    statuses: LIBRARY_STATUSES,
+    // Статус по умолчанию для кнопки «В закладки» (app.js): тот, что в демо-закладках, иначе «нет».
+    defaults() { return Object.fromEntries(LIBRARY_SEED.map(([slug, category]) => [titles[slug].id, category])); },
+    // Список в форме ответа GET /interactions/favorites; storage — localStorage или его заменитель.
+    list(storage, now = Date.now()) {
+      const read = key => { try { return storage.getItem(key); } catch (_) { return null; } };
+      const naive = ms => new Date(ms).toISOString().slice(0, 19);
+      const seed = librarySeedById(); const ids = new Set(Object.keys(seed));
+      try { for (let i = 0; i < storage.length; i += 1) { const m = /^kitsu-demo-bookmark-status-(\d+)$/.exec(storage.key(i) || ''); if (m) ids.add(m[1]); } } catch (_) { /* приватный режим */ }
+      const out = [];
+      for (const id of ids) {
+        const title = Object.values(titles).find(t => t.id === id); if (!title) continue;
+        const row = seed[id]; const saved = read(`kitsu-demo-bookmark-status-${id}`);
+        const category = LIBRARY_STATUSES.includes(saved) ? saved : saved === 'none' ? null : row?.[1];
+        if (!category) continue;
+        const updated = read(`kitsu-demo-bookmark-updated-${id}`);
+        out.push({
+          id: `f-${id}`, anime_id: `a-${title.slug}`, category, user_score: row?.[2] ?? null,
+          created_at: row ? naive(now - row[4] * 3600000) : updated || naive(now), updated_at: updated || (row ? naive(now - row[3] * 3600000) : naive(now)),
+          anime: { id: `a-${title.slug}`, slug: title.slug, title: title.title, poster_url: title.poster_url, episodes_total: 'episodes_total_api' in title ? title.episodes_total_api : title.episodes_total,
+            episodes_aired: title.episodes_aired ?? title.episodes_total, score: row?.[5] ?? title.score ?? null, status: title.status || 'released', kind: title.kind || 'tv' },
+        });
+      }
+      return out;
+    },
+    // POST (статус) или DELETE ("none") закладки; пишет те же ключи, что кнопка «В закладки».
+    set(storage, slug, category) {
+      const id = titles[slug]?.id; if (!id) return null;
+      const at = new Date().toISOString().slice(0, 19);
+      try { storage.setItem(`kitsu-demo-bookmark-status-${id}`, category || 'none'); storage.setItem(`kitsu-demo-bookmark-updated-${id}`, at); } catch (_) { /* приватный режим */ }
+      return at;
+    },
+  };
+  window.KitsuContent = { library, ageLabel, seasonLabel, weekdayLabel, episodesLabel, lastUpdateLabel, relations, relationShort, relationKanji, relationTone, plural, airLabel, kindLabel, parseDateAsUtc, dateKey, formatCountdown, countdownState, watchOrder, mergeSchedule, scheduleDays, updateLabel, titles, poster };
 })();

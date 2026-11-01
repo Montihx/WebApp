@@ -208,3 +208,23 @@ test('title facts come only from Anime fields', () => {
   assert.equal(M.lastUpdateLabel({ episode_number: null, season: null, translation_team: null }), '');
   assert.ok(M.weekdayLabel('2026-11-07T15:00:00').startsWith('по '));
 });
+
+test('demo bookmarks are one store for the title page, profile and the bookmarks page', () => {
+  const data = new Map();
+  const storage = { getItem: k => data.get(k) ?? null, setItem: (k, v) => data.set(k, String(v)), get length() { return data.size; }, key: i => [...data.keys()][i] ?? null };
+  const L = M.library;
+  // Defaults match the title-page button (app.js): Monster «Смотрю», Frieren «В планах».
+  assert.equal(L.defaults()['19'], 'watching');
+  assert.equal(L.defaults()['52991'], 'planned');
+  const before = L.list(storage).length;
+  // Every seeded bookmark links to a title the anime page knows (unknown slugs fall back to Monster).
+  for (const f of L.list(storage)) assert.ok(M.titles[f.anime.slug], f.anime.slug);
+  // What the title-page button writes shows up in the list, and "none" removes it.
+  storage.setItem('kitsu-demo-bookmark-status-54857', 'planned');
+  assert.equal(L.list(storage).length, before + 1);
+  L.set(storage, 'monster', null);
+  assert.equal(storage.getItem('kitsu-demo-bookmark-status-19'), 'none');
+  assert.ok(!L.list(storage).some(f => f.anime.slug === 'monster'));
+  L.set(storage, 'monster', 'dropped');
+  assert.equal(L.list(storage).find(f => f.anime.slug === 'monster').category, 'dropped');
+});
