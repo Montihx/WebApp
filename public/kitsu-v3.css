@@ -23,54 +23,6 @@
   --card-radius: 16px;
 }
 
-/* Лепесток — малый фирменный знак вместо капса над заголовками */
-
-/* Торийные балки над заголовками убраны: их роль теперь у лепестка */
-:root .section-heading:not(.section-heading--continue) > div:first-child::before,
-:root .section-heading:not(.section-heading--continue) > div:first-child::after,
-:root .continue-heading > div::before,
-:root .continue-heading > div::after,
-:root .schedule-head::before,
-:root .schedule-head::after { display: none; }
-
-:root .section-heading:not(.section-heading--continue) > div:first-child,
-:root .continue-heading > div,
-:root .schedule-head { padding-top: 0; }
-
-:root :is(.section-heading, .schedule-head, .continue-heading) h2 {
-  font-family: var(--font-heading);
-  font-size: var(--fs-h1);
-  font-weight: 400;
-  letter-spacing: -0.005em;
-  line-height: 1.05;
-  color: var(--text);
-}
-
-:root .section-subtitle,
-:root .continue-heading p { color: var(--text-muted); font-size: var(--fs-2); }
-
-:root .section-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border: 1px solid var(--glass-line);
-  border-radius: var(--radius-sm);
-  background: var(--glass);
-  color: var(--text-secondary);
-  font-weight: 600;
-  transition: border-color var(--dur-1), color var(--dur-1), background var(--dur-1);
-}
-
-:root .section-link:hover {
-  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
-  background: var(--accent-softer);
-  color: var(--text);
-}
-
-:root .section-link svg { transition: transform var(--dur-2) var(--ease-spring); }
-:root .section-link:hover svg { transform: translateX(3px); }
-
 :root .icon-button {
   border-radius: var(--radius-md);
   transition: background var(--dur-1), color var(--dur-1), transform var(--dur-2) var(--ease-spring);
@@ -1169,11 +1121,8 @@
 :root .card-title-row h3 { overflow-wrap: break-word; hyphens: manual; }
 
 /* Заголовок и подзаголовок не слипаются */
-:root :is(.section-heading, .continue-heading, .schedule-head) h2 + p,
-:root .continue-heading h2 + p { margin-top: 10px; }
 :root .title-heading-row h1 + p { margin-top: 12px; }
 :root .title-heading-row h1 { line-height: 1.02; padding-bottom: 0.04em; }
-:root :is(.section-heading, .continue-heading, .schedule-head) h2 { line-height: 1.08; }
 
 /* Кнопки и метки не ломают текст на две строки */
 :root :is(.button, .section-link, .tab, .player-tab, .header-login, .genre-links a, .feature-slide .hero-tags a, .episode-chip, .title-description > button, .status-pill, .hero-kind-badge) {
@@ -1795,7 +1744,6 @@
 :root .player-tab { min-height: 36px; }
 :root .player-tab { height: 40px; }
 :root .episode-chip { min-width: 40px; height: 40px; min-height: 40px; }
-:root .section-link { min-height: 36px; }
 :root #schedule-days .day-tab { min-height: 76px; flex-basis: 58px; }
 :root #schedule-days .day-tab__num { font-size: var(--fs-5); }
 :root .icon-button { width: var(--btn-m); height: var(--btn-m); }
@@ -3232,12 +3180,12 @@ body[data-page="user"].is-hidden-tab .pf-skel { animation-play-state: paused; }
 :root .title-poster-actions .title-last-update time::before { content: none; }
 
 /* ===== Главная: ряды с прокруткой вбок («Популярное», коллекции) ===== */
-:root .row-tools { display: flex; align-items: center; gap: 4px; }
+:root .row-tools { display: flex; align-items: center; gap: 8px; }
 :root .row-nav { display: grid; place-items: center; width: 40px; height: 40px; color: var(--text-secondary); transition: color var(--dur-1); }
 :root .row-nav svg { width: 22px; height: 22px; }
 :root .row-nav:hover:not(:disabled), :root .row-nav:focus-visible { color: var(--accent-text); }
 :root .row-nav:disabled { color: var(--text-muted); opacity: 0.4; cursor: default; }
-:root .row-tools .section-link { margin-left: 8px; }
+
 :root .poster-row {
   display: grid; grid-auto-flow: column; grid-auto-columns: clamp(136px, 15vw, 184px); gap: clamp(12px, 1.6vw, 20px);
   overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: 2px;
