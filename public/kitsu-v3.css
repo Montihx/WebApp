@@ -3001,25 +3001,10 @@ html[data-theme="light"] .auth-scene::after { background: radial-gradient(65% 75
 :root .auth-art__dots { position: absolute; right: 16px; top: 18px; width: 120px; height: 84px; color: color-mix(in srgb, var(--accent-text) 70%, transparent); }
 
 /* Персонаж: стоит на нижнем краю карточки, голова и ушки поднимаются над верхним, хвост выходит слева. */
-:root .auth-fig { position: absolute; z-index: 4; left: -48px; bottom: 0; width: 480px; height: calc(100% + 132px); pointer-events: none; }
-:root .auth-fig__svg { display: block; width: 100%; height: 100%; max-width: none; overflow: visible; translate: calc(var(--mx, 0) * 7px) calc(var(--my, 0) * 4px); filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.45)); animation: auth-fig-in 900ms var(--ease-out) 200ms both; }
+:root .auth-fig { position: absolute; z-index: 4; left: -58px; bottom: -8px; width: 490px; height: calc(100% + 150px); pointer-events: none; }
+:root .auth-fig__img { display: block; width: 100%; height: 100%; max-width: none; object-fit: contain; object-position: 50% 100%; transform-origin: 50% 100%; translate: calc(var(--mx, 0) * 7px) calc(var(--my, 0) * 4px); filter: drop-shadow(0 22px 28px rgba(0, 0, 0, 0.5)); animation: auth-fig-in 900ms var(--ease-out) 200ms both, auth-fig-sway 7s ease-in-out 1100ms infinite alternate; }
 @keyframes auth-fig-in { from { opacity: 0; transform: translateY(40px); } }
-:root .kf-body { animation: kf-breathe 4.4s ease-in-out infinite; }
-@keyframes kf-breathe { 50% { transform: translateY(-4px); } }
-:root .kf-tail { transform-origin: 205px 540px; animation: kf-tail 5.2s ease-in-out infinite; }
-@keyframes kf-tail { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(5deg); } }
-:root .kf-ear--l { transform-origin: 150px 130px; animation: kf-ear-l 6.5s ease-in-out infinite; }
-:root .kf-ear--r { transform-origin: 270px 130px; animation: kf-ear-r 6.5s ease-in-out 0.4s infinite; }
-@keyframes kf-ear-l { 0%, 86%, 100% { transform: rotate(0); } 90% { transform: rotate(-9deg); } 94% { transform: rotate(2deg); } }
-@keyframes kf-ear-r { 0%, 86%, 100% { transform: rotate(0); } 90% { transform: rotate(9deg); } 94% { transform: rotate(-2deg); } }
-:root .kf-blink { transform-box: fill-box; transform-origin: 50% 25%; animation: kf-blink 5.4s infinite; }
-@keyframes kf-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.08); } }
-:root .kf-lock--l { transform-origin: 140px 190px; animation: kf-lock 5s ease-in-out infinite; }
-:root .kf-lock--r { transform-origin: 280px 190px; animation: kf-lock 5s ease-in-out 0.6s infinite reverse; }
-@keyframes kf-lock { 0%, 100% { transform: rotate(-1.8deg); } 50% { transform: rotate(2.2deg); } }
-:root .kf-sleeve--l { transform-origin: 124px 330px; animation: kf-sleeve 4.4s ease-in-out infinite; }
-:root .kf-sleeve--r { transform-origin: 296px 330px; animation: kf-sleeve 4.4s ease-in-out 0.5s infinite reverse; }
-@keyframes kf-sleeve { 0%, 100% { transform: rotate(-1.4deg); } 50% { transform: rotate(1.6deg); } }
+@keyframes auth-fig-sway { from { transform: rotate(-0.5deg) translateY(0); } to { transform: rotate(0.5deg) translateY(-5px); } }
 :root .auth-art__fire { position: absolute; z-index: 1; width: 11px; height: 11px; border-radius: 2px; background: #7de3ff; box-shadow: 0 0 16px 5px rgba(125, 227, 255, 0.5); transform: rotate(45deg); opacity: 0; animation: auth-fire 8s var(--ease-out) infinite; }
 :root .auth-art__fire--1 { left: 78%; bottom: 36%; } :root .auth-art__fire--2 { left: 12%; bottom: 20%; width: 8px; height: 8px; animation-delay: 2.6s; } :root .auth-art__fire--3 { left: 88%; bottom: 58%; width: 7px; height: 7px; animation-delay: 5.2s; }
 :root .auth-petal { position: absolute; z-index: 1; top: 8%; width: 9px; height: 13px; border-radius: 3px 8px 3px 8px; background: var(--accent-2); opacity: 0; animation: auth-petal 9s linear infinite; }
@@ -3128,7 +3113,7 @@ html[data-theme="light"] .auth-scene::after { background: radial-gradient(65% 75
 @keyframes auth-stamp { from { clip-path: inset(0 100% 0 0); transform: translateY(-14px) rotate(-8deg); } to { clip-path: inset(0 0 0 0); } }
 @keyframes auth-twinkle { 0%, 100% { opacity: 0.1; transform: rotate(45deg) scale(0.5); } 50% { opacity: 1; transform: rotate(45deg) scale(1); } }
 
-body[data-page="auth"].is-hidden-tab .auth-art__lozenge--ring, body[data-page="auth"].is-hidden-tab .auth-petal, body[data-page="auth"].is-hidden-tab .auth-art__fire, body[data-page="auth"].is-hidden-tab .kf-body, body[data-page="auth"].is-hidden-tab .kf-tail, body[data-page="auth"].is-hidden-tab .auth-card__spark { animation-play-state: paused; }
+body[data-page="auth"].is-hidden-tab .auth-art__lozenge--ring, body[data-page="auth"].is-hidden-tab .auth-petal, body[data-page="auth"].is-hidden-tab .auth-art__fire, body[data-page="auth"].is-hidden-tab .auth-fig__img, body[data-page="auth"].is-hidden-tab .auth-card__spark { animation-play-state: paused; }
 
 @media (max-width: 860px) {
   :root .auth-layout { width: min(480px, 100% - 32px); }
@@ -3138,7 +3123,7 @@ body[data-page="auth"].is-hidden-tab .auth-art__lozenge--ring, body[data-page="a
   :root .auth-art__lozenge { top: 70%; width: 170px; height: 170px; margin: -85px 0 0 -85px; } :root .auth-art__lozenge--ring { width: 230px; height: 230px; margin: -115px 0 0 -115px; }
   :root .auth-art__dots { width: 84px; height: 59px; right: 12px; top: 12px; }
   :root .auth-fig { left: 50%; top: -104px; bottom: auto; width: 340px; height: 254px; margin-left: -170px; overflow: hidden; }
-  :root .auth-fig__svg { position: absolute; left: 0; top: 0; width: 100%; height: auto; }
+  :root .auth-fig__img { position: absolute; left: 0; top: 0; width: 100%; height: auto; object-fit: initial; }
   :root .auth-art__fire, :root .auth-petal { display: none; }
   :root .auth-pane { padding: 26px 20px 24px; }
 }
@@ -3154,7 +3139,7 @@ body[data-page="auth"].is-hidden-tab .auth-art__lozenge--ring, body[data-page="a
   :root .auth-view h2 { font-size: 1.5rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  :root .auth-reel__col, :root .auth-fire, :root .auth-card, :root .auth-card__spark, :root .auth-fig__svg, .kf-body, .kf-tail, .kf-ear, .kf-blink, .kf-lock, .kf-sleeve, :root .auth-art__lozenge--ring, :root .auth-petal, :root .auth-art__fire, :root .auth-view > *, :root .auth-error, :root .auth-field__box, :root .auth-seal svg, :root .auth-seal::before, :root .auth-seal::after, :root .auth-submit.is-busy svg { animation: none !important; }
+  :root .auth-reel__col, :root .auth-fire, :root .auth-card, :root .auth-card__spark, :root .auth-fig__img, :root .auth-art__lozenge--ring, :root .auth-petal, :root .auth-art__fire, :root .auth-view > *, :root .auth-error, :root .auth-field__box, :root .auth-seal svg, :root .auth-seal::before, :root .auth-seal::after, :root .auth-submit.is-busy svg { animation: none !important; }
   :root .auth-card__spark { transform: translate(-50%, -50%) rotate(40deg); }
   :root .auth-fire { opacity: 0.6; }
   :root .auth-tabs__thumb, :root .auth-field__bar, :root .auth-field__label, :root .auth-submit, :root .auth-submit svg { transition: none; }
