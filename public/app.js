@@ -62,10 +62,8 @@
   ];
 
   const BOOKMARK_STATUS_BY_KEY = Object.fromEntries(BOOKMARK_STATUSES.map((status) => [status.key, status]));
-  const DEFAULT_BOOKMARK_STATUSES = {
-    19: "watching",
-    52991: "planned",
-  };
+  // Статусы по умолчанию — из общих демо-закладок (content-model.js), чтобы тайтл, профиль и «Закладки» совпадали.
+  const DEFAULT_BOOKMARK_STATUSES = (typeof window !== "undefined" && window.KitsuContent?.library?.defaults()) || { 19: "watching", 52991: "planned" };
   const bookmarkSheetQuery = window.matchMedia("(max-width: 720px)");
   const titleSubscriptionSheetQuery = window.matchMedia("(max-width: 720px)");
   let bookmarkScrim = null;

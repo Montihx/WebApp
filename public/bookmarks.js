@@ -1,5 +1,5 @@
 /* Закладки (bookmarks.html). Вместо сервера — `api` на демо-ответах той же формы; у каждого метода записан запрос.
-   Изменения демо хранятся в localStorage ("kitsu-demo-favorites") — их видит и раздел закладок в профиле. */
+   Демо-закладки общие для всего шаблона: KitsuContent.library в content-model.js. */
 (() => {
   "use strict";
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -13,9 +13,7 @@
   const utc = (v) => window.KitsuContent?.parseDateAsUtc(v) || new Date(v);
   const plural = (n, one, few, many) => window.KitsuContent?.plural?.(n, one, few, many) ?? many;
   const nf = new Intl.NumberFormat("ru-RU");
-  const DAY = 86400000;
-  const ago = (ms) => new Date(Date.now() - ms).toISOString().slice(0, 19); // как у API: наивный UTC без «Z»
-
+  
   const CATEGORIES = [
     { id: "watching", label: "Смотрю", icon: "play" },
     { id: "completed", label: "Просмотрено", icon: "check" },
@@ -27,35 +25,13 @@
   const KIND = { tv: "ТВ", movie: "Фильм", ona: "ONA", ova: "OVA", special: "Спецвыпуск" };
   const STATUS = { released: "Вышло", ongoing: "Онгоинг", anons: "Анонс", announced: "Анонс" };
 
-  /* ---------- Демо-данные (те же тайтлы, что в профиле) ---------- */
-  const poster = (id) => `https://shikimori.one/system/animes/original/${id}.jpg`;
-  const TITLES = {
-    frieren: ["Провожающая в последний путь Фрирен", 52991, "tv", "released", 28, 9.3], monster: ["Монстр", 19, "tv", "released", 74, 8.9],
-    steins: ["Врата Штейна", 9253, "tv", "released", 24, 9.1], bebop: ["Ковбой Бибоп", 1, "tv", "released", 26, 8.8],
-    mushishi: ["Мастер муси", 457, "tv", "released", 26, 8.6], vinland: ["Сага о Винланде", 37521, "tv", "released", 24, 8.7],
-    jjk: ["Магическая битва", 40748, "tv", "released", 24, 8.5], violet: ["Вайолет Эвергарден", 33352, "tv", "released", 13, 8.4],
-    onepiece: ["Ван-Пис", 21, "tv", "ongoing", null, 8.7], hxh: ["Охотник х Охотник", 11061, "tv", "released", 148, 9.0],
-    fma: ["Стальной алхимик: Братство", 5114, "tv", "released", 64, 9.1], aot: ["Атака титанов", 16498, "tv", "released", 25, 8.5],
-    death: ["Тетрадь смерти", 1535, "tv", "released", 37, 8.6], demon: ["Клинок, рассекающий демонов", 38000, "tv", "released", 26, 8.4],
-    mha: ["Моя геройская академия", 31964, "tv", "released", 13, 7.9],
-  };
-  const animeOf = (slug) => { const [title, pid, kind, status, total, score] = TITLES[slug]; return { id: `a-${slug}`, slug, title, poster_url: poster(pid), episodes_total: total, episodes_aired: total ?? 1122, score, status, kind }; };
-  const SEED = [
-    ["frieren", "watching", null, 12, 900], ["jjk", "watching", 8, 40, 600], ["onepiece", "watching", null, 90, 2000], ["vinland", "watching", 9, 15, 300],
-    ["monster", "completed", 10, 200, 3000], ["steins", "completed", 10, 210, 2800], ["bebop", "completed", 9, 220, 2600], ["fma", "completed", 10, 230, 2500],
-    ["hxh", "completed", 9, 240, 2400], ["aot", "completed", 8, 250, 2300], ["death", "completed", 8, 260, 2200],
-    ["mushishi", "planned", null, 5, 50], ["violet", "planned", null, 6, 60], ["demon", "planned", null, 7, 70], ["mha", "on_hold", 6, 30, 1500],
-  ].map(([slug, category, user_score, hoursAgo, addedAgo], i) => ({
-    id: `f-${i}`, user_id: "9c1f6a52-7d1e-4f0b-9a3e-5b2d8c4e1f00", anime_id: `a-${slug}`, category, user_score,
-    created_at: ago(addedAgo * 3600000), updated_at: ago(hoursAgo * 3600000), anime: animeOf(slug),
-  }));
+  /* ---------- Демо-данные ---------- */
+  // Закладки — общие демо-закладки шаблона (content-model.js, KitsuContent.library): те же, что у кнопки «В закладки»
+  // на тайтле и в каталоге и в разделе закладок профиля.
+  const library = window.KitsuContent.library;
   // На какой серии остановились — из истории просмотра (как в профиле).
-  const HISTORY = { frieren: [1, 12, false], jjk: [2, 7, false], onepiece: [1, 1089, false], vinland: [2, 3, false], mha: [2, 4, false] };
-  const KEY = "kitsu-demo-favorites"; // {anime_id: category | null}: правки поверх SEED
-  const overrides = {
-    read() { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (_) { return {}; } },
-    set(id, value) { try { const o = this.read(); o[id] = value; localStorage.setItem(KEY, JSON.stringify(o)); } catch (_) { /* приватный режим */ } },
-  };
+  const HISTORY = { monster: [1, 31, false], "jujutsu-kaisen": [2, 7, false], "one-piece": [1, 1089, false], "vinland-saga": [2, 3, false], "my-hero-academia": [2, 4, false], frieren: [1, 12, false] };
+  const slugOf = (animeId) => animeId.replace(/^a-/, "");
 
   const api = {
     // GET /interactions/favorites → все закладки разом (страниц у ручки нет), без ORDER BY
@@ -64,8 +40,7 @@
       if (STATE === "guest") throw httpError(401, "Not authenticated");
       if (STATE === "error") throw httpError(0, "network");
       if (STATE === "empty") return [];
-      const o = overrides.read();
-      return SEED.filter((f) => o[f.anime_id] !== null).map((f) => (o[f.anime_id] && o[f.anime_id].category ? { ...f, category: o[f.anime_id].category, updated_at: o[f.anime_id].updated_at } : { ...f }));
+      return library.list(localStorage);
     },
     // GET /interactions/watch-history/me?skip=0&limit=200 → {items:[{anime_slug, season, episode, completed, …}], total}
     async history() {
@@ -75,9 +50,9 @@
       return { items, total: items.length };
     },
     // POST /interactions/favorites?anime_id=…&category=… → строка закладки с новым updated_at
-    async setCategory(animeId, category) { await sleep(220); const updated_at = new Date().toISOString().slice(0, 19); overrides.set(animeId, { category, updated_at }); return { anime_id: animeId, category, updated_at }; },
+    async setCategory(animeId, category) { await sleep(220); const updated_at = library.set(localStorage, slugOf(animeId), category); return { anime_id: animeId, category, updated_at }; },
     // DELETE /interactions/favorites?anime_id=… → 204
-    async remove(animeId) { await sleep(220); overrides.set(animeId, null); },
+    async remove(animeId) { await sleep(220); library.set(localStorage, slugOf(animeId), null); },
   };
 
   /* ---------- Мелочи ---------- */
@@ -265,10 +240,6 @@
       const m = e.target.closest("[data-menu]"); if (m) { e.preventDefault(); if (menuButton === m) closeMenu(); else openMenu(m); return; }
       if (e.target.closest("[data-clear-search]")) { search.value = ""; view.query = ""; paintList(); search.focus(); }
       if (e.target.closest("[data-go-all]")) { selectTab("all"); $("#tab-all").focus(); }
-    });
-    // «/» — к поиску по закладкам (глобальный поиск по каталогу живёт в шапке на Ctrl+K).
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "/" && !e.ctrlKey && !e.metaKey && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || "")) { e.preventDefault(); search.focus(); }
     });
     document.addEventListener("pointerdown", (e) => { if (menu && !menu.contains(e.target) && !e.target.closest("[data-menu]")) closeMenu(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && menu) closeMenu(true); });

@@ -33,19 +33,19 @@
   const TITLES = {
     frieren: ["Провожающая в последний путь Фрирен", 52991, "tv", "released", 28, 9.3],
     monster: ["Монстр", 19, "tv", "released", 74, 8.9],
-    steins: ["Врата Штейна", 9253, "tv", "released", 24, 9.1],
-    bebop: ["Ковбой Бибоп", 1, "tv", "released", 26, 8.8],
+    "steins-gate": ["Врата Штейна", 9253, "tv", "released", 24, 9.1],
+    "cowboy-bebop": ["Ковбой Бибоп", 1, "tv", "released", 26, 8.8],
     mushishi: ["Мастер муси", 457, "tv", "released", 26, 8.6],
-    vinland: ["Сага о Винланде", 37521, "tv", "released", 24, 8.7],
-    jjk: ["Магическая битва", 40748, "tv", "released", 24, 8.5],
-    violet: ["Вайолет Эвергарден", 33352, "tv", "released", 13, 8.4],
-    onepiece: ["Ван-Пис", 21, "tv", "ongoing", null, 8.7],
-    hxh: ["Охотник х Охотник", 11061, "tv", "released", 148, 9.0],
-    fma: ["Стальной алхимик: Братство", 5114, "tv", "released", 64, 9.1],
-    aot: ["Атака титанов", 16498, "tv", "released", 25, 8.5],
-    death: ["Тетрадь смерти", 1535, "tv", "released", 37, 8.6],
-    demon: ["Клинок, рассекающий демонов", 38000, "tv", "released", 26, 8.4],
-    mha: ["Моя геройская академия", 31964, "tv", "released", 13, 7.9],
+    "vinland-saga": ["Сага о Винланде", 37521, "tv", "released", 24, 8.7],
+    "jujutsu-kaisen": ["Магическая битва", 40748, "tv", "released", 24, 8.5],
+    "violet-evergarden": ["Вайолет Эвергарден", 33352, "tv", "released", 13, 8.4],
+    "one-piece": ["Ван-Пис", 21, "tv", "ongoing", null, 8.7],
+    "hunter-x-hunter": ["Охотник х Охотник", 11061, "tv", "released", 148, 9.0],
+    "fullmetal-alchemist-brotherhood": ["Стальной алхимик: Братство", 5114, "tv", "released", 64, 9.1],
+    "attack-on-titan": ["Атака титанов", 16498, "tv", "released", 25, 8.5],
+    "death-note": ["Тетрадь смерти", 1535, "tv", "released", 37, 8.6],
+    "demon-slayer": ["Клинок, рассекающий демонов", 38000, "tv", "released", 26, 8.4],
+    "my-hero-academia": ["Моя геройская академия", 31964, "tv", "released", 13, 7.9],
   };
   const animeOf = (slug) => {
     const [title, pid, kind, status, total, score] = TITLES[slug];
@@ -62,20 +62,11 @@
     },
     publicStats: { favorites_count: 15, comments_count: 42, followers_count: 27, following_count: 19 },
     watchStats: { total_seconds_watched: 1284000, total_episodes_watched: 912 },
-    favorites: [
-      ["frieren", "watching", null, 12], ["jjk", "watching", 8, 40], ["onepiece", "watching", null, 90], ["vinland", "watching", 9, 15],
-      ["monster", "completed", 10, 200], ["steins", "completed", 10, 210], ["bebop", "completed", 9, 220], ["fma", "completed", 10, 230],
-      ["hxh", "completed", 9, 240], ["aot", "completed", 8, 250], ["death", "completed", 8, 260],
-      ["mushishi", "planned", null, 5], ["violet", "planned", null, 6], ["demon", "planned", null, 7], ["mha", "on_hold", 6, 30],
-    ].map(([slug, category, user_score, hoursAgo], i) => ({
-      id: `f-${i}`, user_id: "u-demo", anime_id: `a-${slug}`, category, user_score,
-      created_at: ago(hoursAgo * 3600000), updated_at: ago(hoursAgo * 3600000), anime: animeOf(slug),
-    })),
     history: [
-      ["frieren", 1, 12, 640, 1440, false, 2], ["jjk", 2, 7, 1400, 1440, false, 26], ["monster", 1, 74, 1500, 1500, true, 50],
-      ["onepiece", 1, 1089, 300, 1450, false, 74], ["vinland", 2, 3, 1380, 1440, false, 120], ["steins", 1, 24, 1440, 1440, true, 200],
-      ["bebop", 1, 26, 1440, 1440, true, 240], ["fma", 1, 64, 1440, 1440, true, 300], ["hxh", 1, 148, 1440, 1440, true, 360],
-      ["aot", 1, 25, 1440, 1440, true, 420], ["death", 1, 37, 1440, 1440, true, 480], ["mha", 2, 4, 600, 1440, false, 900],
+      ["frieren", 1, 12, 640, 1440, false, 2], ["jujutsu-kaisen", 2, 7, 1400, 1440, false, 26], ["monster", 1, 31, 1180, 1500, false, 50],
+      ["one-piece", 1, 1089, 300, 1450, false, 74], ["vinland-saga", 2, 3, 1380, 1440, false, 120], ["steins-gate", 1, 24, 1440, 1440, true, 200],
+      ["cowboy-bebop", 1, 26, 1440, 1440, true, 240], ["fullmetal-alchemist-brotherhood", 1, 64, 1440, 1440, true, 300], ["hunter-x-hunter", 1, 148, 1440, 1440, true, 360],
+      ["attack-on-titan", 1, 25, 1440, 1440, true, 420], ["death-note", 1, 37, 1440, 1440, true, 480], ["my-hero-academia", 2, 4, 600, 1440, false, 900],
     ].map(([slug, season, episode, position_seconds, total_seconds, completed, hoursAgo], i) => {
       const a = animeOf(slug);
       return { id: `h-${i}`, anime_slug: slug, season, episode, position_seconds, total_seconds, completed,
@@ -102,10 +93,6 @@
   }
 
   /* ---------- Слой запросов ---------- */
-  const favOverrides = {
-    read() { try { return JSON.parse(localStorage.getItem("kitsu-demo-favorites") || "{}"); } catch (_) { return {}; } },
-    set(id, value) { try { const o = this.read(); o[id] = value; localStorage.setItem("kitsu-demo-favorites", JSON.stringify(o)); } catch (_) { /* приватный режим */ } },
-  };
   const fail = () => { throw new Error("network"); };
   const api = {
     // GET /users/me → FullUser: username, bio, avatar_url, cover_url, is_verified, created_at, role{name}, decoration{image_url}, preferences
@@ -120,16 +107,15 @@
     async daily(days) { await sleep(280); if (STATE === "error") fail(); return STATE === "empty" ? [] : demoDaily(days); },
     // GET /interactions/favorites[?category] → [{id, anime_id, category, user_score, created_at, updated_at, anime{slug,title,poster_url,episodes_total,episodes_aired,score,status,kind}}]
     // Сервер отдаёт строки без ORDER BY — порядок плавает, поэтому страница сортирует по updated_at сама.
-    // Демо: правки со страницы «Закладки» (bookmarks.js) лежат в localStorage["kitsu-demo-favorites"] и видны здесь.
+    // Демо: общие демо-закладки из content-model.js (KitsuContent.library) — те же, что на тайтле и странице «Закладки».
     async favorites() {
       await sleep(340); if (STATE === "error") fail(); if (STATE === "empty") return [];
-      const o = favOverrides.read();
-      return DEMO.favorites.filter((f) => o[f.anime_id] !== null).map((f) => (o[f.anime_id]?.category ? { ...f, category: o[f.anime_id].category, updated_at: o[f.anime_id].updated_at } : { ...f }));
+      return window.KitsuContent.library.list(localStorage);
     },
     // POST /interactions/favorites?anime_id=…&category=… (смена статуса)
-    async setCategory(animeId, category) { await sleep(180); favOverrides.set(animeId, { category, updated_at: new Date().toISOString().slice(0, 19) }); return { anime_id: animeId, category }; },
+    async setCategory(animeId, category) { await sleep(180); window.KitsuContent.library.set(localStorage, animeId.replace(/^a-/, ""), category); return { anime_id: animeId, category }; },
     // DELETE /interactions/favorites?anime_id=… → 204
-    async removeFavorite(animeId) { await sleep(180); favOverrides.set(animeId, null); },
+    async removeFavorite(animeId) { await sleep(180); window.KitsuContent.library.set(localStorage, animeId.replace(/^a-/, ""), null); },
     // GET /interactions/watch-history/me?skip=0&limit=50 → {items:[{anime_slug,season,episode,position_seconds,total_seconds,completed,updated_at,anime_title,anime_poster_url,...}], total}
     // Сервер дедуплицирует по тайтлу и режет страницы после этого; в выборку попадают не больше 1000 последних строк.
     async history(skip, limit) {
