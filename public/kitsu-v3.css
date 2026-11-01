@@ -3437,7 +3437,7 @@ body[data-page="profile"].is-hidden-tab .pf-skel { animation-play-state: paused;
 
 /* Обложка профиля — на всю ширину страницы, от шапки сайта до счётчиков. */
 body[data-page="profile"] { overflow-x: clip; }
-:root .pf-hero__cover { top: -24px; left: calc(50% - 50vw); right: calc(50% - 50vw); border-radius: 0; height: clamp(214px, 28vw, 324px); }
+:root .pf-hero__cover { top: -24px; left: calc(50% - 50vw); right: calc(50% - 50vw); border-radius: 0; height: clamp(320px, 31vw, 420px); }
 
 :root .pf-chip--link { color: var(--accent-text); transition: background var(--dur-2); }
 :root .pf-chip--link:hover { background: var(--accent-soft); }
