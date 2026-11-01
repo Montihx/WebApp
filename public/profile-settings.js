@@ -518,13 +518,13 @@
   function showTab(name, push = true) {
     if (!TABS.includes(name)) name = "profile";
     $$("[data-panel]").forEach((p) => { const on = p.dataset.panel === name; const was = !p.hidden; p.hidden = !on; if (on && !was) { p.classList.remove("is-entering"); void p.offsetWidth; p.classList.add("is-entering"); } });
-    const tabs = $("[data-tabs]"); const bar = $(".st-tabs__bar", tabs);
+    const tabs = $("[data-own-tabs]"); const bar = $(".st-tabs__bar", tabs);
     $$("[data-tab]", tabs).forEach((t) => { const on = t.dataset.tab === name; t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1; if (on) { bar.style.width = `${t.offsetWidth}px`; bar.style.height = `${t.offsetHeight}px`; bar.style.transform = `translate(${t.offsetLeft}px, ${t.offsetTop}px)`; } });
     if (push && location.hash !== `#${name}`) history.replaceState(null, "", `#${name}`);
     if (name === "profile") { paintSeg($("[data-gender]"), draft.gender); paintLook(); }
   }
   function initTabs() {
-    const tabs = $("[data-tabs]");
+    const tabs = $("[data-own-tabs]");
     tabs.addEventListener("click", (e) => { const t = e.target.closest("[data-tab]"); if (t) showTab(t.dataset.tab); });
     // Стрелки, Home и End по вкладкам обрабатывает общий initRovingTabs() в app.js: он фокусирует и нажимает вкладку.
     addEventListener("hashchange", () => showTab(location.hash.slice(1), false));

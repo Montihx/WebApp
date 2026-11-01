@@ -102,6 +102,10 @@
   }
 
   /* ---------- Слой запросов ---------- */
+  const favOverrides = {
+    read() { try { return JSON.parse(localStorage.getItem("kitsu-demo-favorites") || "{}"); } catch (_) { return {}; } },
+    set(id, value) { try { const o = this.read(); o[id] = value; localStorage.setItem("kitsu-demo-favorites", JSON.stringify(o)); } catch (_) { /* приватный режим */ } },
+  };
   const fail = () => { throw new Error("network"); };
   const api = {
     // GET /users/me → FullUser: username, bio, avatar_url, cover_url, is_verified, created_at, role{name}, decoration{image_url}, preferences
@@ -116,11 +120,16 @@
     async daily(days) { await sleep(280); if (STATE === "error") fail(); return STATE === "empty" ? [] : demoDaily(days); },
     // GET /interactions/favorites[?category] → [{id, anime_id, category, user_score, created_at, updated_at, anime{slug,title,poster_url,episodes_total,episodes_aired,score,status,kind}}]
     // Сервер отдаёт строки без ORDER BY — порядок плавает, поэтому страница сортирует по updated_at сама.
-    async favorites() { await sleep(340); if (STATE === "error") fail(); return STATE === "empty" ? [] : DEMO.favorites.map((f) => ({ ...f })); },
+    // Демо: правки со страницы «Закладки» (bookmarks.js) лежат в localStorage["kitsu-demo-favorites"] и видны здесь.
+    async favorites() {
+      await sleep(340); if (STATE === "error") fail(); if (STATE === "empty") return [];
+      const o = favOverrides.read();
+      return DEMO.favorites.filter((f) => o[f.anime_id] !== null).map((f) => (o[f.anime_id]?.category ? { ...f, category: o[f.anime_id].category, updated_at: o[f.anime_id].updated_at } : { ...f }));
+    },
     // POST /interactions/favorites?anime_id=…&category=… (смена статуса)
-    async setCategory(animeId, category) { await sleep(180); return { anime_id: animeId, category }; },
+    async setCategory(animeId, category) { await sleep(180); favOverrides.set(animeId, { category, updated_at: new Date().toISOString().slice(0, 19) }); return { anime_id: animeId, category }; },
     // DELETE /interactions/favorites?anime_id=… → 204
-    async removeFavorite() { await sleep(180); },
+    async removeFavorite(animeId) { await sleep(180); favOverrides.set(animeId, null); },
     // GET /interactions/watch-history/me?skip=0&limit=50 → {items:[{anime_slug,season,episode,position_seconds,total_seconds,completed,updated_at,anime_title,anime_poster_url,...}], total}
     // Сервер дедуплицирует по тайтлу и режет страницы после этого; в выборку попадают не больше 1000 последних строк.
     async history(skip, limit) {
@@ -546,7 +555,6 @@
       const rev = new IntersectionObserver((entries) => entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("is-in"); rev.unobserve(en.target); } }), { rootMargin: "0px 0px -8% 0px" });
       $$("[data-reveal]").forEach((n) => rev.observe(n));
     } else $$("[data-reveal]").forEach((n) => n.classList.add("is-in"));
-    // Узкий экран: нижняя панель ведёт к «Закладкам» на этой же странице.
   }
 
   function initHeroPointer() {
