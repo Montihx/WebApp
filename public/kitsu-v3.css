@@ -2580,7 +2580,7 @@ body[data-page="profile"] { background: var(--canvas); }
 :root .pf-stats { display: grid; grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.6fr); gap: 16px; }
 :root .pf-total, :root .pf-chart { border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); padding: 24px; }
 :root .pf-total__label { color: var(--text-muted); font-size: var(--fs-2); font-weight: 600; }
-:root .pf-total__num { display: flex; align-items: baseline; gap: 8px; margin: 6px 0 0; font-family: var(--font-heading); font-size: var(--fs-hero); font-weight: 400; line-height: 1; font-variant-numeric: tabular-nums; }
+:root .pf-total__num { display: flex; align-items: baseline; gap: 8px; margin: 6px 0 0; font-family: var(--font-heading); font-size: var(--fs-h1); font-weight: 400; line-height: 1; font-variant-numeric: tabular-nums; }
 :root .pf-total__num small { color: var(--accent-text); font-size: var(--fs-5); }
 :root .pf-total__sub { display: block; margin-top: 10px; color: var(--text-secondary); font-size: var(--fs-2); }
 :root .pf-total__grid { display: grid; grid-template-columns: 1fr 1fr; margin: 22px 0 0; border-top: 1px solid var(--line); }
@@ -3254,3 +3254,7 @@ body[data-page="bookmarks"].is-hidden-tab .pf-skel { animation-play-state: pause
 /* Иероглифы на метках и корешке — украшение: подпись по-русски уже есть. На странице тайтла статус уже в строке под названием. */
 :root :is(.ofuda__jp, .air-stub__kanji) { display: none; }
 :root .title-poster .ofuda { display: none; }
+
+/* Профиль без обложки: пустой баннер не занимает экран — шапка начинается сразу. */
+:root .pf-hero:has(.pf-hero__cover:not(.has-image)) .pf-hero__cover { display: none; }
+:root .pf-hero:has(.pf-hero__cover:not(.has-image)) .pf-hero__body { padding-top: 40px; }
