@@ -174,7 +174,8 @@ test('forms reject missing fields, bad numbers, bad slugs and unsafe URLs', () =
 });
 
 test('admin stylesheet keeps rectangular shapes and icon-only buttons without plates', () => {
-  const css = read('admin/styles.css').replace(/\/\*[\s\S]*?\*\//g, '');
+  // Аватары людей круглые по решению владельца (01.11.2026): только .me-avatar и .entity-avatar.
+  const css = read('admin/styles.css').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\.(?:me|entity)-avatar\s*\{[^}]*\}/g, '');
   assert.doesNotMatch(css, /border-radius:\s*(?:50%|999px|9999px|100%)/);
   assert.doesNotMatch(css, /var\(--radius-pill\)/);
   const iconBtn = [...css.matchAll(/(^|\n)\.icon-btn\s*\{([^}]*)\}/g)].map(m => m[2]).join('\n');
