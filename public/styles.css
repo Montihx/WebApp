@@ -7198,37 +7198,30 @@ html[data-input-modality="keyboard"] .player-stage :is(a, button, [tabindex]):fo
 
 .episode-strip__list::-webkit-scrollbar { display: none; }
 
+/* Номер серии: одно определение. Выбранная — акцентная заливка, без ореола. */
 .episode-chip {
   position: relative;
   flex: 0 0 auto;
-  min-width: 48px;
+  min-width: 46px;
   height: 44px;
   padding: 0 10px;
+  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: var(--surface-raised);
   color: var(--text-secondary);
+  font-family: var(--font-mono);
   font-size: var(--fs-2);
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
-  transition: background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
+  font-weight: 600;
+  transition: background var(--dur-1), border-color var(--dur-1), color var(--dur-1);
 }
 
-.episode-chip:hover { background: var(--surface-hover); color: var(--text); }
+.episode-chip:hover { border-color: color-mix(in srgb, var(--accent) 50%, transparent); background: var(--surface-hover); color: var(--text); }
 
 .episode-chip.is-selected {
+  border-color: transparent;
   background: var(--accent);
-  color: var(--ink);
-}
-
-/* The current episode carries the fox fire. */
-.episode-chip.is-selected::after {
-  position: absolute;
-  inset: -3px;
-  border: 1px solid var(--kitsunebi);
-  border-radius: var(--radius-md);
-  box-shadow: 0 0 14px var(--kitsunebi-soft);
-  content: "";
-  pointer-events: none;
+  color: var(--primary-fg);
 }
 
 @media (max-width: 720px) {
@@ -7246,7 +7239,6 @@ html[data-input-modality="keyboard"] .player-stage :is(a, button, [tabindex]):fo
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .episode-chip.is-selected::after { animation: none; }
   .player-tab::after { transition: none; }
 }
 
