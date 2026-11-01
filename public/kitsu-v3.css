@@ -1634,7 +1634,7 @@
 :root .title-poster-wrap::before { border-radius: 40px; }
 :root .player-switch { border-radius: 7px; }
 :root .player-switch > span { border-radius: 4px; }
-:root .avatar-placeholder { border-radius: 10px; }
+:root .avatar-placeholder { border-radius: 50%; }
 :root .search-filter-toggle { border-radius: 8px; }
 :root .sheet-handle { border-radius: 2px; }
 :root .poster-bookmark-button { border-radius: 7px; }
@@ -1959,7 +1959,7 @@
   height: 44px;
   place-items: center;
   border: 0;
-  border-radius: 12px;
+  border-radius: 50%;
   background: var(--accent-grad);
   box-shadow: 0 10px 24px -12px var(--accent-glow);
   color: var(--primary-fg);
@@ -2795,7 +2795,7 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 :root .comment-composer { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 14px; margin-top: 18px; }
 :root .comment-avatar {
   display: grid; place-items: center; width: 40px; height: 40px; flex: none;
-  border: 1px solid var(--glass-line); border-radius: 8px;
+  border: 1px solid var(--glass-line); border-radius: 50%;
   background: color-mix(in srgb, var(--accent-2) 22%, var(--surface));
   color: var(--text); font-family: var(--font-heading); font-size: 1rem; line-height: 1;
 }
@@ -2844,7 +2844,7 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 :root .comment-replies { position: relative; margin-left: 19px; padding-left: 21px; border-left: 2px solid color-mix(in srgb, var(--accent-2) 45%, transparent); }
 @media (max-width: 560px) {
   :root .comment-card, :root .comment-composer { grid-template-columns: 32px minmax(0, 1fr); gap: 10px; }
-  :root .comment-avatar { width: 32px; height: 32px; font-size: 0.875rem; border-radius: 6px; }
+  :root .comment-avatar { width: 32px; height: 32px; font-size: 0.875rem; border-radius: 50%; }
   :root .comment-replies { margin-left: 15px; padding-left: 12px; }
 }
 
@@ -3166,7 +3166,7 @@ body[data-page="profile"] { background: var(--canvas); }
 :root .pf-hero__orb--a { right: 12%; top: -90px; }
 :root .pf-hero__orb--b { right: 3%; top: 38%; width: 120px; height: 120px; opacity: 0.16; transform: translate(calc(var(--mx, 0) * -34px), calc(var(--my, 0) * -22px)) rotate(45deg); }
 :root .pf-hero__body { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; column-gap: 24px; align-items: start; padding: 0 28px 28px; }
-:root .pf-avatar { position: relative; display: grid; place-items: center; width: 120px; height: 120px; margin-top: -60px; border: 4px solid var(--surface); border-radius: 16px; background: var(--accent-grad); color: var(--primary-fg); font-family: var(--font-heading); font-size: 3rem; overflow: hidden; }
+:root .pf-avatar { position: relative; display: grid; place-items: center; width: 120px; height: 120px; margin-top: -60px; border: 4px solid var(--surface); border-radius: 50%; background: var(--accent-grad); color: var(--primary-fg); font-family: var(--font-heading); font-size: 3rem; overflow: hidden; }
 :root .pf-avatar img { width: 100%; height: 100%; object-fit: cover; }
 :root .pf-avatar .pf-avatar__deco { position: absolute; inset: 0; pointer-events: none; }
 :root .pf-id { min-width: 0; padding-top: 20px; }

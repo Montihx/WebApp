@@ -361,7 +361,7 @@ svg.lucide { width: 18px; height: 18px; flex: none; stroke-width: 1.8; }
 .live-chip .progress { width: 64px; }
 .me { display: flex; align-items: center; gap: 10px; padding-left: 4px; }
 .me-avatar {
-  display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--radius-sm);
+  display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%;
   background: var(--accent-grad); color: var(--primary-fg); font: 400 15px/1 var(--font-heading);
 }
 .me small { display: block; color: var(--text-muted); font-size: 12px; line-height: 1.2; }
@@ -996,7 +996,7 @@ dialog::backdrop { background: var(--overlay); }
 .hero-facts span { color: var(--text-muted); font-size: 12px; font-weight: 600; }
 .entity-actions { display: grid; gap: 8px; justify-items: stretch; }
 .entity-avatar {
-  display: grid; place-items: center; width: 72px; height: 72px; border-radius: var(--radius-md);
+  display: grid; place-items: center; width: 72px; height: 72px; border-radius: 50%;
   background: var(--accent-grad); color: var(--primary-fg); font: 400 30px/1 var(--font-heading);
 }
 .entity-hero.person { grid-template-columns: auto minmax(0, 1fr); align-items: center; }
