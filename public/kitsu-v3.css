@@ -3582,3 +3582,7 @@ body[data-page="profile"] { overflow-x: clip; }
   :root .st-panel.is-entering { animation: none; }
   :root .st-tabs__bar, :root .st-pick, :root .st-drop__over, :root .st-save { transition: none; }
 }
+
+/* Своя обложка — как в рабочем проекте: только картинка, приглушённая и с затуханием к фону страницы; без сетки и ромбов поверх. */
+:root .pf-hero__cover.has-image { box-shadow: inset 0 0 0 100vmax rgba(var(--media-ink-rgb), 0.4); }
+:root .pf-hero__cover.has-image .pf-hero__grid, :root .pf-hero__cover.has-image .pf-hero__orb { display: none; }
