@@ -19,10 +19,13 @@ for(const el of document.querySelectorAll('body *')){
  // Active tab text sits on the sliding .tab-indicator (a gradient sibling), not on its ancestors.
  if(el.closest('.tab.is-active')&&el.closest('.tab.is-active').parentElement.querySelector(':scope > .tab-indicator'))unknown=true;
  if(unknown)continue;
+ // Selected segment text sits on a sliding .pf-seg__thumb (a sibling, often a gradient): check it against every colour stop of the thumb.
+ const seg=el.closest('.pf-seg > [aria-checked="true"], .pf-seg > [aria-pressed="true"]'); const thumb=seg&&seg.parentElement.querySelector(':scope > .pf-seg__thumb');
+ const thumbCols=thumb?[...(getComputedStyle(thumb).backgroundImage.match(/rgba?\([^)]+\)/g)||[]),getComputedStyle(thumb).backgroundColor].map(parse).filter(x=>x&&x.a>0):[];
  const cv=getComputedStyle(document.documentElement).getPropertyValue('--canvas').trim(); const hx=cv.replace('#',''); let bg={r:parseInt(hx.slice(0,2),16),g:parseInt(hx.slice(2,4),16),b:parseInt(hx.slice(4,6),16),a:1};
  for(let i=bgs.length-1;i>=0;i--) bg=blend(bgs[i],bg);
- if(fg.a<1) fg=blend(fg,bg);
- const L1=lum(fg),L2=lum(bg); const ratio=(Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05);
+ const under=thumbCols.length?thumbCols.map(t=>blend(t,bg)):[bg];
+ let ratio=Infinity; for(const u of under){const f=fg.a<1?blend(fg,u):fg; const L1=lum(f),L2=lum(u); ratio=Math.min(ratio,(Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05));}
  const big=parseFloat(c.fontSize)>=24||(parseFloat(c.fontSize)>=18.6&&parseInt(c.fontWeight)>=700);
  if(ratio<(big?3:4.5)) out.add(ratio.toFixed(2)+' '+(el.tagName+'.'+(el.getAttribute('class')||'')).slice(0,45)+' «'+(el.innerText||'').trim().slice(0,24)+'»');
 }

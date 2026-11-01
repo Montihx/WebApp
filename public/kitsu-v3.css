@@ -3640,3 +3640,11 @@ button.pf-chip { border: 0; font: inherit; font-size: 0.75rem; font-weight: 600;
 @media (max-width: 720px) { :root .st-picker { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); } :root .st-pick { font-size: 0.75rem; } }
 /* Панель сохранения висит поверх формы только когда есть что сохранить; иначе стоит в конце формы. */
 :root .st-save:not(.is-dirty) { position: static; }
+
+/* Кольцо «огня» вокруг текущей серии осталось от старой темы: в v3 его заменяет тень, а overflow: hidden
+   (нужен для полоски недосмотра) обрезал кольцо и ломал галочку просмотренной серии. */
+:root .episode-chip.is-selected::after { content: none; }
+:root .episode-chip.is-watched.is-selected::after {
+  content: ""; inset: 3px 3px auto auto; width: 7px; height: 4px; border: 0; border-radius: 0;
+  border-bottom: 2px solid currentColor; border-left: 2px solid currentColor; box-shadow: none; animation: none; transform: rotate(-45deg);
+}
