@@ -105,7 +105,8 @@
   const fail = () => { throw new Error("network"); };
   const api = {
     // GET /users/me → FullUser: username, bio, avatar_url, cover_url, is_verified, created_at, role{name}, decoration{image_url}
-    async me() { await sleep(260); if (STATE === "error") fail(); return DEMO.me; },
+    // Демо: то, что сохранили в profile-settings.html, лежит в localStorage и перекрывает исходные значения.
+    async me() { await sleep(260); if (STATE === "error") fail(); let saved = {}; try { saved = JSON.parse(localStorage.getItem("kitsu-demo-profile") || "{}"); } catch (_) {} return { ...DEMO.me, ...saved }; },
     // GET /users/public/{user_id}/stats → {favorites_count, comments_count, followers_count, following_count}
     async publicStats() { await sleep(300); if (STATE === "error") fail(); return STATE === "empty" ? { favorites_count: 0, comments_count: 0, followers_count: 0, following_count: 0 } : DEMO.publicStats; },
     // GET /interactions/watch-stats/me → {total_seconds_watched, total_episodes_watched, updated_at}; без строки отдаёт нули
@@ -221,9 +222,19 @@
       $("[data-chips]").innerHTML = `${me.is_verified ? '<span class="pf-chip pf-chip--ok"><i data-lucide="badge-check"></i>Почта подтверждена</span>' : '<span class="pf-chip pf-chip--warn"><i data-lucide="mail-warning"></i>Почта не подтверждена</span>'}<span class="pf-chip"><i data-lucide="calendar-days"></i>С нами с ${esc(since)}</span>`;
       $("[data-bio]").textContent = me.bio || "Статус не установлен";
       const av = $("[data-avatar]");
-      av.innerHTML = me.avatar_url ? `<img src="${esc(me.avatar_url)}" alt="" />` : `<span>${esc(me.username.charAt(0).toUpperCase())}</span>`;
+      av.innerHTML = me.avatar_url ? `<img src="${esc(me.avatar_url)}" alt="" />` : `<span>${esc((me.active_avatar?.title || me.username).charAt(0).toUpperCase())}</span>`;
+      // active_avatar{title,image_url} и decoration{title,image_url}: в демо картинок нет, тон и рамка приходят номером.
+      if (me.active_avatar?.image_url) av.innerHTML = `<img src="${esc(me.active_avatar.image_url)}" alt="" />`;
+      if (me.active_avatar && !me.avatar_url) av.dataset.tone = me.active_avatar.tone ?? 0;
       if (me.decoration?.image_url) av.insertAdjacentHTML("beforeend", `<img class="pf-avatar__deco" src="${esc(me.decoration.image_url)}" alt="" />`);
-      if (me.cover_url) $("[data-cover]").style.backgroundImage = `url("${me.cover_url.replace(/"/g, "%22")}")`;
+      if (me.decoration && me.decoration.frame != null) av.dataset.frame = me.decoration.frame;
+      if (me.cover_url) { const cv = $("[data-cover]"); cv.style.backgroundImage = `url("${me.cover_url.replace(/"/g, "%22")}")`; cv.classList.add("has-image"); }
+      // Соцсети лежат в preferences.vk / telegram / discord (PUT /users/me мерджит preferences).
+      const socials = [["vk", "VK", "https://vk.com/"], ["telegram", "Telegram", "https://t.me/"], ["discord", "Discord", ""]]
+        .filter(([key]) => me.preferences?.[key]).map(([key, label, prefix]) => {
+          const value = String(me.preferences[key]).trim(); const href = /^https?:\/\//.test(value) ? value : prefix ? prefix + value.replace(/^@/, "") : "";
+          return href ? `<a class="pf-chip pf-chip--link" href="${esc(href)}" target="_blank" rel="noopener noreferrer"><i data-lucide="external-link"></i>${label}</a>` : `<span class="pf-chip"><i data-lucide="at-sign"></i>${label}: ${esc(value)}</span>`; }).join("");
+      $("[data-chips]").insertAdjacentHTML("beforeend", socials);
       const counts = [["В закладках", stats.favorites_count], ["Комментарии", stats.comments_count], ["Подписчики", stats.followers_count], ["Подписки", stats.following_count]];
       $("[data-counts]").innerHTML = counts.map(([label, value]) => `<div><dt>${label}</dt><dd data-n="${value}">0</dd></div>`).join("");
       $$("[data-counts] dd").forEach((dd) => countUp(dd, Number(dd.dataset.n)));
@@ -506,8 +517,6 @@
   document.addEventListener("visibilitychange", () => document.body.classList.toggle("is-hidden-tab", document.hidden));
   icons(document);
   initNav(); initHeroPointer(); initChart(); initMarks(); initDialog();
-  // Настройки профиля — следующий пункт плана; до него кнопка честно говорит об этом.
-  $("[data-edit]").addEventListener("click", () => toast("Скоро", "Страница настроек профиля ещё готовится"));
   loadHero(); loadHistory(); loadCols();
   $("[data-history-more]").addEventListener("click", () => loadHistory(true));
 })();
