@@ -472,55 +472,6 @@
 }
 
 /* --- Расписание и обновления ---------------------------------------------- */
-:root #schedule-days .day-tab {
-  position: relative;
-  overflow: visible;
-  border: 1px solid var(--glass-line);
-  border-radius: var(--radius-lg);
-  background: var(--glass);
-  color: var(--text-muted);
-  transition: transform var(--dur-2) var(--ease-spring), border-color var(--dur-1), background var(--dur-1), color var(--dur-1);
-}
-
-:root #schedule-days .day-tab:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--text); }
-
-:root #schedule-days .day-tab__num {
-  font-family: var(--font-heading);
-  color: var(--text);
-}
-
-:root #schedule-days .day-tab__dow,
-:root #schedule-days .day-tab__mon {
-  font-size: var(--fs-1);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-:root #schedule-days .day-tab.is-active {
-  border-color: transparent;
-  background: var(--accent);
-  color: var(--primary-fg);
-}
-
-:root #schedule-days .day-tab.is-active :is(.day-tab__num, .day-tab__dow, .day-tab__mon) { color: var(--primary-fg); opacity: 1; }
-
-:root #schedule-days .day-tab.is-today:not(.is-active) { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
-
-:root #schedule-days .day-tab__count {
-  top: -7px;
-  right: -7px;
-  min-width: 20px;
-  height: 20px;
-  border: 2px solid var(--canvas);
-  border-radius: var(--radius-sm);
-  background: var(--accent-2);
-  color: var(--primary-fg);
-  font-size: var(--fs-1);
-  font-weight: 800;
-}
-
-:root #schedule-days .day-tab.is-active .day-tab__count { background: var(--surface-raised); color: var(--text); }
 
 :root .schedule-list { gap: 10px; }
 
@@ -1045,9 +996,6 @@
 }
 
 /* Кнопки и ссылки-кнопки без круглых и «таблеточных» форм */
-:root :is(.feature-slide .hero-tags a, .hero-actions .button--primary, .section-link, .title-description > button, .genre-links a, .header-login, .button, .tab, .player-tab, .episode-chip, .day-tab) {
-  border-radius: var(--radius-md);
-}
 
 :root .player-main-button { border-radius: var(--radius-lg); }
 
@@ -1056,9 +1004,6 @@
 :root .theme-switch span { border-radius: var(--radius-xs); }
 
 /* Метки и чипы — тоже без «таблеток» */
-:root :is(.hero-kind-badge, .feature-slide .hero-score, .status-pill, .continue-progress-copy strong, .bookmark-status-bar, .section-count, #schedule-days .day-tab__count, .watch-order :is(.badge, .chip, [class*="pill"])) {
-  border-radius: var(--radius-sm);
-}
 :root :is([class*="badge"], [class*="chip"], [class*="pill"]):not([class*="dot"]) { border-radius: var(--radius-sm); }
 
 /* ==========================================================================
@@ -1243,41 +1188,6 @@
 }
 
 :root #schedule-days::-webkit-scrollbar { display: none; }
-
-:root #schedule-days .day-tab {
-  flex: 0 0 64px;
-  min-height: 84px;
-  gap: 2px;
-  padding: 10px 4px;
-  scroll-snap-align: start;
-  border-radius: var(--radius-lg);
-}
-
-:root #schedule-days .day-tab__num { font-size: var(--fs-5); line-height: 1.1; }
-:root #schedule-days .day-tab__dow { font-size: var(--fs-1); }
-:root #schedule-days .day-tab__mon { font-size: var(--fs-1); opacity: 0.8; }
-
-:root #schedule-days .day-tab.is-today:not(.is-active)::after {
-  position: absolute;
-  bottom: 6px;
-  left: 50%;
-  width: 14px;
-  height: 2px;
-  border-radius: var(--radius-2xs);
-  background: var(--accent);
-  content: "";
-  transform: translateX(-50%);
-}
-
-:root #schedule-days .day-tab__count {
-  top: -8px;
-  right: -6px;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  border: 2px solid var(--surface);
-  border-radius: var(--radius-sm);
-}
 
 /* Строки: обложка, текст, время; линия-«таймлайн» слева */
 :root .schedule-card .schedule-list {
@@ -1694,8 +1604,6 @@
 :root .player-tab { min-height: 36px; }
 :root .player-tab { height: 40px; }
 :root .episode-chip { min-width: 40px; height: 40px; min-height: 40px; }
-:root #schedule-days .day-tab { min-height: 76px; flex-basis: 58px; }
-:root #schedule-days .day-tab__num { font-size: var(--fs-5); }
 :root .icon-button { width: var(--btn-m); height: var(--btn-m); }
 
 @media (max-width: 720px) {
@@ -2158,11 +2066,6 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 /* ==========================================================================
    Дни расписания: под датой — сколько серий или «затишье»; над списком — дата словами
    ========================================================================== */
-:root #schedule-days .day-tab { flex: 0 0 72px; min-width: 72px; gap: 3px; padding: 9px 4px 8px; }
-:root #schedule-days .day-tab__load { display: block; font-size: var(--fs-1); font-weight: 700; line-height: 1.2; white-space: nowrap; color: var(--accent-text); }
-:root #schedule-days .day-tab__load.is-quiet { color: var(--text-muted); font-weight: 600; }
-:root #schedule-days .day-tab.is-active .day-tab__load { color: var(--primary-fg); }
-:root #schedule-days .day-tab__count { display: none; }
 .air-dayhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 32px; margin: 4px 0 10px; }
 .air-dayhead strong { color: var(--text-secondary); font-size: var(--fs-2); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
 .air-today {
@@ -2173,7 +2076,6 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 .air-today svg { width: 15px; height: 15px; transition: transform var(--dur-1) var(--ease-out); }
 .air-today:hover svg { transform: translateX(2px); }
 @media (max-width: 440px) {
-  :root #schedule-days .day-tab { flex-basis: 64px; min-width: 64px; }
   :root .schedule-card .schedule-item--air .schedule-countdown { white-space: normal; }
 }
 
