@@ -140,6 +140,23 @@
     window.lucide?.createIcons({ attrs: { "aria-hidden": "true", "stroke-width": 1.8 }, root: button });
   }));
 
+  // Свет под курсором: подсветка карточки идёт за мышью (только с указателем-мышью).
+  const card = $(".auth-card"), glow = $(".auth-card__glow");
+  if (matchMedia("(hover: hover) and (pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    let frame = 0, x = 0, y = 0;
+    card.addEventListener("pointermove", (event) => {
+      const box = card.getBoundingClientRect();
+      x = event.clientX - box.left; y = event.clientY - box.top;
+      if (!frame) frame = requestAnimationFrame(() => {
+        frame = 0;
+        glow.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        // Портрет едет навстречу курсору: от -1 до 1 по каждой оси.
+        card.style.setProperty("--mx", ((x / box.width) * 2 - 1).toFixed(3));
+        card.style.setProperty("--my", ((y / box.height) * 2 - 1).toFixed(3));
+      });
+    });
+  }
+
   // Подсказка к паролю меняется по мере ввода: сколько ещё символов нужно.
   const hint = $("[data-password-hint]");
   $('[data-view="register"] [name="password"]')?.addEventListener("input", (event) => {

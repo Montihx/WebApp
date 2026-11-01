@@ -22,9 +22,9 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="../tokens.css?v=v3-56" />
-    <link rel="stylesheet" href="./styles.css?v=v3-56" />
-    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-56" />
+    <link rel="stylesheet" href="../tokens.css?v=v3-38" />
+    <link rel="stylesheet" href="./styles.css?v=v3-38" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-38" />
   </head>
   <!--
     Профиль. Страница рисуется profile.js из ответов бэкенда; здесь ответы заменены демо-значениями той же формы
@@ -157,7 +157,7 @@
 
     <main class="pf" id="profile-main">
       <section class="pf-hero" aria-labelledby="pf-name" data-hero>
-        <div class="pf-hero__cover" data-cover aria-hidden="true"></div>
+        <div class="pf-hero__cover" data-cover aria-hidden="true"><span class="pf-hero__orb pf-hero__orb--a"></span><span class="pf-hero__orb pf-hero__orb--b"></span><span class="pf-hero__grid"></span></div>
         <div class="pf-hero__body">
           <div class="pf-avatar" data-avatar aria-hidden="true"></div>
           <div class="pf-namerow"><h1 id="pf-name" data-name>Профиль</h1><span class="pf-role" data-role hidden></span></div>
@@ -180,7 +180,7 @@
         <span class="pf-nav__bar" aria-hidden="true"></span>
       </nav>
 
-      <section class="pf-sec" id="pf-stats" aria-labelledby="pf-stats-title">
+      <section class="pf-sec" id="pf-stats" aria-labelledby="pf-stats-title" data-reveal>
         <header class="pf-sec__head">
           <h2 id="pf-stats-title">Время просмотра</h2>
           <div class="pf-seg" role="group" aria-label="Период графика" data-range>
@@ -199,7 +199,7 @@
         </div>
       </section>
 
-      <section class="pf-sec" id="pf-marks" aria-labelledby="pf-marks-title">
+      <section class="pf-sec" id="pf-marks" aria-labelledby="pf-marks-title" data-reveal>
         <header class="pf-sec__head"><h2 id="pf-marks-title">Закладки</h2><a class="section-link" href="./bookmarks.html">Все закладки <i data-lucide="arrow-right"></i></a></header>
         <!-- Те же вкладки статусов, что на странице «Закладки» (.bm-tabs): одна функция — один компонент. -->
         <div class="bm-tabs" role="tablist" aria-label="Статус закладки" data-own-tabs>
@@ -214,13 +214,13 @@
       </section>
 
       <div class="pf-duo">
-        <section class="pf-sec" id="pf-history" aria-labelledby="pf-history-title">
+        <section class="pf-sec" id="pf-history" aria-labelledby="pf-history-title" data-reveal>
           <header class="pf-sec__head"><h2 id="pf-history-title">История</h2><span class="pf-sec__meta" data-history-total></span></header>
           <ol class="pf-history" data-history></ol>
           <button class="button button--secondary pf-more" type="button" data-history-more hidden><i data-lucide="chevron-down"></i><span>Показать ещё</span></button>
         </section>
 
-        <section class="pf-sec" id="pf-collections" aria-labelledby="pf-collections-title">
+        <section class="pf-sec" id="pf-collections" aria-labelledby="pf-collections-title" data-reveal>
           <header class="pf-sec__head">
             <h2 id="pf-collections-title">Коллекции</h2>
             <button class="button button--primary pf-add" type="button" data-collection-open><i data-lucide="plus"></i><span>Создать</span></button>
@@ -294,8 +294,8 @@
 
     <script src="./vendor/lucide.min.js"></script>
     <script src="./content-model.js?v=original-parity-13"></script>
-    <script src="./content.js?v=v3-56"></script>
-    <script src="./app.js?v=v3-56"></script>
-    <script src="./profile.js?v=v3-56"></script>
+    <script src="./content.js?v=v3-38"></script>
+    <script src="./app.js?v=v3-38"></script>
+    <script src="./profile.js?v=v3-38"></script>
   </body>
 </html>

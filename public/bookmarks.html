@@ -22,9 +22,9 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="../tokens.css?v=v3-56" />
-    <link rel="stylesheet" href="./styles.css?v=v3-56" />
-    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-56" />
+    <link rel="stylesheet" href="../tokens.css?v=v3-38" />
+    <link rel="stylesheet" href="./styles.css?v=v3-38" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-38" />
   </head>
   <!--
     Закладки. Рисует bookmarks.js; вместо сервера — демо-ответы той же формы (у каждого метода `api` записан запрос).
@@ -156,9 +156,11 @@
     <main class="bm" id="bookmarks-main" aria-busy="true">
       <header class="bm-head">
         <div class="bm-head__title">
+          <p class="section-kicker">Мои списки</p>
           <h1>Закладки <span class="bm-total" data-total></span></h1>
         </div>
         <!-- Доля каждого статуса в закладках: та же раскладка, что у счётчиков вкладок ниже. -->
+        <div class="bm-shelf" data-shelf role="img" aria-label="Распределение закладок по статусам"></div>
       </header>
 
       <div class="bm-tabs" role="tablist" aria-label="Статус закладки" data-own-tabs>
@@ -225,8 +227,8 @@
 
     <script src="./vendor/lucide.min.js"></script>
     <script src="./content-model.js?v=original-parity-13"></script>
-    <script src="./content.js?v=v3-56"></script>
-    <script src="./app.js?v=v3-56"></script>
-    <script src="./bookmarks.js?v=v3-56"></script>
+    <script src="./content.js?v=v3-38"></script>
+    <script src="./app.js?v=v3-38"></script>
+    <script src="./bookmarks.js?v=v3-38"></script>
   </body>
 </html>
