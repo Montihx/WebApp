@@ -1515,41 +1515,96 @@ html[data-theme="light"] .theme-icon--moon {
 .tab:hover { color: var(--text); }
 .tab.is-active { color: var(--primary-fg); }
 
+/* Дни расписания: одно определение. Плитка «день недели / число / нагрузка»; выбранный — акцентная заливка, сегодняшний — акцентная рамка. */
 .day-tabs {
   position: relative;
   display: flex;
-  gap: 6px;
+  gap: 8px;
+  padding: 12px 24px 8px 4px;
+  margin: 0 0 var(--space-3);
   overflow-x: auto;
   scrollbar-width: none;
-  margin: 0 0 var(--space-3);
 }
 
-.day-tabs::-webkit-scrollbar {
-  display: none;
-}
+.day-tabs::-webkit-scrollbar { display: none; }
 
 .day-tab {
   position: relative;
-  z-index: 1;
   display: flex;
-  flex: 1 0 auto;
-  min-width: 46px;
+  flex: 0 0 72px;
+  min-width: 72px;
+  min-height: 76px;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 8px 4px 7px;
-  border: 1px solid transparent;
+  gap: 3px;
+  padding: 9px 4px 8px;
+  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
+  background: var(--surface-raised);
   color: var(--text-muted);
-  transition: background var(--ease), color var(--ease), border-color var(--ease);
+  transition: background var(--dur-1), border-color var(--dur-1), color var(--dur-1);
 }
 
-.day-tab:hover {
-  background: var(--surface-hover);
+.day-tab:hover { border-color: var(--line-strong); background: var(--surface-hover); }
+.day-tab.is-today { border-color: var(--accent); }
+.day-tab.is-active { border-color: transparent; background: var(--accent); color: var(--primary-fg); }
+
+.day-tab__dow { font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.day-tab__num { color: var(--text); font-family: var(--font-heading); font-size: var(--fs-5); font-weight: 400; line-height: 1.1; }
+.day-tab__load { font-size: var(--fs-1); font-weight: 700; line-height: 1.2; color: var(--accent-text); }
+.day-tab__load.is-quiet { color: var(--text-muted); font-weight: 400; }
+.day-tab__count { display: none; }
+.day-tab.is-active :is(.day-tab__num, .day-tab__load) { color: var(--primary-fg); }
+.day-tab.is-today:not(.is-active) .day-tab__num { color: var(--accent-text); }
+
+@media (max-width: 440px) {
+  .day-tab { flex-basis: 64px; min-width: 64px; }
 }
 
-.day-tab.is-active {
-  color: var(--text);
+/* Дни расписания: одно определение. Плитка «день недели / число / нагрузка»; выбранный — акцентная заливка, сегодняшний — акцентная рамка. */
+.day-tabs {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  padding: 12px 24px 8px 4px;
+  margin: 0 0 var(--space-3);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.day-tabs::-webkit-scrollbar { display: none; }
+
+.day-tab {
+  position: relative;
+  display: flex;
+  flex: 0 0 72px;
+  min-width: 72px;
+  min-height: 76px;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 9px 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  transition: background var(--dur-1), border-color var(--dur-1), color var(--dur-1);
+}
+
+.day-tab:hover { border-color: var(--line-strong); background: var(--surface-hover); }
+.day-tab.is-today { border-color: var(--accent); }
+.day-tab.is-active { border-color: transparent; background: var(--accent); color: var(--primary-fg); }
+
+.day-tab__dow { font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.day-tab__num { color: var(--text); font-family: var(--font-heading); font-size: var(--fs-5); font-weight: 400; line-height: 1.1; }
+.day-tab__load { font-size: var(--fs-1); font-weight: 700; line-height: 1.2; color: var(--accent-text); }
+.day-tab__load.is-quiet { color: var(--text-muted); font-weight: 400; }
+.day-tab__count { display: none; }
+.day-tab.is-active :is(.day-tab__num, .day-tab__load) { color: var(--primary-fg); }
+.day-tab.is-today:not(.is-active) .day-tab__num { color: var(--accent-text); }
+
+@media (max-width: 440px) {
+  .day-tab { flex-basis: 64px; min-width: 64px; }
 }
 
 .tab-indicator {
@@ -1563,72 +1618,6 @@ html[data-theme="light"] .theme-icon--moon {
   background: var(--accent);
   opacity: 0;
   transition: transform var(--dur-3) var(--ease-spring), width var(--dur-3) var(--ease-spring), opacity var(--dur-1);
-}
-
-.day-tabs .tab-indicator {
-  top: 0;
-  bottom: 0;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-sm);
-}
-
-.day-tab__dow {
-  font-size: var(--fs-1);
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.day-tab__num {
-  font-family: var(--font-display);
-  font-size: var(--fs-3);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-}
-
-.day-tab__mon {
-  color: var(--text-muted);
-  font-size: var(--fs-1);
-  font-weight: 700;
-  text-transform: uppercase;
-  opacity: 0.75;
-}
-
-.day-tab.is-active .day-tab__mon {
-  color: var(--text-muted);
-}
-
-.day-tab.is-today .day-tab__dow::after {
-  display: inline-block;
-  width: 3px;
-  height: 3px;
-  margin-left: 3px;
-  border-radius: var(--radius-xs);
-  background: var(--green);
-  content: "";
-  vertical-align: middle;
-}
-
-.day-tab__count {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  display: grid;
-  min-width: 13px;
-  height: 13px;
-  place-items: center;
-  border-radius: var(--radius-xs);
-  background: var(--surface-hover);
-  color: var(--text-secondary);
-  font-size: var(--fs-1);
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-
-.day-tab.is-active .day-tab__count {
-  background: var(--surface-raised);
-  color: var(--text);
 }
 
 .anime-grid {
@@ -2296,10 +2285,6 @@ html[data-theme="light"] .theme-icon--moon {
   color: var(--text);
 }
 
-.day-tabs {
-  margin: 0 0 var(--space-3);
-}
-
 .schedule-list {
   padding: 0;
   overflow-y: auto;
@@ -2359,7 +2344,6 @@ html[data-theme="light"] .theme-icon--moon {
 .schedule-item time > b { color: var(--text); font-size: var(--fs-3); }
 .schedule-countdown { font-variant-numeric: tabular-nums; }
 #schedule-days { flex: 0 0 auto; }
-#schedule-days .day-tab { flex: 0 0 62px; }
 
 .schedule-item small {
   display: inline-flex;
@@ -6693,8 +6677,6 @@ html[data-theme="light"] .brand-mark {
 }
 
 .continue-play { border-radius: var(--radius-xs); }
-.day-tabs .tab-indicator,
-.day-tab { border-radius: var(--radius-md); }
 .continue-poster,
 .landscape-card,
 .collection-card,
@@ -6714,21 +6696,6 @@ html[data-theme="light"] .brand-mark {
 .continue-progress > span { background: var(--accent); }
 
 .continue-copy h3 { font-family: var(--font-body); }
-
-.day-tab__num {
-  font-family: var(--font-heading);
-  font-size: var(--fs-6);
-  font-weight: 400;
-  letter-spacing: 0;
-  line-height: 1.1;
-}
-
-.day-tab { min-width: 52px; }
-.day-tab.is-today { color: var(--accent-text); }
-.day-tab.is-today .day-tab__num,
-.day-tab.is-today .day-tab__mon { color: var(--accent-text); }
-.day-tab.is-today .day-tab__dow::after { background: var(--accent); }
-.day-tab.is-today.is-active .tab-indicator { border-color: var(--accent); }
 
 .schedule-card { border-radius: var(--radius-md); }
 .schedule-item img { border-radius: var(--radius-sm); }
@@ -7319,59 +7286,6 @@ html[data-input-modality="keyboard"] .player-stage :is(a, button, [tabindex]):fo
 }
 
 #schedule-days .tab-indicator { display: none; }
-
-#schedule-days .day-tab {
-  flex: 0 0 64px;
-  gap: 4px;
-  padding: 10px 4px 9px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  color: var(--text-muted);
-  transition: border-color var(--dur-1) var(--ease-out), background var(--dur-1) var(--ease-out), color var(--dur-1) var(--ease-out);
-}
-
-#schedule-days .day-tab:hover { border-color: var(--line-strong); background: var(--surface-hover); }
-
-#schedule-days .day-tab__num {
-  color: var(--text-secondary);
-  font-size: var(--fs-5);
-}
-
-#schedule-days .day-tab__dow,
-#schedule-days .day-tab__mon {
-  font-size: var(--fs-1);
-  letter-spacing: 0.08em;
-}
-
-#schedule-days .day-tab.is-active {
-  border-color: var(--line-strong);
-  background: var(--surface-raised);
-  color: var(--text);
-}
-
-#schedule-days .day-tab.is-active .day-tab__num { color: var(--text); }
-
-#schedule-days .day-tab.is-today { border-color: var(--accent); color: var(--accent-text); }
-#schedule-days .day-tab.is-today .day-tab__num { color: var(--accent-text); }
-#schedule-days .day-tab.is-today.is-active { background: var(--accent-soft); }
-#schedule-days .day-tab.is-today .day-tab__dow::after { display: none; }
-
-#schedule-days .day-tab__count {
-  top: -7px;
-  right: -7px;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  border: 2px solid var(--canvas);
-  border-radius: var(--radius-sm);
-  background: var(--surface-active);
-  color: var(--text);
-  font-size: var(--fs-1);
-  line-height: 16px;
-}
-
-#schedule-days .day-tab.is-today .day-tab__count { background: var(--accent); color: var(--ink); }
 
 .schedule-list {
   scrollbar-color: var(--line-strong) transparent;

@@ -850,7 +850,7 @@
 
     // A failed or hanging image is replaced with generated key art for that title, so no box is ever empty.
     // Seed by title when the alt names one, otherwise by the picture address, so every poster differs.
-    const titleFor = (image) => (image.alt.match(/«([^»]+)»/) || [])[1] || image.alt || image.closest(".feature-slide")?.querySelector("h2")?.textContent || image.getAttribute("src") || "kitsu";
+    const titleFor = (image) => (image.alt.match(/«([^»]+)»/) || [])[1] || image.alt || image.closest(".feature-slide")?.querySelector("h2")?.textContent || image.closest("a, li, article")?.querySelector("strong, h3, h4")?.textContent || "kitsu";
     const markImageError = (image) => paintImageArt(image, titleFor(image).trim());
     $$('img').forEach((image) => {
       if (image.complete && image.naturalWidth === 0 && image.currentSrc) markImageError(image);
