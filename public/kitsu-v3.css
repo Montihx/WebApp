@@ -109,7 +109,7 @@
 
 /* Переключатель палитры */
 [data-palette-toggle] .palette-swatch {
-  border-radius: var(--radius-xs) !important;
+  border-radius: var(--radius-xs);
   display: block;
   width: 18px;
   height: 18px;
@@ -2478,7 +2478,7 @@ html[data-palette="obsidian"] .auth-fig__img--obsidian { display: block; }
 /* Кнопка: блик пробегает при наведении, при отправке по низу идёт огонёк. */
 :root .button.auth-submit {
   position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 56px; padding: 0 20px 0 24px;
-  border: 0; border-radius: var(--radius-md) !important; background: var(--fill-primary); color: var(--primary-fg); font-size: var(--fs-3); font-weight: 800; letter-spacing: 0.01em; text-decoration: none; cursor: pointer;
+  border: 0; border-radius: var(--radius-md); background: var(--fill-primary); color: var(--primary-fg); font-size: var(--fs-3); font-weight: 800; letter-spacing: 0.01em; text-decoration: none; cursor: pointer;
   box-shadow: none; transition: transform 200ms var(--ease-out), filter 200ms;
 }
 :root .button.auth-submit.button--secondary { background: color-mix(in srgb, var(--accent) 18%, var(--surface-raised)); color: var(--text); }

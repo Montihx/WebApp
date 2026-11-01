@@ -79,7 +79,7 @@ export function measure() {
 
 // Потолки: значения на коммите b191fb9 (считает этот же тест: токены, html и js включены). Опускать, не поднимать.
 export const CEILINGS = {
-  site: { fontSizes: 12, radii: 10, gradients: 4, gradientText: 0, backdropFilters: 1, glows: 0, keyframes: 8, accentGradUses: 2, sectionKickers: 0, ambientParticles: 0, pointerTilt: 0, countUp: 0, scrollReveal: 0 },
+  site: { fontSizes: 12, radii: 8, gradients: 4, gradientText: 0, backdropFilters: 1, glows: 0, keyframes: 8, accentGradUses: 2, sectionKickers: 0, ambientParticles: 0, pointerTilt: 0, countUp: 0, scrollReveal: 0 },
   admin: { fontSizes: 5, radii: 7, gradients: 0, backdropFilters: 2, glows: 0, keyframes: 3, accentGradUses: 2, aurora: 0, countUp: 0 },
 };
 // Цели финала (раздел «Готово, когда» промта). Тест ниже печатает расстояние до них.
