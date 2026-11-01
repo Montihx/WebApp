@@ -532,10 +532,11 @@ const mobileListTriggerSource = animeSource.slice(mobileListTriggerStart, animeS
 const titleMetaStart = animeSource.indexOf('class="title-meta-list"');
 const titleMetaSource = animeSource.slice(titleMetaStart, animeSource.indexOf("</ul>", titleMetaStart));
 const naturalTitleMetadata = titleMetaStart >= 0
-  && count(titleMetaSource, /<li>/g) === 6
-  && titleMetaSource.includes("Возрастной рейтинг R-17")
-  && count(titleMetaSource, /R-17/g) === 1
-  && !animeSource.includes('class="age-badge"')
+  // 01.11.2026: возраст — метка у оригинального названия (data-age, из поля rating), а в списке фактов только то,
+  // что отдаёт бэкенд: сезон, серии, тип и день выхода, оценка, студии. Страны и длительности серии в API нет.
+  && count(titleMetaSource, /<li>/g) === 5
+  && !/R-17|Япония|мин\./.test(titleMetaSource)
+  && count(animeSource, /data-age\b/g) === 1
   && !animeSource.includes('class="mobile-age-badge"')
   && !/<small>|<strong>/.test(titleMetaSource)
   && !/Страна|Эпизоды|Формат|Показ/.test(titleMetaSource);
@@ -548,7 +549,7 @@ add(
     && naturalTitleMetadata,
   missingTitleInteractions.length
     ? `Не найдены: ${missingTitleInteractions.join(", ")}`
-    : "mobile status без лишней ведущей иконки, 6 metadata-строк с возрастным рейтингом и 5 статусов с отдельным удалением синхронизированы",
+    : "mobile status без лишней ведущей иконки, 5 строк фактов из API, возраст меткой у названия и 5 статусов с отдельным удалением синхронизированы",
 );
 const mobileToolbarStart = animeSource.indexOf('class="title-mobile-toolbar"');
 const mobileToolbarEnd = animeSource.indexOf('</div>', mobileToolbarStart);

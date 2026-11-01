@@ -186,3 +186,25 @@ test('every relation has a short band label that fits a small poster', () => {
 test('release details block is gone from the title page', () => {
   assert.doesNotMatch(read('public/anime.html'), /Сведения о релизе|class="player-release"/);
 });
+
+test('title facts come only from Anime fields', () => {
+  // rating: Shikimori enum or free text typed in the admin panel.
+  assert.equal(M.ageLabel('pg_13').short, '13+');
+  assert.equal(M.ageLabel('r_plus').short, '18+');
+  assert.equal(M.ageLabel('R+').short, '18+');
+  assert.equal(M.ageLabel('PG-13').short, '13+');
+  assert.equal(M.ageLabel('R-17').short, '17+');
+  assert.equal(M.ageLabel(null), null);
+  // Season from aired_on: December belongs to the next year's winter.
+  assert.equal(M.seasonLabel('2004-04-07'), 'Весна 2004');
+  assert.equal(M.seasonLabel('2023-12-20'), 'Зима 2024');
+  assert.equal(M.seasonLabel(null, 2011), '2011 г.');
+  assert.equal(M.episodesLabel({ status: 'ongoing', episodes_aired: 6, episodes_total: 12 }), '6 из 12 эп.');
+  assert.equal(M.episodesLabel({ status: 'ongoing', episodes_aired: 1155, episodes_total: null }), '1155 эп., всего неизвестно');
+  assert.equal(M.episodesLabel({ status: 'released', episodes_aired: 74, episodes_total: 74 }), '74 эп.');
+  // GET /anime/{slug}/last-update: all-null answer means no releases yet.
+  assert.equal(M.lastUpdateLabel({ episode_number: 6, season: 1, translation_team: 'AniLibria' }), 'Добавлено: 6 серия · AniLibria');
+  assert.equal(M.lastUpdateLabel({ episode_number: 3, season: 2, translation_team: '' }), 'Добавлено: 2 сезон, 3 серия');
+  assert.equal(M.lastUpdateLabel({ episode_number: null, season: null, translation_team: null }), '');
+  assert.ok(M.weekdayLabel('2026-11-07T15:00:00').startsWith('по '));
+});

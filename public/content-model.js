@@ -76,10 +76,46 @@
     const team = typeof item.last_translation_team === 'string' ? item.last_translation_team.trim() : '';
     return episode && team ? `${episode} · ${team}` : episode || (team ? `Озвучка: ${team}` : 'Обновление');
   }
+  // Возрастной рейтинг. Поле `rating` у тайтла — строка Shikimori (g, pg, pg_13, r, r_plus, rx) или то,
+  // что ввели в админке («PG-13», «R-17»). Синхронизация с Kodik его не заполняет, поэтому часто пусто.
+  function ageLabel(rating) {
+    const key = String(rating ?? '').trim().toLowerCase().replace(/[\s-]+/g, '_').replace(/\+$/, '_plus');
+    if (!key) return null;
+    const map = { g: ['0+', 'G — для всех'], pg: ['6+', 'PG — детям с родителями'], pg_13: ['13+', 'PG-13 — с 13 лет'], r: ['17+', 'R — с 17 лет'], r_17: ['17+', 'R — с 17 лет'], r_plus: ['18+', 'R+ — с 18 лет'], rx: ['18+', 'Rx — только для взрослых'] };
+    const hit = map[key];
+    if (hit) return { short: hit[0], full: `Возрастной рейтинг ${hit[1]}` };
+    const age = /(\d{1,2})/.exec(key);
+    return age ? { short: `${age[1]}+`, full: `Возрастной рейтинг ${rating}` } : { short: String(rating).trim(), full: `Возрастной рейтинг ${rating}` };
+  }
+  // Сезон выхода по дате начала показа (`aired_on`, YYYY-MM-DD): декабрь относится к зиме следующего года.
+  function seasonLabel(airedOn, year) {
+    const m = /^(\d{4})-(\d{2})/.exec(airedOn || '');
+    if (!m) return year ? `${year} г.` : '';
+    const month = Number(m[2]); const y = Number(m[1]) + (month === 12 ? 1 : 0);
+    const name = month === 12 || month <= 2 ? 'Зима' : month <= 5 ? 'Весна' : month <= 8 ? 'Лето' : 'Осень';
+    return `${name} ${y}`;
+  }
+  // «по субботам» — день недели следующей серии в часовом поясе зрителя.
+  function weekdayLabel(nextAt) {
+    const date = parseDateAsUtc(nextAt);
+    return date ? ['по воскресеньям', 'по понедельникам', 'по вторникам', 'по средам', 'по четвергам', 'по пятницам', 'по субботам'][date.getDay()] : '';
+  }
+  function episodesLabel({ status, episodes_aired: aired, episodes_total: total }) {
+    if (status === 'announced') return total ? `${total} эп. запланировано` : 'Число серий неизвестно';
+    if (status === 'ongoing') return total ? `${aired || 0} из ${total} эп.` : `${aired || 0} эп., всего неизвестно`;
+    return total ? `${total} эп.` : aired ? `${aired} эп.` : 'Число серий неизвестно';
+  }
+  // GET /anime/{slug}/last-update → {episode_number, season, translation_team, updated_at}; без релизов все поля null.
+  function lastUpdateLabel(update) {
+    if (!update || !update.episode_number) return '';
+    const episode = `${update.season > 1 ? `${update.season} сезон, ` : ''}${update.episode_number} серия`;
+    const team = typeof update.translation_team === 'string' && update.translation_team.trim() ? ` · ${update.translation_team.trim()}` : '';
+    return `Добавлено: ${episode}${team}`;
+  }
   const poster = id => `https://shikimori.one/system/animes/original/${id}.jpg`;
   // Illustrative local catalog, not a claim about the owner's production database.
   const titles = {
-    monster: { id: '19', slug: 'monster', title: 'Монстр', title_en: 'Monster', poster_url: poster(19), episodes_total: 74, related: [] },
+    monster: { id: '19', slug: 'monster', title: 'Монстр', title_en: 'Monster', poster_url: poster(19), kind: 'tv', status: 'released', aired_on: '2004-04-07', year: 2004, episodes_aired: 74, episodes_total: 74, score: 8.88, score_count: 12400, studios: ['Madhouse'], rating: 'r', related: [] },
     'steins-gate': { id: '9253', slug: 'steins-gate', title: 'Врата Штейна', title_en: 'Steins;Gate', title_jp: 'シュタインズ・ゲート', year: 2011, kind: 'tv', episodes_total: 24, score: null, studio: 'White Fox', rating: 'PG-13', poster_url: poster(9253), description: 'Окабэ Ринтаро и его друзья обнаруживают способ отправлять сообщения в прошлое. Каждое изменение событий имеет последствия.', relation: 'Parent' },
     'steins-gate-movie': { id: '11577', slug: 'steins-gate-movie', title: 'Врата Штейна: Зона загрузки дежавю', title_en: 'Steins;Gate: Fuka Ryouiki no Déjà vu', title_jp: 'シュタインズ・ゲート 負荷領域のデジャヴ', year: 2013, kind: 'movie', episodes_total: 1, score: null, studio: 'White Fox', rating: 'PG-13', poster_url: poster(11577), description: 'История Окабэ Ринтаро и Макисэ Курису после событий сериала.', relation: 'Sequel' },
     'steins-gate-0': { id: '30484', slug: 'steins-gate-0', title: 'Врата Штейна 0', title_en: 'Steins;Gate 0', title_jp: 'シュタインズ・ゲート ゼロ', year: 2018, kind: 'tv', episodes_total: 23, score: null, studio: 'White Fox', rating: 'PG-13', poster_url: poster(30484), description: 'Альтернативная ветвь истории Окабэ Ринтаро и его друзей.', relation: 'Alternative' },
@@ -98,6 +134,8 @@
     [37521, 'vinland-saga', 'Сага о Винланде', 24],
     [33352, 'violet-evergarden', 'Вайолет Эвергарден', 13],
     [54857, 're-zero-3', 'Re:Zero 3', 0, 'announced'],
-  ]) titles[slug] = { id: String(id), slug, title, episodes_total: episodes, status, kind: 'tv', poster_url: poster(id), related: [], description: 'Демонстрационные данные карточки из каталога шаблона. Полные сведения, описание и доступные релизы загружаются из Anime response при интеграции.' };
-  window.KitsuContent = { relations, relationShort, relationKanji, relationTone, plural, airLabel, kindLabel, parseDateAsUtc, dateKey, formatCountdown, countdownState, watchOrder, mergeSchedule, scheduleDays, updateLabel, titles, poster };
+  ]) titles[slug] = { id: String(id), slug, title, episodes_total: episodes, episodes_aired: status === 'announced' ? 0 : episodes, status, kind: 'tv', poster_url: poster(id), related: [], description: 'Демонстрационные данные карточки из каталога шаблона. Полные сведения, описание и доступные релизы загружаются из Anime response при интеграции.' };
+  // У «Ван-Пис» число серий заранее неизвестно (episodes_total = null в API); полоса серий в демо всё равно рисует вышедшие.
+  titles['one-piece'].episodes_total_api = null;
+  window.KitsuContent = { ageLabel, seasonLabel, weekdayLabel, episodesLabel, lastUpdateLabel, relations, relationShort, relationKanji, relationTone, plural, airLabel, kindLabel, parseDateAsUtc, dateKey, formatCountdown, countdownState, watchOrder, mergeSchedule, scheduleDays, updateLabel, titles, poster };
 })();
