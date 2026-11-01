@@ -3152,8 +3152,7 @@ body[data-page="auth"].is-hidden-tab .auth-art__lozenge--ring, body[data-page="a
 
 /* ===== Профиль (profile.html) ===== */
 body[data-page="profile"] { background: var(--canvas); }
-:root .pf-top { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px clamp(16px, 4vw, 40px); }
-:root .pf { width: min(1180px, 100%); margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px) 96px; }
+:root .pf { width: min(1180px, 100%); margin: 0 auto; padding: 24px clamp(16px, 4vw, 40px) 96px; }
 
 /* Шапка: обложка с ромбами и сеткой, аватар заходит на неё снизу. */
 :root .pf-hero { position: relative; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); animation: pf-rise 0.6s var(--ease-out) both; }
@@ -3361,8 +3360,7 @@ body[data-page="profile"] { background: var(--canvas); }
 }
 @media (max-width: 720px) {
   :root .pf { padding-bottom: calc(var(--mobile-nav-height) + 40px + env(safe-area-inset-bottom, 0px)); }
-  :root .pf-top { padding: 14px 16px; }
-  :root .pf-hero__body { grid-template-columns: minmax(0, 1fr); padding: 0 18px 20px; }
+    :root .pf-hero__body { grid-template-columns: minmax(0, 1fr); padding: 0 18px 20px; }
   :root .pf-avatar { width: 96px; height: 96px; margin-top: -48px; font-size: 2.5rem; }
   :root .pf-id { padding-top: 14px; }
   :root .pf-counts { grid-template-columns: repeat(2, 1fr); gap: 14px 0; }
@@ -3391,3 +3389,11 @@ body[data-page="profile"] { background: var(--canvas); }
 body[data-page="profile"].is-hidden-tab .pf-skel { animation-play-state: paused; }
 :root .pf-stats[data-failed] { grid-template-columns: minmax(0, 1fr); }
 :root .pf-stats[data-failed] .pf-chart { display: none; }
+
+/* Профиль: шапка сайта как на главной; кнопка аккаунта вместо «Войти». */
+:root .header-account { display: inline-flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 6px; color: var(--text); font-size: 0.875rem; font-weight: 700; transition: color var(--dur-2); }
+:root .header-account:hover { color: var(--accent-text); }
+:root .header-account__av { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--accent-grad); color: var(--primary-fg); font-family: var(--font-heading); font-size: 0.875rem; }
+@media (max-width: 720px) { :root .header-account span:not(.header-account__av) { display: none; } }
+:root .pf-nav { top: var(--header-height); }
+:root .pf-sec { scroll-margin-top: calc(var(--header-height) + 64px); }
