@@ -10,6 +10,30 @@
   const expired = params.get("expired") === "1";
   const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   let loginAttempts = [];
+  let shown = null;
+  // Иероглиф и строка слева, офуда на карточке — у каждого экрана свои.
+  const SCENES = {
+    login: ["入口", "入", "Вход", "С возвращением. Закладки и прогресс серий ждут вас."],
+    register: ["新規", "新", "Новый", "Свой список, отметки серий и уведомления о новых сериях."],
+    forgot: ["鍵", "鍵", "Ключ", "Пароль забывается — аккаунт остаётся."],
+    reset: ["改", "改", "Пароль", "Новый пароль — и снова к сериям."],
+    verify: ["証", "証", "Почта", "Почта подтверждена — уведомления дойдут."],
+    "sent-verify": ["便", "便", "Письмо", "Письмо уже в пути."],
+    "sent-reset": ["便", "便", "Письмо", "Письмо уже в пути."],
+    "reset-done": ["済", "済", "Готово", "Готово. Можно входить."],
+  };
+  const restart = (node) => { node.classList.remove("is-changing"); void node.offsetWidth; node.classList.add("is-changing"); };
+  function paintScene(view) {
+    const scene = view === "verify" && expired ? ["期", "期", "Срок", "Ссылка устарела — отправим новую."] : SCENES[view];
+    const hero = $(".auth-hero"), ofuda = $("[data-ofuda]");
+    if ($("[data-hero-kanji]").textContent !== scene[0] && shown) { restart(hero); restart(ofuda); }
+    $("[data-hero-kanji]").textContent = scene[0];
+    $("[data-hero-line]").textContent = scene[3];
+    $("[data-ofuda-kanji]").textContent = scene[1];
+    $("[data-ofuda-label]").textContent = scene[2];
+  }
+  // Ленты постеров и огни не крутятся на свёрнутой вкладке.
+  document.addEventListener("visibilitychange", () => document.body.classList.toggle("is-hidden-tab", document.hidden));
 
   window.lucide?.createIcons({ attrs: { "aria-hidden": "true", "stroke-width": 1.8 } });
 
@@ -23,6 +47,10 @@
       tab.classList.toggle("is-active", active);
       tab.setAttribute("aria-selected", String(active));
     });
+    paintScene(view);
+    const entering = $(`[data-view="${view}"]`);
+    if (entering && shown && shown !== view) { entering.classList.remove("is-entering"); void entering.offsetWidth; entering.classList.add("is-entering"); }
+    shown = view;
     document.title = `${{ login: "Вход", register: "Регистрация", forgot: "Восстановление пароля", reset: "Новый пароль", verify: "Подтверждение почты" }[view] || "Аккаунт"} — Kitsu · Кицунэ`;
     if (view === "verify") paintVerify();
     const first = $(`[data-view="${view}"] input`);
