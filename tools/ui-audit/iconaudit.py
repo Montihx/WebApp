@@ -16,7 +16,7 @@ async def main():
     async with async_playwright() as p:
         b=await p.chromium.launch(); pg=await b.new_page(viewport={'width':1440,'height':900})
         await pg.add_init_script("localStorage.setItem('kitsu-theme','dark');localStorage.setItem('kitsu-admin-theme','dark')")
-        for url in ['public/','public/profile.html','public/profile.html?state=empty','public/profile-settings.html','public/profile-settings.html#password','public/profile-settings.html#account','public/anime.html?title=steins-gate','public/anime.html?title=one-piece']:
+        for url in ['public/','public/profile.html','public/profile.html?state=empty','public/profile-settings.html','public/profile-settings.html#password','public/profile-settings.html#account','public/user.html','public/user.html?state=notfound','public/anime.html?title=steins-gate','public/anime.html?title=one-piece']:
             await pg.goto('http://127.0.0.1:4173/'+url); await pg.wait_for_timeout(1500)
             print(url, await pg.evaluate(JS))
         await pg.goto('http://127.0.0.1:4173/admin/'); await pg.wait_for_timeout(1000)

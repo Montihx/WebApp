@@ -38,7 +38,7 @@
       POST /interactions/favorites?anime_id&category  сменить статус; DELETE ...?anime_id — убрать из закладок
       GET  /interactions/watch-history/me?skip&limit  {items,total}, по одной строке на тайтл, потолок 1000 строк
       GET  /interactions/collections                  мои коллекции; POST — создать (title 1–255, description, is_public)
-    Состояния для проверки: profile.html?state=empty (пустой аккаунт), ?state=error (сервер не ответил).
+    Состояния для проверки: profile.html?state=empty (пустой аккаунт), ?state=error (сервер не ответил), ?state=guest (не вошли).
   -->
   <body data-page="profile">
     <a class="skip-link" href="#profile-main">К основному содержимому</a>

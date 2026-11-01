@@ -98,13 +98,14 @@
   function initComments() {
     const list = $('#comment-thread'), form = $('[data-comment-form]');
     if (!list || !form) return;
-    const ME = { id: 'me', username: 'kitsune_fan' };
+    // id — как у демо-аккаунта в profile.js и user.js; авторы — люди из демо user.js, их имя ведёт в чужой профиль.
+    const ME = { id: '9c1f6a52-7d1e-4f0b-9a3e-5b2d8c4e1f00', username: 'kitsune_noa' };
     const ago = minutes => new Date(Date.now() - minutes * 60000).toISOString().slice(0, 19);
     const comments = [
-      { id: 'c1', user: { id: 'u1', username: 'akira_k' }, content: 'Пересматриваю третий раз и каждый раз замечаю новые детали. Сцена в библиотеке до сих пор держит в напряжении.', parent_id: null, likes_count: 24, created_at: ago(3 * 1440 + 40) },
+      { id: 'c1', user: { id: '5a7d0c3e-0001-4c1b-9e2a-000000007919', username: 'akira_k' }, content: 'Пересматриваю третий раз и каждый раз замечаю новые детали. Сцена в библиотеке до сих пор держит в напряжении.', parent_id: null, likes_count: 24, created_at: ago(3 * 1440 + 40) },
       { id: 'c2', user: ME, content: 'Согласен. Особенно музыка в этот момент — без неё сцена работала бы вдвое слабее.', parent_id: 'c1', likes_count: 6, created_at: ago(2 * 1440 + 300), is_edited: true },
-      { id: 'c3', user: { id: 'u2', username: 'mononoke' }, content: 'Композитор тот же, что и у второго сезона, поэтому так узнаётся.', parent_id: 'c2', likes_count: 2, created_at: ago(1440 + 90) },
-      { id: 'c4', user: { id: 'u3', username: 'neko_sensei' }, content: 'Кто смотрит впервые: не читайте описания следующих серий, там много раскрывают.', parent_id: null, episode: 3, likes_count: 41, created_at: ago(400) },
+      { id: 'c3', user: { id: '5a7d0c3e-0002-4c1b-9e2a-000000015838', username: 'mononoke' }, content: 'Композитор тот же, что и у второго сезона, поэтому так узнаётся.', parent_id: 'c2', likes_count: 2, created_at: ago(1440 + 90) },
+      { id: 'c4', user: { id: '5a7d0c3e-0003-4c1b-9e2a-000000023757', username: 'neko_sensei' }, content: 'Кто смотрит впервые: не читайте описания следующих серий, там много раскрывают.', parent_id: null, episode: 3, likes_count: 41, created_at: ago(400) },
       { id: 'c5', user: ME, content: 'Озвучка AniLibria здесь лучше, чем субтитры передают характер героя.', parent_id: null, likes_count: 0, created_at: ago(35) },
     ].map(c => ({ ...c, liked: false }));
     const byId = new Map(comments.map(c => [c.id, c]));
@@ -135,7 +136,7 @@
         <article class="comment-card${own ? ' is-own' : ''}" aria-label="Комментарий ${esc(c.user.username)}">
           ${avatar(c.user)}
           <div class="comment-main">
-            <header class="comment-head"><strong>${esc(c.user.username)}</strong>${own ? '<span class="comment-tag">вы</span>' : ''}${c.episode ? `<span class="comment-tag comment-tag--episode">к ${c.episode} серии</span>` : ''}<time datetime="${c.created_at}">${agoLabel(c.created_at)}</time>${c.is_edited && !c.deleted ? '<span class="comment-edited">изменено</span>' : ''}</header>
+            <header class="comment-head"><strong><a class="comment-author" href="${own ? './profile.html' : `./user.html?id=${encodeURIComponent(c.user.id)}`}">${esc(c.user.username)}</a></strong>${own ? '<span class="comment-tag">вы</span>' : ''}${c.episode ? `<span class="comment-tag comment-tag--episode">к ${c.episode} серии</span>` : ''}<time datetime="${c.created_at}">${agoLabel(c.created_at)}</time>${c.is_edited && !c.deleted ? '<span class="comment-edited">изменено</span>' : ''}</header>
             ${body}
           </div>
         </article>
