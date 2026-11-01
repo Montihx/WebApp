@@ -337,15 +337,6 @@
   border-radius: var(--radius-xs);
 }
 
-/* --- Сортировка каталога --------------------------------------------------- */
-:root .select-wrap select,
-:root .catalog-sort-select select {
-  border: 1px solid var(--glass-line);
-  border-radius: var(--radius-md);
-  background-color: var(--glass);
-  color: var(--text);
-}
-
 :root .catalog-result-count { color: var(--text-muted); font-family: var(--font-mono); font-size: var(--fs-1); }
 
 /* --- Карточка тайтла ------------------------------------------------------- */
@@ -2345,13 +2336,6 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 }
 :root .comment-avatar--me { border-color: transparent; background: var(--accent); color: var(--primary-fg); }
 :root .comment-composer__body, :root .comment-inline { display: grid; gap: 8px; min-width: 0; }
-:root :is(.comment-composer, .comment-inline) textarea {
-  width: 100%; min-height: 76px; padding: 12px 14px; resize: vertical;
-  border: 1px solid var(--glass-line); border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--surface) 80%, transparent); color: var(--text);
-  font: inherit; font-size: var(--fs-3); line-height: 1.5;
-}
-:root :is(.comment-composer, .comment-inline) textarea:focus { border-color: color-mix(in srgb, var(--accent) 60%, transparent); outline: none; box-shadow: 0 0 0 3px var(--accent-softer); }
 :root .comment-composer__foot { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
 :root .comment-limit { margin-right: auto; color: var(--text-muted); font-size: var(--fs-2); font-family: var(--font-mono); }
 :root .comment-composer__foot .button { min-height: 36px; height: 36px; padding-inline: 14px; font-size: var(--fs-2); }
@@ -2750,9 +2734,6 @@ body[data-page="profile"] { background: var(--canvas); }
 :root .pf-dialog__x:hover { color: var(--accent-text); }
 :root .pf-field { position: relative; display: grid; gap: 6px; }
 :root .pf-field label { color: var(--text-secondary); font-size: var(--fs-2); font-weight: 700; }
-:root .pf-field input, :root .pf-field textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: var(--surface); color: var(--text); font: inherit; resize: vertical; transition: border-color var(--dur-2), box-shadow var(--dur-2); }
-:root .pf-field input::placeholder, :root .pf-field textarea::placeholder { color: var(--text-muted); }
-:root .pf-field input:focus, :root .pf-field textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 :root .pf-field.is-bad input { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-soft); }
 :root .pf-field small { min-height: 1.1em; color: var(--red); font-size: var(--fs-1); }
 :root .pf-field__count { position: absolute; right: 0; top: 0; color: var(--text-muted); font-family: var(--font-mono); font-size: var(--fs-1); }
