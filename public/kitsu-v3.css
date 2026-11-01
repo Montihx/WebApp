@@ -3616,11 +3616,6 @@ body[data-page="user"].is-hidden-tab .pf-skel { animation-play-state: paused; }
   :root .pf-counts dt { font-size: 0.6875rem; }
 }
 
-/* Нижнее меню: балка над активным пунктом больше не торчит над панелью и не наезжает на содержимое. */
-@media (max-width: 720px) {
-  .mobile-bottom-nav a::before { top: 0; }
-  .mobile-bottom-nav a::after { top: 7px; }
-}
 /* ===== Страница тайтла: возраст, «Добавлено», длинные названия ===== */
 :root .title-alt { display: flex; align-items: center; gap: 10px; min-width: 0; }
 :root .title-alt [data-title-en] { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
