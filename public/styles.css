@@ -6416,16 +6416,6 @@ html[data-theme="light"] .brand-mark {
     linear-gradient(0deg, var(--media-ink) 0%, rgba(var(--media-ink-rgb), 0.74) 22%, transparent 56%);
 }
 
-.feature-slider::before {
-  position: absolute;
-  z-index: 3;
-  inset: 0;
-  background: var(--seigaiha-url) 0 0 / 56px 28px;
-  content: "";
-  opacity: 0.05;
-  pointer-events: none;
-}
-
 .hero-copy {
   width: min(980px, calc(100% - var(--page-gutter) * 2));
   justify-content: flex-end;
@@ -6817,16 +6807,6 @@ html[data-theme="light"] .brand-mark {
   background:
     linear-gradient(90deg, color-mix(in srgb, var(--canvas) 30%, transparent) 0%, color-mix(in srgb, var(--canvas) 88%, transparent) 38%, var(--canvas) 72%),
     linear-gradient(0deg, var(--canvas) 0%, transparent 30%, transparent 70%, color-mix(in srgb, var(--canvas) 60%, transparent) 100%);
-}
-
-.title-backdrop::before {
-  position: absolute;
-  z-index: 3;
-  inset: 0;
-  background: var(--seigaiha-url) 0 0 / 56px 28px;
-  content: "";
-  opacity: var(--seigaiha-opacity);
-  pointer-events: none;
 }
 
 .player-stage {
