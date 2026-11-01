@@ -57,7 +57,7 @@
 | Диалог по центру | общая оболочка для `content-dialog`, `titles-dialog`, `title-list-dialog`, `player-settings-dialog`, `pf-dialog` |
 | Уведомление | `window.KitsuToast` |
 
-Не сведены и помечены как следующая работа: `.section-count`, `.continue-heading`. Вкладки-дни, вкладки плеера сведены; состояния «ошибка картинки» нет — на сбой загрузки `paintImageArt` ставит плоскую плитку-заглушку (`keyArtUri`).
+Не сведены и помечены как следующая работа: вкладки-дни расписания (`.day-tab`), вкладки плеера (`.player-tab`), состояние ошибки картинки (`.is-image-error`), `.section-count`, `.continue-heading`.
 
 ## Админка
 
