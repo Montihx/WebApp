@@ -30,7 +30,7 @@
     Профиль. Страница рисуется profile.js из ответов бэкенда; здесь ответы заменены демо-значениями той же формы
     (в profile.js объект `api`: у каждого метода записан запрос, его поля и ограничения сервера).
     Запросы, которые уйдут в приложении (все с Bearer-токеном, кроме отмеченных):
-      GET  /users/me                                  шапка: username, bio, avatar_url, cover_url, role, is_verified, created_at, decoration
+      GET  /users/me                                  шапка: username, bio, avatar_url, cover_url, role, is_superuser, is_verified, created_at, last_seen_at, decoration
       GET  /users/public/{id}/stats                   четыре счётчика: favorites_count, comments_count, followers_count, following_count
       GET  /interactions/watch-stats/me               total_seconds_watched, total_episodes_watched
       GET  /interactions/watch-stats/daily/me?days=N  строки только за дни, где что-то смотрели; пустые дни дорисовывает страница
@@ -160,12 +160,15 @@
         <div class="pf-hero__cover" data-cover aria-hidden="true"><span class="pf-hero__orb pf-hero__orb--a"></span><span class="pf-hero__orb pf-hero__orb--b"></span><span class="pf-hero__grid"></span></div>
         <div class="pf-hero__body">
           <div class="pf-avatar" data-avatar aria-hidden="true"></div>
-          <div class="pf-id">
-            <h1 id="pf-name" data-name>Профиль</h1>
-            <p class="pf-chips" data-chips></p>
-            <p class="pf-bio" data-bio></p>
-          </div>
+          <div class="pf-namerow"><h1 id="pf-name" data-name>Профиль</h1><span class="pf-role" data-role hidden></span></div>
+          <p class="pf-bio" data-bio></p>
+          <p class="pf-online" data-online></p>
+          <p class="pf-chips" data-chips></p>
           <dl class="pf-counts" data-counts aria-label="Счётчики профиля"></dl>
+          <div class="pf-actions">
+            <button class="button button--primary" type="button" data-edit><i data-lucide="pencil"></i><span>Редактировать</span></button>
+            <a class="button button--secondary" href="./auth.html#login"><i data-lucide="log-out"></i><span>Выйти</span></a>
+          </div>
         </div>
       </section>
 
