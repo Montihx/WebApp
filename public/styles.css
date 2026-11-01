@@ -716,8 +716,7 @@ html[data-theme="light"] .theme-icon--moon {
   transition: background var(--ease), transform var(--ease);
 }
 
-.header-login:hover,
-.button--primary:hover {
+.header-login:hover {
   background: var(--primary-bg-hover);
   transform: translateY(-1px);
 }
@@ -729,6 +728,7 @@ html[data-theme="light"] .theme-icon--moon {
   display: none;
 }
 
+/* Кнопка: одно определение. Три роли — главная, вторичная, текстовая; размер s/m/l. */
 .button {
   display: inline-flex;
   min-height: var(--control-height);
@@ -737,23 +737,27 @@ html[data-theme="light"] .theme-icon--moon {
   gap: 8px;
   padding: 0 14px;
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
   font-size: var(--fs-1);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.01em;
-  transition: transform var(--ease), background var(--ease), border-color var(--ease), color var(--ease);
+  white-space: nowrap;
+  transition: background var(--dur-1), border-color var(--dur-1), color var(--dur-1), transform var(--dur-1);
 }
 
-.button svg {
-  width: 16px;
-  height: 16px;
-}
+.button svg { width: 16px; height: 16px; flex: none; }
 
 .button--primary {
-  border-color: var(--primary-border);
-  background: var(--primary-bg);
+  border-color: transparent;
+  background: var(--fill-primary);
   color: var(--primary-fg);
 }
+
+.button--primary:hover { filter: brightness(1.07); }
+:root[data-theme="light"][data-palette="obsidian"] .button--primary { background: var(--primary-bg); }
+.button--primary:active { transform: scale(0.98); }
 
 .button--secondary {
   border-color: var(--line-strong);
@@ -762,12 +766,11 @@ html[data-theme="light"] .theme-icon--moon {
 }
 
 .button--secondary:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
   background: var(--surface-hover);
 }
 
-.button--wide {
-  width: 100%;
-}
+.button--wide { width: 100%; }
 
 .content-section {
   padding: var(--space-8) 0;
