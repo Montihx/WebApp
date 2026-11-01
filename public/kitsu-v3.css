@@ -396,32 +396,7 @@
   border-radius: var(--radius-xs);
 }
 
-/* --- Вкладки и сортировка каталога ---------------------------------------- */
-:root .tabs {
-  padding: 4px;
-  border: 1px solid var(--glass-line);
-  border-radius: var(--radius-lg);
-  background: var(--glass);
-}
-
-:root .tab {
-  border-radius: var(--radius-md);
-  color: var(--text-muted);
-  font-weight: 600;
-  transition: color var(--dur-1);
-}
-
-:root .tab:hover { color: var(--text); }
-:root .tab.is-active { color: var(--primary-fg); background: transparent; }
-
-:root .tabs .tab-indicator {
-  border-radius: var(--radius-md);
-  background: var(--accent);
-  transition: transform var(--dur-3) var(--ease-spring), width var(--dur-3) var(--ease-spring);
-}
-
-:root .tab.is-active svg { color: inherit; }
-
+/* --- Сортировка каталога --------------------------------------------------- */
 :root .select-wrap select,
 :root .catalog-sort-select select {
   border: 1px solid var(--glass-line);
@@ -1870,7 +1845,7 @@
 :root .title-poster-actions .button--secondary { min-height: var(--btn-m); height: var(--btn-m); }
 :root .title-community-actions { min-height: var(--btn-m); }
 :root .title-community-action { min-height: calc(var(--btn-m) - 2px); }
-:root :is(.tab, .player-tab) { min-height: 36px; }
+:root .player-tab { min-height: 36px; }
 :root .player-tab { height: 40px; }
 :root .episode-chip { min-width: 40px; height: 40px; min-height: 40px; }
 :root .section-link { min-height: 36px; }
