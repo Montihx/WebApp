@@ -321,7 +321,7 @@
       <a class="pf-card__poster" href="./anime.html?title=${encodeURIComponent(a.slug)}" aria-label="${esc(a.title)}">
         <img src="${esc(a.poster_url)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-poster="${esc(a.title)}" />
         ${a.score ? `<span class="pf-card__score"><i data-lucide="star"></i>${a.score.toFixed(1)}</span>` : ""}
-        <span class="pf-card__eps">${total ? `${total} эп.` : `${a.episodes_aired} эп. · идёт`}</span>
+        <span class="pf-card__eps">${total ? `${total} эп.` : `${a.episodes_aired} эп.`}</span>
       </a>
       <button class="pf-card__more" type="button" aria-haspopup="menu" aria-label="Изменить статус «${esc(a.title)}»" data-menu="${esc(f.anime_id)}"><i data-lucide="ellipsis"></i></button>
       <h3><a href="./anime.html?title=${encodeURIComponent(a.slug)}">${esc(a.title)}</a></h3>
