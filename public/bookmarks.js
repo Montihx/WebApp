@@ -62,6 +62,10 @@
     const counts = Object.fromEntries(CATEGORIES.map((c) => [c.key, view.list.filter((f) => f.category === c.key).length]));
     $$("[data-count]").forEach((b) => { b.textContent = nf.format(b.dataset.count === "all" ? view.list.length : counts[b.dataset.count]); });
     $("[data-total]").textContent = view.list.length ? nf.format(view.list.length) : "";
+    const shelf = $("[data-shelf]"); const total = view.list.length || 1;
+    shelf.innerHTML = CATEGORIES.filter((c) => counts[c.key]).map((c) => `<span data-bookmark-tone="${c.key}" style="--share:${(counts[c.key] / total) * 100}%" title="${c.label}: ${counts[c.key]}"></span>`).join("");
+    shelf.setAttribute("aria-label", view.list.length ? `Распределение закладок: ${CATEGORIES.filter((c) => counts[c.key]).map((c) => `${c.label} — ${counts[c.key]}`).join(", ")}` : "Закладок пока нет");
+    shelf.hidden = !view.list.length;
   }
   function placeBar(scroll = true) {
     const tabs = $("[data-own-tabs]"); const on = $("[aria-selected=true]", tabs); const bar = $(".bm-tabs__bar", tabs);
@@ -121,7 +125,7 @@
 
   /* ---------- Вход и сбой ---------- */
   function gate(kind) {
-    $$(".bm-tabs, .bm-tools, [data-panel]").forEach((n) => { n.hidden = true; });
+    $$(".bm-tabs, .bm-tools, [data-panel], [data-shelf]").forEach((n) => { n.hidden = true; });
     const box = $("[data-gate]"); box.hidden = false;
     box.innerHTML = kind === "guest"
       ? `<i data-lucide="bookmark"></i><strong>Закладки доступны после входа</strong><span>Войдите, чтобы собирать тайтлы по статусам: ${CATEGORIES.map((c) => c.label.toLowerCase()).join(", ")}.</span>

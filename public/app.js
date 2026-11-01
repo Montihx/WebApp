@@ -746,34 +746,62 @@
     return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   }
 
-  // Запасная обложка: плоская плитка с названием. Оттенок зависит от названия, но остаётся в палитре;
-  // никаких сцен, свечения и градиентов — если картинки нет, это видно по плитке, и она не притворяется картинкой.
+  // Generated key art: a night scene unique to every title, used whenever a picture fails or hangs.
   function keyArtUri(title, w, h, pal) {
     const seed = hashString(title || "kitsu");
+    const rnd = seeded(seed);
+    // Sakura: violet-to-rose night (250–340). Obsidian: blue-black night with an amber moon and lights.
     const obs = pal === "obsidian";
-    const hue = obs ? 28 + (seed % 14) : 262 + (seed % 60);
+    const hue = obs ? 212 + Math.round(rnd() * 26) : 250 + Math.round(rnd() * 90);
+    const hue2 = obs ? 22 + Math.round(rnd() * 20) : (hue + 12 + Math.round(rnd() * 22)) % 360;
     const W = 300;
     const H = Math.round((W * h) / w) || 450;
+    const hsl = (hh, ss, ll, a = 1) => `hsla(${hh},${ss}%,${ll}%,${a})`;
+    const scene = seed % 5;
+    const ridge = (base, amp, steps, fill) => {
+      let d = `M0 ${H} L0 ${base}`;
+      for (let i = 1; i <= steps; i += 1) {
+        const x = (i / steps) * W;
+        const y = base - rnd() * amp + amp / 2;
+        d += ` Q${(x - W / steps / 2).toFixed(1)} ${(y - amp * rnd() * 0.9).toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)}`;
+      }
+      return `<path d="${d} L${W} ${H} Z" fill="${fill}"/>`;
+    };
+    const stars = Array.from({ length: 34 }, () => `<circle cx="${(rnd() * W).toFixed(1)}" cy="${(rnd() * H * 0.55).toFixed(1)}" r="${(0.3 + rnd() * 1.1).toFixed(2)}" fill="${hsl(hue, 70, 94, 0.4 + rnd() * 0.6)}"/>`).join("");
     const wide = W / H > 1.3;
-    const size = wide ? 20 : 26;
-    const perLine = Math.max(6, Math.floor((W - 48) / (size * 0.74)));
-    const words = String(title || "").trim().split(/\s+/).filter(Boolean);
-    const lines = [];
-    let cur = "";
-    for (const word of words) {
-      const next = cur ? `${cur} ${word}` : word;
-      if (next.length <= perLine || !cur) cur = next; else { lines.push(cur); cur = word; }
+    const cx = wide ? W * (0.62 + rnd() * 0.22) : W * (0.3 + rnd() * 0.45);
+    const cy = H * (0.18 + rnd() * 0.16);
+    const r = W * (0.11 + rnd() * 0.09);
+    const moon = `<circle cx="${cx}" cy="${cy}" r="${r * 2.8}" fill="url(#g)"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="${hsl(hue2, 90, 92)}"/>`;
+    let body = "";
+    if (scene === 0) {
+      body = stars + moon + ridge(H * 0.62, H * 0.16, 5, hsl(hue, 34, 26)) + ridge(H * 0.74, H * 0.12, 7, hsl(hue2, 40, 16)) + ridge(H * 0.86, H * 0.08, 9, hsl(hue2, 46, 8));
+    } else if (scene === 1) {
+      const sy = H * 0.5;
+      const sr = W * 0.3;
+      const bands = Array.from({ length: 6 }, (_, i) => `<rect x="0" y="${(sy - sr * 0.1 + i * sr * 0.16).toFixed(1)}" width="${W}" height="${(2 + i * 1.6).toFixed(1)}" fill="${hsl(hue, 45, 10)}"/>`).join("");
+      const waves = Array.from({ length: 5 }, (_, i) => { const y = sy + 10 + i * (H - sy) / 5; return `<path d="M0 ${y} ${Array.from({ length: 7 }, (_, k) => `Q${k * 50 + 25} ${y - 8} ${k * 50 + 50} ${y}`).join(" ")} L${W} ${H} L0 ${H} Z" fill="${hsl(hue2, 50, 22 - i * 3)}"/>`; }).join("");
+      body = `<circle cx="${W / 2}" cy="${sy}" r="${sr * 2}" fill="url(#g)"/><circle cx="${W / 2}" cy="${sy}" r="${sr}" fill="url(#sun)"/>${bands}${waves}`;
+    } else if (scene === 2) {
+      const tx = wide ? W * 0.72 : W * 0.5;
+      const ty = H * (wide ? 0.82 : 0.74);
+      const tw = Math.min(W * (wide ? 0.34 : 0.62), H * 0.55);
+      const th = tw * 0.92;
+      const ink = hsl(hue2, 45, 6);
+      const post = tw * 0.07;
+      const lx = tx - tw * 0.32;
+      const rx = tx + tw * 0.32;
+      const top = ty - th;
+      const torii = `<g fill="${ink}"><path d="M${tx - tw * 0.62} ${top - tw * 0.06} Q${tx} ${top + tw * 0.06} ${tx + tw * 0.62} ${top - tw * 0.06} L${tx + tw * 0.56} ${top + tw * 0.05} Q${tx} ${top + tw * 0.14} ${tx - tw * 0.56} ${top + tw * 0.05} Z"/><rect x="${tx - tw * 0.5}" y="${top + tw * 0.11}" width="${tw}" height="${tw * 0.05}"/><rect x="${tx - tw * 0.47}" y="${top + tw * 0.3}" width="${tw * 0.94}" height="${tw * 0.06}"/><rect x="${tx - post * 0.4}" y="${top + tw * 0.15}" width="${post * 0.8}" height="${tw * 0.16}"/><path d="M${lx - post / 2} ${top + tw * 0.12} L${lx + post / 2} ${top + tw * 0.12} L${lx + post * 0.7} ${ty} L${lx - post * 0.7} ${ty} Z"/><path d="M${rx - post / 2} ${top + tw * 0.12} L${rx + post / 2} ${top + tw * 0.12} L${rx + post * 0.7} ${ty} L${rx - post * 0.7} ${ty} Z"/></g><ellipse cx="${tx}" cy="${ty + 2}" rx="${tw * 0.9}" ry="${tw * 0.06}" fill="${hsl(hue2, 60, 60, 0.12)}"/>`;
+      body = stars + moon + ridge(H * 0.7, H * 0.06, 4, hsl(hue, 30, 18)) + torii + `<rect x="0" y="${ty + 6}" width="${W}" height="${H}" fill="${hsl(hue2, 40, 7)}"/>`;
+    } else if (scene === 3) {
+      const city = Array.from({ length: 14 }, (_, i) => { const bw = W / 14; const bh = H * (0.12 + rnd() * 0.3); const x = i * bw; const y = H - bh - H * 0.06; const wins = Array.from({ length: 6 }, () => rnd() > 0.55 ? `<rect x="${(x + 3 + rnd() * (bw - 8)).toFixed(1)}" y="${(y + 4 + rnd() * (bh - 10)).toFixed(1)}" width="2.4" height="3" fill="${hsl(hue2, 90, 78, 0.85)}"/>` : "").join(""); return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw + 0.5).toFixed(1)}" height="${bh.toFixed(1)}" fill="${hsl(hue, 30, 10 + rnd() * 6)}"/>${wins}`; }).join("");
+      body = stars + moon + ridge(H * 0.72, H * 0.1, 6, hsl(hue, 30, 20)) + city + `<rect x="0" y="${H * 0.94}" width="${W}" height="${H}" fill="${hsl(hue2, 40, 6)}"/>`;
+    } else {
+      const arcs = Array.from({ length: 7 }, (_, row) => Array.from({ length: 9 }, (_, col) => { const x = col * 40 + (row % 2) * 20; const y = H * 0.55 + row * 26; return [24, 17, 10].map((rr, j) => `<path d="M${x - rr} ${y} a${rr} ${rr} 0 0 1 ${rr * 2} 0" fill="none" stroke="${hsl(hue2, 50, 40 - row * 3 - j * 4, 0.9)}" stroke-width="2"/>`).join(""); }).join("")).join("");
+      body = stars + moon + `<rect x="0" y="${H * 0.53}" width="${W}" height="${H}" fill="${hsl(hue, 40, 9)}"/>` + arcs;
     }
-    if (cur) lines.push(cur);
-    const maxLines = wide ? 2 : 5;
-    const shown = lines.slice(0, maxLines).map((l) => (l.length > perLine ? `${l.slice(0, perLine - 1)}…` : l));
-    if (lines.length > maxLines) shown[maxLines - 1] = `${shown[maxLines - 1].replace(/…$/, "").slice(0, perLine - 1)}…`;
-    const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    const lh = size * 1.25;
-    const y0 = wide ? H / 2 - ((shown.length - 1) * lh) / 2 + size / 3 : 120 + size;
-    const text = shown.map((l, i) => `<text x="24" y="${(y0 + i * lh).toFixed(1)}" font-size="${size}" font-weight="800" fill="hsl(${hue},30%,86%)">${esc(l)}</text>`).join("");
-    const accent = obs ? "hsl(36,100%,64%)" : "hsl(268,100%,82%)";
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" font-family="Onest, 'Segoe UI', Arial, sans-serif"><rect width="${W}" height="${H}" fill="hsl(${hue},${obs ? 14 : 22}%,${obs ? 11 : 14}%)"/><rect x="24" y="92" width="28" height="3" fill="${accent}"/>${text}</svg>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${hsl(hue, 45, 7)}"/><stop offset=".65" stop-color="${hsl(hue2, 42, 20)}"/><stop offset="1" stop-color="${hsl(hue2, 50, 30)}"/></linearGradient><radialGradient id="g"><stop offset="0" stop-color="${hsl(hue2, 90, 85, 0.55)}"/><stop offset=".5" stop-color="${hsl(hue2, 80, 70, 0.12)}"/><stop offset="1" stop-color="${hsl(hue2, 80, 60, 0)}"/></radialGradient><linearGradient id="sun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${hsl(hue2 + 20, 95, 82)}"/><stop offset="1" stop-color="${hsl(hue2 - 30, 85, 60)}"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#sky)"/>${body}</svg>`;
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
   }
 
@@ -795,6 +823,79 @@
       const [w, h] = (image.dataset.kzRatio || "2x3").split("x").map(Number);
       image.src = keyArtUri(image.dataset.kzTitle, w, h, root.dataset.palette || "sakura");
     });
+  }
+
+  function initAmbient() {
+    const hero = $(".hero-section");
+    if (!hero || reducedMotion.matches) return;
+    const layer = document.createElement("div");
+    layer.className = "kz-ambient";
+    layer.setAttribute("aria-hidden", "true");
+    const rnd = seeded(7);
+    // Fewer petals on phones; all of them stop while the hero is off-screen.
+    const count = window.matchMedia("(max-width: 720px)").matches ? 6 : 10;
+    for (let i = 0; i < count; i += 1) {
+      const p = document.createElement("span");
+      p.className = "kz-mote";
+      p.style.setProperty("--x", `${(rnd() * 100).toFixed(1)}%`);
+      p.style.setProperty("--delay", `${(-rnd() * 14).toFixed(2)}s`);
+      p.style.setProperty("--dur", `${(9 + rnd() * 9).toFixed(2)}s`);
+      p.style.setProperty("--drift", `${(rnd() * 120 - 60).toFixed(0)}px`);
+      p.style.setProperty("--s", (0.6 + rnd() * 0.9).toFixed(2));
+      layer.append(p);
+    }
+    hero.append(layer);
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(([entry]) => layer.classList.toggle("is-paused", !entry.isIntersecting)).observe(hero);
+    }
+    document.addEventListener("visibilitychange", () => layer.classList.toggle("is-paused", document.hidden));
+  }
+
+  function initPosterTilt() {
+    if (reducedMotion.matches || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    // Pointer moves arrive faster than frames: read layout and write styles at most once per frame.
+    let pending = null;
+    const apply = () => {
+      const { frame, x0, y0 } = pending; pending = null;
+      const r = frame.getBoundingClientRect();
+      const x = (x0 - r.left) / r.width;
+      const y = (y0 - r.top) / r.height;
+      frame.style.setProperty("--rx", `${((0.5 - y) * 9).toFixed(2)}deg`);
+      frame.style.setProperty("--ry", `${((x - 0.5) * 11).toFixed(2)}deg`);
+      frame.style.setProperty("--mx", `${(x * 100).toFixed(1)}%`);
+      frame.style.setProperty("--my", `${(y * 100).toFixed(1)}%`);
+    };
+    document.addEventListener("pointermove", (event) => {
+      const frame = event.target.closest?.(".anime-card .poster-frame, .continue-poster");
+      if (!frame) return;
+      if (!pending) requestAnimationFrame(apply);
+      pending = { frame, x0: event.clientX, y0: event.clientY };
+    }, { passive: true });
+    document.addEventListener("pointerout", (event) => {
+      const frame = event.target.closest?.(".anime-card .poster-frame, .continue-poster");
+      if (frame && !frame.contains(event.relatedTarget)) {
+        frame.style.removeProperty("--rx");
+        frame.style.removeProperty("--ry");
+      }
+    });
+  }
+
+  function initScrollProgress() {
+    const header = $("#site-header");
+    if (!header) return;
+    const bar = document.createElement("span");
+    bar.className = "kz-scroll-progress";
+    bar.setAttribute("aria-hidden", "true");
+    header.append(bar);
+    // Page height is measured only when it can change, not on every scroll event.
+    let max = 1, queued = false;
+    const measure = () => { max = document.documentElement.scrollHeight - innerHeight; };
+    const draw = () => { queued = false; bar.style.transform = `scaleX(${max > 0 ? Math.min(1, scrollY / max) : 0})`; };
+    const update = () => { if (!queued) { queued = true; requestAnimationFrame(draw); } };
+    addEventListener("scroll", update, { passive: true });
+    addEventListener("resize", () => { measure(); update(); });
+    if ("ResizeObserver" in window) new ResizeObserver(() => { measure(); update(); }).observe(document.body);
+    measure(); update();
   }
 
   const paletteNames = { sakura: "Сакура", obsidian: "Обсидиан" };
@@ -844,13 +945,16 @@
     setTimeout(syncScheduleDay, 400);
     document.addEventListener("click", (event) => { if (event.target.closest?.("#schedule-days .day-tab")) requestAnimationFrame(syncScheduleDay); });
     initPalette();
+    initAmbient();
+    initPosterTilt();
+    initScrollProgress();
     refreshIcons();
     initRovingTabs();
     initTabIndicators();
 
     // A failed or hanging image is replaced with generated key art for that title, so no box is ever empty.
     // Seed by title when the alt names one, otherwise by the picture address, so every poster differs.
-    const titleFor = (image) => (image.alt.match(/«([^»]+)»/) || [])[1] || image.alt || image.closest(".feature-slide")?.querySelector("h2")?.textContent || image.closest("a, li, article")?.querySelector("strong, h3, h4")?.textContent || "kitsu";
+    const titleFor = (image) => (image.alt.match(/«([^»]+)»/) || [])[1] || image.alt || image.closest(".feature-slide")?.querySelector("h2")?.textContent || image.getAttribute("src") || "kitsu";
     const markImageError = (image) => paintImageArt(image, titleFor(image).trim());
     $$('img').forEach((image) => {
       if (image.complete && image.naturalWidth === 0 && image.currentSrc) markImageError(image);
@@ -1072,12 +1176,15 @@
   }
 
   function initSeasonLabel() {
+    const kicker = $("#season-kicker");
     const title = $("#season-title");
-    if (!title) return;
+    if (!kicker || !title) return;
     const now = new Date();
     const year = now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear();
     const meta = seasonMeta[currentSeasonKey(now)];
+    kicker.innerHTML = `<i data-lucide="${meta.icon}"></i>Сезон`;
     title.textContent = `${meta.label} ${year}`;
+    refreshIcons();
   }
 
   function initTabIndicators() {

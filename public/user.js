@@ -94,6 +94,13 @@
   const tone = (id) => [...String(id)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 997, 7) % 4;
   const face = (u) => (u.avatar_url ? `<img src="${esc(u.avatar_url)}" alt="" loading="lazy" />` : `<span>${esc((u.username || "?").charAt(0).toUpperCase())}</span>`);
   const plural = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; return m10 === 1 && m100 !== 11 ? one : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? few : many; };
+  function countUp(el, to) {
+    if (reduced || to < 2) { el.textContent = nf.format(to); return; }
+    const t0 = performance.now(); const dur = 700;
+    const step = (t) => { const k = Math.min(1, (t - t0) / dur); el.textContent = nf.format(Math.round(to * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  }
+
   /* ---------- Шапка ---------- */
   let me = null; let user = null; let stats = null; let following = false; let busy = false;
 
@@ -110,7 +117,7 @@
   }
   function paintCounts(animate) {
     for (const [key, value] of Object.entries(stats)) {
-      const dd = $(`[data-count="${key}"]`); if (dd) { dd.textContent = nf.format(value); }
+      const dd = $(`[data-count="${key}"]`); if (dd) { if (animate) countUp(dd, value); else dd.textContent = nf.format(value); }
       const b = $(`[data-tab-count="${key}"]`); if (b) b.textContent = nf.format(value);
     }
   }
@@ -245,6 +252,11 @@
     if (me) { try { ({ is_following: following } = await api.status(id)); } catch (_) { following = false; } }
     paintFollow();
     initPeople(); selectTab(location.hash === "#following" ? "following" : "followers");
+    // Раздел «Люди» проявляется при прокрутке, как разделы своего профиля.
+    if ("IntersectionObserver" in window) {
+      const rev = new IntersectionObserver((entries) => entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("is-in"); rev.unobserve(en.target); } }), { rootMargin: "0px 0px -8% 0px" });
+      $$("[data-reveal]").forEach((n) => rev.observe(n));
+    } else $$("[data-reveal]").forEach((n) => n.classList.add("is-in"));
     if (location.hash === "#followers" || location.hash === "#following") $("#us-people").scrollIntoView({ block: "start" });
   }
   init();

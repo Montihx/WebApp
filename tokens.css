@@ -13,22 +13,9 @@
   --space-8: 32px;
   --space-12: 48px;
   --space-section: 64px;
-  /* Шкала шрифта: 6 ступеней текста и 3 заголовочных. Других размеров в стилях нет (tools/design-tells.test.mjs). */
-  --fs-1: 0.75rem;
-  --fs-2: 0.8125rem;
-  --fs-3: 0.9375rem;
-  --fs-4: 1.125rem;
-  --fs-5: 1.375rem;
-  --fs-6: 1.75rem;
-  --fs-h2: clamp(1.375rem, 2.6vw, 2rem);
-  --fs-h1: clamp(1.75rem, 4.2vw, 3rem);
-  --fs-hero: clamp(2.5rem, 6.5vw, 5rem);
-  /* Градиент акцента — только в двух ролях: главная кнопка экрана и прогресс. Остальной акцент — сплошной `--accent`. */
-  --fill-primary: var(--accent-grad);
-  --fill-progress: var(--accent-grad);
-  --type-body: var(--fs-3);
-  --type-ui: var(--fs-2);
-  --type-meta: var(--fs-1);
+  --type-body: 1rem;
+  --type-ui: 0.875rem;
+  --type-meta: 0.75rem;
   --control-height: 40px;
   --control-touch-height: 44px;
   --mobile-nav-height: 54px;
@@ -87,8 +74,13 @@
   --media-text: #f6f1f7;
   --media-text-dim: #cbc1d2;
   --chart-2: #ff9ccb;
+  --aurora-1: rgba(196, 161, 255, 0.22);
+  --aurora-2: rgba(255, 156, 203, 0.16);
+  --aurora-3: rgba(125, 227, 255, 0.10);
   --grain-opacity: 0.05;
+  --seigaiha-opacity: 0.05;
   --grain-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1.6 -.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --seigaiha-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='28' fill='none' stroke='%23f2ebdd' stroke-width='1.2'%3E%3Cpath d='M-26 14a26 26 0 0 1 52 0M-19 14a19 19 0 0 1 38 0M-12 14a12 12 0 0 1 24 0M30 14a26 26 0 0 1 52 0M37 14a19 19 0 0 1 38 0M44 14a12 12 0 0 1 24 0M2 28a26 26 0 0 1 52 0M9 28a19 19 0 0 1 38 0M16 28a12 12 0 0 1 24 0'/%3E%3C/svg%3E");
 
   /* Motion */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -102,14 +94,12 @@
   --shadow-menu: 0 24px 64px rgba(0, 0, 0, 0.46);
   --shadow-dialog: 0 36px 120px rgba(0, 0, 0, 0.66);
   --shadow-card: none;
-  /* Шкала радиусов: 5 значений (2–16 px); круг — только у аватаров людей. */
-  --radius-2xs: 2px;
   --radius-xs: 4px;
   --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: var(--radius-lg);
-  --radius-pill: var(--radius-sm);
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 8px;
 
   /* Shared bookmark colors from the profile statistics reference. */
   --bookmark-planned: #3b82f6;
@@ -181,6 +171,9 @@ html[data-palette="obsidian"] {
   --media-text: #f5f3ef;
   --media-text-dim: #bcb8b0;
   --chart-2: #7ccbff;
+  --aurora-1: rgba(255, 181, 71, 0.16);
+  --aurora-2: rgba(255, 217, 138, 0.08);
+  --aurora-3: rgba(124, 203, 255, 0.07);
   --overlay: rgba(4, 4, 5, 0.76);
   --header-bg: #0c0c0d;
 }
@@ -241,7 +234,12 @@ html[data-theme="light"] {
   --ofuda-fg: #1d1524;
   --accent-on-ink: #d8bbff;
   --chart-2: #c2367a;
+  --aurora-1: rgba(107, 63, 196, 0.12);
+  --aurora-2: rgba(194, 54, 122, 0.09);
+  --aurora-3: rgba(11, 106, 153, 0.06);
   --grain-opacity: 0.05;
+  --seigaiha-opacity: 0.05;
+  --seigaiha-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='28' fill='none' stroke='%231d1524' stroke-width='1.2'%3E%3Cpath d='M-26 14a26 26 0 0 1 52 0M-19 14a19 19 0 0 1 38 0M-12 14a12 12 0 0 1 24 0M30 14a26 26 0 0 1 52 0M37 14a19 19 0 0 1 38 0M44 14a12 12 0 0 1 24 0M2 28a26 26 0 0 1 52 0M9 28a19 19 0 0 1 38 0M16 28a12 12 0 0 1 24 0'/%3E%3C/svg%3E");
   --bookmark-planned-text: #1d4ed8;
   --bookmark-watching-text: #166534;
   --bookmark-completed-text: #7e22ce;
@@ -287,6 +285,9 @@ html[data-theme="light"][data-palette="obsidian"] {
   --header-bg: #eeece7;
   --overlay: rgba(23, 21, 15, 0.34);
   --chart-2: #0b6a99;
+  --aurora-1: rgba(154, 91, 0, 0.1);
+  --aurora-2: rgba(184, 116, 10, 0.07);
+  --aurora-3: rgba(11, 106, 153, 0.05);
 }
 
 [data-bookmark-tone="planned"], [data-list-status="planned"] {
