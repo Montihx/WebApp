@@ -710,12 +710,6 @@
   color: var(--bookmark-text, var(--text));
 }
 
-:root .list-menu {
-  border: 1px solid var(--glass-line);
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--surface-raised) 94%, transparent);
-  box-shadow: var(--shadow-menu);
-}
 
 :root .title-community-actions {
   overflow: hidden;
@@ -2724,9 +2718,8 @@ body[data-page="profile"] { background: var(--canvas); }
 :root .pf-skel--card { height: auto; aspect-ratio: 2 / 3; }
 
 /* Диалог создания коллекции. */
-:root .pf-dialog { width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 0; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--surface-raised); color: var(--text); overflow: auto; }
+:root .pf-dialog { width: min(480px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 0; overflow: auto; }
 :root .pf-dialog[open] { animation: menu-in 0.28s var(--ease-out) both; }
-:root .pf-dialog::backdrop { background: rgba(var(--media-ink-rgb), 0.66); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 :root .pf-form { display: grid; gap: 18px; padding: 24px; }
 :root .pf-form header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 :root .pf-form h2 { margin: 0; font-family: var(--font-heading); font-size: var(--fs-4); font-weight: 400; }

@@ -2655,7 +2655,15 @@ dialog {
 
 dialog::backdrop {
   background: var(--overlay);
+}
 
+/* Оболочка диалога: одна на все окна по центру (содержимое и ширина — у каждого своя). */
+:is(.content-dialog, .titles-dialog, .title-list-dialog, .player-settings-dialog, .pf-dialog) {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-dialog);
 }
 
 .search-dialog {
@@ -3137,10 +3145,6 @@ body:has(.search-dialog[open]) .site-header .search-trigger {
   width: min(520px, calc(100vw - 28px));
   max-width: none;
   padding: 22px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  box-shadow: var(--shadow-dialog);
 }
 
 .titles-dialog {
@@ -3149,10 +3153,6 @@ body:has(.search-dialog[open]) .site-header .search-trigger {
   max-height: calc(100dvh - 48px);
   overflow: hidden;
   padding: 0;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  box-shadow: var(--shadow-dialog);
 }
 
 .titles-dialog[open] {
@@ -3838,11 +3838,7 @@ button.title-community-action:hover {
   width: min(440px, calc(100vw - 24px));
   max-width: none;
   padding: 10px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-md);
-  background: var(--surface);
   color: var(--text);
-  box-shadow: var(--shadow-dialog);
 }
 
 .mobile-subscribe-dialog {
