@@ -447,8 +447,7 @@ html[data-theme="light"] .brand-mark {
   box-shadow: var(--shadow-menu);
 }
 
-.category-menu::before,
-.notification-popover::before {
+.category-menu::before {
   position: absolute;
   top: -12px;
   right: 0;
@@ -6390,7 +6389,7 @@ html[data-theme="light"] .brand-mark {
 }
 
 .feature-slide {
-  background: radial-gradient(70% 90% at 82% 24%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%), var(--media-ink);
+  background: var(--media-ink);
 }
 
 .feature-slide__backdrop { display: none; }
@@ -6612,7 +6611,6 @@ html[data-theme="light"] .brand-mark {
   left: 0;
   aspect-ratio: 2 / 3;
   border-radius: var(--radius-md);
-  background: linear-gradient(var(--accent), var(--accent)) bottom / 100% 3px no-repeat;
   clip-path: inset(0 100% 0 0);
   content: "";
   pointer-events: none;
@@ -6834,7 +6832,6 @@ html[data-theme="light"] .brand-mark {
   position: absolute;
   inset: -5px;
   border-radius: var(--radius-xs);
-  background: radial-gradient(circle, var(--kitsunebi) 0%, transparent 70%);
   content: "";
   opacity: 0.7;
 }

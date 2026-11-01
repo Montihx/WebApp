@@ -4,6 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
+import postcss from 'postcss';
 
 const root = new URL('../', import.meta.url);
 const read = path => readFileSync(new URL(path, root), 'utf8');
@@ -13,6 +14,30 @@ const strip = css => css.replace(/\/\*[\s\S]*?\*\//g, '');
 const cssOf = files => files.map(file => strip(read(file))).join('\n');
 const jsOf = files => files.map(file => read(file)).join('\n');
 const count = (text, re) => (text.match(re) || []).length;
+// Цветные градиенты: слои с акцентом, «огнём», закладкой или насыщенным цветом. Затемнения и маски под текст не в счёте.
+// Превью палитры (`swatch`) — это сами образцы цвета, не оформление.
+const coloredGradients = css => {
+  let n = 0;
+  postcss.parse(css).walkDecls(decl => {
+    if (!/gradient\(/.test(decl.value) || /swatch/.test(decl.parent.selector || '')) return;
+    for (const layer of splitTop(decl.value)) {
+      if (!/(?:linear|radial|conic)-gradient\(/.test(layer)) continue;
+      if (/--accent|--kitsunebi|--kin\b|--aurora|--bookmark|--moon/.test(layer)) { n += 1; continue; }
+      for (const m of layer.matchAll(/#([0-9a-f]{6}|[0-9a-f]{3})\b/gi)) {
+        const h = m[1].length === 3 ? [...m[1]].map(c => c + c).join('') : m[1];
+        const c = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16));
+        if (Math.max(...c) - Math.min(...c) > 24) { n += 1; break; }
+      }
+    }
+  });
+  return n;
+};
+function splitTop(value) {
+  const out = []; let depth = 0, cur = '';
+  for (const ch of value) { if (ch === '(') depth++; if (ch === ')') depth--; if (ch === ',' && depth === 0) { out.push(cur.trim()); cur = ''; } else cur += ch; }
+  if (cur.trim()) out.push(cur.trim());
+  return out;
+}
 const distinct = (text, re) => new Set([...text.matchAll(re)].map(m => m[1].trim().toLowerCase())).size;
 
 export function measure() {
@@ -26,7 +51,7 @@ export function measure() {
     site: {
       fontSizes: distinct(siteCss, /font-size:\s*([^;}]+)/g),
       radii: distinct(siteCss, /border(?:-(?:top|bottom)-(?:left|right))?-radius:\s*([^;}]+)/g),
-      gradients: layer(siteCss, /(?:linear|radial|conic)-gradient\(/g),
+      gradients: coloredGradients(siteCss),
       gradientText: layer(siteCss, /background-clip:\s*text/g),
       backdropFilters: layer(siteCss, /backdrop-filter:/g),
       glows: layer(siteCss, /(?:box-shadow|drop-shadow|text-shadow)[^;{}]*-glow/g),
@@ -41,7 +66,7 @@ export function measure() {
     admin: {
       fontSizes: distinct(adminCss, /font-size:\s*([^;}]+)/g),
       radii: distinct(adminCss, /border(?:-(?:top|bottom)-(?:left|right))?-radius:\s*([^;}]+)/g),
-      gradients: layer(adminCss, /(?:linear|radial|conic)-gradient\(/g),
+      gradients: coloredGradients(adminCss),
       backdropFilters: layer(adminCss, /backdrop-filter:/g),
       glows: layer(adminCss, /(?:box-shadow|drop-shadow|text-shadow)[^;{}]*-glow/g),
       keyframes: layer(adminCss, /@keyframes\s/g),
@@ -54,8 +79,8 @@ export function measure() {
 
 // Потолки: значения на коммите b191fb9 (считает этот же тест: токены, html и js включены). Опускать, не поднимать.
 export const CEILINGS = {
-  site: { fontSizes: 12, radii: 10, gradients: 132, gradientText: 0, backdropFilters: 29, glows: 0, keyframes: 8, accentGradUses: 36, sectionKickers: 0, ambientParticles: 0, pointerTilt: 0, countUp: 0, scrollReveal: 0 },
-  admin: { fontSizes: 13, radii: 13, gradients: 20, backdropFilters: 4, glows: 10, keyframes: 8, accentGradUses: 9, aurora: 3, countUp: 4 },
+  site: { fontSizes: 12, radii: 10, gradients: 4, gradientText: 0, backdropFilters: 3, glows: 0, keyframes: 8, accentGradUses: 2, sectionKickers: 0, ambientParticles: 0, pointerTilt: 0, countUp: 0, scrollReveal: 0 },
+  admin: { fontSizes: 13, radii: 13, gradients: 7, backdropFilters: 4, glows: 10, keyframes: 8, accentGradUses: 9, aurora: 3, countUp: 4 },
 };
 // Цели финала (раздел «Готово, когда» промта). Тест ниже печатает расстояние до них.
 export const TARGET = {
