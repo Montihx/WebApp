@@ -141,7 +141,7 @@
   }));
 
   // Свет под курсором: подсветка карточки идёт за мышью (только с указателем-мышью).
-  const card = $(".auth-card"), glow = $(".auth-card__glow"), art = $(".auth-art");
+  const card = $(".auth-card"), glow = $(".auth-card__glow");
   if (matchMedia("(hover: hover) and (pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
     let frame = 0, x = 0, y = 0;
     card.addEventListener("pointermove", (event) => {
@@ -151,8 +151,8 @@
         frame = 0;
         glow.style.transform = `translate3d(${x}px, ${y}px, 0)`;
         // Портрет едет навстречу курсору: от -1 до 1 по каждой оси.
-        art.style.setProperty("--mx", ((x / box.width) * 2 - 1).toFixed(3));
-        art.style.setProperty("--my", ((y / box.height) * 2 - 1).toFixed(3));
+        card.style.setProperty("--mx", ((x / box.width) * 2 - 1).toFixed(3));
+        card.style.setProperty("--my", ((y / box.height) * 2 - 1).toFixed(3));
       });
     });
   }
