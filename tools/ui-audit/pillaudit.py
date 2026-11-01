@@ -14,7 +14,9 @@ const check=(el,pseudo)=>{const c=getComputedStyle(el,pseudo); if(pseudo&&(c.con
  if(parseFloat(c.borderTopRightRadius)===0||parseFloat(c.borderBottomLeftRadius)===0)return;
  const key=(el.tagName.toLowerCase()+'.'+(el.getAttribute('class')||'').trim().split(/\s+/).slice(0,2).join('.')+(pseudo||'')).slice(0,70);
  out.set(key, Math.round(w)+'x'+Math.round(h)+' r='+rr);};
-for(const el of document.querySelectorAll('body *')){ if(el.closest('svg'))continue; check(el,null); check(el,'::before'); check(el,'::after'); }
+// Аватары людей круглые по решению владельца (01.11.2026) — это не «пилюли».
+const AVATAR=/avatar|st-pick__art|header-account__av/;
+for(const el of document.querySelectorAll('body *')){ if(el.closest('svg'))continue; if(AVATAR.test(el.getAttribute('class')||''))continue; check(el,null); check(el,'::before'); check(el,'::after'); }
 return [...out.entries()].map(([k,v])=>k+' '+v)}"""
 async def main():
     async with async_playwright() as p:
@@ -24,7 +26,7 @@ async def main():
           for theme in ('dark',):
             pg=await b.new_page(viewport={'width':w,'height':900})
             await pg.add_init_script(f"localStorage.setItem('kitsu-theme','{theme}');localStorage.setItem('kitsu-admin-theme','{theme}')")
-            for u in ['public/','public/anime.html','public/anime.html?title=steins-gate','public/anime.html?title=one-piece']:
+            for u in ['public/','public/profile.html','public/profile.html?state=empty','public/profile-settings.html','public/profile-settings.html#password','public/profile-settings.html#account','public/anime.html','public/anime.html?title=steins-gate','public/anime.html?title=one-piece']:
                 await pg.goto('http://127.0.0.1:4173/'+u); await pg.wait_for_timeout(1000)
                 for x in await pg.evaluate(JS): seen.setdefault(x.split(' ')[0],(u,x))
             await pg.goto('http://127.0.0.1:4173/admin/'); await pg.wait_for_timeout(800)

@@ -7,7 +7,7 @@ JS="""()=>{let t=document.body.innerText; for(const el of document.querySelector
 async def main():
     async with async_playwright() as p:
         b=await p.chromium.launch(); pg=await b.new_page(viewport={'width':1440,'height':900}); found=set()
-        for u in ['public/','public/anime.html','public/anime.html?title=steins-gate','index.html']:
+        for u in ['public/','public/profile.html','public/profile.html?state=empty','public/profile-settings.html','public/profile-settings.html#password','public/profile-settings.html#account','public/anime.html','public/anime.html?title=steins-gate','index.html']:
             await pg.goto('http://127.0.0.1:4173/'+u); await pg.wait_for_timeout(900)
             for ch in pat.findall(await pg.evaluate(JS)): found.add((u,ch,hex(ord(ch))))
         await pg.goto('http://127.0.0.1:4173/admin/'); await pg.wait_for_timeout(800)

@@ -29,13 +29,18 @@
   <!--
     Настройки профиля. Страница рисуется profile-settings.js; запросы записаны над методами `api` в скрипте.
     Сохранение профиля, по порядку (как в рабочем проекте):
-      POST /users/me/avatar   multipart, поле file; jpeg/png/webp/gif, до 5 МБ → {avatar_url}
-      POST /users/me/cover    multipart, поле file; те же типы, до 15 МБ → {cover_url}
-      PUT  /users/me          {bio, gender: ""|male|female|other, avatar_url, cover_url, active_avatar_id, decoration_id (0 — снять), preferences{vk,telegram,discord,…}}
+      POST /users/me/avatar   multipart, поле file; jpeg/png/webp/gif, до 5 МБ → FullUser. Сервер пишет avatar_url сразу, до PUT.
+      POST /users/me/cover    multipart, поле file; те же типы, до 15 МБ → FullUser, cover_url пишется сразу
+      PUT  /users/me          только изменённые ключи: {bio, gender: ""|male|female|other, avatar_url, cover_url,
+                              active_avatar_id, decoration_id (0 — снять), preferences{vk,telegram,discord,…}}
+        null сервер пропускает: картинку снимает avatar_url: "" / cover_url: "", соцсеть стирает "" (preferences сливаются).
+        active_avatar_id сбросить нельзя, поэтому выбор из коллекции пишется ещё и в avatar_url — его показывает профиль.
     Списки для выбора: GET /avatar-collection/?category&skip&limit, GET /decorations/?skip&limit (только is_active).
-    Пароль: POST /auth/change-password {current_password, new_password 8–128} → новая пара токенов для этого устройства.
+    Пароль: POST /auth/change-password {current_password, new_password: 8–128 БАЙТ} → новая пара токенов для этого устройства;
+      400 «Incorrect current password», 400 «New password must differ from current», 422 — длина.
     Все сеансы: POST /auth/logout-all (10 в час). Письмо: POST /auth/send-verification (3 в час; 400 «Email already verified»).
-    Проверка состояний: ?state=unverified — почта не подтверждена.
+    Тема и палитра — настройки этого браузера (kitsu-theme, kitsu-palette), на сервер не уходят.
+    Проверка состояний: ?state=unverified — почта не подтверждена, ?state=guest — без входа (401), ?state=error — сервер не ответил.
     Демо: сохранённые значения лежат в localStorage браузера и подхватываются на profile.html.
   -->
   <body data-page="settings">
@@ -153,13 +158,15 @@
     </aside>
     <div class="drawer-scrim" id="drawer-scrim" hidden></div>
 
-    <main class="st" id="settings-main">
+    <main class="st" id="settings-main" aria-busy="true">
       <header class="st-head">
         <a class="st-back" href="./profile.html"><i data-lucide="arrow-left"></i><span>Профиль</span></a>
         <h1>Настройки</h1>
       </header>
 
-      <div class="st-layout">
+      <div class="st-gate pf-state" data-gate role="status" hidden></div>
+
+      <div class="st-layout" data-layout>
         <div class="st-tabs" role="tablist" aria-label="Разделы настроек" data-tabs>
           <button type="button" role="tab" id="tab-profile" aria-controls="panel-profile" data-tab="profile"><i data-lucide="user-round"></i><span>Профиль</span></button>
           <button type="button" role="tab" id="tab-password" aria-controls="panel-password" data-tab="password"><i data-lucide="lock"></i><span>Пароль</span></button>
@@ -171,11 +178,15 @@
           <!-- ===== Профиль ===== -->
           <section class="st-panel" id="panel-profile" role="tabpanel" aria-labelledby="tab-profile" data-panel="profile" hidden>
             <form class="st-form" data-profile-form novalidate>
-              <div class="st-preview" aria-label="Так профиль выглядит сейчас">
+              <div class="st-preview" role="group" aria-label="Так профиль будет выглядеть после сохранения">
                 <div class="st-preview__cover" data-pv-cover aria-hidden="true"></div>
                 <div class="st-preview__row">
                   <div class="pf-avatar st-preview__avatar" data-pv-avatar aria-hidden="true"></div>
                   <div><strong data-pv-name>kitsune_noa</strong><span data-pv-meta></span></div>
+                </div>
+                <div class="st-preview__more">
+                  <p class="st-preview__bio" data-pv-bio></p>
+                  <p class="pf-chips st-preview__social" data-pv-social></p>
                 </div>
               </div>
 
@@ -187,7 +198,7 @@
                   <button class="st-link" type="button" data-clear="avatar" hidden><i data-lucide="undo-2"></i>Отменить выбор</button>
                 </div>
                 <p class="st-error" data-error="avatar" role="alert"></p>
-                <label class="pf-switch"><input type="checkbox" role="switch" data-remove-avatar /><span class="pf-switch__track" aria-hidden="true"><i></i></span><span class="pf-switch__text"><strong>Убрать аватар</strong><small>Останется буква имени</small></span></label>
+                <label class="pf-switch"><input type="checkbox" role="switch" data-remove-avatar /><span class="pf-switch__track" aria-hidden="true"><i></i></span><span class="pf-switch__text"><strong>Убрать аватар</strong><small data-remove-avatar-note>Останется буква имени</small></span></label>
                 <div class="st-sub"><h3>Или выберите из коллекции</h3><div class="st-chips" data-avatar-cats role="group" aria-label="Категория аватаров"></div></div>
                 <div class="st-picker" data-avatars role="radiogroup" aria-label="Аватар из коллекции"></div>
                 <div class="st-sub"><h3>Рамка вокруг аватара</h3></div>
@@ -198,8 +209,8 @@
                 <legend>Обложка профиля</legend>
                 <div class="st-drop st-drop--cover" data-drop="cover">
                   <input class="sr-only" id="cover-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-file="cover" />
-                  <label for="cover-file" class="st-drop__area st-drop__area--cover" data-cover-area><span class="st-drop__shot" data-cover-shot aria-hidden="true"></span><span class="st-drop__over"><i data-lucide="image-plus"></i><span><strong>Выбрать обложку</strong><small data-drop-hint="cover">Перетащите файл или нажмите. До 15 МБ</small></span></span></label>
-                  <div class="st-drop__tools"><button class="st-link" type="button" data-clear="cover" hidden><i data-lucide="undo-2"></i>Отменить выбор</button><button class="st-link st-link--danger" type="button" data-remove-cover hidden><i data-lucide="trash-2"></i>Убрать обложку</button></div>
+                  <label for="cover-file" class="st-drop__area st-drop__area--cover" data-cover-area><span class="st-drop__shot" data-cover-shot aria-hidden="true"></span><span class="st-drop__over"><i data-lucide="image-plus"></i><span><strong>Выбрать обложку</strong><small data-drop-hint="cover">Перетащите файл или нажмите. JPG, PNG, WebP, GIF — до 15 МБ</small></span></span></label>
+                  <div class="st-drop__tools"><button class="st-link" type="button" data-clear="cover" hidden><i data-lucide="undo-2"></i>Отменить выбор</button><button class="st-link st-link--danger" type="button" data-remove-cover hidden><i data-lucide="trash-2"></i>Убрать обложку</button><button class="st-link" type="button" data-restore-cover hidden><i data-lucide="undo-2"></i>Вернуть обложку</button></div>
                 </div>
                 <p class="st-error" data-error="cover" role="alert"></p>
               </fieldset>
@@ -213,10 +224,10 @@
                 </div>
                 <div class="st-sub"><h3 id="gender-label">Пол</h3>
                   <div class="pf-seg st-seg" role="radiogroup" aria-labelledby="gender-label" data-gender>
-                    <button type="button" role="radio" data-gender-value="" aria-checked="true">Не указан</button>
-                    <button type="button" role="radio" data-gender-value="male" aria-checked="false">Мужской</button>
-                    <button type="button" role="radio" data-gender-value="female" aria-checked="false">Женский</button>
-                    <button type="button" role="radio" data-gender-value="other" aria-checked="false">Другой</button>
+                    <button type="button" role="radio" data-value="" aria-checked="true">Не указан</button>
+                    <button type="button" role="radio" data-value="male" aria-checked="false">Мужской</button>
+                    <button type="button" role="radio" data-value="female" aria-checked="false">Женский</button>
+                    <button type="button" role="radio" data-value="other" aria-checked="false">Другой</button>
                     <span class="pf-seg__thumb" aria-hidden="true"></span>
                   </div>
                 </div>
@@ -224,11 +235,32 @@
 
               <fieldset class="st-card">
                 <legend>Соцсети</legend>
-                <p class="st-note">Показываются в профиле ссылками. Хранятся в настройках аккаунта.</p>
+                <p class="st-note">Показываются в профиле. Можно вставить ссылку или имя — сохранится имя, ссылку профиль соберёт сам.</p>
                 <div class="st-grid">
-                  <div class="pf-field"><label for="soc-vk">VK</label><input id="soc-vk" name="vk" type="text" autocomplete="off" placeholder="durov или ссылка" /></div>
-                  <div class="pf-field"><label for="soc-telegram">Telegram</label><input id="soc-telegram" name="telegram" type="text" autocomplete="off" placeholder="durov или ссылка" /></div>
-                  <div class="pf-field"><label for="soc-discord">Discord</label><input id="soc-discord" name="discord" type="text" autocomplete="off" placeholder="имя пользователя" /></div>
+                  <div class="pf-field"><label for="soc-vk">VK</label><input id="soc-vk" name="vk" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="200" placeholder="durov или vk.com/durov" aria-describedby="soc-vk-note" /><small class="st-hint" id="soc-vk-note" data-social-note="vk" aria-live="polite"></small></div>
+                  <div class="pf-field"><label for="soc-telegram">Telegram</label><input id="soc-telegram" name="telegram" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="200" placeholder="durov или t.me/durov" aria-describedby="soc-telegram-note" /><small class="st-hint" id="soc-telegram-note" data-social-note="telegram" aria-live="polite"></small></div>
+                  <div class="pf-field"><label for="soc-discord">Discord</label><input id="soc-discord" name="discord" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="200" placeholder="имя пользователя" aria-describedby="soc-discord-note" /><small class="st-hint" id="soc-discord-note" data-social-note="discord" aria-live="polite"></small></div>
+                </div>
+              </fieldset>
+
+              <fieldset class="st-card">
+                <legend>Оформление</legend>
+                <p class="st-note">Меняется сразу и хранится в этом браузере — на сервер не уходит. То же переключают кнопки в шапке сайта.</p>
+                <div class="st-grid st-grid--2">
+                  <div class="st-sub"><h3 id="look-theme">Тема</h3>
+                    <div class="pf-seg st-seg" role="radiogroup" aria-labelledby="look-theme" data-look="theme">
+                      <button type="button" role="radio" data-value="dark" aria-checked="true"><i data-lucide="moon"></i>Тёмная</button>
+                      <button type="button" role="radio" data-value="light" aria-checked="false"><i data-lucide="sun"></i>Светлая</button>
+                      <span class="pf-seg__thumb" aria-hidden="true"></span>
+                    </div>
+                  </div>
+                  <div class="st-sub"><h3 id="look-palette">Палитра</h3>
+                    <div class="pf-seg st-seg" role="radiogroup" aria-labelledby="look-palette" data-look="palette">
+                      <button type="button" role="radio" data-value="sakura" aria-checked="true"><span class="st-swatch st-swatch--sakura" aria-hidden="true"></span>Сакура</button>
+                      <button type="button" role="radio" data-value="obsidian" aria-checked="false"><span class="st-swatch st-swatch--obsidian" aria-hidden="true"></span>Обсидиан</button>
+                      <span class="pf-seg__thumb" aria-hidden="true"></span>
+                    </div>
+                  </div>
                 </div>
               </fieldset>
 
@@ -240,7 +272,7 @@
               </fieldset>
 
               <div class="st-save" data-save-bar aria-live="polite">
-                <span class="st-save__text" data-save-text>Нет изменений</span>
+                <span class="st-save__text" data-save-text>Все изменения сохранены</span><kbd class="st-kbd" aria-hidden="true">Ctrl S</kbd>
                 <button class="button button--secondary" type="button" data-reset disabled><i data-lucide="undo-2"></i><span>Сбросить</span></button>
                 <button class="button button--primary" type="submit" data-save disabled><i data-lucide="save"></i><span>Сохранить</span></button>
               </div>
@@ -249,26 +281,31 @@
 
           <!-- ===== Пароль ===== -->
           <section class="st-panel" id="panel-password" role="tabpanel" aria-labelledby="tab-password" data-panel="password" hidden>
-            <form class="st-form" data-password-form novalidate>
-              <fieldset class="st-card">
-                <legend>Сменить пароль</legend>
-                <div class="pf-field st-pass"><label for="pw-current">Текущий пароль</label><input id="pw-current" name="current_password" type="password" autocomplete="current-password" /><button class="st-eye" type="button" data-eye aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button><small class="st-error" data-error="current" role="alert"></small></div>
-                <div class="pf-field st-pass"><label for="pw-new">Новый пароль</label><input id="pw-new" name="new_password" type="password" autocomplete="new-password" maxlength="128" /><button class="st-eye" type="button" data-eye aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button><div class="st-meter" data-meter aria-hidden="true"></div></div>
-                <div class="pf-field st-pass"><label for="pw-repeat">Повторите новый пароль</label><input id="pw-repeat" name="repeat" type="password" autocomplete="new-password" maxlength="128" /><button class="st-eye" type="button" data-eye aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button></div>
-                <ul class="st-rules" data-rules aria-label="Требования к паролю">
-                  <li data-rule="len"><i data-lucide="check"></i>От 8 до 128 символов</li>
-                  <li data-rule="diff"><i data-lucide="check"></i>Не совпадает с текущим</li>
-                  <li data-rule="same"><i data-lucide="check"></i>Повтор совпадает</li>
-                </ul>
-                <p class="st-note">После смены пароля этому устройству выдаётся новая пара токенов, на остальных устройствах нужно будет войти заново.</p>
-                <div class="st-actions"><button class="button button--primary" type="submit" data-pw-submit disabled><i data-lucide="lock"></i><span>Изменить пароль</span></button></div>
-              </fieldset>
+            <div class="st-form">
+              <form data-password-form novalidate>
+                <fieldset class="st-card">
+                  <legend>Сменить пароль</legend>
+                  <div class="pf-field st-pass"><label for="pw-current">Текущий пароль</label><input id="pw-current" name="current_password" type="password" autocomplete="current-password" aria-describedby="pw-current-error" /><button class="st-eye" type="button" data-eye aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button><small class="st-error" id="pw-current-error" data-error="current" role="alert"></small></div>
+                  <div class="pf-field st-pass"><label for="pw-new">Новый пароль</label><input id="pw-new" name="new_password" type="password" autocomplete="new-password" aria-describedby="pw-rules pw-new-error" /><button class="st-eye" type="button" data-eye aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button>
+                    <div class="st-strength"><div class="st-meter" data-meter aria-hidden="true"></div><small data-meter-text aria-live="polite"></small></div>
+                    <small class="st-error" id="pw-new-error" data-error="new" role="alert"></small></div>
+                  <div class="pf-field st-pass"><label for="pw-repeat">Повторите новый пароль</label><input id="pw-repeat" name="repeat" type="password" autocomplete="new-password" /><button class="st-eye" type="button" data-eye aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button></div>
+                  <p class="st-note st-note--warn" data-caps hidden><i data-lucide="triangle-alert"></i>Включён Caps Lock</p>
+                  <ul class="st-rules" id="pw-rules" data-rules aria-label="Требования к паролю">
+                    <li data-rule="len"><i data-lucide="check"></i>От 8 до 128 знаков, кириллица считается за два</li>
+                    <li data-rule="diff"><i data-lucide="check"></i>Не совпадает с текущим</li>
+                    <li data-rule="same"><i data-lucide="check"></i>Повтор совпадает</li>
+                  </ul>
+                  <p class="st-note">Это устройство останется в аккаунте, на остальных нужно будет войти заново.</p>
+                  <div class="st-actions"><button class="button button--primary" type="submit" data-pw-submit disabled><i data-lucide="lock"></i><span>Изменить пароль</span></button></div>
+                </fieldset>
+              </form>
               <fieldset class="st-card">
                 <legend>Активные сеансы</legend>
                 <p class="st-note">Завершит вход на всех устройствах, включая это. Понадобится войти заново.</p>
                 <div class="st-actions"><button class="button button--secondary st-danger" type="button" data-logout-all><i data-lucide="log-out"></i><span>Выйти на всех устройствах</span></button></div>
               </fieldset>
-            </form>
+            </div>
           </section>
 
           <!-- ===== Аккаунт ===== -->
@@ -326,14 +363,14 @@
       <div class="pf-form">
         <header><h2 id="confirm-title">Подтвердите</h2><button class="pf-dialog__x" type="button" data-confirm-close aria-label="Закрыть"><i data-lucide="x"></i></button></header>
         <p class="st-note" data-confirm-text></p>
-        <footer><button class="button button--secondary" type="button" data-confirm-close>Отмена</button><button class="button button--primary" type="button" data-confirm-ok><span>Подтвердить</span></button></footer>
+        <footer><button class="button button--secondary" type="button" data-confirm-close><span>Отмена</span></button><button class="button button--primary" type="button" data-confirm-ok><span>Подтвердить</span></button></footer>
       </div>
     </dialog>
 
     <nav class="mobile-bottom-nav" aria-label="Мобильная навигация">
       <a href="./index.html"><i data-lucide="house"></i><span>Главная</span></a>
       <a href="./index.html#catalog"><i data-lucide="compass"></i><span>Обзор</span></a>
-      <a href="#pf-marks"><i data-lucide="bookmark"></i><span>Закладки</span></a>
+      <a href="./profile.html#pf-marks"><i data-lucide="bookmark"></i><span>Закладки</span></a>
       <a class="is-active" href="./profile.html"><i data-lucide="circle-user-round"></i><span>Профиль</span></a>
     </nav>
 
