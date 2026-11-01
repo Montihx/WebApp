@@ -83,6 +83,18 @@
       .link-card--main { border-color: transparent; background: var(--accent-grad); color: var(--primary-fg); }
       .link-card--main :is(.kicker, .desc, .arrow) { color: var(--primary-fg); }
       .link-card--main .kicker::before { background: var(--primary-fg); }
+      /* Быстрая навигация по шаблону: группы ссылок на страницы и их состояния. */
+      .quick { display: grid; gap: 14px; }
+      .quick h2 { margin: 0; font: 400 1.25rem/1.2 "Dela Gothic One", "Onest", sans-serif; }
+      .quick > p { margin: -6px 0 0; color: var(--text-muted); font-size: 0.875rem; }
+      .quick-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 14px; }
+      .quick-group { display: grid; align-content: start; gap: 2px; padding: 16px; border: 1px solid color-mix(in srgb, var(--text) 10%, transparent); border-radius: 16px; background: color-mix(in srgb, var(--surface) 78%, transparent); }
+      .quick-group h3 { margin: 0 0 8px; color: var(--accent-text); font-size: 0.8125rem; font-weight: 700; }
+      .quick-group a { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; min-height: 40px; padding: 8px 10px; margin: 0 -10px; border-radius: 8px; color: var(--text); text-decoration: none; font-size: 0.9375rem; font-weight: 600; transition: background var(--dur-1), color var(--dur-1); }
+      .quick-group a:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-text); }
+      .quick-group a:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 1px; }
+      .quick-group small { flex: none; color: var(--text-muted); font: 500 0.75rem/1.4 ui-monospace, "JetBrains Mono", monospace; }
+      @media (prefers-reduced-motion: reduce) { .quick-group a { transition: none; } }
       footer a { color: var(--text-muted); font-size: 0.875rem; }
       footer a:hover { color: var(--accent-text); }
       @media (prefers-reduced-motion: reduce) { .link-card, .link-card .arrow svg { transition: none; } }
@@ -102,7 +114,7 @@
         <a class="link-card link-card--main" href="./public/">
           <span class="kicker">Витрина каталога</span>
           <strong>Публичный сайт</strong>
-          <span class="desc">Главная, страница тайтла с плеером, расписание и коллекции.</span>
+          <span class="desc">Главная, тайтл с плеером, профиль, закладки, настройки и чужой профиль.</span>
           <span class="arrow">Открыть <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </a>
         <a class="link-card" href="./admin/">
@@ -112,6 +124,63 @@
           <span class="arrow">Открыть <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </a>
       </div>
+      <section class="quick" aria-labelledby="quick-title">
+        <h2 id="quick-title">Быстрая навигация</h2>
+        <p>Все страницы шаблона и их состояния — пустые, без входа, со сбоем сервера.</p>
+        <div class="quick-groups">
+          <nav class="quick-group" aria-label="Сайт">
+            <h3>Сайт</h3>
+            <a href="./public/">Главная<small>public/</small></a>
+            <a href="./public/anime.html">Тайтл: «Монстр»<small>anime</small></a>
+            <a href="./public/anime.html?title=one-piece">Онгоинг: «Ван-Пис»<small>онгоинг</small></a>
+            <a href="./public/anime.html?title=steins-gate">Франшиза: «Врата Штейна»<small>связанные</small></a>
+            <a href="./public/anime.html?title=re-zero-3">Анонс: Re:Zero 3<small>анонс</small></a>
+          </nav>
+          <nav class="quick-group" aria-label="Вход">
+            <h3>Вход</h3>
+            <a href="./public/auth.html#login">Вход<small>#login</small></a>
+            <a href="./public/auth.html#register">Регистрация<small>#register</small></a>
+            <a href="./public/auth.html#forgot">Забыли пароль<small>#forgot</small></a>
+            <a href="./public/auth.html#reset">Новый пароль<small>#reset</small></a>
+            <a href="./public/auth.html#verify">Подтверждение почты<small>#verify</small></a>
+          </nav>
+          <nav class="quick-group" aria-label="Мой аккаунт">
+            <h3>Мой аккаунт</h3>
+            <a href="./public/profile.html">Профиль<small>profile</small></a>
+            <a href="./public/bookmarks.html">Закладки<small>bookmarks</small></a>
+            <a href="./public/profile-settings.html">Настройки профиля<small>#profile</small></a>
+            <a href="./public/profile-settings.html#password">Смена пароля<small>#password</small></a>
+            <a href="./public/profile-settings.html#account">Аккаунт и почта<small>#account</small></a>
+          </nav>
+          <nav class="quick-group" aria-label="Другие люди">
+            <h3>Другие люди</h3>
+            <a href="./public/user.html?id=5a7d0c3e-0001-4c1b-9e2a-000000007919">Профиль akira_k<small>user</small></a>
+            <a href="./public/user.html?id=5a7d0c3e-0001-4c1b-9e2a-000000007919#following">Его подписки<small>#following</small></a>
+            <a href="./public/user.html?id=5a7d0c3e-0003-4c1b-9e2a-000000023757">Админ neko_sensei<small>админ</small></a>
+            <a href="./public/user.html?id=bad">Пользователь не найден<small>404</small></a>
+          </nav>
+          <nav class="quick-group" aria-label="Состояния">
+            <h3>Состояния</h3>
+            <a href="./public/profile.html?state=guest">Профиль без входа<small>guest</small></a>
+            <a href="./public/profile.html?state=empty">Пустой профиль<small>empty</small></a>
+            <a href="./public/profile.html?state=error">Профиль: сбой сервера<small>error</small></a>
+            <a href="./public/profile-settings.html?state=unverified#account">Почта не подтверждена<small>unverified</small></a>
+            <a href="./public/bookmarks.html?state=empty">Закладок нет<small>empty</small></a>
+            <a href="./public/bookmarks.html?state=guest">Закладки без входа<small>guest</small></a>
+          </nav>
+          <nav class="quick-group" aria-label="Админ-панель">
+            <h3>Админ-панель</h3>
+            <a href="./admin/#/pult">Пульт<small>/pult</small></a>
+            <a href="./admin/#/catalog/titles">Каталог тайтлов<small>/catalog</small></a>
+            <a href="./admin/#/catalog/titles/monster">Карточка тайтла<small>запись</small></a>
+            <a href="./admin/#/queues/moderation">Модерация<small>/queues</small></a>
+            <a href="./admin/#/parser/run">Парсер<small>/parser</small></a>
+            <a href="./admin/#/stand/backups">Резервные копии<small>/stand</small></a>
+            <a href="./admin/#/people/users">Пользователи<small>/people</small></a>
+            <a href="./admin/#/settings/site">Настройки сайта<small>/settings</small></a>
+          </nav>
+        </div>
+      </section>
       <footer><a href="https://github.com/Montihx/WebApp">github.com/Montihx/WebApp</a></footer>
     </div>
   </body>
