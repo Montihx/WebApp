@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const pages = ["index.html", "anime.html"];
 // Все страницы для общих проверок документа; у auth.html нет шапки сайта и поиска.
-const allPages = [...pages, "auth.html"];
+const allPages = [...pages, "auth.html", "profile.html"];
 const results = [];
 
 function add(id, label, pass, detail) {
@@ -81,6 +81,7 @@ function contrastRatio(foreground, background) {
 const required = [
   ...allPages,
   "auth.js",
+  "profile.js",
   "styles.css",
   "app.js",
   "vendor/lucide.min.js",
@@ -648,7 +649,7 @@ function checkPagesLinks(filesToScan) {
   return problems;
 }
 
-const pagesLinkProblems = checkPagesLinks([...allPages, "styles.css", "app.js", "auth.js"]);
+const pagesLinkProblems = checkPagesLinks([...allPages, "styles.css", "app.js", "auth.js", "profile.js"]);
 add("pages.linkSafety", "Pages: относительные пути и регистр", pagesLinkProblems.length === 0, pagesLinkProblems.length ? pagesLinkProblems.join("; ") : "нет ведущих слэшей, все относительные пути существуют с совпадающим регистром");
 
 const failed = results.filter((result) => result.status === "fail");
