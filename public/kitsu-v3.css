@@ -2847,3 +2847,59 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
   :root .comment-avatar { width: 32px; height: 32px; font-size: 0.875rem; border-radius: 6px; }
   :root .comment-replies { margin-left: 15px; padding-left: 12px; }
 }
+
+/* ==========================================================================
+   Плеер: где остановились. Просмотренные серии, недосмотренная — полоской,
+   опенинг и эндинг на шкале, плашка «продолжить» на кадре.
+   ========================================================================== */
+.player-card .player-controls {
+  grid-template-columns: 36px auto minmax(0, 1fr) 36px 36px 36px;
+  grid-template-areas: "bar bar bar bar bar bar" "play time . done mute full";
+}
+.player-card .player-controls [data-mark-watched] { grid-area: done; }
+:root .player-timeline { position: relative; overflow: hidden; }
+:root .player-timeline > span:not(.timeline-skip) { position: relative; z-index: 1; transition: width var(--dur-3) var(--ease-out); }
+:root .player-timeline .timeline-skip { position: absolute; box-shadow: none; border-radius: 0; top: 0; bottom: 0; z-index: 2; background: repeating-linear-gradient(90deg, rgba(125, 227, 255, 0.85) 0 3px, transparent 3px 5px); pointer-events: none; }
+
+:root .episode-chip { position: relative; overflow: hidden; }
+/* Просмотренная: номер приглушён, в углу метка-галочка цветом огня. */
+:root .episode-chip.is-watched:not(.is-selected) { color: var(--text-muted); border-color: color-mix(in srgb, var(--kitsunebi) 30%, var(--glass-line)); }
+:root .episode-chip.is-watched::after {
+  position: absolute; top: 3px; right: 3px; width: 7px; height: 4px;
+  border-bottom: 2px solid var(--kitsunebi); border-left: 2px solid var(--kitsunebi);
+  transform: rotate(-45deg); content: "";
+}
+/* Недосмотренная: полоска по низу на долю просмотренного. */
+:root .episode-chip.is-partial::before {
+  position: absolute; bottom: 0; left: 0; width: var(--watched, 0%); height: 3px;
+  background: var(--kitsunebi); content: "";
+}
+
+:root .player-resume {
+  position: absolute; z-index: 4; left: 50%; top: 18px; transform: translateX(-50%);
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 12px;
+  width: min(520px, calc(100% - 24px)); padding: 10px 12px 10px 10px;
+  border: 1px solid color-mix(in srgb, var(--kitsunebi) 40%, transparent); border-radius: 12px;
+  background: rgba(var(--media-ink-rgb), 0.9); color: var(--media-text);
+  box-shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.8);
+}
+:root .player-resume[hidden] { display: none; }
+:root .player-resume__mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 6px; background: var(--kitsunebi-soft); color: #7de3ff; font-family: var(--font-heading); font-size: 1rem; }
+:root .player-resume__copy { display: grid; gap: 1px; min-width: 0; }
+:root .player-resume__copy strong { font-size: 0.9375rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+:root .player-resume__copy small { color: var(--media-text-dim); font-size: 0.8125rem; }
+:root .player-resume button { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 0; border-radius: 8px; font: inherit; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+:root .player-resume__go { background: var(--accent-grad); color: var(--primary-fg); }
+:root .player-resume__go svg { width: 16px; height: 16px; fill: currentColor; }
+:root .player-resume__restart { background: none; color: var(--media-text); }
+:root .player-resume__restart svg { width: 16px; height: 16px; }
+:root .player-resume__restart:hover { color: #7de3ff; }
+@media (max-width: 560px) {
+  :root .player-resume { grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; padding: 8px 8px 8px 12px; }
+  :root .player-resume__mark, :root .player-resume__copy small, :root .player-resume__restart span { display: none; }
+  :root .player-resume__restart { padding: 0 8px; }
+  .player-card .player-controls { grid-template-columns: 32px auto minmax(0, 1fr) 32px 32px 32px; }
+}
+/* Пока висит «продолжить», большая кнопка и подпись кадра не нужны — выбор один. */
+:root .player-stage:has(.player-resume:not([hidden])) :is(.player-main-button, .player-stage-copy) { visibility: hidden; }
+:root .player-resume { top: 42%; transform: translate(-50%, -50%); }

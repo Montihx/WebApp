@@ -25,9 +25,9 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="../tokens.css?v=v3-32" />
-    <link rel="stylesheet" href="./styles.css?v=v3-32" />
-    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-32" />
+    <link rel="stylesheet" href="../tokens.css?v=v3-33" />
+    <link rel="stylesheet" href="./styles.css?v=v3-33" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-33" />
   </head>
   <body data-page="anime">
     <a class="skip-link" href="#main-content">К основному содержимому</a>
@@ -205,6 +205,8 @@
                   <button type="button" data-player-play aria-label="Запустить воспроизведение"><i data-lucide="play"></i></button>
                   <div class="player-timeline" aria-label="Позиция воспроизведения"><span></span></div>
                   <time>00:00 / 24:00</time>
+                  <!-- Серия засчитывается сама на 90% длительности (PATCH watch-progress/kodik); кнопка — то же вручную: позиция = длительность. -->
+                  <button type="button" data-mark-watched aria-label="Отметить серию просмотренной" title="Отметить просмотренной"><i data-lucide="check-check"></i></button>
                   <button type="button" data-player-mute aria-label="Выключить звук"><i data-lucide="volume-2"></i></button>
                   <button type="button" data-player-fullscreen aria-label="Полноэкранный режим"><i data-lucide="maximize"></i></button>
                 </div>
@@ -381,15 +383,15 @@
       <div class="player-settings-list player-settings-list--toggles">
         <label class="player-setting-row player-setting-row--toggle">
           <span class="player-setting-row__icon"><i data-lucide="skip-forward"></i></span><span class="player-setting-row__copy"><strong>Авто-переключение</strong><small>Следующая серия после завершения</small></span>
-          <input type="checkbox" data-player-option="autonext" /><span class="player-switch" aria-hidden="true"><span></span></span>
+          <input type="checkbox" checked data-player-option="autonext" /><span class="player-switch" aria-hidden="true"><span></span></span>
         </label>
         <label class="player-setting-row player-setting-row--toggle">
           <span class="player-setting-row__icon"><i data-lucide="list-end"></i></span><span class="player-setting-row__copy"><strong>Пропуск опенинга</strong><small>Если источник передал skip times</small></span>
-          <input type="checkbox" checked data-player-option="opening" /><span class="player-switch" aria-hidden="true"><span></span></span>
+          <input type="checkbox" data-player-option="opening" /><span class="player-switch" aria-hidden="true"><span></span></span>
         </label>
         <label class="player-setting-row player-setting-row--toggle">
           <span class="player-setting-row__icon"><i data-lucide="list-start"></i></span><span class="player-setting-row__copy"><strong>Пропуск эндинга</strong><small>Если источник передал skip times</small></span>
-          <input type="checkbox" checked data-player-option="ending" /><span class="player-switch" aria-hidden="true"><span></span></span>
+          <input type="checkbox" data-player-option="ending" /><span class="player-switch" aria-hidden="true"><span></span></span>
         </label>
       </div>
     </dialog>
@@ -397,7 +399,7 @@
     <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
     <script src="./vendor/lucide.min.js"></script>
     <script src="./content-model.js?v=original-parity-13"></script>
-    <script src="./content.js?v=v3-32"></script>
-    <script src="./app.js?v=v3-32"></script>
+    <script src="./content.js?v=v3-33"></script>
+    <script src="./app.js?v=v3-33"></script>
   </body>
 </html>
