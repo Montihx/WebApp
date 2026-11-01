@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0e0b12" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>Профиль — Kitsu · Кицунэ</title>
+    <meta name="description" content="Профиль зрителя Kitsu: время просмотра, закладки, история и коллекции" />
+    <script>
+      (() => {
+        try {
+          if (localStorage.getItem("kitsu-palette") === "obsidian") document.documentElement.dataset.palette = "obsidian";
+          const saved = localStorage.getItem("kitsu-theme");
+          if (saved === "light" || saved === "dark") {
+            document.documentElement.dataset.theme = saved;
+          } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            document.documentElement.dataset.theme = "dark";
+          } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+            document.documentElement.dataset.theme = "light";
+          }
+        } catch (_) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="../tokens.css?v=v3-35" />
+    <link rel="stylesheet" href="./styles.css?v=v3-35" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-35" />
+  </head>
+  <!--
+    Профиль. Страница рисуется profile.js из ответов бэкенда; здесь ответы заменены демо-значениями той же формы
+    (в profile.js объект `api`: у каждого метода записан запрос, его поля и ограничения сервера).
+    Запросы, которые уйдут в приложении (все с Bearer-токеном, кроме отмеченных):
+      GET  /users/me                                  шапка: username, bio, avatar_url, cover_url, role, is_verified, created_at, decoration
+      GET  /users/public/{id}/stats                   четыре счётчика: favorites_count, comments_count, followers_count, following_count
+      GET  /interactions/watch-stats/me               total_seconds_watched, total_episodes_watched
+      GET  /interactions/watch-stats/daily/me?days=N  строки только за дни, где что-то смотрели; пустые дни дорисовывает страница
+      GET  /interactions/favorites                    закладки; сервер не сортирует, страница сортирует сама
+      POST /interactions/favorites?anime_id&category  сменить статус; DELETE ...?anime_id — убрать из закладок
+      GET  /interactions/watch-history/me?skip&limit  {items,total}, по одной строке на тайтл, потолок 1000 строк
+      GET  /interactions/collections                  мои коллекции; POST — создать (title 1–255, description, is_public)
+    Состояния для проверки: profile.html?state=empty (пустой аккаунт), ?state=error (сервер не ответил).
+  -->
+  <body data-page="profile">
+    <a class="skip-link" href="#profile-main">К основному содержимому</a>
+    <header class="pf-top">
+      <a class="brand" href="./index.html" aria-label="Kitsu — главная">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M1.5 6.2c9 2.6 20 2.6 29 0l-1.3 4.6c-8.6 2.2-17.8 2.2-26.4 0z"/><path d="M6 13.4h20v2.6H6z"/><path d="M8.2 11h3v17.5h-3zM20.8 11h3v17.5h-3z"/></svg>
+        <span class="brand-word">KITSU<span>.</span></span>
+      </a>
+      <a class="auth-back" href="./index.html"><i data-lucide="arrow-left"></i>На главную</a>
+    </header>
+
+    <main class="pf" id="profile-main">
+      <section class="pf-hero" aria-labelledby="pf-name" data-hero>
+        <div class="pf-hero__cover" data-cover aria-hidden="true"><span class="pf-hero__orb pf-hero__orb--a"></span><span class="pf-hero__orb pf-hero__orb--b"></span><span class="pf-hero__grid"></span></div>
+        <div class="pf-hero__body">
+          <div class="pf-avatar" data-avatar aria-hidden="true"></div>
+          <div class="pf-id">
+            <h1 id="pf-name" data-name>Профиль</h1>
+            <p class="pf-chips" data-chips></p>
+            <p class="pf-bio" data-bio></p>
+          </div>
+          <dl class="pf-counts" data-counts aria-label="Счётчики профиля"></dl>
+        </div>
+      </section>
+
+      <nav class="pf-nav" aria-label="Разделы профиля" data-nav>
+        <a href="#pf-stats" class="is-active"><i data-lucide="chart-no-axes-column"></i><span>Просмотр</span></a>
+        <a href="#pf-marks"><i data-lucide="bookmark"></i><span>Закладки</span></a>
+        <a href="#pf-history"><i data-lucide="history"></i><span>История</span></a>
+        <a href="#pf-collections"><i data-lucide="library"></i><span>Коллекции</span></a>
+        <span class="pf-nav__bar" aria-hidden="true"></span>
+      </nav>
+
+      <section class="pf-sec" id="pf-stats" aria-labelledby="pf-stats-title" data-reveal>
+        <header class="pf-sec__head">
+          <h2 id="pf-stats-title">Время просмотра</h2>
+          <div class="pf-seg" role="group" aria-label="Период графика" data-range>
+            <button type="button" data-days="7" aria-pressed="false">7 дней</button>
+            <button type="button" data-days="30" aria-pressed="true">30 дней</button>
+            <button type="button" data-days="90" aria-pressed="false">90 дней</button>
+            <span class="pf-seg__thumb" aria-hidden="true"></span>
+          </div>
+        </header>
+        <div class="pf-stats">
+          <div class="pf-total" data-total></div>
+          <div class="pf-chart" data-chart>
+            <div class="pf-chart__plot" data-plot tabindex="0" role="group" aria-label="График просмотра по дням. Стрелки влево и вправо выбирают день"></div>
+            <p class="pf-chart__read" data-read aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="pf-sec" id="pf-marks" aria-labelledby="pf-marks-title" data-reveal>
+        <header class="pf-sec__head"><h2 id="pf-marks-title">Закладки</h2></header>
+        <div class="pf-tabs" role="tablist" aria-label="Статус закладки" data-tabs></div>
+        <div class="pf-grid" data-marks role="tabpanel" aria-live="polite"></div>
+      </section>
+
+      <div class="pf-duo">
+        <section class="pf-sec" id="pf-history" aria-labelledby="pf-history-title" data-reveal>
+          <header class="pf-sec__head"><h2 id="pf-history-title">История</h2><span class="pf-sec__meta" data-history-total></span></header>
+          <ol class="pf-history" data-history></ol>
+          <button class="button button--secondary pf-more" type="button" data-history-more hidden><i data-lucide="chevron-down"></i><span>Показать ещё</span></button>
+        </section>
+
+        <section class="pf-sec" id="pf-collections" aria-labelledby="pf-collections-title" data-reveal>
+          <header class="pf-sec__head">
+            <h2 id="pf-collections-title">Коллекции</h2>
+            <button class="button button--primary pf-add" type="button" data-collection-open><i data-lucide="plus"></i><span>Создать</span></button>
+          </header>
+          <ul class="pf-collections" data-collections></ul>
+        </section>
+      </div>
+    </main>
+
+    <dialog class="pf-dialog" id="collection-dialog" aria-labelledby="collection-title">
+      <form class="pf-form" method="dialog" novalidate data-collection-form>
+        <header><h2 id="collection-title">Новая коллекция</h2><button class="pf-dialog__x" type="button" data-collection-close aria-label="Закрыть"><i data-lucide="x"></i></button></header>
+        <div class="pf-field">
+          <label for="col-title">Название</label>
+          <input id="col-title" name="title" type="text" maxlength="255" autocomplete="off" placeholder="Например, Уютное на вечер" required />
+          <small data-error="title" role="alert"></small>
+          <span class="pf-field__count" data-count>0 / 255</span>
+        </div>
+        <div class="pf-field">
+          <label for="col-desc">Описание</label>
+          <textarea id="col-desc" name="description" rows="3" placeholder="Необязательно"></textarea>
+        </div>
+        <label class="pf-switch">
+          <input type="checkbox" name="is_public" role="switch" />
+          <span class="pf-switch__track" aria-hidden="true"><i></i></span>
+          <span class="pf-switch__text"><strong>Показывать всем</strong><small data-public-hint>Видна только вам</small></span>
+        </label>
+        <footer>
+          <button class="button button--secondary" type="button" data-collection-close>Отмена</button>
+          <button class="button button--primary" type="submit" data-collection-submit><span>Создать коллекцию</span></button>
+        </footer>
+      </form>
+    </dialog>
+
+    <nav class="mobile-bottom-nav" aria-label="Мобильная навигация">
+      <a href="./index.html"><i data-lucide="house"></i><span>Главная</span></a>
+      <a href="./index.html#catalog"><i data-lucide="compass"></i><span>Обзор</span></a>
+      <a href="#pf-marks"><i data-lucide="bookmark"></i><span>Закладки</span></a>
+      <a class="is-active" href="./profile.html"><i data-lucide="circle-user-round"></i><span>Профиль</span></a>
+    </nav>
+
+    <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
+
+    <script src="./vendor/lucide.min.js"></script>
+    <script src="./profile.js?v=v3-35"></script>
+  </body>
+</html>
