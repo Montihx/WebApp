@@ -748,7 +748,7 @@
 
   // Запасная обложка: плоская плитка с названием. Оттенок зависит от названия, но остаётся в палитре;
   // никаких сцен, свечения и градиентов — если картинки нет, это видно по плитке, и она не притворяется картинкой.
-  function keyArtUri(title, w, h, pal) {
+  function keyArtUri(title, w, h, pal, plain = false) {
     const seed = hashString(title || "kitsu");
     const obs = pal === "obsidian";
     const hue = obs ? 28 + (seed % 14) : 262 + (seed % 60);
@@ -771,9 +771,9 @@
     const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const lh = size * 1.25;
     const y0 = wide ? H / 2 - ((shown.length - 1) * lh) / 2 + size / 3 : 120 + size;
-    const text = shown.map((l, i) => `<text x="24" y="${(y0 + i * lh).toFixed(1)}" font-size="${size}" font-weight="800" fill="hsl(${hue},30%,86%)">${esc(l)}</text>`).join("");
+    const text = plain ? "" : shown.map((l, i) => `<text x="24" y="${(y0 + i * lh).toFixed(1)}" font-size="${size}" font-weight="800" fill="hsl(${hue},30%,86%)">${esc(l)}</text>`).join("");
     const accent = obs ? "hsl(36,100%,64%)" : "hsl(268,100%,82%)";
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" font-family="Onest, 'Segoe UI', Arial, sans-serif"><rect width="${W}" height="${H}" fill="hsl(${hue},${obs ? 14 : 22}%,${obs ? 11 : 14}%)"/><rect x="24" y="92" width="28" height="3" fill="${accent}"/>${text}</svg>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" font-family="Onest, 'Segoe UI', Arial, sans-serif"><rect width="${W}" height="${H}" fill="hsl(${hue},${obs ? 14 : 22}%,${obs ? 11 : 14}%)"/>${plain ? "" : `<rect x="24" y="92" width="28" height="3" fill="${accent}"/>`}${text}</svg>`;
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
   }
 
@@ -785,15 +785,17 @@
     image.dataset.kzArt = "on";
     image.dataset.kzTitle = title;
     image.dataset.kzRatio = `${Math.round(ref.width)}x${Math.round(ref.height) || Math.round(ref.width * 1.5)}`;
+    /* Фоновые картинки (герой, фон тайтла, сцена плеера) лежат под своим заголовком — плитка без текста. */
+    const plain = Boolean(image.closest(".feature-slide__art, .title-backdrop, .player-stage-art"));
+    if (plain) image.dataset.kzPlain = "on";
     image.removeAttribute("srcset");
-    image.classList.remove("is-image-error");
-    image.src = keyArtUri(title, ref.width || 2, ref.height || 3, root.dataset.palette || "sakura");
+    image.src = keyArtUri(title, ref.width || 2, ref.height || 3, root.dataset.palette || "sakura", plain);
   }
 
   function repaintArt() {
     $$('img[data-kz-art="on"]').forEach((image) => {
       const [w, h] = (image.dataset.kzRatio || "2x3").split("x").map(Number);
-      image.src = keyArtUri(image.dataset.kzTitle, w, h, root.dataset.palette || "sakura");
+      image.src = keyArtUri(image.dataset.kzTitle, w, h, root.dataset.palette || "sakura", image.dataset.kzPlain === "on");
     });
   }
 
