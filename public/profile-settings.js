@@ -341,7 +341,10 @@
 
   async function save() {
     if (busy || !isDirty() || invalid()) return;
-    busy = true; paintDirty(); $("[data-profile-form]").setAttribute("aria-busy", "true");
+    // Пока идёт сохранение, поля заблокированы: правка, сделанная после отправки, иначе молча пропала бы,
+    // когда форма перезаполнится ответом сервера.
+    const form = $("[data-profile-form]"); const lock = $$("fieldset", form).filter((f) => !f.querySelector("[data-look]"));
+    busy = true; paintDirty(); form.setAttribute("aria-busy", "true"); lock.forEach((f) => { f.disabled = true; });
     const label = $("[data-save-text]"); let step = ""; let done = 0;
     try {
       // Загрузка сама записывает картинку в профиль, поэтому после неё saved обновляется сразу:
@@ -358,7 +361,7 @@
       if (err.status === 401) toast("Сеанс закончился", "Войдите заново — несохранённое останется в форме до перезагрузки", "danger");
       else toast(done ? "Сохранено не всё" : "Не получилось сохранить", text || (done ? "Картинка загружена, остальные изменения — нет. Повторите сохранение" : "Сервер не ответил. Повторите попытку"), "danger");
     } finally {
-      busy = false; $("[data-profile-form]").removeAttribute("aria-busy"); refresh();
+      busy = false; form.removeAttribute("aria-busy"); lock.forEach((f) => { f.disabled = false; }); refresh();
     }
   }
   function reset() { clearFile("avatar"); clearFile("cover"); draft = fromMe(saved); fillForm(); refresh(); }
@@ -481,7 +484,7 @@
   /* ---------- Аккаунт ---------- */
   let cooldown = 0; let timer = 0;
   function paintAccount() {
-    const since = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(new Date(saved.created_at));
+    const since = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(window.KitsuContent?.parseDateAsUtc(saved.created_at) || new Date(saved.created_at)); // наивный UTC из API
     $("[data-facts]").innerHTML = [["Имя пользователя", saved.username], ["Почта", saved.email], ["Роль", saved.role?.name || "—"], ["Дата регистрации", since]]
       .map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("");
     paintVerify();
@@ -523,12 +526,7 @@
   function initTabs() {
     const tabs = $("[data-tabs]");
     tabs.addEventListener("click", (e) => { const t = e.target.closest("[data-tab]"); if (t) showTab(t.dataset.tab); });
-    tabs.addEventListener("keydown", (e) => {
-      const k = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
-      const i = TABS.indexOf($("[aria-selected=true]", tabs).dataset.tab);
-      const next = k ? TABS[(i + k + TABS.length) % TABS.length] : e.key === "Home" ? TABS[0] : e.key === "End" ? TABS[TABS.length - 1] : null;
-      if (!next) return; showTab(next); $(`[data-tab=${next}]`, tabs).focus(); e.preventDefault();
-    });
+    // Стрелки, Home и End по вкладкам обрабатывает общий initRovingTabs() в app.js: он фокусирует и нажимает вкладку.
     addEventListener("hashchange", () => showTab(location.hash.slice(1), false));
     const again = () => showTab($("[aria-selected=true]", tabs)?.dataset.tab || "profile", false);
     addEventListener("resize", again); document.fonts?.ready.then(again);

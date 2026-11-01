@@ -212,10 +212,7 @@
   function initPeople() {
     const tabs = $("[data-people-tabs]");
     tabs.addEventListener("click", (e) => { const t = e.target.closest("[role=tab]"); if (t) selectTab(t.dataset.people); });
-    tabs.addEventListener("keydown", (e) => {
-      const keys = { ArrowRight: "following", ArrowLeft: "followers", Home: "followers", End: "following" };
-      if (keys[e.key]) { e.preventDefault(); selectTab(keys[e.key], true); }
-    });
+    // Стрелки, Home и End по вкладкам обрабатывает общий initRovingTabs() в app.js.
     $("[data-people-more]").addEventListener("click", () => { if (!people.loading && !people.done) loadPeople(false); });
     // «Подписчики» / «Подписки» в счётчиках шапки открывают нужный список.
     $$("[data-people-link]").forEach((a) => a.addEventListener("click", (e) => {
