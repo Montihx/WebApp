@@ -22,9 +22,9 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="../tokens.css?v=v3-34" />
-    <link rel="stylesheet" href="./styles.css?v=v3-34" />
-    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-34" />
+    <link rel="stylesheet" href="../tokens.css?v=v3-35" />
+    <link rel="stylesheet" href="./styles.css?v=v3-35" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-35" />
   </head>
   <!--
     Экраны входа. Один файл, экран выбирается по хэшу: #login, #register, #forgot, #reset, #verify,
@@ -42,26 +42,31 @@
       <a class="auth-back" href="./index.html"><i data-lucide="arrow-left"></i>На главную</a>
     </header>
 
-    <main class="auth-layout" id="auth-main">
-      <aside class="auth-art" aria-hidden="true">
-        <div class="auth-art__posters">
-          <img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" decoding="async" referrerpolicy="no-referrer" />
-          <img src="https://shikimori.one/system/animes/original/19.jpg" alt="" decoding="async" referrerpolicy="no-referrer" />
-          <img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" decoding="async" referrerpolicy="no-referrer" />
-          <img src="https://shikimori.one/system/animes/original/33352.jpg" alt="" decoding="async" referrerpolicy="no-referrer" />
-          <img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" decoding="async" referrerpolicy="no-referrer" />
-          <img src="https://shikimori.one/system/animes/original/1.jpg" alt="" decoding="async" referrerpolicy="no-referrer" />
-        </div>
-        <div class="auth-art__copy">
-          <span class="auth-art__kanji">入口</span>
-          <strong>Закладки, прогресс серий и уведомления о новых сериях — на любом устройстве.</strong>
-        </div>
-      </aside>
+    <!-- Сцена: постеры плывут лентами, за карточкой — врата тории, вокруг — лисьи огни.
+         Всё декоративное, движение выключается в prefers-reduced-motion и на свёрнутой вкладке. -->
+    <div class="auth-scene" aria-hidden="true">
+      <div class="auth-reel">
+          <div class="auth-reel__col"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/33352.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/33352.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /></div>
+          <div class="auth-reel__col"><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/457.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/37521.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/21.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/457.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/37521.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/16498.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/21.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /></div>
+          <div class="auth-reel__col"><img src="https://shikimori.one/system/animes/original/40748.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/11577.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/30484.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/40748.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/11577.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/30484.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/19.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /></div>
+          <div class="auth-reel__col"><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/33352.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/457.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/9253.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/33352.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/1.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/457.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /><img src="https://shikimori.one/system/animes/original/5114.jpg" alt="" decoding="async" referrerpolicy="no-referrer" /></div>
+      </div>
+      <span class="auth-fire auth-fire--1"></span><span class="auth-fire auth-fire--2"></span><span class="auth-fire auth-fire--3"></span><span class="auth-fire auth-fire--4"></span>
+    </div>
 
+    <main class="auth-layout" id="auth-main">
+      <div class="auth-hero" aria-hidden="true">
+        <span class="auth-hero__kanji" data-hero-kanji>入口</span>
+        <p class="auth-hero__line" data-hero-line>Закладки, прогресс серий и уведомления о новых сериях — на любом устройстве.</p>
+      </div>
+
+      <div class="auth-gate">
+        <svg class="auth-torii" viewBox="0 0 400 300" preserveAspectRatio="xMidYMax meet"><path d="M10 40c120 26 260 26 380 0l-10 34c-118 20-242 20-360 0z"/><path d="M58 92h284v18H58z"/><path d="M92 74h26v226H92zM282 74h26v226h-26z"/><path d="M186 92h28v18h-28z"/></svg>
       <section class="auth-card" aria-labelledby="auth-title">
+        <span class="auth-ofuda" data-ofuda aria-hidden="true"><b data-ofuda-kanji>入</b><span data-ofuda-label>Вход</span></span>
         <h1 class="sr-only" id="auth-title">Аккаунт Kitsu</h1>
 
-        <div class="auth-tabs" role="tablist" aria-label="Вход или регистрация" data-auth-tabs>
+        <div class="auth-tabs" role="tablist" aria-label="Вход или регистрация" data-auth-tabs><span class="auth-tabs__thumb" aria-hidden="true"></span>
           <a class="auth-tab" href="#login" role="tab" data-auth-tab="login">Вход</a>
           <a class="auth-tab" href="#register" role="tab" data-auth-tab="register">Регистрация</a>
         </div>
@@ -146,9 +151,10 @@
           <a class="button button--primary auth-submit" href="#login">Войти</a>
         </div>
       </section>
+      </div>
     </main>
 
     <script src="./vendor/lucide.min.js"></script>
-    <script src="./auth.js?v=v3-34"></script>
+    <script src="./auth.js?v=v3-35"></script>
   </body>
 </html>
