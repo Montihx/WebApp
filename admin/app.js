@@ -24,11 +24,11 @@
 
   /* Единственный источник тона и подписи статуса. */
   const STATUS = {
-    running: ["live", "Выполняется"], pending: ["info", "В очереди"], completed: ["success", "Готово"], failed: ["danger", "Ошибка"], cancelled: ["neutral", "Остановлена"],
-    ok: ["success", "В норме"], warn: ["warning", "Внимание"], fail: ["danger", "Сбой"], waiting: ["info", "Ждёт стенд"], unknown: ["neutral", "Неизвестно"], no_sample: ["warning", "Нет выборки"], stale: ["warning", "Устарело"],
-    online: ["success", "Работает"], offline: ["danger", "Не отвечает"], connection_fault: ["danger", "Нет связи"], unreachable: ["danger", "Недоступна"],
-    ongoing: ["live", "Выходит"], released: ["success", "Вышел"], announced: ["info", "Анонс"], anons: ["info", "Анонс"], cancelled_title: ["neutral", "Отменён"], hiatus: ["warning", "Пауза"],
-    pending_conflict: ["warning", "Ждёт решения"], auto_accepted: ["info", "Принят автоматически"], resolved: ["success", "Закрыт"],
+    running: ["live", "Выполняется"], pending: ["info", "В очереди"], completed: ["neutral", "Готово"], failed: ["danger", "Ошибка"], cancelled: ["neutral", "Остановлена"],
+    ok: ["neutral", "В норме"], warn: ["warning", "Внимание"], fail: ["danger", "Сбой"], waiting: ["info", "Ждёт стенд"], unknown: ["neutral", "Неизвестно"], no_sample: ["warning", "Нет выборки"], stale: ["warning", "Устарело"],
+    online: ["neutral", "Работает"], offline: ["danger", "Не отвечает"], connection_fault: ["danger", "Нет связи"], unreachable: ["danger", "Недоступна"],
+    ongoing: ["live", "Выходит"], released: ["neutral", "Вышел"], announced: ["info", "Анонс"], anons: ["info", "Анонс"], cancelled_title: ["neutral", "Отменён"], hiatus: ["warning", "Пауза"],
+    pending_conflict: ["warning", "Ждёт решения"], auto_accepted: ["info", "Принят автоматически"], resolved: ["neutral", "Закрыт"],
     INFO: ["info", "INFO"], WARNING: ["warning", "WARN"], ERROR: ["danger", "ERROR"],
   };
   const toneForStatus = status => (STATUS[status] || ["neutral"])[0];
@@ -262,9 +262,9 @@
           <p>Монитор пересчитал проверки ${ago(D.monitor.last_tick_at)}, следующий подсчёт в ${C.fmtTime(new Date(C.parseUtc(D.monitor.last_tick_at).getTime() + 900000).toISOString().slice(0, 19))}.</p>
         </div>
         <div class="hero-figures">
-          <div class="figure"><b data-count="${D.stack.uptime_24h_hours}" data-decimals="1">${String(D.stack.uptime_24h_hours).replace(".", ",")}</b><span>часов работы из 24</span></div>
-          <div class="figure"><b data-count="${D.checks.filter(c => c.state === "ok").length}">${D.checks.filter(c => c.state === "ok").length}</b><span>из ${D.checks.length} проверок в норме</span></div>
-          <div class="figure"><b data-count="${D.kodikStats.local_total}">${num(D.kodikStats.local_total)}</b><span>тайтлов в каталоге</span></div>
+          <div class="figure"><b>${String(D.stack.uptime_24h_hours).replace(".", ",")}</b><span>часов работы из 24</span></div>
+          <div class="figure"><b>${D.checks.filter(c => c.state === "ok").length}</b><span>из ${D.checks.length} проверок в норме</span></div>
+          <div class="figure"><b>${num(D.kodikStats.local_total)}</b><span>тайтлов в каталоге</span></div>
         </div>
       </div>
       ${timeline()}
@@ -287,7 +287,7 @@
     </div>
 
     <div class="grid cols-3 kpis reveal">
-      ${kpis.map(([ic, label, k]) => `<section class="card kpi"><span class="kpi-label">${icon(ic)}${label}</span><span class="kpi-value" data-count="${k.value}">${num(k.value)}</span><span class="kpi-foot"><span class="trend ${k.trend < 0 ? "down" : ""}">${icon(k.trend < 0 ? "trending-down" : "trending-up")}${k.trend > 0 ? "+" : ""}${String(k.trend).replace(".", ",")}%</span>рост за 30 дней</span></section>`).join("")}
+      ${kpis.map(([ic, label, k]) => `<section class="card kpi"><span class="kpi-label">${icon(ic)}${label}</span><span class="kpi-value">${num(k.value)}</span><span class="kpi-foot"><span class="trend ${k.trend < 0 ? "down" : ""}">${icon(k.trend < 0 ? "trending-down" : "trending-up")}${k.trend > 0 ? "+" : ""}${String(k.trend).replace(".", ",")}%</span>рост за 30 дней</span></section>`).join("")}
     </div>
 
     <div class="grid split reveal">
@@ -340,7 +340,6 @@
         <td class="num" data-label="Серии">${item.episodes_aired}${item.episodes_total ? ` / ${item.episodes_total}` : ""}</td>
         <td class="num opt" data-label="Оценка">${item.score ? String(item.score).replace(".", ",") : "—"}</td>
         <td class="num opt" data-label="Обновлён">${at(item.updated_at)}</td>
-        <td class="actions"><a class="button s" href="#/catalog/titles/${esc(item.slug)}">${icon("pencil")}Открыть</a></td>
       </tr>`;
     }).join("");
   }
@@ -353,7 +352,7 @@
       ${seg("titles", state.titles.filter, [["all", "Все", n("all")], ["ongoing", "Выходят", n("ongoing")], ["announced", "Анонсы", n("announced")], ["moderation", "На модерации", n("moderation")], ["novideo", "Без видео", n("novideo")]])}
     </div>
     <section class="card">
-      <div class="table-wrap"><table class="data cards"><thead><tr><th class="check"><input class="box-check" type="checkbox" data-select-all="titles" aria-label="Выбрать все" /></th><th>Тайтл</th><th class="opt">Тип</th><th>Статус</th><th class="num">Серии</th><th class="num opt">Оценка</th><th class="num opt">Обновлён</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody id="title-rows">${titleRows()}</tbody></table></div>
+      <div class="table-wrap"><table class="data cards"><thead><tr><th class="check"><input class="box-check" type="checkbox" data-select-all="titles" aria-label="Выбрать все" /></th><th>Тайтл</th><th class="opt">Тип</th><th>Статус</th><th class="num">Серии</th><th class="num opt">Оценка</th><th class="num opt">Обновлён</th></tr></thead><tbody id="title-rows">${titleRows()}</tbody></table></div>
       <div class="pager"><span>Показано ${filteredTitles().length} из ${num(D.kodikStats.local_total)} · страницы по 50</span><span class="page-actions" style="width:auto"><button type="button" class="button s" disabled>${icon("chevron-left")}Назад</button><button type="button" class="button s">Дальше${icon("chevron-right")}</button></span></div>
     </section>
     <div id="bulk-slot">${bulkBar()}</div>`;
@@ -398,14 +397,13 @@
   function renderEpisodes() {
     return `${pageHead("Серии и источники", "Свежие серии всех тайтлов. Их создаёт синхронизация Kodik; править и добавлять серии удобнее на странице тайтла — там все его серии и озвучки.")}
     <section class="card">
-      <div class="table-wrap"><table class="data cards"><thead><tr><th>Тайтл и серия</th><th class="num opt">Сезон</th><th>Отметки</th><th class="num opt">Источников</th><th class="num">Вышла</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody>
+      <div class="table-wrap"><table class="data cards"><thead><tr><th>Тайтл и серия</th><th class="num opt">Сезон</th><th>Отметки</th><th class="num opt">Источников</th><th class="num">Вышла</th></tr></thead><tbody>
       ${D.episodes.map(e => `<tr>
         <td class="lead"><a class="cell-title cell-link" href="#/catalog/titles/${esc(e.anime_slug)}?ep=${e.id}"><div><strong>${esc(e.anime)} · ${e.episode} серия</strong><small>${esc(e.title || "Без названия")}</small></div></a></td>
         <td class="num opt" data-label="Сезон">${e.season}</td>
         <td data-label="Отметки">${e.is_filler ? tag("Филлер", "warning") : ""}${e.is_recap ? tag("Рекап", "info") : ""}${!e.is_filler && !e.is_recap ? '<span class="muted">—</span>' : ""}</td>
         <td class="num opt" data-label="Источников">${e.releases}</td>
         <td class="num" data-label="Вышла">${at(e.aired_at)}</td>
-        <td class="actions"><a class="button s" href="#/catalog/titles/${esc(e.anime_slug)}?ep=${e.id}">${icon("pencil")}Изменить</a></td>
       </tr>`).join("")}</tbody></table></div>
       <div class="pager"><span>Свежие серии сверху</span></div>
     </section>`;
@@ -520,7 +518,7 @@
     const n = s => D.jobs.filter(j => j.status === s).length;
     return `${pageHead("Задачи", "Очередь и история запусков. Откройте задачу, чтобы увидеть её журнал и подробности.", `<button type="button" class="button" ${request("jobs.clear", { status: "completed" })}>${icon("eraser")}Очистить готовые</button>`)}
     <div class="toolbar">${seg("jobs", st, [["all", "Все", D.jobs.length], ["running", "Идут", n("running")], ["pending", "Ждут", n("pending")], ["completed", "Готово", n("completed")], ["failed", "Ошибки", n("failed")], ["cancelled", "Остановлены", n("cancelled")]])}</div>
-    <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th>Задача</th><th>Статус</th><th class="opt">Прогресс</th><th class="num">Обработано</th><th class="num opt">Длительность</th><th class="num">Создана</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody>
+    <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th>Задача</th><th>Статус</th><th class="opt">Прогресс</th><th class="num">Обработано</th><th class="num opt">Длительность</th><th class="num">Создана</th></tr></thead><tbody>
     ${list.length ? list.map(j => `<tr>
       <td class="lead"><a class="cell-title cell-link" href="#/parser/jobs/${esc(j.id)}"><div><strong>${esc(jobTitle(j))}</strong><small>${esc(j.source)}</small></div></a></td>
       <td data-label="Статус">${statusTag(j.status)}</td>
@@ -528,8 +526,7 @@
       <td class="num" data-label="Обработано">${num(j.items_processed)}${j.items_failed ? ` <span style="color:var(--red)">· ${j.items_failed} ош.</span>` : ""}</td>
       <td class="num opt" data-label="Длительность">${C.fmtDuration(j.duration_seconds)}</td>
       <td class="num" data-label="Создана">${at(j.created_at)}</td>
-      <td class="actions"><a class="button s" href="#/parser/jobs/${esc(j.id)}">${icon("scroll-text")}Подробно</a></td>
-    </tr>`).join("") : `<tr><td colspan="7">${empty("inbox", "Пусто", "Задач с таким статусом нет.")}</td></tr>`}
+    </tr>`).join("") : `<tr><td colspan="6">${empty("inbox", "Пусто", "Задач с таким статусом нет.")}</td></tr>`}
     </tbody></table></div></section>
     ${note("warning", "triangle-alert", "Мониторинг считает отказы и запаздывание расписания по истории задач. Очистка истории стирает эти следы: проверки на время станут «нет выборки».")}`;
   }
@@ -687,18 +684,17 @@
   function renderUsers() {
     return `${pageHead("Пользователи", "Поиск по имени и почте. Создавать пользователей из админки нельзя: только регистрация на сайте.")}
     <div class="toolbar"><label class="search grow">${icon("search")}<span class="sr-only">Поиск</span><input class="input" type="search" data-input="users-q" value="${esc(state.users.q)}" placeholder="Имя или email" /></label></div>
-    <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th>Пользователь</th><th class="opt">Роль</th><th>Доступ в админке</th><th>Состояние</th><th class="num opt">Был</th><th class="actions"><span class="sr-only">Действия</span></th></tr></thead><tbody id="user-rows">${userRows()}</tbody></table></div></section>`;
+    <section class="card"><div class="table-wrap"><table class="data cards"><thead><tr><th>Пользователь</th><th class="opt">Роль</th><th>Доступ в админке</th><th>Состояние</th><th class="num opt">Был</th></tr></thead><tbody id="user-rows">${userRows()}</tbody></table></div></section>`;
   }
   function userRows() {
     const q = state.users.q.toLowerCase();
     const list = D.users.filter(u => !q || `${u.username} ${u.email}`.toLowerCase().includes(q));
-    if (!list.length) return `<tr><td colspan="6">${empty("search-x", "Никого не нашлось", "Поиск идёт по имени и почте.")}</td></tr>`;
+    if (!list.length) return `<tr><td colspan="5">${empty("search-x", "Никого не нашлось", "Поиск идёт по имени и почте.")}</td></tr>`;
     return list.map(u => `<tr><td class="lead"><a class="cell-title cell-link" href="#/people/users/${esc(u.id)}"><span class="letter" aria-hidden="true">${esc(u.username[0].toUpperCase())}</span><div><strong>${esc(u.username)}</strong><small>${esc(u.email)}</small></div></a></td>
       <td class="opt" data-label="Роль">${esc(u.role || "без роли")}</td>
       <td data-label="Доступ">${accessTag(u)}</td>
-      <td data-label="Состояние">${u.is_active ? (u.is_verified ? tag("Активен", "success") : tag("Почта не подтверждена", "warning")) : tag("Забанен", "danger")}</td>
-      <td class="num opt" data-label="Был">${at(u.last_seen_at)}</td>
-      <td class="actions"><a class="button s" href="#/people/users/${esc(u.id)}">${icon("user-cog")}Открыть</a></td></tr>`).join("");
+      <td data-label="Состояние">${u.is_active ? (u.is_verified ? tag("Активен", "neutral") : tag("Почта не подтверждена", "warning")) : tag("Забанен", "danger")}</td>
+      <td class="num opt" data-label="Был">${at(u.last_seen_at)}</td></tr>`).join("");
   }
 
   function renderAccess() {
@@ -1053,7 +1049,7 @@
       <section class="entity-hero person">
         <span class="entity-avatar" aria-hidden="true">${esc(u.username[0].toUpperCase())}</span>
         <div class="entity-main">
-          <div class="entity-tags">${u.is_active ? tag("Активен", "success") : tag("Забанен", "danger")}${u.is_verified ? tag("Почта подтверждена", "success", "mail-check") : tag("Почта не подтверждена", "warning", "mail-warning")}${accessTag(u)}</div>
+          <div class="entity-tags">${u.is_active ? tag("Активен", "neutral") : tag("Забанен", "danger")}${u.is_verified ? tag("Почта подтверждена", "success", "mail-check") : tag("Почта не подтверждена", "warning", "mail-warning")}${accessTag(u)}</div>
           <div class="page-title"><span class="beam" aria-hidden="true"></span><h1>${esc(u.username)}</h1></div>
           <p class="entity-sub">${esc(u.email)} · с нами с ${C.fmtDate(u.created_at)} · был ${at(u.last_seen_at)}</p>
         </div>
@@ -1455,19 +1451,6 @@
     if (!window.lucide) return;
     window.lucide.createIcons({ attrs: { "aria-hidden": "true", "stroke-width": 1.8 }, nameAttr: "data-lucide", root: scope });
   }
-  function countUp(scope) {
-    if (reduceMotion.matches) return;
-    $$("[data-count]", scope).forEach(el => {
-      const target = parseFloat(el.dataset.count), decimals = +(el.dataset.decimals || 0);
-      const start = performance.now(), dur = 900;
-      const step = now => {
-        const t = Math.min(1, (now - start) / dur), eased = 1 - Math.pow(1 - t, 3);
-        el.textContent = (target * eased).toLocaleString("ru-RU", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-        if (t < 1) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    });
-  }
   /* Снимок формы сразу после отрисовки: с ним сравниваются правки. */
   function snapshotForms(scope) { $$("form[data-edit]", scope).forEach(form => { form.dataset.initial = JSON.stringify(C.readForm(form)); }); }
   function paint(main) {
@@ -1492,7 +1475,6 @@
       paint(main);
       renderChrome();
       refreshIcons($("#shell"));
-      countUp(main);
       document.title = `${state.param ? state.paramTitle : pages[state.route].title} — Kitsu`;
       if (next.params.ep) $(".ep-row.is-open")?.scrollIntoView({ block: "center" });
     };
