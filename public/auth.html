@@ -58,14 +58,67 @@
       <div class="auth-gate">
         <section class="auth-card" aria-labelledby="auth-title">
           <!-- Рамка: тусклая линия и огонёк, который бежит по контуру карточки. -->
-          <span class="auth-card__spark" aria-hidden="true"></span>
-          <span class="auth-card__glow" aria-hidden="true"></span>
+          <span class="auth-card__frame" aria-hidden="true"><span class="auth-card__spark"></span><span class="auth-card__glow"></span></span>
           <h1 class="sr-only" id="auth-title">Аккаунт Kitsu</h1>
-          <!-- Слева — портрет героини на всю панель. Картинка подменяется одной строкой: src ниже. -->
+          <!-- Слева — витрина: яркие ромбы и узор из точек. Персонаж стоит поверх и выходит за рамку карточки. -->
           <aside class="auth-art" aria-hidden="true">
-            <img class="auth-art__img" src="https://shikimori.one/system/animes/original/52991.jpg" alt="" decoding="async" referrerpolicy="no-referrer" />
-            <span class="auth-art__fire auth-art__fire--1"></span><span class="auth-art__fire auth-art__fire--2"></span><span class="auth-art__fire auth-art__fire--3"></span>
+            <span class="auth-art__lozenge"></span><span class="auth-art__lozenge auth-art__lozenge--ring"></span>
+            <svg class="auth-art__dots" viewBox="0 0 120 84" aria-hidden="true"><defs><pattern id="kf-dot" width="12" height="12" patternUnits="userSpaceOnUse"><rect x="4" y="4" width="4" height="4" transform="rotate(45 6 6)" fill="currentColor"/></pattern></defs><rect width="120" height="84" fill="url(#kf-dot)"/></svg>
           </aside>
+          <!-- Лисичка-талисман Kitsu: нарисована здесь же, SVG. Чтобы поставить другого персонажа, замените svg на img с прозрачным PNG и тем же классом auth-fig__svg. -->
+          <div class="auth-fig" aria-hidden="true">
+            <svg class="auth-fig__svg" viewBox="0 0 420 680" preserveAspectRatio="xMidYMax meet" focusable="false">
+  <defs>
+    <linearGradient id="kf-hair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf5ff"/><stop offset=".55" stop-color="#e3d0ff"/><stop offset="1" stop-color="#b996f5"/></linearGradient>
+    <linearGradient id="kf-hair-d" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0e3ff"/><stop offset="1" stop-color="#a98af0"/></linearGradient>
+    <linearGradient id="kf-tail" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#b48cff"/><stop offset=".6" stop-color="#ffb3da"/><stop offset="1" stop-color="#ffe3f0"/></linearGradient>
+    <linearGradient id="kf-iris" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5c3bff"/><stop offset=".6" stop-color="#b56cff"/><stop offset="1" stop-color="#ff8fc6"/></linearGradient>
+    <linearGradient id="kf-hakama" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a3480"/><stop offset="1" stop-color="#25183f"/></linearGradient>
+    <linearGradient id="kf-cloth" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ece5fb"/><stop offset=".35" stop-color="#ffffff"/><stop offset=".7" stop-color="#ffffff"/><stop offset="1" stop-color="#e6ddf8"/></linearGradient>
+  </defs>
+  <g class="kf-tail">
+    <path d="M214 546 C100 580 -6 520 -10 400 C-12 300 46 226 128 190 C100 262 108 330 152 384 C180 416 232 456 214 546Z" fill="url(#kf-tail)"/>
+    <path d="M-10 400 C-12 300 46 226 128 190 C108 232 100 270 104 304 C50 318 0 350 -10 400Z" fill="#fff" opacity=".95"/>
+    <path d="M30 470 C70 430 110 420 150 430" stroke="#fff" stroke-opacity=".35" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </g>
+  <g class="kf-body">
+    <path class="kf-hair-back" d="M118 150 C96 230 92 340 108 430 C128 466 160 452 176 428 L244 428 C260 452 292 466 312 430 C328 340 324 230 302 150 C280 96 140 96 118 150Z" fill="url(#kf-hair)"/>
+    <g class="kf-ear kf-ear--l"><path d="M126 138 L104 28 L198 98Z" fill="url(#kf-hair-d)"/><path d="M134 118 L120 56 L180 100Z" fill="#ff9ccb"/></g>
+    <g class="kf-ear kf-ear--r"><path d="M294 138 L316 28 L222 98Z" fill="url(#kf-hair-d)"/><path d="M286 118 L300 56 L240 100Z" fill="#ff9ccb"/></g>
+    <!-- шея и плечи -->
+    <path d="M190 262 L190 312 L230 312 L230 262Z" fill="#f2c4b4"/>
+    <path d="M116 330 C124 298 168 290 210 296 C252 290 296 298 304 330 L314 476 L106 476Z" fill="url(#kf-cloth)"/>
+    <path d="M184 292 L210 366 L236 292 L224 288 L210 330 L196 288Z" fill="#ff9ccb"/>
+    <path d="M192 292 L210 340 L228 292Z" fill="#ffe4d8"/>
+    <!-- рукава -->
+    <g class="kf-sleeve kf-sleeve--l"><path d="M114 322 C80 354 58 436 48 536 C78 556 122 546 134 534 C132 456 130 394 144 336Z" fill="url(#kf-cloth)"/><path d="M48 536 C78 556 122 546 134 534 L132 520 C104 530 74 526 50 520Z" fill="#ff9ccb"/></g>
+    <g class="kf-sleeve kf-sleeve--r"><path d="M306 322 C340 354 362 436 372 536 C342 556 298 546 286 534 C288 456 290 394 276 336Z" fill="url(#kf-cloth)"/><path d="M372 536 C342 556 298 546 286 534 L288 520 C316 530 346 526 370 520Z" fill="#ff9ccb"/></g>
+    <!-- оби и хакама -->
+    <path d="M118 448 H302 V486 H118Z" fill="#ff9ccb"/>
+    <path d="M210 466 L168 440 L160 492Z M210 466 L252 440 L260 492Z" fill="#ff7db6"/>
+    <path d="M122 486 H298 C322 566 342 626 352 680 H68 C78 626 98 566 122 486Z" fill="url(#kf-hakama)"/>
+    <path d="M168 486 L148 680 M210 486 V680 M252 486 L272 680" stroke="#fff" stroke-opacity=".14" stroke-width="3" fill="none"/>
+    <!-- лицо -->
+    <path d="M130 176 C130 108 290 108 290 176 C290 236 252 278 210 284 C168 278 130 236 130 176Z" fill="#ffe6da"/>
+    <ellipse cx="150" cy="244" rx="16" ry="8" fill="#ff9ccb" opacity=".5"/><ellipse cx="270" cy="244" rx="16" ry="8" fill="#ff9ccb" opacity=".5"/>
+    <g class="kf-eye" transform="translate(172 214)"><g class="kf-blink"><ellipse rx="23" ry="27" fill="#fff"/><ellipse cy="3" rx="17" ry="22" fill="url(#kf-iris)"/><ellipse cy="5" rx="8" ry="12" fill="#1c1030"/><ellipse cx="-6" cy="-8" rx="6" ry="8" fill="#fff"/><ellipse cx="7" cy="13" rx="3" ry="4" fill="#fff" opacity=".85"/></g><path d="M-27 -8 C-20 -32 20 -34 27 -10" stroke="#2a1a45" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+    <g class="kf-eye" transform="translate(248 214)"><g class="kf-blink"><ellipse rx="23" ry="27" fill="#fff"/><ellipse cy="3" rx="17" ry="22" fill="url(#kf-iris)"/><ellipse cy="5" rx="8" ry="12" fill="#1c1030"/><ellipse cx="-6" cy="-8" rx="6" ry="8" fill="#fff"/><ellipse cx="7" cy="13" rx="3" ry="4" fill="#fff" opacity=".85"/></g><path d="M-27 -10 C-20 -34 20 -32 27 -8" stroke="#2a1a45" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+    <path d="M206 244 q4 5 8 0" stroke="#e0a090" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M196 258 Q210 272 224 258 Q210 264 196 258Z" fill="#d85a86" stroke="#d85a86" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M203 262 l3 6 l3 -5Z" fill="#fff"/>
+    <!-- чёлка и боковые пряди -->
+    <path class="kf-bangs" d="M122 196 C112 120 158 74 210 74 C262 74 308 120 298 196 C292 164 274 142 252 130 C248 154 238 174 224 188 C218 164 210 142 196 130 C186 154 176 174 158 192 C148 174 136 164 122 196Z" fill="url(#kf-hair)"/>
+    <path class="kf-lock kf-lock--l" d="M132 190 C112 250 106 330 112 400 C126 410 140 404 146 392 C136 330 144 250 154 200Z" fill="url(#kf-hair)"/>
+    <path class="kf-lock kf-lock--r" d="M288 190 C308 250 314 330 308 400 C294 410 280 404 274 392 C284 330 276 250 266 200Z" fill="url(#kf-hair)"/>
+    <path d="M148 150 C158 120 180 104 204 98" stroke="#fff" stroke-opacity=".7" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <!-- заколка-сакура -->
+    <g class="kf-flower" transform="translate(140 128)"><g fill="#ff9ccb"><ellipse cy="-12" rx="7" ry="11"/><ellipse cy="-12" rx="7" ry="11" transform="rotate(72)"/><ellipse cy="-12" rx="7" ry="11" transform="rotate(144)"/><ellipse cy="-12" rx="7" ry="11" transform="rotate(216)"/><ellipse cy="-12" rx="7" ry="11" transform="rotate(288)"/></g><ellipse rx="5" ry="5" fill="#ffd36e"/></g>
+  </g>
+</svg>
+
+            <span class="auth-art__fire auth-art__fire--1"></span><span class="auth-art__fire auth-art__fire--2"></span><span class="auth-art__fire auth-art__fire--3"></span>
+            <span class="auth-petal auth-petal--1"></span><span class="auth-petal auth-petal--2"></span><span class="auth-petal auth-petal--3"></span>
+          </div>
           <div class="auth-pane">
 
           <div class="auth-tabs" role="tablist" aria-label="Вход или регистрация" data-auth-tabs><span class="auth-tabs__thumb" aria-hidden="true"></span>
