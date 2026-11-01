@@ -4404,6 +4404,32 @@ button.title-community-action:hover {
   font-weight: 750;
 }
 
+/* Текстовое поле: одно определение для комментария, ответа и полей профиля. */
+:is(.pf-field input, .pf-field textarea, .comment-composer textarea, .comment-inline textarea) {
+  width: 100%;
+  min-height: 44px;
+  padding: 12px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-3);
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color var(--dur-1), box-shadow var(--dur-1);
+}
+
+:is(.comment-composer textarea, .comment-inline textarea) { min-height: 76px; }
+
+:is(.pf-field input, .pf-field textarea, .comment-composer textarea, .comment-inline textarea)::placeholder { color: var(--text-muted); }
+
+:is(.pf-field input, .pf-field textarea, .comment-composer textarea, .comment-inline textarea):focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-softer);
+  outline: none;
+}
+
 .select-wrap,
 .episodes-controls label {
   position: relative;
@@ -4415,14 +4441,14 @@ button.title-community-action:hover {
   min-height: 42px;
   appearance: none;
   padding: 0 36px 0 12px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   border-radius: var(--radius-sm);
   outline: 0;
   background: var(--surface-raised);
   color: var(--text);
   font-size: var(--fs-1);
   font-weight: 700;
-  transition: border-color var(--ease), background var(--ease);
+  transition: border-color var(--dur-1), background var(--dur-1);
 }
 
 .select-wrap select:focus,
