@@ -53,12 +53,13 @@
     muted: false,
   };
 
-  const BOOKMARK_STATUSES = [
+  // Статусы закладки — из единого словаря content-model.js (KitsuContent.bookmarkStatuses): порядок, подписи, значки.
+  const BOOKMARK_STATUSES = (typeof window !== "undefined" && window.KitsuContent?.bookmarkStatuses) || [
     { key: "watching", label: "Смотрю", icon: "play" },
-    { key: "planned", label: "Запланировано", icon: "clock" },
     { key: "completed", label: "Просмотрено", icon: "check" },
-    { key: "dropped", label: "Брошено", icon: "minus" },
+    { key: "planned", label: "Запланировано", icon: "clock" },
     { key: "on_hold", label: "Отложено", icon: "pause" },
+    { key: "dropped", label: "Брошено", icon: "minus" },
   ];
 
   const BOOKMARK_STATUS_BY_KEY = Object.fromEntries(BOOKMARK_STATUSES.map((status) => [status.key, status]));
@@ -113,6 +114,9 @@
     window.setTimeout(() => toast.remove(), 190);
   }
 
+  // ОДНО уведомление на весь сайт: страницы (профиль, настройки, люди, «Закладки») зовут window.KitsuToast, своих копий нет.
+  // Заголовок и текст — только текст: экранируются здесь, чтобы название тайтла или ник не стали разметкой.
+  const toastText = (value) => String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   function showToast(title, message, tone = "success") {
     const region = $("#toast-region");
     if (!region) return;
@@ -129,7 +133,7 @@
     const icon = tone === "danger" ? "circle-alert" : tone === "info" ? "info" : "check";
     toast.innerHTML = `
       <span class="toast-icon"><i data-lucide="${icon}"></i></span>
-      <span><strong>${title}</strong><small>${message}</small></span>
+      <span><strong>${toastText(title)}</strong><small>${toastText(message)}</small></span>
       <button type="button" aria-label="Закрыть уведомление"><i data-lucide="x"></i></button>
     `;
     $("button", toast).addEventListener("click", () => closeToast(toast));
@@ -313,18 +317,19 @@
     heading.className = "bookmark-menu__heading";
     const headingCopy = document.createElement("div");
     headingCopy.className = "bookmark-menu__heading-copy";
+    // Шапка как у меню статуса на странице тайтла: подпись «Мой список» и название тайтла.
+    const headingMeta = document.createElement("span");
+    headingMeta.textContent = "Мой список";
     const headingTitle = document.createElement("strong");
     headingTitle.id = `bookmark-menu-title-${index + 1}`;
-    headingTitle.textContent = "В мой список";
-    const headingMeta = document.createElement("span");
-    headingMeta.textContent = title;
-    headingCopy.append(headingTitle, headingMeta);
+    headingTitle.textContent = title;
+    headingCopy.append(headingMeta, headingTitle);
     const close = document.createElement("button");
     close.type = "button";
     close.className = "bookmark-menu__close";
     close.dataset.bookmarkClose = "";
     close.setAttribute("aria-label", "Закрыть выбор статуса");
-    close.innerHTML = '<i data-lucide="x"></i>';
+    close.textContent = "Готово";
     close.hidden = true;
     heading.append(headingCopy, close);
 
@@ -400,6 +405,12 @@
     }
   }
 
+  // Одно уведомление о смене статуса закладки для всех мест (постер, страница тайтла, профиль, «Закладки»).
+  function bookmarkToast(statusKey, title) {
+    const status = BOOKMARK_STATUS_BY_KEY[statusKey];
+    showToast(status ? `Статус: ${status.label}` : "Убрано из списка", title ? `«${title}»` : "Сохранено на этом устройстве.");
+  }
+
   function setBookmarkStatus(cardId, statusKey) {
     if (!storage.set(`kitsu-demo-bookmark-status-${cardId}`, statusKey)) return false;
     syncBookmarkStatus(cardId, statusKey);
@@ -418,10 +429,15 @@
     document.dispatchEvent(new CustomEvent("kitsu:bookmark"));
   }
 
-  function initBookmarks() {
-    const cards = $$('.anime-card').filter((card) => $('[data-bookmark]', card));
+  let bookmarkCardCount = 0;
+  function initBookmarks() { bindBookmarkCards(document); }
+  // Подключает кнопку закладки, метку статуса и меню к карточкам .anime-card внутри root. Карточки,
+  // которые нарисованы позже (профиль, «Закладки»), подключаются через window.KitsuBookmarks.bind(root).
+  function bindBookmarkCards(root) {
+    const cards = $$('.anime-card', root).filter((card) => $('[data-bookmark]', card) && !("bookmarkCard" in card.dataset));
 
-    cards.forEach((card, index) => {
+    cards.forEach((card) => {
+      const index = bookmarkCardCount++;
       const trigger = $('[data-bookmark]', card);
       const poster = $(".poster-frame", card);
       const title = $("h3", card)?.textContent.trim() || "Аниме";
@@ -473,7 +489,7 @@
         if (event.target.closest('[data-bookmark-remove]')) {
           if (!setBookmarkStatus(cardId, "none")) return;
           closeBookmarkMenu(menu, { restoreFocus: true });
-          showToast("Удалено из списка", "Состояние сохранено на этом устройстве.");
+          bookmarkToast("none", title);
           return;
         }
         const option = event.target.closest('[data-bookmark-option]');
@@ -485,7 +501,7 @@
         }
         if (!setBookmarkStatus(cardId, selectedKey)) return;
         closeBookmarkMenu(menu, { restoreFocus: true });
-        showToast(`${BOOKMARK_STATUS_BY_KEY[selectedKey].label} — сохранено`, "Статус обновлён на этом устройстве.");
+        bookmarkToast(selectedKey, title);
       });
 
       menu.addEventListener("keydown", (event) => {
@@ -512,13 +528,18 @@
       });
     });
 
-    bookmarkSheetQuery.addEventListener?.("change", () => {
-      closeBookmarkMenus();
-      $$('[data-bookmark-menu]').forEach((menu) => setBookmarkMenuSemantics(menu, bookmarkSheetQuery.matches));
-    });
+    if (!bindBookmarkCards.watching) {
+      bindBookmarkCards.watching = true;
+      bookmarkSheetQuery.addEventListener?.("change", () => {
+        closeBookmarkMenus();
+        $$('[data-bookmark-menu]').forEach((menu) => setBookmarkMenuSemantics(menu, bookmarkSheetQuery.matches));
+      });
+    }
 
     refreshIcons();
   }
+  window.KitsuBookmarks = { bind: (root) => bindBookmarkCards(root || document) };
+  window.KitsuToast = showToast;
 
   function openDrawer() {
     const drawer = $("#mobile-drawer");
@@ -1771,7 +1792,7 @@
         if (!setBookmarkStatus(titleId(), control.dataset.listStatus)) return;
         closeMenu($("#list-trigger"), $("#list-menu"));
         closeDialog($("#mobile-list-menu"));
-        showToast(state.listStatus === "none" ? "Удалено из списка" : "Список обновлён", state.listStatus === "none" ? "Тайтл больше не находится в ваших списках." : listLabels[state.listStatus]);
+        bookmarkToast(state.listStatus, $("#title-name")?.textContent.trim());
       });
     });
 

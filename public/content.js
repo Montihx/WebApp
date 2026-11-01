@@ -37,7 +37,7 @@
       ['calendar-range', esc(M.seasonLabel(title.aired_on, title.year))],
       ['monitor-play', esc(M.episodesLabel({ status, episodes_aired: title.episodes_aired, episodes_total: total }))],
       ['calendar-days', esc(`${M.kindLabel(title.kind)}, ${schedule}`)],
-      title.score > 0 ? ['star', `Оценка ${esc(title.score)}${title.score_count ? ` · ${new Intl.NumberFormat('ru-RU').format(title.score_count)} ${M.plural(title.score_count, 'оценка', 'оценки', 'оценок')}` : ''}`] : null,
+      // Оценки здесь нет: она уже на постере (ханко) — одно значение показывается в одном месте.
       studios.length ? ['users', `${studios.length > 1 ? 'Студии' : 'Студия'} ${studios.map(name => `<a href="./index.html#catalog">${esc(name)}</a>`).join(', ')}`] : null,
     ].filter(row => row && row[1]);
     $('[data-facts]').innerHTML = rows.map(([icon, text]) => `<li><i data-lucide="${icon}"></i><span>${text}</span></li>`).join('');
@@ -75,7 +75,11 @@
       const hanko = $('.title-poster .hanko');
       if (hanko) {
         hanko.hidden = !(title.score > 0);
-        if (title.score > 0) { hanko.textContent = title.score; hanko.setAttribute('aria-label', `Оценка ${title.score}`); }
+        if (title.score > 0) {
+          // Число голосов — в подписи ханко, а не отдельной строкой фактов.
+          const votes = title.score_count ? `, ${new Intl.NumberFormat('ru-RU').format(title.score_count)} ${M.plural(title.score_count, 'оценка', 'оценки', 'оценок')}` : '';
+          hanko.textContent = M.formatScore(title.score); hanko.setAttribute('aria-label', `Оценка ${M.formatScore(title.score)} из 10${votes}`); hanko.title = `Оценка ${M.formatScore(title.score)} из 10${votes}`;
+        }
       }
       const next = nextEpisode[title.slug], air = next && M.airLabel(next.at);
       // Next episode sits on the poster itself, as a torn-off ticket stub along its bottom edge.

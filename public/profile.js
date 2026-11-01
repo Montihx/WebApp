@@ -16,14 +16,8 @@
   const DAY = 86400000;
 
   /* ---------- Справочники ---------- */
-  // Категории закладок: validFavoriteCategories в backend-go/internal/handlers/favorites.go.
-  const CATEGORIES = [
-    { id: "watching", label: "Смотрю", icon: "play" },
-    { id: "completed", label: "Просмотрено", icon: "check" },
-    { id: "planned", label: "В планах", icon: "clock-3" },
-    { id: "on_hold", label: "Отложено", icon: "pause" },
-    { id: "dropped", label: "Брошено", icon: "x" },
-  ];
+  // Категории закладок: validFavoriteCategories в backend-go/internal/handlers/favorites.go; порядок, подписи и иконки — общие (content-model.js).
+  const CATEGORIES = window.KitsuContent.bookmarkStatuses;
   const KIND = { tv: "ТВ", movie: "Фильм", ona: "ONA", ova: "OVA", special: "Спецвыпуск" };
   const STATUS = { released: "Вышло", ongoing: "Онгоинг", anons: "Анонс", announced: "Анонс" };
 
@@ -166,17 +160,8 @@
     requestAnimationFrame(step);
   }
 
-  function toast(title, message, tone = "success") {
-    const region = $("#toast-region");
-    $$(".toast.is-leaving", region).forEach((item) => item.remove());
-    const el = document.createElement("div");
-    el.className = `toast toast--${tone}`;
-    el.setAttribute("role", tone === "danger" ? "alert" : "status");
-    el.innerHTML = `<span class="toast-icon"><i data-lucide="${tone === "danger" ? "circle-alert" : "check"}"></i></span><span><strong>${esc(title)}</strong><small>${esc(message)}</small></span><button type="button" aria-label="Закрыть уведомление"><i data-lucide="x"></i></button>`;
-    const close = () => { el.classList.add("is-leaving"); setTimeout(() => el.remove(), 190); };
-    $("button", el).addEventListener("click", close);
-    region.append(el); icons(el); setTimeout(close, 4200);
-  }
+  // Уведомление — общее (app.js, window.KitsuToast): один вид и одно поведение на всех страницах.
+  const toast = (title, message, tone = "success") => window.KitsuToast?.(title, message, tone);
 
   // Постер не загрузился — остаётся рамка с названием, как на остальных страницах.
   function guardImages(root) {
@@ -364,88 +349,54 @@
   }
 
   /* ---------- Закладки ---------- */
-  const marks = { list: [], tab: "watching" };
-  function markCard(f, i) {
-    const a = f.anime; const total = a.episodes_total;
-    const meta = [KIND[a.kind], STATUS[a.status]].filter(Boolean).join(" · ");
-    return `<li class="pf-card" style="--i:${Math.min(i, 11)}" data-card="${esc(f.anime_id)}">
-      <a class="pf-card__poster" href="./anime.html?title=${encodeURIComponent(a.slug)}" aria-label="${esc(a.title)}">
-        <img src="${esc(a.poster_url)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" data-poster="${esc(a.title)}" />
-        ${a.score ? `<span class="poster-score pf-card__score">${a.score.toFixed(1)}</span>` : ""}
-        <span class="pf-card__eps">${total ? `${total} эп.` : `${a.episodes_aired} эп.`}</span>
-      </a>
-      <button class="pf-card__more" type="button" aria-haspopup="menu" aria-label="Изменить статус «${esc(a.title)}»" data-menu="${esc(f.anime_id)}"><i data-lucide="ellipsis"></i></button>
-      <h3><a href="./anime.html?title=${encodeURIComponent(a.slug)}">${esc(a.title)}</a></h3>
-      <p>${esc(meta)}${f.user_score ? `<span class="pf-card__mine"><i data-lucide="star"></i>${f.user_score}</span>` : ""}</p>
-    </li>`;
+  // Одна функция — один компонент: карточка — та же .anime-card, что в каталоге (KitsuContent.animeCard),
+  // смена статуса — общая кнопка закладки и её меню из app.js (KitsuBookmarks), вкладки — те же .bm-tabs, что на «Закладках».
+  const marks = { list: [], tab: "watching", progress: new Map() };
+  function placeTabBar(scroll = true) {
+    const tabs = $("[data-own-tabs]"); const on = $("[aria-selected=true]", tabs); const bar = $(".bm-tabs__bar", tabs);
+    if (!on || !bar || !on.offsetWidth) return;
+    bar.style.width = `${on.offsetWidth}px`; bar.style.transform = `translateX(${on.offsetLeft}px)`; bar.dataset.bookmarkTone = on.dataset.tab;
+    if (scroll) tabs.scrollTo?.({ left: Math.max(0, on.offsetLeft - 24), behavior: reduced ? "auto" : "smooth" });
   }
   function paintTabs() {
-    const tabs = $("[data-tabs]");
-    tabs.innerHTML = CATEGORIES.map((c) => {
-      const n = marks.list.filter((f) => f.category === c.id).length;
-      return `<button type="button" role="tab" id="tab-${c.id}" aria-selected="${c.id === marks.tab}" tabindex="${c.id === marks.tab ? 0 : -1}" data-tab="${c.id}"><i data-lucide="${c.icon}"></i><span>${c.label}</span><b>${n}</b></button>`;
-    }).join("") + '<span class="pf-tabs__bar" aria-hidden="true"></span>';
-    icons(tabs); placeTabBar();
-  }
-  function placeTabBar() {
-    const tabs = $("[data-tabs]"); const on = $("[aria-selected=true]", tabs); const bar = $(".pf-tabs__bar", tabs);
-    if (on && bar) { bar.style.width = `${on.offsetWidth}px`; bar.style.transform = `translateX(${on.offsetLeft}px)`; tabs.scrollTo?.({ left: Math.max(0, on.offsetLeft - 24), behavior: reduced ? "auto" : "smooth" }); }
+    $$("[data-own-tabs] [data-count]").forEach((b) => { b.textContent = nf.format(marks.list.filter((f) => f.category === b.dataset.count).length); });
+    $$("[data-own-tabs] [role=tab]").forEach((t) => { const on = t.dataset.tab === marks.tab; t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1; });
+    $("[data-marks]").setAttribute("aria-labelledby", `tab-${marks.tab}`);
+    placeTabBar();
   }
   function paintMarks() {
-    const panel = $("[data-marks]");
-    panel.setAttribute("aria-labelledby", `tab-${marks.tab}`);
-    const rows = marks.list.filter((f) => f.category === marks.tab).sort((x, y) => utc(y.updated_at) - utc(x.updated_at));
-    const cat = CATEGORIES.find((c) => c.id === marks.tab);
+    const panel = $("[data-marks]"); const M = window.KitsuContent;
+    const rows = marks.list.filter((f) => f.category === marks.tab).sort((x, y) => utc(y.updated_at) - utc(x.updated_at) || String(x.anime_id).localeCompare(String(y.anime_id)));
+    const cat = CATEGORIES.find((c) => c.key === marks.tab);
     if (!rows.length) {
-      panel.innerHTML = `<div class="pf-state-wrap">${emptyBox(cat.icon, `В «${cat.label}» пока пусто`, marks.list.length ? "Перенесите сюда тайтл из другого списка через меню на карточке." : "Добавляйте тайтлы в закладки со страницы аниме — они появятся здесь.", '<a class="button button--secondary" href="./index.html#catalog"><i data-lucide="compass"></i><span>Открыть каталог</span></a>')}</div>`;
-    } else panel.innerHTML = `<ul class="pf-cards">${rows.map(markCard).join("")}</ul>`;
+      panel.innerHTML = `<div class="pf-state-wrap">${emptyBox(cat.icon, `В «${cat.label}» пока пусто`, marks.list.length ? "Перенесите сюда тайтл кнопкой закладки на его постере." : "Добавляйте тайтлы кнопкой закладки на постере или на странице аниме — они появятся здесь.", '<a class="button button--secondary" href="./index.html#catalog"><i data-lucide="compass"></i><span>Открыть каталог</span></a>')}</div>`;
+    } else {
+      panel.innerHTML = `<div class="anime-grid bm-grid">${rows.slice(0, 12).map((f, i) => M.animeCard(f.anime, { facts: M.bookmarkFacts(f, marks.progress.get(f.anime.slug)), style: `--i:${Math.min(i, 11)}` })).join("")}</div>`;
+      window.KitsuBookmarks?.bind(panel);
+    }
     icons(panel); guardImages(panel);
   }
   async function loadMarks() {
     const panel = $("[data-marks]");
-    panel.innerHTML = `<ul class="pf-cards">${Array.from({ length: 6 }, () => '<li class="pf-skel pf-skel--card"></li>').join("")}</ul>`;
+    panel.innerHTML = `<div class="anime-grid bm-grid">${Array.from({ length: 6 }, () => '<div class="pf-skel pf-skel--card"></div>').join("")}</div>`;
     try {
-      marks.list = await api.favorites();
-      if (!marks.list.some((f) => f.category === marks.tab)) marks.tab = (CATEGORIES.find((c) => marks.list.some((f) => f.category === c.id)) || CATEGORIES[0]).id;
+      const [list, seen] = await Promise.all([api.favorites(), api.history(0, 50).catch(() => ({ items: [] }))]);
+      marks.list = list; seen.items.forEach((h) => { if (!marks.progress.has(h.anime_slug)) marks.progress.set(h.anime_slug, h); });
+      if (!marks.list.some((f) => f.category === marks.tab)) marks.tab = (CATEGORIES.find((c) => marks.list.some((f) => f.category === c.key)) || CATEGORIES[0]).key;
       paintTabs(); paintMarks();
     } catch (_) { errorBox(panel, loadMarks); }
   }
-  let menu = null;
-  function closeMenu() { if (menu) { menu.remove(); menu = null; } }
-  function openMenu(button) {
-    closeMenu();
-    const id = button.dataset.menu; const f = marks.list.find((x) => x.anime_id === id); if (!f) return;
-    menu = document.createElement("div"); menu.className = "pf-menu"; menu.setAttribute("role", "menu");
-    menu.innerHTML = `<p>Перенести в…</p>${CATEGORIES.map((c) => `<button type="button" role="menuitem" data-to="${c.id}"${c.id === f.category ? ' aria-current="true"' : ""}><i data-lucide="${c.icon}"></i><span>${c.label}</span>${c.id === f.category ? '<i data-lucide="check" class="pf-menu__ok"></i>' : ""}</button>`).join("")}<hr /><button type="button" role="menuitem" class="is-danger" data-remove><i data-lucide="trash-2"></i><span>Убрать из закладок</span></button>`;
-    document.body.append(menu); icons(menu);
-    const r = button.getBoundingClientRect(); const w = menu.offsetWidth; const h = menu.offsetHeight;
-    menu.style.left = `${Math.max(8, Math.min(innerWidth - w - 8, r.right - w))}px`;
-    menu.style.top = `${r.bottom + 6 + h > innerHeight ? Math.max(8, r.top - h - 6) : r.bottom + 6}px`;
-    $("button", menu).focus({ preventScroll: true });
-    menu.addEventListener("click", async (e) => {
-      const to = e.target.closest("[data-to]")?.dataset.to; const rm = e.target.closest("[data-remove]");
-      if (!to && !rm) return;
-      closeMenu();
-      try {
-        if (rm) { await api.removeFavorite(id); marks.list = marks.list.filter((x) => x.anime_id !== id); toast("Убрано из закладок", f.anime.title); }
-        else if (to !== f.category) { await api.setCategory(id, to); f.category = to; f.updated_at = new Date().toISOString(); toast("Статус изменён", `${f.anime.title} — «${CATEGORIES.find((c) => c.id === to).label}»`); }
-        paintTabs(); paintMarks();
-      } catch (_) { toast("Не получилось", "Сервер не ответил, повторите попытку", "danger"); }
-    });
-    button.setAttribute("aria-expanded", "true");
-  }
   function initMarks() {
-    const tabs = $("[data-tabs]"); const panel = $("[data-marks]");
-    tabs.addEventListener("click", (e) => { const t = e.target.closest("[data-tab]"); if (t && t.dataset.tab !== marks.tab) { marks.tab = t.dataset.tab; paintTabs(); paintMarks(); } });
-    tabs.addEventListener("keydown", (e) => {
-      const keys = { ArrowRight: 1, ArrowLeft: -1 }; if (!keys[e.key]) return;
-      const i = CATEGORIES.findIndex((c) => c.id === marks.tab); const next = CATEGORIES[(i + keys[e.key] + CATEGORIES.length) % CATEGORIES.length];
-      marks.tab = next.id; paintTabs(); paintMarks(); $(`[data-tab="${next.id}"]`, tabs).focus(); e.preventDefault();
-    });
-    panel.addEventListener("click", (e) => { const b = e.target.closest("[data-menu]"); if (b) { e.preventDefault(); openMenu(b); } });
-    document.addEventListener("pointerdown", (e) => { if (menu && !menu.contains(e.target) && !e.target.closest("[data-menu]")) closeMenu(); });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && menu) { const t = $(`[data-menu="${CSS.escape($("[aria-expanded=true]")?.dataset.menu || "")}"]`); closeMenu(); t?.focus(); } });
-    addEventListener("scroll", closeMenu, { passive: true }); addEventListener("resize", () => { closeMenu(); placeTabBar(); });
+    // Стрелки по вкладкам обрабатывает общий initRovingTabs() из app.js (он нажимает соседнюю вкладку) — здесь только клик.
+    $("[data-own-tabs]").addEventListener("click", (e) => { const t = e.target.closest("[role=tab]"); if (t && t.dataset.tab !== marks.tab) { marks.tab = t.dataset.tab; paintTabs(); paintMarks(); } });
+    // Статус сменили в меню карточки (app.js шлёт «kitsu:bookmark») — перечитываем закладки и пересчитываем вкладки.
+    document.addEventListener("kitsu:bookmark", () => setTimeout(async () => {
+      const id = document.activeElement?.closest?.("[data-bookmark-id]")?.dataset.bookmarkId;
+      marks.list = await api.favorites().catch(() => marks.list); paintTabs(); paintMarks();
+      ((id && $(`[data-marks] [data-bookmark-id="${CSS.escape(id)}"] [data-bookmark-trigger]`)) || $("[data-own-tabs] [aria-selected=true]"))?.focus({ preventScroll: true });
+    }, 0));
+    addEventListener("resize", () => placeTabBar(false));
+    document.fonts?.ready.then(() => placeTabBar(false));
     loadMarks();
   }
 

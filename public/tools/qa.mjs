@@ -467,7 +467,8 @@ const bookmarkBehaviorTokens = [
   "bookmarkTone",
   "kitsu-demo-bookmark-status",
   "data-bookmark-status-bar",
-  'headingTitle.textContent = "В мой список"',
+  'headingMeta.textContent = "Мой список"',
+  "KitsuContent?.bookmarkStatuses",
   'menu.addEventListener("click", (event) => {\n        event.preventDefault();',
 ];
 const missingBookmarkBehavior = bookmarkBehaviorTokens.filter((token) => !js.includes(token));
@@ -534,8 +535,10 @@ const titleMetaStart = animeSource.indexOf('class="title-meta-list"');
 const titleMetaSource = animeSource.slice(titleMetaStart, animeSource.indexOf("</ul>", titleMetaStart));
 const naturalTitleMetadata = titleMetaStart >= 0
   // 01.11.2026: возраст — метка у оригинального названия (data-age, из поля rating), а в списке фактов только то,
-  // что отдаёт бэкенд: сезон, серии, тип и день выхода, оценка, студии. Страны и длительности серии в API нет.
-  && count(titleMetaSource, /<li>/g) === 5
+  // что отдаёт бэкенд: сезон, серии, тип и день выхода, студии. Страны и длительности серии в API нет. Оценки в фактах нет:
+  // она на ханко постера (одно значение — одно место).
+  && count(titleMetaSource, /<li>/g) === 4
+  && !/Оценка/.test(titleMetaSource)
   && !/R-17|Япония|мин\./.test(titleMetaSource)
   && count(animeSource, /data-age\b/g) === 1
   && !animeSource.includes('class="mobile-age-badge"')

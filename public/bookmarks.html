@@ -22,9 +22,9 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="../tokens.css?v=v3-37" />
-    <link rel="stylesheet" href="./styles.css?v=v3-37" />
-    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-37" />
+    <link rel="stylesheet" href="../tokens.css?v=v3-38" />
+    <link rel="stylesheet" href="./styles.css?v=v3-38" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-38" />
   </head>
   <!--
     Закладки. Рисует bookmarks.js; вместо сервера — демо-ответы той же формы (у каждого метода `api` записан запрос).
@@ -35,7 +35,7 @@
       POST   /interactions/favorites?anime_id&category     сменить статус (или добавить) → строка закладки; 400 — чужой статус
       DELETE /interactions/favorites?anime_id               убрать
       GET    /interactions/watch-history/me?skip=0&limit=…  для «Смотрю»: на какой серии остановились (по одной строке на тайтл, потолок 1000)
-    user_score сервер отдаёт, но поставить его нечем — показываем, только если он есть.
+    Карточки — те же .anime-card, что в каталоге: кнопку, метку статуса на постере и меню подключает app.js (KitsuBookmarks.bind).
     Состояния для проверки: ?state=empty, ?state=error, ?state=guest.
   -->
   <body data-page="bookmarks">
@@ -167,9 +167,9 @@
         <button type="button" role="tab" id="tab-all" aria-controls="bm-panel" aria-selected="true" data-tab="all"><span>Все</span><b data-count="all">—</b></button>
         <button type="button" role="tab" id="tab-watching" aria-controls="bm-panel" aria-selected="false" tabindex="-1" data-tab="watching" data-bookmark-tone="watching"><i data-lucide="play"></i><span>Смотрю</span><b data-count="watching">—</b></button>
         <button type="button" role="tab" id="tab-completed" aria-controls="bm-panel" aria-selected="false" tabindex="-1" data-tab="completed" data-bookmark-tone="completed"><i data-lucide="check"></i><span>Просмотрено</span><b data-count="completed">—</b></button>
-        <button type="button" role="tab" id="tab-planned" aria-controls="bm-panel" aria-selected="false" tabindex="-1" data-tab="planned" data-bookmark-tone="planned"><i data-lucide="clock-3"></i><span>В планах</span><b data-count="planned">—</b></button>
+        <button type="button" role="tab" id="tab-planned" aria-controls="bm-panel" aria-selected="false" tabindex="-1" data-tab="planned" data-bookmark-tone="planned"><i data-lucide="clock"></i><span>Запланировано</span><b data-count="planned">—</b></button>
         <button type="button" role="tab" id="tab-on_hold" aria-controls="bm-panel" aria-selected="false" tabindex="-1" data-tab="on_hold" data-bookmark-tone="on_hold"><i data-lucide="pause"></i><span>Отложено</span><b data-count="on_hold">—</b></button>
-        <button type="button" role="tab" id="tab-dropped" aria-controls="bm-panel" aria-selected="false" tabindex="-1" data-tab="dropped" data-bookmark-tone="dropped"><i data-lucide="x"></i><span>Брошено</span><b data-count="dropped">—</b></button>
+        <button type="button" role="tab" id="tab-dropped" aria-controls="bm-panel" aria-selected="false" tabindex="-1" data-tab="dropped" data-bookmark-tone="dropped"><i data-lucide="minus"></i><span>Брошено</span><b data-count="dropped">—</b></button>
         <span class="bm-tabs__bar" aria-hidden="true"></span>
       </div>
 
@@ -181,11 +181,7 @@
           <option value="title">По названию</option>
           <option value="score">По оценке</option>
         </select><i data-lucide="chevron-down"></i></label>
-        <div class="pf-seg bm-view" role="radiogroup" aria-label="Вид списка" data-view>
-          <button type="button" role="radio" aria-checked="true" aria-label="Сеткой" title="Сеткой" data-value="grid"><i data-lucide="layout-grid"></i></button>
-          <button type="button" role="radio" aria-checked="false" aria-label="Списком" title="Списком" data-value="list"><i data-lucide="list"></i></button>
-          <span class="pf-seg__thumb" aria-hidden="true"></span>
-        </div>
+
       </div>
 
       <section id="bm-panel" role="tabpanel" aria-labelledby="tab-all" aria-live="polite" data-panel></section>
@@ -208,10 +204,10 @@
           <div class="search-recent" id="search-recent"><div class="search-section-head"><strong>Недавние</strong><button type="button" data-search-clear-recent>Очистить</button></div><button class="search-recent__item" type="button" data-search-suggest="синий экзорцист"><i data-lucide="clock-3"></i><span>Синий экзорцист [ТВ-4, часть 2]</span><i data-lucide="chevron-right"></i></button></div>
           <div class="search-results" id="search-results">
             <p class="search-results__label">Результаты</p>
-            <a class="search-result" href="./anime.html" data-search-item="монстр monster" data-search-genre="Триллер" data-search-status="released" data-search-type="tv" data-search-year="2004" data-search-rating="8.88"><img decoding="async" src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small>TV · 2004 <b class="search-result__score"><i data-lucide="star"></i>8.88</b></small></span><i data-lucide="chevron-right"></i></a>
-            <a class="search-result" href="./anime.html" data-search-item="провожающая в последний путь фрирен sousou frieren" data-search-genre="Фэнтези|Приключения" data-search-status="released" data-search-type="tv" data-search-year="2023" data-search-rating="9.31"><img decoding="async" src="https://shikimori.one/system/animes/original/52991.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Провожающая в последний путь Фрирен</strong><small>TV · 2023 <b class="search-result__score"><i data-lucide="star"></i>9.31</b></small></span><i data-lucide="chevron-right"></i></a>
-            <a class="search-result" href="./anime.html" data-search-item="ковбой бибоп cowboy bebop" data-search-genre="Приключения" data-search-status="released" data-search-type="tv" data-search-year="1998" data-search-rating="8.90"><img decoding="async" src="https://shikimori.one/system/animes/original/1.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>TV · 1998 <b class="search-result__score"><i data-lucide="star"></i>8.90</b></small></span><i data-lucide="chevron-right"></i></a>
-            <a class="search-result" href="./anime.html" data-search-item="атака титанов shingeki kyojin" data-search-genre="Драма" data-search-status="released" data-search-type="tv" data-search-year="2013" data-search-rating="8.55"><img decoding="async" src="https://shikimori.one/system/animes/original/16498.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>TV · 2013 <b class="search-result__score"><i data-lucide="star"></i>8.55</b></small></span><i data-lucide="chevron-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="монстр monster" data-search-genre="Триллер" data-search-status="released" data-search-type="tv" data-search-year="2004" data-search-rating="8.88"><img decoding="async" src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small>TV · 2004 <b class="search-result__score" aria-label="Оценка 8.88">8.88</b></small></span><i data-lucide="chevron-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="провожающая в последний путь фрирен sousou frieren" data-search-genre="Фэнтези|Приключения" data-search-status="released" data-search-type="tv" data-search-year="2023" data-search-rating="9.31"><img decoding="async" src="https://shikimori.one/system/animes/original/52991.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Провожающая в последний путь Фрирен</strong><small>TV · 2023 <b class="search-result__score" aria-label="Оценка 9.31">9.31</b></small></span><i data-lucide="chevron-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="ковбой бибоп cowboy bebop" data-search-genre="Приключения" data-search-status="released" data-search-type="tv" data-search-year="1998" data-search-rating="8.75"><img decoding="async" src="https://shikimori.one/system/animes/original/1.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>TV · 1998 <b class="search-result__score" aria-label="Оценка 8.75">8.75</b></small></span><i data-lucide="chevron-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="атака титанов shingeki kyojin" data-search-genre="Драма" data-search-status="released" data-search-type="tv" data-search-year="2013" data-search-rating="8.55"><img decoding="async" src="https://shikimori.one/system/animes/original/16498.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>TV · 2013 <b class="search-result__score" aria-label="Оценка 8.55">8.55</b></small></span><i data-lucide="chevron-right"></i></a>
             <div class="search-empty" id="search-empty" hidden><i data-lucide="search-x"></i><strong>Ничего не найдено</strong><span>Проверьте написание или измените запрос.</span></div>
           </div>
           <a class="search-more" id="search-more" href="./index.html#catalog" data-close-search hidden><i data-lucide="arrow-right"></i><span>Найти в каталоге</span></a>
@@ -231,8 +227,8 @@
 
     <script src="./vendor/lucide.min.js"></script>
     <script src="./content-model.js?v=original-parity-13"></script>
-    <script src="./content.js?v=v3-37"></script>
-    <script src="./app.js?v=v3-37"></script>
-    <script src="./bookmarks.js?v=v3-37"></script>
+    <script src="./content.js?v=v3-38"></script>
+    <script src="./app.js?v=v3-38"></script>
+    <script src="./bookmarks.js?v=v3-38"></script>
   </body>
 </html>
