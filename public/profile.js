@@ -56,7 +56,7 @@
 
   const DEMO = {
     me: {
-      id: "u-demo", username: "kitsune_noa", bio: "Смотрю по вечерам, пишу заметки к каждому сезону. Люблю спокойные истории про дорогу и тихих героев.",
+      id: "9c1f6a52-7d1e-4f0b-9a3e-5b2d8c4e1f00", username: "kitsune_noa", bio: "Смотрю по вечерам, пишу заметки к каждому сезону. Люблю спокойные истории про дорогу и тихих героев.",
       avatar_url: null, cover_url: null, is_verified: true, created_at: "2026-03-12T09:20:00",
       role: { name: "Зритель" }, is_superuser: false, last_seen_at: ago(120000), decoration: null,
     },

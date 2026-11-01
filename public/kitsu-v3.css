@@ -3648,3 +3648,60 @@ button.pf-chip { border: 0; font: inherit; font-size: 0.75rem; font-weight: 600;
   content: ""; inset: 3px 3px auto auto; width: 7px; height: 4px; border: 0; border-radius: 0;
   border-bottom: 2px solid currentColor; border-left: 2px solid currentColor; box-shadow: none; animation: none; transform: rotate(-45deg);
 }
+
+/* ===== Чужой профиль (user.html) ===== */
+body[data-page="user"] { background: var(--canvas); overflow-x: clip; }
+body[data-page="user"].is-hidden-tab .pf-skel { animation-play-state: paused; }
+:root .pf-bio.is-empty { color: var(--text-muted); }
+:root .us-counts dt a { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); text-underline-offset: 3px; transition: color var(--dur-2); }
+:root .us-counts dt a:hover, :root .us-counts dt a:focus-visible { color: var(--accent-text); text-decoration-color: currentColor; }
+:root .us-actions { margin-top: 22px; }
+:root .us-follow { min-width: 178px; }
+:root .us-follow .us-follow__hover { display: none; }
+:root .us-follow.is-following:is(:hover, :focus-visible) .us-follow__now { display: none; }
+:root .us-follow.is-following:is(:hover, :focus-visible) .us-follow__hover { display: inline; }
+:root .us-follow.is-following:is(:hover, :focus-visible) { color: var(--red); border-color: color-mix(in srgb, var(--red) 45%, var(--line)); }
+:root .us-follow i.us-follow__hover, :root .us-follow svg.us-follow__hover { display: none; }
+:root .us-follow.is-following:is(:hover, :focus-visible) svg.us-follow__hover { display: inline-block; }
+:root .us-spin { animation: us-spin 0.9s linear infinite; }
+@keyframes us-spin { to { transform: rotate(360deg); } }
+
+:root .us-people { margin-top: 40px; }
+:root .us-tabs [role="tab"] { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px; color: var(--text-muted); font-size: 0.8125rem; font-weight: 700; white-space: nowrap; transition: color var(--dur-2); }
+:root .us-tabs [role="tab"][aria-selected="true"] { color: var(--primary-fg); }
+:root .us-tabs [role="tab"] b { font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700; opacity: 0.85; }
+:root .us-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+:root .us-skel { height: 76px; }
+:root .us-person { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--text); transition: border-color var(--dur-2), background var(--dur-2), transform 0.3s var(--ease-out); }
+:root .us-person:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: var(--surface-raised); transform: translateY(-2px); }
+:root .us-person:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+:root .us-av { flex: none; display: grid; place-items: center; width: 48px; height: 48px; overflow: hidden; border-radius: 50%; background: var(--accent-grad); color: var(--primary-fg); font-family: var(--font-heading); font-size: 1.25rem; }
+:root .us-av img { width: 100%; height: 100%; object-fit: cover; }
+:root .us-av[data-tone="1"] { background: linear-gradient(145deg, #7aa7ff, #c4a1ff); color: #160f22; }
+:root .us-av[data-tone="2"] { background: linear-gradient(145deg, #5be3a8, #7de3ff); color: #0d1a17; }
+:root .us-av[data-tone="3"] { background: linear-gradient(145deg, #ffcb70, #ff9ccb); color: #23130d; }
+:root .us-person__text { display: grid; gap: 3px; min-width: 0; flex: 1; }
+:root .us-person__text strong { display: flex; align-items: center; gap: 8px; overflow: hidden; font-size: 0.9375rem; white-space: nowrap; text-overflow: ellipsis; }
+:root .us-person__text small { overflow: hidden; color: var(--text-muted); font-size: 0.8125rem; white-space: nowrap; text-overflow: ellipsis; }
+:root .us-person__go { flex: none; width: 18px; height: 18px; color: var(--text-muted); transition: transform 0.3s var(--ease-out), color var(--dur-2); }
+:root .us-person:hover .us-person__go { color: var(--accent-text); transform: translateX(3px); }
+:root .us-tag { padding: 2px 6px; border-radius: 4px; background: var(--accent-soft); color: var(--accent-text); font-size: 0.6875rem; font-weight: 700; }
+:root .us-empty { grid-column: 1 / -1; }
+:root .us-more { display: flex; justify-content: center; margin-top: 18px; }
+:root .us-more .button[hidden] { display: none; }
+:root .us-missing { width: min(560px, 100%); margin: 12vh auto 0; padding: 40px 24px; }
+:root .us-missing h1 { margin: 0; font-family: var(--font-heading); font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 400; }
+:root .us-missing .pf-actions { justify-content: center; margin-top: 10px; }
+@media (max-width: 720px) {
+  :root .us-tabs { width: 100%; }
+  :root .us-tabs [role="tab"] { flex: 1; justify-content: center; padding: 0 6px; }
+  :root .us-actions { width: 100%; }
+  :root .us-actions .button { flex: 1; min-width: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root .us-spin { animation: none; }
+  :root .us-person, :root .us-person__go { transition: none; }
+}
+/* Имя автора комментария ведёт в профиль. */
+:root .comment-author { color: inherit; text-decoration: none; transition: color var(--dur-2); }
+:root .comment-author:hover, :root .comment-author:focus-visible { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }

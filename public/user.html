@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0e0b12" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>Профиль зрителя — Kitsu · Кицунэ</title>
+    <meta name="description" content="Профиль зрителя Kitsu: о себе, закладки, подписчики и подписки" />
+    <script>
+      (() => {
+        try {
+          if (localStorage.getItem("kitsu-palette") === "obsidian") document.documentElement.dataset.palette = "obsidian";
+          const saved = localStorage.getItem("kitsu-theme");
+          if (saved === "light" || saved === "dark") {
+            document.documentElement.dataset.theme = saved;
+          } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            document.documentElement.dataset.theme = "dark";
+          } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+            document.documentElement.dataset.theme = "light";
+          }
+        } catch (_) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="../tokens.css?v=v3-35" />
+    <link rel="stylesheet" href="./styles.css?v=v3-35" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-35" />
+  </head>
+  <!--
+    Чужой профиль: user.html?id=<UUID пользователя>. Рисует user.js; вместо сервера — демо-ответы той же формы
+    (у каждого метода `api` записан запрос). Свой id ведёт на profile.html, как в рабочем проекте.
+    Запросы:
+      GET  /users/public/{id}                          {id, username, avatar_url, cover_url, bio, is_superuser}; 404 «User not found»
+                                                       и для отключённых; не-UUID — 422 (страница показывает «не найден»)
+      GET  /users/public/{id}/stats                    {favorites_count, comments_count, followers_count, following_count}
+      GET  /interactions/follows/{id}/followers?skip&limit   [{id, username, avatar_url, bio}] без total, ORDER BY id; limit по умолчанию 50
+      GET  /interactions/follows/{id}/following?skip&limit   то же
+      GET  /interactions/follows/{id}/status           с токеном: {is_following}
+      POST /interactions/follows/{id}                  с токеном: ПЕРЕКЛЮЧАЕТ подписку → {is_following}; 400 «Cannot follow yourself»
+    Чего у бэкенда нет для чужого профиля: закладок, коллекций, комментариев и даты регистрации — поэтому их здесь нет.
+    Состояния для проверки: ?state=guest (не вошли), ?state=notfound, ?state=error, ?state=empty (без подписчиков и подписок).
+  -->
+  <body data-page="user">
+    <a class="skip-link" href="#user-main">К основному содержимому</a>
+    <header class="site-header site-header--solid" id="site-header">
+      <div class="header-inner">
+        <a class="brand" href="./index.html" aria-label="Kitsu — главная">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M1.5 6.2c9 2.6 20 2.6 29 0l-1.3 4.6c-8.6 2.2-17.8 2.2-26.4 0z"/><path d="M6 13.4h20v2.6H6z"/><path d="M8.2 11h3v17.5h-3zM20.8 11h3v17.5h-3z"/></svg>
+          <span class="brand-word">KITSU<span>.</span></span>
+        </a>
+
+        <nav class="desktop-nav" aria-label="Основная навигация">
+          <a class="nav-link" href="./index.html#catalog">Каталог</a>
+          <a class="nav-link" href="./index.html#schedule">Расписание</a>
+          <a class="nav-link" href="./index.html#collections">Коллекции</a>
+          <a class="nav-link" href="./profile.html">Профиль</a>
+          <div class="nav-menu-wrap">
+            <button
+              class="nav-link nav-link--button"
+              type="button"
+              id="category-trigger"
+              aria-expanded="false"
+              aria-controls="category-menu"
+            >
+              Категории <i data-lucide="chevron-down"></i>
+            </button>
+            <div class="category-menu" id="category-menu" hidden>
+              <div class="category-column">
+                <p class="menu-caption">Жанры</p>
+                <a href="./index.html#catalog" data-filter-link="Экшен"><i data-lucide="swords"></i>Экшен</a>
+                <a href="./index.html#catalog" data-filter-link="Романтика"><i data-lucide="heart"></i>Романтика</a>
+                <a href="./index.html#catalog" data-filter-link="Фэнтези"><i data-lucide="wand-sparkles"></i>Фэнтези</a>
+                <a href="./index.html#catalog" data-filter-link="Драма"><i data-lucide="theater"></i>Драма</a>
+              </div>
+              <div class="category-column">
+                <p class="menu-caption">Тип</p>
+                <a href="./index.html#catalog" data-filter-link="tv"><i data-lucide="tv"></i>TV-сериалы</a>
+                <a href="./index.html#catalog" data-filter-link="movie"><i data-lucide="clapperboard"></i>Фильмы</a>
+                <a href="./index.html#catalog" data-filter-link="ova"><i data-lucide="disc-3"></i>OVA</a>
+                <a href="./index.html#catalog" data-filter-link="ona"><i data-lucide="radio-tower"></i>ONA</a>
+              </div>
+              <div class="category-column">
+                <p class="menu-caption">Подборки</p>
+                <a href="./index.html#catalog" data-filter-link="top"><i data-lucide="star"></i>Топ рейтинга</a>
+                <a href="./index.html#catalog" data-filter-link="ongoing"><i data-lucide="radio"></i>Онгоинги</a>
+                <a href="./index.html#season"><i data-lucide="calendar-days"></i>Сезон</a>
+                <a href="./index.html#collections"><i data-lucide="library"></i>Коллекции</a>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <div class="header-actions">
+          <button class="search-trigger" type="button" data-open-search aria-label="Открыть поиск" aria-expanded="false" aria-controls="search-dialog">
+            <i data-lucide="search"></i>
+            <span>Найти аниме</span>
+            <kbd>/</kbd>
+          </button>
+          <button class="icon-button palette-toggle" type="button" data-palette-toggle aria-label="Сменить палитру"><span class="palette-swatch" aria-hidden="true"></span></button>
+          <button class="icon-button" type="button" data-theme-toggle aria-label="Включить светлую тему">
+            <i data-lucide="sun" class="theme-icon theme-icon--sun"></i>
+            <i data-lucide="moon" class="theme-icon theme-icon--moon"></i>
+          </button>
+          <div class="popover-wrap">
+            <button
+              class="icon-button"
+              id="notification-trigger"
+              type="button"
+              aria-label="Уведомления"
+              aria-expanded="false"
+              aria-controls="notification-popover"
+            >
+              <i data-lucide="bell"></i>
+              <span class="notification-dot" aria-label="2 новых уведомления"></span>
+            </button>
+            <div class="notification-popover" id="notification-popover" hidden>
+              <div class="popover-head">
+                <strong>Уведомления</strong>
+                <button type="button" data-mark-read>Прочитать все</button>
+              </div>
+              <!-- Бэкенд создаёт уведомления одного типа — new_episode: title «Новый эпизод: …», message «Серия N уже доступна. Озвучки: …», icon = постер.
+                   Клик по уведомлению: PATCH /notifications/{id}/read; «Прочитать все»: POST /notifications/mark-all-read (оба живут в Python-бэкенде). -->
+              <a class="notification-item is-unread" href="./anime.html?title=one-piece" data-notification-id="n1"><span class="notification-icon notification-icon--poster"><img src="https://shikimori.one/system/animes/original/21.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span><span><strong>Новый эпизод: Ван-Пис</strong><small>Серия 1155 уже доступна. Озвучки: AniLibria.TV, AniDub Online.</small></span><time>12 мин</time></a>
+              <a class="notification-item is-unread" href="./anime.html?title=frieren" data-notification-id="n2"><span class="notification-icon notification-icon--poster"><img src="https://shikimori.one/system/animes/original/52991.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span><span><strong>Новый эпизод: Провожающая в последний путь Фрирен</strong><small>Серия 28 уже доступна.</small></span><time>3 ч</time></a>
+              <a class="notification-item" href="./anime.html?title=jujutsu-kaisen" data-notification-id="n3"><span class="notification-icon notification-icon--poster"><img src="https://shikimori.one/system/animes/original/40748.jpg" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer" /></span><span><strong>Новый эпизод: Магическая битва</strong><small>Серия 47 уже доступна. Озвучки: AniLibria.TV.</small></span><time>вчера</time></a>
+            </div>
+          </div>
+          <a class="header-account" href="./profile.html" aria-label="Мой профиль"><span class="header-account__av" aria-hidden="true">K</span><span>kitsune_noa</span></a>
+        </div>
+
+        <button class="mobile-menu-button" type="button" id="mobile-menu-trigger" aria-label="Открыть меню">
+          <i data-lucide="menu"></i>
+        </button>
+      </div>
+    </header>
+
+    <aside class="mobile-drawer" id="mobile-drawer" aria-label="Мобильное меню" aria-hidden="true">
+      <div class="mobile-drawer-head">
+        <a class="brand" href="./index.html"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M1.5 6.2c9 2.6 20 2.6 29 0l-1.3 4.6c-8.6 2.2-17.8 2.2-26.4 0z"/><path d="M6 13.4h20v2.6H6z"/><path d="M8.2 11h3v17.5h-3zM20.8 11h3v17.5h-3z"/></svg><span class="brand-word">KITSU<span>.</span></span></a>
+        <button class="icon-button" type="button" id="mobile-menu-close" aria-label="Закрыть меню"><i data-lucide="x"></i></button>
+      </div>
+      <button class="drawer-search" type="button" data-open-search><i data-lucide="search"></i><span>Найти аниме</span></button>
+      <nav class="mobile-drawer-nav">
+        <a href="./index.html#catalog"><i data-lucide="layout-grid"></i><span>Каталог</span></a>
+        <a href="./index.html#schedule"><i data-lucide="calendar-days"></i><span>Расписание</span></a>
+        <a href="./index.html#collections"><i data-lucide="library"></i><span>Коллекции</span></a>
+        <a href="./profile.html"><i data-lucide="circle-user-round"></i><span>Мой профиль</span></a>
+        <a href="#pf-history"><i data-lucide="history"></i><span>История просмотра</span></a>
+      </nav>
+      <div class="drawer-theme-row">
+        <span><i data-lucide="palette"></i>Оформление</span>
+        <button class="theme-switch" type="button" data-theme-toggle aria-label="Переключить тему"><span></span></button>
+      </div>
+      <div class="drawer-theme-row drawer-palette-row"><span><i data-lucide="flower-2"></i>Палитра</span><button type="button" data-palette-toggle aria-label="Сменить палитру"><span class="palette-swatch" aria-hidden="true"></span><span data-palette-label>Сакура</span></button></div>
+    </aside>
+    <div class="drawer-scrim" id="drawer-scrim" hidden></div>
+
+    <main class="pf us" id="user-main" aria-busy="true">
+      <section class="pf-hero" aria-labelledby="us-name" data-hero>
+        <div class="pf-hero__cover" data-cover aria-hidden="true"><span class="pf-hero__orb pf-hero__orb--a"></span><span class="pf-hero__orb pf-hero__orb--b"></span><span class="pf-hero__grid"></span></div>
+        <div class="pf-hero__body">
+          <div class="pf-avatar" data-avatar aria-hidden="true"></div>
+          <div class="pf-namerow"><h1 id="us-name" data-name>Профиль</h1><span class="pf-role" data-role hidden></span></div>
+          <p class="pf-bio" data-bio></p>
+          <dl class="pf-counts us-counts" data-counts aria-label="Счётчики профиля">
+            <div><dt>В закладках</dt><dd data-count="favorites_count">—</dd></div>
+            <div><dt>Комментарии</dt><dd data-count="comments_count">—</dd></div>
+            <div><dt><a href="#us-people" data-people-link="followers">Подписчики</a></dt><dd data-count="followers_count">—</dd></div>
+            <div><dt><a href="#us-people" data-people-link="following">Подписки</a></dt><dd data-count="following_count">—</dd></div>
+          </dl>
+          <div class="pf-actions us-actions" data-actions>
+            <button class="button button--primary us-follow" type="button" data-follow aria-pressed="false" disabled><i data-lucide="user-plus"></i><span>Подписаться</span></button>
+            <button class="button button--secondary" type="button" data-share><i data-lucide="share-2"></i><span>Поделиться</span></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="pf-sec us-people" id="us-people" aria-labelledby="us-people-title" data-reveal>
+        <header class="pf-sec__head">
+          <h2 id="us-people-title">Люди</h2>
+          <div class="pf-seg us-tabs" role="tablist" aria-label="Подписчики и подписки" data-people-tabs>
+            <button type="button" role="tab" id="tab-followers" aria-controls="people-list" aria-selected="true" data-people="followers">Подписчики <b data-tab-count="followers_count"></b></button>
+            <button type="button" role="tab" id="tab-following" aria-controls="people-list" aria-selected="false" tabindex="-1" data-people="following">Подписки <b data-tab-count="following_count"></b></button>
+            <span class="pf-seg__thumb" aria-hidden="true"></span>
+          </div>
+        </header>
+        <div id="people-list" role="tabpanel" aria-labelledby="tab-followers" data-people-panel>
+          <ul class="us-list" data-people-list aria-live="polite"></ul>
+          <div class="us-more"><button class="button button--secondary" type="button" data-people-more hidden><i data-lucide="chevrons-down"></i><span>Показать ещё</span></button></div>
+        </div>
+      </section>
+
+      <section class="pf-state us-missing" data-missing hidden></section>
+    </main>
+
+<dialog class="search-dialog" id="search-dialog" aria-labelledby="search-title">
+      <div class="search-panel">
+        <div class="search-field-row"><i data-lucide="search"></i><input id="global-search" type="search" placeholder="Поиск аниме" autocomplete="off" aria-labelledby="search-title" /><button class="search-clear" type="button" data-search-clear aria-label="Очистить поиск" hidden><i data-lucide="x"></i></button><button class="search-filter-toggle" type="button" data-search-filter-toggle aria-label="Показать фильтры" aria-expanded="false" aria-controls="search-filters"><i data-lucide="sliders-horizontal"></i></button></div>
+        <div class="search-body">
+          <h2 class="sr-only" id="search-title">Поиск аниме</h2>
+          <div class="search-filters" id="search-filters" hidden>
+            <label class="search-filter"><span>Жанр</span><select data-search-filter="genre"><option value="">Все жанры</option><option value="Фэнтези">Фэнтези</option><option value="Приключения">Приключения</option><option value="Драма">Драма</option><option value="Триллер">Триллер</option></select><i data-lucide="chevron-down"></i></label>
+            <label class="search-filter"><span>Статус</span><select data-search-filter="status"><option value="">Любой статус</option><option value="released">Вышло</option><option value="ongoing">Онгоинг</option><option value="announced">Анонс</option></select><i data-lucide="chevron-down"></i></label>
+            <label class="search-filter"><span>Тип</span><select data-search-filter="type"><option value="">Все типы</option><option value="tv">TV</option><option value="ona">ONA</option><option value="movie">Фильм</option><option value="ova">OVA</option><option value="special">Спешл</option></select><i data-lucide="chevron-down"></i></label>
+            <label class="search-filter"><span>Год</span><select data-search-filter="year"><option value="">Любой год</option><option value="2023">2023</option><option value="2013">2013</option><option value="2004">2004</option><option value="1998">1998</option></select><i data-lucide="chevron-down"></i></label>
+            <label class="search-filter"><span>Оценка</span><select data-search-filter="rating"><option value="">Любая оценка</option><option value="9">От 9</option><option value="8">От 8</option></select><i data-lucide="chevron-down"></i></label>
+            <button class="search-reset" type="button" data-search-reset hidden><i data-lucide="rotate-ccw"></i>Сбросить всё</button>
+          </div>
+          <div class="search-recent" id="search-recent"><div class="search-section-head"><strong>Недавние</strong><button type="button" data-search-clear-recent>Очистить</button></div><button class="search-recent__item" type="button" data-search-suggest="синий экзорцист"><i data-lucide="clock-3"></i><span>Синий экзорцист [ТВ-4, часть 2]</span><i data-lucide="chevron-right"></i></button></div>
+          <div class="search-results" id="search-results">
+            <p class="search-results__label">Результаты</p>
+            <a class="search-result" href="./anime.html" data-search-item="монстр monster" data-search-genre="Триллер" data-search-status="released" data-search-type="tv" data-search-year="2004" data-search-rating="8.88"><img decoding="async" src="https://shikimori.one/system/animes/original/19.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Монстр</strong><small>TV · 2004 <b class="search-result__score"><i data-lucide="star"></i>8.88</b></small></span><i data-lucide="chevron-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="провожающая в последний путь фрирен sousou frieren" data-search-genre="Фэнтези|Приключения" data-search-status="released" data-search-type="tv" data-search-year="2023" data-search-rating="9.31"><img decoding="async" src="https://shikimori.one/system/animes/original/52991.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Провожающая в последний путь Фрирен</strong><small>TV · 2023 <b class="search-result__score"><i data-lucide="star"></i>9.31</b></small></span><i data-lucide="chevron-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="ковбой бибоп cowboy bebop" data-search-genre="Приключения" data-search-status="released" data-search-type="tv" data-search-year="1998" data-search-rating="8.90"><img decoding="async" src="https://shikimori.one/system/animes/original/1.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Ковбой Бибоп</strong><small>TV · 1998 <b class="search-result__score"><i data-lucide="star"></i>8.90</b></small></span><i data-lucide="chevron-right"></i></a>
+            <a class="search-result" href="./anime.html" data-search-item="атака титанов shingeki kyojin" data-search-genre="Драма" data-search-status="released" data-search-type="tv" data-search-year="2013" data-search-rating="8.55"><img decoding="async" src="https://shikimori.one/system/animes/original/16498.jpg" alt="" referrerpolicy="no-referrer" /><span><strong>Атака титанов</strong><small>TV · 2013 <b class="search-result__score"><i data-lucide="star"></i>8.55</b></small></span><i data-lucide="chevron-right"></i></a>
+            <div class="search-empty" id="search-empty" hidden><i data-lucide="search-x"></i><strong>Ничего не найдено</strong><span>Проверьте написание или измените запрос.</span></div>
+          </div>
+          <a class="search-more" id="search-more" href="./index.html#catalog" data-close-search hidden><i data-lucide="arrow-right"></i><span>Найти в каталоге</span></a>
+          <p class="search-hint"><span class="search-hint__keys"><span><kbd>↑</kbd><kbd>↓</kbd> перемещение</span><span><kbd>Enter</kbd> открыть</span></span><span id="search-count" class="search-hint__count">Введите запрос</span></p>
+        </div>
+      </div>
+    </dialog>
+
+    <nav class="mobile-bottom-nav" aria-label="Мобильная навигация">
+      <a href="./index.html"><i data-lucide="house"></i><span>Главная</span></a>
+      <a href="./index.html#catalog"><i data-lucide="compass"></i><span>Обзор</span></a>
+      <a href="./profile.html#pf-marks"><i data-lucide="bookmark"></i><span>Закладки</span></a>
+      <a href="./profile.html"><i data-lucide="circle-user-round"></i><span>Профиль</span></a>
+    </nav>
+
+    <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
+
+    <script src="./vendor/lucide.min.js"></script>
+    <script src="./content-model.js?v=original-parity-13"></script>
+    <script src="./content.js?v=v3-35"></script>
+    <script src="./app.js?v=v3-35"></script>
+    <script src="./user.js?v=v3-35"></script>
+  </body>
+</html>

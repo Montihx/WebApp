@@ -20,7 +20,7 @@ for(const el of document.querySelectorAll('body *')){
  if(el.closest('.tab.is-active')&&el.closest('.tab.is-active').parentElement.querySelector(':scope > .tab-indicator'))unknown=true;
  if(unknown)continue;
  // Selected segment text sits on a sliding .pf-seg__thumb (a sibling, often a gradient): check it against every colour stop of the thumb.
- const seg=el.closest('.pf-seg > [aria-checked="true"], .pf-seg > [aria-pressed="true"]'); const thumb=seg&&seg.parentElement.querySelector(':scope > .pf-seg__thumb');
+ const seg=el.closest('.pf-seg > [aria-checked="true"], .pf-seg > [aria-pressed="true"], .pf-seg > [aria-selected="true"]'); const thumb=seg&&seg.parentElement.querySelector(':scope > .pf-seg__thumb');
  const thumbCols=thumb?[...(getComputedStyle(thumb).backgroundImage.match(/rgba?\([^)]+\)/g)||[]),getComputedStyle(thumb).backgroundColor].map(parse).filter(x=>x&&x.a>0):[];
  const cv=getComputedStyle(document.documentElement).getPropertyValue('--canvas').trim(); const hx=cv.replace('#',''); let bg={r:parseInt(hx.slice(0,2),16),g:parseInt(hx.slice(2,4),16),b:parseInt(hx.slice(4,6),16),a:1};
  for(let i=bgs.length-1;i>=0;i--) bg=blend(bgs[i],bg);
@@ -38,7 +38,7 @@ async def main():
             pg=await b.new_page(viewport={'width':1440,'height':900})
             await pg.add_init_script(f"localStorage.setItem('kitsu-theme','{theme}');localStorage.setItem('kitsu-admin-theme','{theme}');localStorage.setItem('kitsu-palette','{pal}')")
             await pg.emulate_media(reduced_motion='reduce')
-            for u in ['public/profile.html','public/profile-settings.html','public/profile-settings.html#password','public/profile-settings.html#account','','public/','public/anime.html','public/anime.html?title=steins-gate','public/anime.html?title=one-piece']:
+            for u in ['public/profile.html','public/profile-settings.html','public/profile-settings.html#password','public/profile-settings.html#account','public/user.html','public/user.html?state=notfound','','public/','public/anime.html','public/anime.html?title=steins-gate','public/anime.html?title=one-piece']:
                 await pg.goto('http://127.0.0.1:4173/'+u); await pg.wait_for_timeout(900)
                 for x in await pg.evaluate(JS): seen.setdefault(x.split(' ',1)[1],[]).append(f'{theme}/{pal} {u or "root"} {x.split(" ")[0]}')
             await pg.goto('http://127.0.0.1:4173/admin/'); await pg.wait_for_timeout(800)
