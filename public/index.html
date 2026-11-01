@@ -300,6 +300,15 @@
         </div>
       </section>
 
+      <section class="content-section" id="popular" aria-labelledby="popular-title">
+        <div class="page-container">
+          <!-- GET /anime/?sort_by=popular&limit=12. «Популярное» у сервера — по числу оценок (score_count DESC, затем score):
+               «смотрят сейчас» в реальном времени в публичном API нет (просмотры по дням — только в админке /dashboard). -->
+          <div class="section-heading"><div><p class="section-kicker">Больше всего оценок</p><h2 id="popular-title">Популярное</h2></div><div class="row-tools"><button class="row-nav" type="button" data-row-nav="-1" aria-controls="popular-row" aria-label="Прокрутить назад"><i data-lucide="chevron-left"></i></button><button class="row-nav" type="button" data-row-nav="1" aria-controls="popular-row" aria-label="Прокрутить вперёд"><i data-lucide="chevron-right"></i></button><a class="section-link" href="#catalog" data-sort-link="popular">Показать все <i data-lucide="arrow-right"></i></a></div></div>
+          <div class="poster-row" id="popular-row" data-popular-row role="region" aria-label="Популярные тайтлы, прокручивается вбок" tabindex="0"></div>
+        </div>
+      </section>
+
       <section class="content-section" id="catalog" aria-labelledby="catalog-title">
         <div class="page-container">
           <div class="catalog-main">
@@ -427,11 +436,11 @@
 
       <section class="content-section content-section--last" id="collections" aria-labelledby="collections-title">
         <div class="page-container">
-          <div class="section-heading"><div><p class="section-kicker">Сообщество</p><h2 id="collections-title">Коллекции пользователей</h2></div><a class="section-link" href="#collections">Все коллекции <i data-lucide="arrow-right"></i></a></div>
-          <div class="collection-grid">
-            <a class="collection-card" href="#collections"><div class="collection-stack"><img decoding="async" src="https://shikimori.one/system/animes/original/19.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img decoding="async" src="https://shikimori.one/system/animes/original/9253.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img decoding="async" src="https://shikimori.one/system/animes/original/5114.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div><div><strong>Истории, которые остаются</strong><span><i data-lucide="layers"></i>12 тайтлов · открытая коллекция</span></div><i data-lucide="arrow-up-right"></i></a>
-            <a class="collection-card" href="#collections"><div class="collection-stack"><img decoding="async" src="https://shikimori.one/system/animes/original/52991.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img decoding="async" src="https://shikimori.one/system/animes/original/457.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /><img decoding="async" src="https://shikimori.one/system/animes/original/33352.jpg" alt="" loading="lazy" referrerpolicy="no-referrer" /></div><div><strong>Спокойное фэнтези</strong><span><i data-lucide="layers"></i>9 тайтлов · открытая коллекция</span></div><i data-lucide="arrow-up-right"></i></a>
-          </div>
+          <!-- GET /interactions/collections/public?skip=0&limit=8 → [{id, user_id, title, slug, description, cover_url, is_public, items_count,
+               views_count, likes_count, created_at, updated_at}], ORDER BY updated_at DESC, id. Состав коллекции API не отдаёт ни здесь,
+               ни в GET /collections/{slug} — поэтому на карточке обложка коллекции, а не постеры её тайтлов. -->
+          <div class="section-heading"><div><p class="section-kicker">Сообщество · недавно обновлённые</p><h2 id="collections-title">Коллекции пользователей</h2></div><div class="row-tools"><button class="row-nav" type="button" data-row-nav="-1" aria-controls="collections-row" aria-label="Прокрутить назад"><i data-lucide="chevron-left"></i></button><button class="row-nav" type="button" data-row-nav="1" aria-controls="collections-row" aria-label="Прокрутить вперёд"><i data-lucide="chevron-right"></i></button><a class="section-link" href="#collections">Все коллекции <i data-lucide="arrow-right"></i></a></div></div>
+          <div class="poster-row collection-row" id="collections-row" data-collections-row role="region" aria-label="Коллекции пользователей, прокручивается вбок" tabindex="0"></div>
         </div>
       </section>
     </main>

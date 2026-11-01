@@ -3752,3 +3752,53 @@ body[data-page="user"].is-hidden-tab .pf-skel { animation-play-state: paused; }
 :root .title-poster-actions .title-last-update { margin-top: 0; }
 :root .title-poster-actions .title-last-update time { flex-basis: 100%; }
 :root .title-poster-actions .title-last-update time::before { content: none; }
+
+/* ===== Главная: ряды с прокруткой вбок («Популярное», коллекции) ===== */
+:root .row-tools { display: flex; align-items: center; gap: 4px; }
+:root .row-nav { display: grid; place-items: center; width: 40px; height: 40px; color: var(--text-secondary); transition: color var(--dur-1); }
+:root .row-nav svg { width: 22px; height: 22px; }
+:root .row-nav:hover:not(:disabled), :root .row-nav:focus-visible { color: var(--accent-text); }
+:root .row-nav:disabled { color: var(--text-muted); opacity: 0.4; cursor: default; }
+:root .row-tools .section-link { margin-left: 8px; }
+:root .poster-row {
+  display: grid; grid-auto-flow: column; grid-auto-columns: clamp(136px, 15vw, 184px); gap: clamp(12px, 1.6vw, 20px);
+  overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: 2px;
+  padding: 4px 2px 8px; scrollbar-width: none;
+}
+:root .poster-row::-webkit-scrollbar { display: none; }
+:root .poster-row > * { scroll-snap-align: start; min-width: 0; }
+:root .poster-row:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 4px; border-radius: 12px; }
+/* Место в ряду — крупная цифра в нижнем углу постера, поверх затемнения. */
+:root .poster-rank { position: absolute; z-index: 2; left: 10px; bottom: 6px; color: var(--media-text); font: 400 clamp(1.75rem, 3vw, 2.25rem)/1 var(--font-heading); text-shadow: 0 2px 12px rgba(var(--media-ink-rgb), 0.9); pointer-events: none; }
+
+/* Коллекции: широкая карточка-обложка, за ней «стопка» — коллекция как пачка тайтлов. */
+:root .collection-row { grid-auto-columns: clamp(260px, 30vw, 360px); padding-top: 14px; }
+:root .collection-tile { position: relative; display: block; color: var(--media-text); border-radius: 14px; transition: transform 0.35s var(--ease-out); }
+:root .collection-tile::before, :root .collection-tile::after { content: ""; position: absolute; left: 18px; right: 18px; top: -7px; height: 12px; border-radius: 10px 10px 0 0; background: color-mix(in srgb, var(--surface-raised) 85%, var(--accent) 15%); opacity: 0.75; transition: transform 0.35s var(--ease-out); }
+:root .collection-tile::after { left: 36px; right: 36px; top: -13px; opacity: 0.4; }
+:root .collection-tile:hover { transform: translateY(-3px); }
+:root .collection-tile:hover::before { transform: translateY(-2px); }
+:root .collection-tile:hover::after { transform: translateY(-4px); }
+:root .collection-tile:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
+:root .collection-tile__frame { position: relative; z-index: 1; display: block; aspect-ratio: 16 / 10; overflow: hidden; border: 1px solid var(--glass-line); border-radius: 14px; background: var(--surface-raised); }
+:root .collection-tile__frame img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; transition: transform 0.9s var(--ease-out); }
+:root .collection-tile:hover .collection-tile__frame img { transform: scale(1.05); }
+/* Обложки нет — узор из ромбов в цветах палитры, без выдуманной картинки. */
+:root .collection-tile__art { position: absolute; inset: 0; background:
+  linear-gradient(135deg, color-mix(in srgb, var(--accent) 38%, transparent), transparent 60%),
+  conic-gradient(from 45deg at 50% 50%, color-mix(in srgb, var(--accent-2) 10%, transparent) 0 25%, transparent 0 50%, color-mix(in srgb, var(--accent-2) 10%, transparent) 0 75%, transparent 0) 0 0 / 34px 34px,
+  var(--surface-raised); }
+:root .collection-tile__count { position: absolute; top: 10px; right: 10px; padding: 3px 8px; border-radius: 6px; background: rgba(var(--media-ink-rgb), 0.78); font: 700 0.75rem/1.3 var(--font-mono); }
+:root .collection-tile__copy { position: absolute; left: 0; right: 0; bottom: 0; display: grid; gap: 6px; padding: 56px 14px 12px; background: linear-gradient(0deg, rgba(var(--media-ink-rgb), 0.92) 0%, rgba(var(--media-ink-rgb), 0.7) 45%, transparent 100%); }
+:root .collection-tile__copy strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 1rem; font-weight: 700; line-height: 1.3; text-shadow: 0 1px 8px rgba(var(--media-ink-rgb), 0.7); }
+:root .collection-tile__stats { display: flex; gap: 14px; color: var(--media-text-dim); font: 600 0.75rem/1 var(--font-mono); }
+:root .collection-tile__stats > span { display: inline-flex; align-items: center; gap: 5px; }
+:root .collection-tile__stats svg { width: 14px; height: 14px; }
+@media (max-width: 720px) {
+  :root .row-tools .row-nav { display: none; }
+  :root .poster-row { margin-inline: calc(-1 * var(--page-gutter, 16px)); padding-inline: var(--page-gutter, 16px); scroll-padding-inline: var(--page-gutter, 16px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root .collection-tile, :root .collection-tile::before, :root .collection-tile::after, :root .collection-tile__frame img { transition: none; }
+}
+:root .anime-card:has(.bookmark-status-bar:not([hidden])) .poster-rank { bottom: 30px; }
