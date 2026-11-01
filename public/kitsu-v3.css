@@ -3382,6 +3382,9 @@ body[data-page="profile"].is-hidden-tab .pf-skel { animation-play-state: paused;
 /* Вне постера метка стоит в строке, а не в углу картинки. */
 :root .feature-slide .hero-score, :root .search-result__score { position: static; min-height: 0; box-shadow: none; }
 :root .feature-slide .hero-score { padding: 4px 8px; font-size: 0.8125rem; }
+/* Метка оценки ниже прежней (26 px вместо 42 px): строку над заголовком держим на прежней высоте, чтобы надстрочные
+   элементы крупного заголовка не наезжали на «TV · оценка · год». */
+:root .feature-slide .hero-eyebrow { margin-bottom: 8px; }
 :root .search-result__score { margin-left: 4px; padding: 1px 6px; vertical-align: 1px; }
 :root .title-poster .hanko { top: 10px; left: auto; right: 10px; font-size: 0.875rem; }
 :root .title-poster .hanko::before { width: 14px; height: 14px; }
