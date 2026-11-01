@@ -250,11 +250,10 @@ const kitsuneCssTokens = [
   ".ofuda",
   ".hanko",
   "var(--grain-url)",
-  "var(--seigaiha-url)",
   "@view-transition",
 ];
 const missingKitsuneCss = kitsuneCssTokens.filter((token) => !css.includes(token));
-const kitsuneTokens = ["--font-heading", "--kitsunebi:", "--kin:", "--ease-out:", "--ease-spring:", "--ease-ink:", "--dur-1:", "--dur-2:", "--dur-3:", "--grain-url:", "--seigaiha-url:"]
+const kitsuneTokens = ["--font-heading", "--kitsunebi:", "--kin:", "--ease-out:", "--ease-spring:", "--ease-ink:", "--dur-1:", "--dur-2:", "--dur-3:", "--grain-url:"]
   .filter((token) => !read("../tokens.css").includes(token));
 const ofudaMarkup = pages.flatMap((page) => [...read(page).matchAll(/<span class="ofuda__jp"([^>]*)>/g)].map((m) => m[1].includes('aria-hidden="true"')));
 add(
