@@ -6956,6 +6956,8 @@ html[data-input-modality="keyboard"] .player-stage :is(a, button, [tabindex]):fo
 
 .player-tabs {
   display: flex;
+  gap: 4px;
+  padding: 0 12px;
   overflow-x: auto;
   border-bottom: 1px solid var(--line);
   scrollbar-width: none;
@@ -6965,9 +6967,9 @@ html[data-input-modality="keyboard"] .player-stage :is(a, button, [tabindex]):fo
 
 .player-tab {
   position: relative;
-  flex: 0 0 auto;
-  min-height: 48px;
-  padding: 0 20px;
+  flex: none;
+  height: 40px;
+  padding: 0 16px;
   color: var(--text-muted);
   font-size: var(--fs-2);
   font-weight: 700;
@@ -6976,9 +6978,9 @@ html[data-input-modality="keyboard"] .player-stage :is(a, button, [tabindex]):fo
 
 .player-tab::after {
   position: absolute;
-  right: 0;
+  right: 12px;
   bottom: -1px;
-  left: 0;
+  left: 12px;
   height: 2px;
   background: var(--accent);
   content: "";
@@ -6988,7 +6990,7 @@ html[data-input-modality="keyboard"] .player-stage :is(a, button, [tabindex]):fo
 }
 
 .player-tab:hover { color: var(--text); }
-.player-tab.is-active { color: var(--accent-text); }
+.player-tab.is-active { color: var(--text); }
 .player-tab.is-active::after { transform: scaleX(1); }
 
 .player-toolbar {
@@ -7192,7 +7194,6 @@ html[data-input-modality="keyboard"] .player-stage :is(a, button, [tabindex]):fo
 }
 
 @media (max-width: 720px) {
-  .player-tab { padding: 0 16px; }
   .player-toolbar { padding: 10px 12px; }
   .player-now { display: none; }
   .player-settings-button { margin-left: auto; }

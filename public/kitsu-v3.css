@@ -738,36 +738,6 @@
   background: color-mix(in srgb, var(--surface) 90%, transparent);
 }
 
-/* Сияющая кромка карточки плеера */
-
-:root .player-tabs { gap: 4px; padding: 10px 12px 0; border-bottom: 1px solid var(--glass-line); }
-
-:root .player-tab {
-  position: relative;
-  border-top-left-radius:
-    var(--radius-md);
-  border-top-right-radius:
-    var(--radius-md);
-  border-bottom-right-radius:
-    0;
-  border-bottom-left-radius:
-    0;
-  color: var(--text-muted);
-  font-weight: 700;
-}
-
-:root .player-tab.is-active { color: var(--text); }
-
-:root .player-tab.is-active::after {
-  position: absolute;
-  right: 10px;
-  bottom: -1px;
-  left: 10px;
-  height: 2px;
-  border-radius: var(--radius-2xs);
-  background: var(--accent);
-  content: "";
-}
 
 :root .player-voice {
   border: 1px solid var(--glass-line);
@@ -1092,8 +1062,6 @@
 
 @media (max-width: 720px) {
   :root .player-main-button { width: 64px; height: 64px; border-radius: var(--radius-lg); }
-  :root .player-tabs { overflow-x: auto; scrollbar-width: none; }
-  :root .player-tab { flex: none; }
 }
 
 /* Большая кнопка воспроизведения — сама иконка, без подложки */
@@ -1601,8 +1569,6 @@
 :root .title-poster-actions .button--secondary { min-height: var(--btn-m); height: var(--btn-m); }
 :root .title-community-actions { min-height: var(--btn-m); }
 :root .title-community-action { min-height: calc(var(--btn-m) - 2px); }
-:root .player-tab { min-height: 36px; }
-:root .player-tab { height: 40px; }
 :root .episode-chip { min-width: 40px; height: 40px; min-height: 40px; }
 :root .icon-button { width: var(--btn-m); height: var(--btn-m); }
 
