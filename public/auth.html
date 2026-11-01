@@ -42,7 +42,7 @@
       <a class="auth-back" href="./index.html"><i data-lucide="arrow-left"></i>На главную</a>
     </header>
 
-    <!-- Сцена: постеры плывут лентами, за карточкой — врата тории, вокруг — лисьи огни.
+    <!-- Сцена: постеры плывут лентами, вокруг карточки — лисьи огни.
          Всё декоративное, движение выключается в prefers-reduced-motion и на свёрнутой вкладке. -->
     <div class="auth-scene" aria-hidden="true">
       <div class="auth-reel">
@@ -55,102 +55,98 @@
     </div>
 
     <main class="auth-layout" id="auth-main">
-      <div class="auth-hero" aria-hidden="true">
-        <span class="auth-hero__kanji" data-hero-kanji>入口</span>
-        <p class="auth-hero__line" data-hero-line>Закладки, прогресс серий и уведомления о новых сериях — на любом устройстве.</p>
-      </div>
-
       <div class="auth-gate">
-        <svg class="auth-torii" viewBox="0 0 400 300" preserveAspectRatio="xMidYMax meet"><path d="M10 40c120 26 260 26 380 0l-10 34c-118 20-242 20-360 0z"/><path d="M58 92h284v18H58z"/><path d="M92 74h26v226H92zM282 74h26v226h-26z"/><path d="M186 92h28v18h-28z"/></svg>
-      <section class="auth-card" aria-labelledby="auth-title">
-        <span class="auth-ofuda" data-ofuda aria-hidden="true"><b data-ofuda-kanji>入</b><span data-ofuda-label>Вход</span></span>
-        <h1 class="sr-only" id="auth-title">Аккаунт Kitsu</h1>
+        <section class="auth-card" aria-labelledby="auth-title">
+          <!-- Рамка: тусклая линия и огонёк, который бежит по контуру карточки (уши лисы сверху). -->
+          <span class="auth-card__spark" aria-hidden="true"></span>
+          <span class="auth-card__glow" aria-hidden="true"></span>
+          <h1 class="sr-only" id="auth-title">Аккаунт Kitsu</h1>
 
-        <div class="auth-tabs" role="tablist" aria-label="Вход или регистрация" data-auth-tabs><span class="auth-tabs__thumb" aria-hidden="true"></span>
-          <a class="auth-tab" href="#login" role="tab" data-auth-tab="login">Вход</a>
-          <a class="auth-tab" href="#register" role="tab" data-auth-tab="register">Регистрация</a>
-        </div>
+          <div class="auth-tabs" role="tablist" aria-label="Вход или регистрация" data-auth-tabs><span class="auth-tabs__thumb" aria-hidden="true"></span>
+            <a class="auth-tab" href="#login" role="tab" data-auth-tab="login">Вход</a>
+            <a class="auth-tab" href="#register" role="tab" data-auth-tab="register">Регистрация</a>
+          </div>
 
-        <!-- POST /auth/login/access-token (form: username = ПОЧТА, password). 401 «Incorrect email or password»,
-             403 «Account is disabled», 429 после 5 попыток в минуту. -->
-        <form class="auth-view" data-view="login" novalidate>
-          <h2>С возвращением</h2>
-          <p class="auth-lead">Войдите по почте, указанной при регистрации.</p>
-          <label class="auth-field"><span>Почта</span><input type="email" name="email" autocomplete="email" inputmode="email" required /></label>
-          <label class="auth-field"><span>Пароль</span><span class="auth-password"><input type="password" name="password" autocomplete="current-password" required /><button type="button" data-toggle-password aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button></span></label>
-          <p class="auth-error" data-error role="alert" hidden></p>
-          <button class="button button--primary auth-submit" type="submit">Войти</button>
-          <a class="auth-link" href="#forgot">Забыли пароль?</a>
-          <p class="auth-demo">Для проверки ошибок: пароль <code>wrong</code> — неверный пароль, почта <code>banned@kitsu.local</code> — отключённый аккаунт, шестая попытка за минуту — лимит.</p>
-        </form>
+          <!-- POST /auth/login/access-token (form: username = ПОЧТА, password). 401 «Incorrect email or password»,
+               403 «Account is disabled», 429 после 5 попыток в минуту. -->
+          <form class="auth-view" data-view="login" novalidate>
+            <h2>С возвращением</h2>
+            <p class="auth-lead">Войдите по почте, указанной при регистрации.</p>
+            <div class="auth-field"><label class="auth-field__box"><input type="email" name="email" autocomplete="email" placeholder=" " inputmode="email" required /><span class="auth-field__label">Почта</span><span class="auth-field__bar" aria-hidden="true"></span><i class="auth-field__ok" data-lucide="check" aria-hidden="true"></i></label></div>
+            <div class="auth-field"><label class="auth-field__box"><input type="password" name="password" autocomplete="current-password" placeholder=" " required /><span class="auth-field__label">Пароль</span><span class="auth-field__bar" aria-hidden="true"></span><button type="button" data-toggle-password aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button></label></div>
+            <p class="auth-error" data-error role="alert" hidden></p>
+            <button class="button button--primary auth-submit" type="submit"><span>Войти</span><i data-lucide="arrow-right" aria-hidden="true"></i></button>
+            <a class="auth-link" href="#forgot">Забыли пароль?</a>
+            <p class="auth-demo">Для проверки ошибок: пароль <code>wrong</code> — неверный пароль, почта <code>banned@kitsu.local</code> — отключённый аккаунт, шестая попытка за минуту — лимит.</p>
+          </form>
 
-        <!-- POST /auth/register {email, username, password}: имя 3–50, пароль 8–128, почта и имя уникальны.
-             После регистрации бэкенд сам отправляет письмо подтверждения (ссылка живёт 24 часа). Лимит — 3 в час. -->
-        <form class="auth-view" data-view="register" novalidate hidden>
-          <h2>Новый аккаунт</h2>
-          <p class="auth-lead">После регистрации придёт письмо со ссылкой для подтверждения почты.</p>
-          <label class="auth-field"><span>Имя пользователя</span><input type="text" name="username" autocomplete="username" minlength="3" maxlength="50" required /><small>От 3 до 50 символов, видно в комментариях.</small></label>
-          <label class="auth-field"><span>Почта</span><input type="email" name="email" autocomplete="email" inputmode="email" required /></label>
-          <label class="auth-field"><span>Пароль</span><span class="auth-password"><input type="password" name="password" autocomplete="new-password" minlength="8" maxlength="128" required /><button type="button" data-toggle-password aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button></span><small data-password-hint>Не меньше 8 символов.</small></label>
-          <p class="auth-error" data-error role="alert" hidden></p>
-          <button class="button button--primary auth-submit" type="submit">Создать аккаунт</button>
-          <p class="auth-demo">Для проверки ошибок: имя <code>admin</code> или почта <code>taken@kitsu.local</code> уже заняты.</p>
-        </form>
+          <!-- POST /auth/register {email, username, password}: имя 3–50, пароль 8–128, почта и имя уникальны.
+               После регистрации бэкенд сам отправляет письмо подтверждения (ссылка живёт 24 часа). Лимит — 3 в час. -->
+          <form class="auth-view" data-view="register" novalidate hidden>
+            <h2>Новый аккаунт</h2>
+            <p class="auth-lead">После регистрации придёт письмо со ссылкой для подтверждения почты.</p>
+            <div class="auth-field"><label class="auth-field__box"><input type="text" name="username" autocomplete="username" placeholder=" " minlength="3" maxlength="50" required /><span class="auth-field__label">Имя пользователя</span><span class="auth-field__bar" aria-hidden="true"></span><i class="auth-field__ok" data-lucide="check" aria-hidden="true"></i></label><small>От 3 до 50 символов, видно в комментариях.</small></div>
+            <div class="auth-field"><label class="auth-field__box"><input type="email" name="email" autocomplete="email" placeholder=" " inputmode="email" required /><span class="auth-field__label">Почта</span><span class="auth-field__bar" aria-hidden="true"></span><i class="auth-field__ok" data-lucide="check" aria-hidden="true"></i></label></div>
+            <div class="auth-field"><label class="auth-field__box"><input type="password" name="password" autocomplete="new-password" placeholder=" " minlength="8" maxlength="128" required /><span class="auth-field__label">Пароль</span><span class="auth-field__bar" aria-hidden="true"></span><button type="button" data-toggle-password aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button></label><span class="auth-meter" data-meter aria-hidden="true"></span><small data-password-hint>Не меньше 8 символов.</small></div>
+            <p class="auth-error" data-error role="alert" hidden></p>
+            <button class="button button--primary auth-submit" type="submit"><span>Создать аккаунт</span><i data-lucide="arrow-right" aria-hidden="true"></i></button>
+            <p class="auth-demo">Для проверки ошибок: имя <code>admin</code> или почта <code>taken@kitsu.local</code> уже заняты.</p>
+          </form>
 
-        <!-- POST /auth/forgot-password {email}: ответ всегда одинаковый, чтобы нельзя было узнать, есть ли такой адрес. Лимит — 3 в час. -->
-        <form class="auth-view" data-view="forgot" novalidate hidden>
-          <a class="auth-link auth-link--back" href="#login"><i data-lucide="arrow-left"></i>Ко входу</a>
-          <h2>Восстановление пароля</h2>
-          <p class="auth-lead">Пришлём ссылку для нового пароля. Она действует 1 час.</p>
-          <label class="auth-field"><span>Почта</span><input type="email" name="email" autocomplete="email" inputmode="email" required /></label>
-          <p class="auth-error" data-error role="alert" hidden></p>
-          <button class="button button--primary auth-submit" type="submit">Отправить ссылку</button>
-        </form>
+          <!-- POST /auth/forgot-password {email}: ответ всегда одинаковый, чтобы нельзя было узнать, есть ли такой адрес. Лимит — 3 в час. -->
+          <form class="auth-view" data-view="forgot" novalidate hidden>
+            <a class="auth-link auth-link--back" href="#login"><i data-lucide="arrow-left"></i>Ко входу</a>
+            <h2>Восстановление пароля</h2>
+            <p class="auth-lead">Пришлём ссылку для нового пароля. Она действует 1 час.</p>
+            <div class="auth-field"><label class="auth-field__box"><input type="email" name="email" autocomplete="email" placeholder=" " inputmode="email" required /><span class="auth-field__label">Почта</span><span class="auth-field__bar" aria-hidden="true"></span><i class="auth-field__ok" data-lucide="check" aria-hidden="true"></i></label></div>
+            <p class="auth-error" data-error role="alert" hidden></p>
+            <button class="button button--primary auth-submit" type="submit"><span>Отправить ссылку</span><i data-lucide="arrow-right" aria-hidden="true"></i></button>
+          </form>
 
-        <!-- POST /auth/reset-password {user_id, token, new_password}: 400 «Invalid or expired reset token»,
-             если ссылка старше часа или пароль уже меняли по ней. -->
-        <form class="auth-view" data-view="reset" novalidate hidden>
-          <h2>Новый пароль</h2>
-          <p class="auth-lead">Придумайте пароль не короче 8 символов.</p>
-          <label class="auth-field"><span>Новый пароль</span><span class="auth-password"><input type="password" name="password" autocomplete="new-password" minlength="8" maxlength="128" required /><button type="button" data-toggle-password aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button></span></label>
-          <label class="auth-field"><span>Ещё раз</span><input type="password" name="repeat" autocomplete="new-password" required /></label>
-          <p class="auth-error" data-error role="alert" hidden></p>
-          <button class="button button--primary auth-submit" type="submit">Сохранить пароль</button>
-          <p class="auth-demo">Чтобы увидеть устаревшую ссылку, откройте <a href="?expired=1#reset">с пометкой expired</a>.</p>
-        </form>
+          <!-- POST /auth/reset-password {user_id, token, new_password}: 400 «Invalid or expired reset token»,
+               если ссылка старше часа или пароль уже меняли по ней. -->
+          <form class="auth-view" data-view="reset" novalidate hidden>
+            <h2>Новый пароль</h2>
+            <p class="auth-lead">Придумайте пароль не короче 8 символов.</p>
+            <div class="auth-field"><label class="auth-field__box"><input type="password" name="password" autocomplete="new-password" placeholder=" " minlength="8" maxlength="128" required /><span class="auth-field__label">Новый пароль</span><span class="auth-field__bar" aria-hidden="true"></span><button type="button" data-toggle-password aria-label="Показать пароль" aria-pressed="false"><i data-lucide="eye"></i></button></label><span class="auth-meter" data-meter aria-hidden="true"></span></div>
+            <div class="auth-field"><label class="auth-field__box"><input type="password" name="repeat" autocomplete="new-password" placeholder=" " required /><span class="auth-field__label">Ещё раз</span><span class="auth-field__bar" aria-hidden="true"></span></label></div>
+            <p class="auth-error" data-error role="alert" hidden></p>
+            <button class="button button--primary auth-submit" type="submit"><span>Сохранить пароль</span><i data-lucide="arrow-right" aria-hidden="true"></i></button>
+            <p class="auth-demo">Чтобы увидеть устаревшую ссылку, откройте <a href="?expired=1#reset">с пометкой expired</a>.</p>
+          </form>
 
-        <div class="auth-view auth-state" data-view="verify" hidden>
-          <span class="auth-state__mark" data-verify-mark aria-hidden="true">証</span>
-          <h2 data-verify-title>Почта подтверждена</h2>
-          <p class="auth-lead" data-verify-text>Спасибо! Аккаунт подтверждён.</p>
-          <a class="button button--primary auth-submit" href="./index.html" data-verify-action>На главную</a>
-          <p class="auth-demo">Ссылка из письма: GET /auth/verify-email?token&amp;uid. <a href="?expired=1#verify">Устаревшая ссылка</a>.</p>
-        </div>
+          <div class="auth-view auth-state" data-view="verify" hidden>
+            <span class="auth-seal" data-verify-mark aria-hidden="true"><i data-lucide="shield-check"></i></span>
+            <h2 data-verify-title>Почта подтверждена</h2>
+            <p class="auth-lead" data-verify-text>Спасибо! Аккаунт подтверждён.</p>
+            <a class="button button--primary auth-submit" href="./index.html" data-verify-action><span>На главную</span><i data-lucide="arrow-right" aria-hidden="true"></i></a>
+            <p class="auth-demo">Ссылка из письма: GET /auth/verify-email?token&amp;uid. <a href="?expired=1#verify">Устаревшая ссылка</a>.</p>
+          </div>
 
-        <div class="auth-view auth-state" data-view="sent-verify" hidden>
-          <span class="auth-state__mark" aria-hidden="true">便</span>
-          <h2>Проверьте почту</h2>
-          <p class="auth-lead">Мы отправили письмо на <strong data-sent-email>адрес из формы</strong>. Перейдите по ссылке в нём в течение 24 часов, чтобы подтвердить почту.</p>
-          <a class="button button--primary auth-submit" href="./index.html">На главную</a>
-          <!-- POST /auth/send-verification (нужен вход), не чаще 3 раз в час. -->
-          <button class="auth-link" type="button" data-resend>Письмо не пришло? Отправить ещё раз</button>
-          <p class="auth-note" data-resend-note aria-live="polite"></p>
-        </div>
+          <div class="auth-view auth-state" data-view="sent-verify" hidden>
+            <span class="auth-seal" aria-hidden="true"><i data-lucide="mail"></i></span>
+            <h2>Проверьте почту</h2>
+            <p class="auth-lead">Мы отправили письмо на <strong data-sent-email>адрес из формы</strong>. Перейдите по ссылке в нём в течение 24 часов, чтобы подтвердить почту.</p>
+            <a class="button button--primary auth-submit" href="./index.html"><span>На главную</span><i data-lucide="arrow-right" aria-hidden="true"></i></a>
+            <!-- POST /auth/send-verification (нужен вход), не чаще 3 раз в час. -->
+            <button class="auth-link" type="button" data-resend>Письмо не пришло? Отправить ещё раз</button>
+            <p class="auth-note" data-resend-note aria-live="polite"></p>
+          </div>
 
-        <div class="auth-view auth-state" data-view="sent-reset" hidden>
-          <span class="auth-state__mark" aria-hidden="true">便</span>
-          <h2>Ссылка отправлена</h2>
-          <p class="auth-lead">Если адрес <strong data-sent-email>из формы</strong> есть в Kitsu, на него пришло письмо. Ссылка действует 1 час.</p>
-          <a class="button button--secondary auth-submit" href="#login">Ко входу</a>
-        </div>
+          <div class="auth-view auth-state" data-view="sent-reset" hidden>
+            <span class="auth-seal" aria-hidden="true"><i data-lucide="mail"></i></span>
+            <h2>Ссылка отправлена</h2>
+            <p class="auth-lead">Если адрес <strong data-sent-email>из формы</strong> есть в Kitsu, на него пришло письмо. Ссылка действует 1 час.</p>
+            <a class="button button--secondary auth-submit" href="#login"><span>Ко входу</span><i data-lucide="arrow-right" aria-hidden="true"></i></a>
+          </div>
 
-        <div class="auth-view auth-state" data-view="reset-done" hidden>
-          <span class="auth-state__mark" aria-hidden="true">済</span>
-          <h2>Пароль изменён</h2>
-          <p class="auth-lead">Теперь войдите с новым паролем.</p>
-          <a class="button button--primary auth-submit" href="#login">Войти</a>
-        </div>
-      </section>
+          <div class="auth-view auth-state" data-view="reset-done" hidden>
+            <span class="auth-seal" aria-hidden="true"><i data-lucide="shield-check"></i></span>
+            <h2>Пароль изменён</h2>
+            <p class="auth-lead">Теперь войдите с новым паролем.</p>
+            <a class="button button--primary auth-submit" href="#login"><span>Войти</span><i data-lucide="arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </section>
       </div>
     </main>
 
