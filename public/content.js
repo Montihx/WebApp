@@ -361,7 +361,68 @@
     document.addEventListener('visibilitychange', refresh);
   }
   if (document.body.dataset.page === 'anime') { initTitle(); initComments(); }
-  if (document.body.dataset.page === 'home') initSchedule();
+  // ---- Главная: ряд «Популярное» и коллекции пользователей ----
+  function initHomeRows() {
+    const nf = new Intl.NumberFormat('ru-RU');
+    const row = $('[data-popular-row]');
+    if (row) {
+      // GET /anime/?sort_by=popular&limit=12 — порядок как у сервера: score_count, затем score.
+      const popular = [
+        [52991, 'frieren', 'Провожающая в последний путь Фрирен', 'released', 28, 9.3, 412000],
+        [5114, 'fullmetal-alchemist-brotherhood', 'Стальной алхимик: Братство', 'released', 64, 9.1, 402100],
+        [9253, 'steins-gate', 'Врата Штейна', 'released', 24, 9.1, 388400],
+        [16498, 'attack-on-titan', 'Атака титанов', 'released', 25, 8.5, 371200],
+        [40748, 'jujutsu-kaisen', 'Магическая битва', 'released', 47, 8.6, 298500],
+        [21, 'one-piece', 'Ван-Пис', 'ongoing', 1155, 8.7, 276900],
+        [19, 'monster', 'Монстр', 'released', 74, 8.9, 215400],
+        [1, 'cowboy-bebop', 'Ковбой Бибоп', 'released', 26, 8.8, 204700],
+        [37521, 'vinland-saga', 'Сага о Винланде', 'released', 24, 8.8, 188300],
+        [33352, 'violet-evergarden', 'Вайолет Эвергарден', 'released', 13, 8.7, 171900],
+        [457, 'mushishi', 'Мастер муси', 'released', 26, 8.7, 96300],
+      ];
+      row.innerHTML = popular.map(([id, slug, title, status, eps, score, votes], i) => `<article class="anime-card" data-status="${status}" data-votes="${votes}" data-score="${score}">
+        <a class="poster-frame" href="${href(slug)}"><img decoding="async" src="${esc(M.poster(id))}" alt="Постер аниме «${esc(title)}»" loading="lazy" referrerpolicy="no-referrer" /><span class="poster-score" aria-label="Оценка ${score}">${score}</span><span class="poster-rank" aria-hidden="true">${i + 1}</span></a>
+        <div class="card-title-row"><a href="${href(slug)}"><h3>${esc(title)}</h3></a><button class="bookmark-button" type="button" data-bookmark aria-label="Добавить «${esc(title)}» в список"><i data-lucide="bookmark"></i></button></div>
+        <p class="card-facts"><span>${eps} эп.</span></p>
+      </article>`).join('');
+    }
+    const cols = $('[data-collections-row]');
+    if (cols) {
+      // Демо-ответ GET /interactions/collections/public; cover_url задаёт автор коллекции и может быть пустым.
+      const list = [
+        { slug: 'tikhie-istorii', title: 'Тихие истории для вечера', cover: 457, items_count: 12, likes_count: 21, views_count: 340 },
+        { slug: 'luchshie-finaly', title: 'Лучшие финалы', cover: 9253, items_count: 5, likes_count: 48, views_count: 1290 },
+        { slug: 'krasivaya-animaciya', title: 'Красивая анимация', cover: 33352, items_count: 18, likes_count: 96, views_count: 2410 },
+        { slug: 'dlinnye-sagi', title: 'Длинные саги на зиму', cover: null, items_count: 7, likes_count: 9, views_count: 155 },
+        { slug: 'dorogi-i-puteshestviya', title: 'Дороги и путешествия: от «Фрирен» до «Мастера муси»', cover: 52991, items_count: 9, likes_count: 33, views_count: 870 },
+        { slug: 'klassika-90h', title: 'Классика девяностых', cover: 1, items_count: 14, likes_count: 61, views_count: 1630 },
+      ];
+      cols.innerHTML = list.map(c => `<a class="collection-tile" href="#collections" aria-label="Коллекция «${esc(c.title)}», ${c.items_count} ${M.plural(c.items_count, 'тайтл', 'тайтла', 'тайтлов')}">
+        <span class="collection-tile__frame">${c.cover ? `<img decoding="async" src="${esc(M.poster(c.cover))}" alt="" loading="lazy" referrerpolicy="no-referrer" />` : '<span class="collection-tile__art" aria-hidden="true"></span>'}
+          <span class="collection-tile__count">${c.items_count} ${M.plural(c.items_count, 'тайтл', 'тайтла', 'тайтлов')}</span>
+          <span class="collection-tile__copy"><strong>${esc(c.title)}</strong><span class="collection-tile__stats"><span><i data-lucide="heart"></i>${nf.format(c.likes_count)}</span><span><i data-lucide="eye"></i>${nf.format(c.views_count)}</span></span></span>
+        </span></a>`).join('');
+    }
+    // Стрелки у рядов: прокрутка на ширину видимой части; на краях стрелка гаснет.
+    document.querySelectorAll('[data-row-nav]').forEach(button => {
+      const target = document.getElementById(button.getAttribute('aria-controls'));
+      if (!target) return;
+      const sync = () => {
+        const max = target.scrollWidth - target.clientWidth - 2;
+        const off = Number(button.dataset.rowNav) < 0 ? target.scrollLeft <= 2 : target.scrollLeft >= max;
+        button.disabled = off || max <= 0;
+      };
+      button.addEventListener('click', () => target.scrollBy({ left: Number(button.dataset.rowNav) * target.clientWidth * 0.85, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }));
+      target.addEventListener('scroll', sync, { passive: true }); addEventListener('resize', sync); sync();
+    });
+    // «Показать все» у «Популярного» — каталог с сортировкой по популярности.
+    document.querySelector('[data-sort-link]')?.addEventListener('click', event => {
+      const select = $('#catalog-sort'); if (!select) return;
+      event.preventDefault(); select.value = event.currentTarget.dataset.sortLink; select.dispatchEvent(new Event('change'));
+      $('#catalog').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    });
+  }
+  if (document.body.dataset.page === 'home') { initSchedule(); initHomeRows(); }
   // Preserve the template entrypoint while giving the franchise a coherent example.
   document.querySelectorAll('.anime-card, .feature-slide, .continue-card, .landscape-card, .search-result').forEach(card => {
     const id = card.querySelector('img')?.src.match(/\/(\d+)\.[^/]+$/)?.[1];
