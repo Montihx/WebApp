@@ -31,21 +31,21 @@
   --text: #f6f1f7;
   --text-secondary: #cbc1d2;
   --text-muted: #a197ab;
-  --focus-ring: #d8bbff;
-  --accent: #c4a1ff;
-  --accent-strong: #d4b8ff;
-  --accent-text: #d8bbff;
-  --accent-2: #ff9ccb;
-  --accent-2-text: #ffb3d6;
-  --accent-soft: rgba(196, 161, 255, 0.16);
-  --accent-softer: rgba(196, 161, 255, 0.08);
-  --accent-glow: rgba(196, 161, 255, 0.38);
-  --accent-2-glow: rgba(255, 156, 203, 0.32);
-  --accent-grad: linear-gradient(120deg, #c4a1ff 0%, #e7a6ea 55%, #ff9ccb 100%);
-  --primary-bg: #c4a1ff;
-  --primary-bg-hover: #d4b8ff;
+  --focus-ring: #dcc0f8;
+  --accent: #c9a4f5;
+  --accent-strong: #d6b8fa;
+  --accent-text: #dcc0f8;
+  --accent-2: #f2a0c0;
+  --accent-2-text: #f5b0cc;
+  --accent-soft: rgba(201, 164, 245, 0.13);
+  --accent-softer: rgba(201, 164, 245, 0.07);
+  --accent-glow: rgba(201, 164, 245, 0.28);
+  --accent-2-glow: rgba(242, 160, 192, 0.24);
+  --accent-grad: linear-gradient(125deg, #c9a4f5 0%, #e0a8d8 50%, #f2a0c0 100%);
+  --primary-bg: #c9a4f5;
+  --primary-bg-hover: #d6b8fa;
   --primary-fg: #1c0f2b;
-  --primary-border: #c4a1ff;
+  --primary-border: #c9a4f5;
   --green: #5be3a8;
   --green-soft: rgba(91, 227, 168, 0.13);
   --amber: #ffcb70;
@@ -70,15 +70,15 @@
   --media-ink: #0e0b12;
   --media-ink-rgb: 14, 11, 18;
   --media-text-rgb: 246, 241, 247;
-  --accent-on-ink: #d8bbff;
+  --accent-on-ink: #dcc0f8;
   --media-text: #f6f1f7;
   --media-text-dim: #cbc1d2;
-  --chart-2: #ff9ccb;
-  --aurora-1: rgba(196, 161, 255, 0.22);
-  --aurora-2: rgba(255, 156, 203, 0.16);
-  --aurora-3: rgba(125, 227, 255, 0.10);
-  --grain-opacity: 0.05;
-  --seigaiha-opacity: 0.05;
+  --chart-2: #f2a0c0;
+  --aurora-1: rgba(196, 161, 255, 0.10);
+  --aurora-2: rgba(255, 156, 203, 0.07);
+  --aurora-3: rgba(125, 227, 255, 0.05);
+  --grain-opacity: 0.06;
+  --seigaiha-opacity: 0.04;
   --grain-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1.6 -.3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   --seigaiha-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='28' fill='none' stroke='%23f2ebdd' stroke-width='1.2'%3E%3Cpath d='M-26 14a26 26 0 0 1 52 0M-19 14a19 19 0 0 1 38 0M-12 14a12 12 0 0 1 24 0M30 14a26 26 0 0 1 52 0M37 14a19 19 0 0 1 38 0M44 14a12 12 0 0 1 24 0M2 28a26 26 0 0 1 52 0M9 28a19 19 0 0 1 38 0M16 28a12 12 0 0 1 24 0'/%3E%3C/svg%3E");
 
@@ -113,6 +113,15 @@
   --bookmark-dropped: #ef4444;
   --bookmark-dropped-text: #f87171;
   --ease: 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* === KV Animation Tokens === */
+  --kv-reveal-distance: 26px;
+  --kv-reveal-duration: 560ms;
+  --kv-stagger-step: 45ms;
+  --kv-spotlight-size: 65%;
+  --kv-parallax-factor: 0.18;
+  --kv-card-lift: -4px;
+  --kv-card-tilt: -0.4deg;
 }
 
 /* Палитра «Обсидиан» — вулканическое стекло и янтарь. */
@@ -171,9 +180,9 @@ html[data-palette="obsidian"] {
   --media-text: #f5f3ef;
   --media-text-dim: #bcb8b0;
   --chart-2: #7ccbff;
-  --aurora-1: rgba(255, 181, 71, 0.16);
-  --aurora-2: rgba(255, 217, 138, 0.08);
-  --aurora-3: rgba(124, 203, 255, 0.07);
+  --aurora-1: rgba(255, 181, 71, 0.10);
+  --aurora-2: rgba(255, 217, 138, 0.05);
+  --aurora-3: rgba(124, 203, 255, 0.04);
   --overlay: rgba(4, 4, 5, 0.76);
   --header-bg: #0c0c0d;
 }
@@ -232,13 +241,13 @@ html[data-theme="light"] {
   --hanko-fg: #ffffff;
   --ofuda-bg: #ffffff;
   --ofuda-fg: #1d1524;
-  --accent-on-ink: #d8bbff;
+  --accent-on-ink: #dcc0f8;
   --chart-2: #c2367a;
-  --aurora-1: rgba(107, 63, 196, 0.12);
-  --aurora-2: rgba(194, 54, 122, 0.09);
-  --aurora-3: rgba(11, 106, 153, 0.06);
+  --aurora-1: rgba(107, 63, 196, 0.07);
+  --aurora-2: rgba(194, 54, 122, 0.05);
+  --aurora-3: rgba(11, 106, 153, 0.03);
   --grain-opacity: 0.05;
-  --seigaiha-opacity: 0.05;
+  --seigaiha-opacity: 0.03;
   --seigaiha-url: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='28' fill='none' stroke='%231d1524' stroke-width='1.2'%3E%3Cpath d='M-26 14a26 26 0 0 1 52 0M-19 14a19 19 0 0 1 38 0M-12 14a12 12 0 0 1 24 0M30 14a26 26 0 0 1 52 0M37 14a19 19 0 0 1 38 0M44 14a12 12 0 0 1 24 0M2 28a26 26 0 0 1 52 0M9 28a19 19 0 0 1 38 0M16 28a12 12 0 0 1 24 0'/%3E%3C/svg%3E");
   --bookmark-planned-text: #1d4ed8;
   --bookmark-watching-text: #166534;
@@ -285,9 +294,9 @@ html[data-theme="light"][data-palette="obsidian"] {
   --header-bg: #eeece7;
   --overlay: rgba(23, 21, 15, 0.34);
   --chart-2: #0b6a99;
-  --aurora-1: rgba(154, 91, 0, 0.1);
-  --aurora-2: rgba(184, 116, 10, 0.07);
-  --aurora-3: rgba(11, 106, 153, 0.05);
+  --aurora-1: rgba(154, 91, 0, 0.06);
+  --aurora-2: rgba(184, 116, 10, 0.04);
+  --aurora-3: rgba(11, 106, 153, 0.03);
 }
 
 [data-bookmark-tone="planned"], [data-list-status="planned"] {
