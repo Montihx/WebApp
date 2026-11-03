@@ -3089,9 +3089,9 @@ body[data-page="profile"] { background: var(--canvas); }
 
 /* Разделы: липкая панель с бегущей чертой под активным. */
 :root .pf-nav { position: sticky; top: 0; z-index: 30; display: flex; gap: 4px; margin: 20px -8px 0; padding: 6px 8px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--canvas) 86%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
-:root .pf-nav a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; color: var(--text-muted); font-size: 0.9375rem; font-weight: 600; transition: color var(--dur-2); }
-:root .pf-nav a svg { width: 18px; height: 18px; }
-:root .pf-nav a:hover, :root .pf-nav a.is-active { color: var(--accent-text); }
+:root .pf-nav a, :root .pf-nav button { appearance: none; border: 0; background: none; font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; color: var(--text-muted); font-size: 0.9375rem; font-weight: 600; transition: color var(--dur-2); }
+:root .pf-nav a svg, :root .pf-nav button svg { width: 18px; height: 18px; }
+:root .pf-nav a:hover, :root .pf-nav a.is-active, :root .pf-nav button:hover, :root .pf-nav button.is-active { color: var(--accent-text); }
 :root .pf-nav__bar { position: absolute; left: 0; bottom: -1px; height: 3px; border-radius: 2px 2px 0 0; background: var(--accent-grad); transition: transform 0.4s var(--ease-out), width 0.4s var(--ease-out); }
 
 :root .pf-sec { margin-top: 44px; scroll-margin-top: 72px; opacity: 0; transform: translateY(18px); transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out); }
@@ -3232,7 +3232,7 @@ body[data-page="profile"] { background: var(--canvas); }
   :root .pf { padding-bottom: calc(var(--mobile-nav-height) + 40px + env(safe-area-inset-bottom, 0px)); }
     :root .pf-hero__body { grid-template-columns: minmax(0, 1fr); padding: 0 18px 20px; }
   :root .pf-nav { margin-inline: -4px; padding-inline: 4px; }
-  :root .pf-nav a { flex: 1; flex-direction: column; justify-content: center; gap: 2px; padding: 0 4px; font-size: 0.75rem; }
+  :root .pf-nav a, :root .pf-nav button { flex: 1; flex-direction: column; justify-content: center; gap: 2px; padding: 0 4px; font-size: 0.75rem; }
   :root .pf-sec { margin-top: 36px; }
   :root .pf-total, :root .pf-chart { padding: 18px; }
   :root .pf-chart__plot { grid-template-rows: 150px auto; }

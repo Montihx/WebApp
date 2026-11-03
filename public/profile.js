@@ -473,7 +473,7 @@
       try {
         const created = await api.createCollection({ title: title.value.trim(), description: $("[name=description]", form).value.trim(), is_public: pub.checked });
         cols.list.unshift(created); paintCols(created.id); dialog.close(); toast("Коллекция создана", created.title);
-        $("#pf-collections").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "nearest" });
+        $("[data-pf-tab=pf-collections]")?.click();
       } catch (_) { toast("Не получилось", "Коллекция не создана, повторите попытку", "danger"); }
       submit.disabled = false; submit.classList.remove("is-busy"); $("span", submit).textContent = "Создать коллекцию";
     });
@@ -481,17 +481,29 @@
 
   /* ---------- Навигация по разделам и появление ---------- */
   function initNav() {
-    const nav = $("[data-nav]"); const links = $$("a", nav); const bar = $(".pf-nav__bar", nav);
-    const place = (a) => { bar.style.width = `${a.offsetWidth}px`; bar.style.transform = `translateX(${a.offsetLeft}px)`; };
-    const set = (id) => links.forEach((a) => { const on = a.getAttribute("href") === `#${id}`; a.classList.toggle("is-active", on); if (on) place(a); });
-    place(links[0]); document.fonts?.ready.then(() => place($(".is-active", nav) || links[0])); addEventListener("resize", () => place($(".is-active", nav) || links[0]));
-    const targets = ["pf-stats", "pf-marks", "pf-history", "pf-collections"].map((id) => document.getElementById(id));
-    if ("IntersectionObserver" in window) {
-      const spy = new IntersectionObserver((entries) => entries.forEach((en) => { if (en.isIntersecting) set(en.target.id); }), { rootMargin: "-35% 0px -55% 0px" });
-      targets.forEach((t) => spy.observe(t));
-      const rev = new IntersectionObserver((entries) => entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("is-in"); rev.unobserve(en.target); } }), { rootMargin: "0px 0px -8% 0px" });
-      $$("[data-reveal]").forEach((n) => rev.observe(n));
-    } else $$("[data-reveal]").forEach((n) => n.classList.add("is-in"));
+    const nav = $("[data-nav]"); const tabs = $$("[data-pf-tab]", nav); const bar = $(".pf-nav__bar", nav);
+    const ids = tabs.map((t) => t.dataset.pfTab);
+    const place = (t) => { if (!t || !t.offsetWidth) return; bar.style.width = `${t.offsetWidth}px`; bar.style.transform = `translateX(${t.offsetLeft}px)`; };
+    const current = () => tabs.find((t) => t.getAttribute("aria-selected") === "true") || tabs[0];
+    function show(id, { focus = false, hash = true } = {}) {
+      if (!ids.includes(id)) id = ids[0];
+      tabs.forEach((t) => { const on = t.dataset.pfTab === id; t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1; t.classList.toggle("is-active", on); if (on) { place(t); if (focus) t.focus(); } });
+      ids.forEach((pid) => { const p = document.getElementById(pid); const on = pid === id; p.hidden = !on; if (on) p.classList.add("is-in"); });
+      if (id === "pf-marks") window.dispatchEvent(new Event("resize")); /* пересчитать полоску вкладок статусов, пока панель была скрыта */
+      if (hash && location.hash !== `#${id}`) history.replaceState(null, "", `#${id}`);
+    }
+    nav.addEventListener("click", (e) => { const t = e.target.closest("[data-pf-tab]"); if (t) show(t.dataset.pfTab); });
+    nav.addEventListener("keydown", (e) => {
+      const i = tabs.indexOf(current()); let n = -1;
+      if (e.key === "ArrowRight") n = (i + 1) % tabs.length; else if (e.key === "ArrowLeft") n = (i - 1 + tabs.length) % tabs.length;
+      else if (e.key === "Home") n = 0; else if (e.key === "End") n = tabs.length - 1;
+      if (n >= 0) { e.preventDefault(); show(ids[n], { focus: true }); }
+    });
+    addEventListener("hashchange", () => { const id = location.hash.slice(1); if (ids.includes(id)) show(id, { hash: false }); });
+    document.fonts?.ready.then(() => place(current())); addEventListener("resize", () => place(current()));
+    const start = location.hash.slice(1);
+    show(ids.includes(start) ? start : ids[0], { hash: false });
+    $$("[data-reveal]").forEach((n) => { if (!n.hidden) n.classList.add("is-in"); });
   }
 
   function initHeroPointer() {
