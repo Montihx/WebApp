@@ -143,10 +143,11 @@ test('every relation has a caption, a kanji for its ofuda and a tone', () => {
   assert.equal(M.plural(11, 'тайтл', 'тайтла', 'тайтлов'), 'тайтлов');
   assert.equal(M.plural(21, 'тайтл', 'тайтла', 'тайтлов'), 'тайтл');
 });
-test('related titles render as posters with an ofuda and the current one is marked', () => {
+test('related titles render as row cards with an order index and the current one is marked', () => {
   const source = read('public/content.js');
   assert.match(source, /class="relation-card is-current" aria-current="page"/);
-  assert.match(source, /class="relation-kanji" aria-hidden="true">\$\{kanji\}/);
+  assert.match(source, /class="relation-index" aria-hidden="true">\$\{index \+ 1\}/);
+  assert.doesNotMatch(source, /thread-knot|relation-kanji/);
   assert.match(source, /alt="Постер «\$\{esc\(row.title\)\}»"/);
 });
 test('schedule and updates rows carry a blurred still; the clock sits in the card header', () => {
@@ -168,7 +169,7 @@ test('day strip says how busy each day is and the list is headed by the date in 
   assert.match(source, /\$\('#schedule-today'\).hidden = activeKey === M.dateKey\(new Date\(\)\)/);
 });
 
-test('related titles hang on one thread: no arrows, relation on the poster, collapsed by default', () => {
+test('related titles are a compact card grid: no arrows, relation chip in the copy, collapsed by default', () => {
   const html = read('public/anime.html'), source = read('public/content.js');
   assert.match(html, /<ol class="relation-track" id="watch-order-list"/);
   assert.doesNotMatch(html + source, /data-relation-scroll|relation-nav|watch-order-path/);

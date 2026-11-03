@@ -2376,7 +2376,7 @@ html[data-theme="light"] .title-backdrop-plane {
 }
 
 /* ==========================================================================
-   Связанные тайтлы: карусель небольших постеров в порядке просмотра
+   Связанные тайтлы: карточки-строки в порядке просмотра
    ========================================================================== */
 .relation-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .relation-head h2 { flex: 1; min-width: 0; margin: 0; font-size: clamp(1.25rem, 2.4vw, 1.625rem); }
@@ -2387,89 +2387,58 @@ html[data-theme="light"] .title-backdrop-plane {
 :root .relation-head [aria-expanded="false"] .watch-order-chevron { transform: rotate(-90deg); }
 :root .relation-head #watch-order-toggle:hover .watch-order-chevron { color: var(--accent-text); }
 #watch-order-count { min-width: 26px; padding: 2px 7px; border-radius: 6px; background: var(--surface-raised); color: var(--text-secondary); font: 600 0.8125rem/1.4 var(--font-mono); text-align: center; }
-/* «Красная нить»: тайтлы франшизы висят на одной нити в порядке просмотра,
-   как таблички эма у святилища. Узел нити — номер, связь — прямо на постере. */
+/* Карточки-строки в адаптивной сетке: постер, название, мета и чип связи; номер порядка просмотра справа. */
 :root #watch-order-list.relation-track {
-  --thread: var(--accent-2);
-  position: relative; display: flex; gap: 16px; margin: 10px calc(var(--page-gutter, 16px) * -1) 0; padding: 0 var(--page-gutter, 16px) 12px;
-  list-style: none; overflow-x: auto; overscroll-behavior-x: contain;
-  scroll-snap-type: x proximity; scroll-padding-inline: var(--page-gutter, 16px); scrollbar-width: none;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: 12px;
+  margin: 10px 0 0; padding: 0; list-style: none; overflow: visible;
 }
-:root #watch-order-list.relation-track::-webkit-scrollbar { display: none; }
 :root #watch-order-list.relation-track:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
-/* Где есть ещё — край ленты растворяется: стрелки не нужны. */
-:root #watch-order-list.relation-track.has-more-right { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 56px), transparent); }
-:root #watch-order-list.relation-track.has-more-left { -webkit-mask-image: linear-gradient(90deg, transparent, #000 56px); mask-image: linear-gradient(90deg, transparent, #000 56px); }
-:root #watch-order-list.relation-track.has-more-left.has-more-right { -webkit-mask-image: linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(90deg, transparent, #000 56px, #000 calc(100% - 56px), transparent); }
-:root #watch-order-list.relation-track > li {
-  position: relative; flex: 0 0 clamp(88px, 23vw, 112px); padding-top: 34px; border: 0; scroll-snap-align: start;
+:root #watch-order-list.relation-track > li { min-width: 0; padding: 0; border: 0; }
+:root .watch-order #watch-order-list > li > .relation-card {
+  display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 12px; align-items: center;
+  padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+  color: var(--text); text-decoration: none;
+  transition: border-color var(--dur-2), background var(--dur-2), box-shadow var(--dur-2), transform 0.3s var(--ease-out);
 }
-/* Нить: тянется через всю ленту, от первой таблички до последней. */
-:root #watch-order-list.relation-track > li::before {
-  content: ""; position: absolute; top: 12px; left: -8px; right: -8px; height: 2px; border-radius: 1px;
-  background: var(--thread); opacity: 0.75;
+@media (hover: hover) {
+  :root .watch-order #watch-order-list > li > a.relation-card:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--accent) 6%, var(--surface)); transform: translateY(-2px); }
 }
-:root #watch-order-list.relation-track > li:first-child::before { left: 50%; }
-:root #watch-order-list.relation-track > li:last-child::before { right: 50%; }
-:root #watch-order-list.relation-track > li:only-child::before { display: none; }
-/* Подвес от узла к табличке. */
-:root #watch-order-list.relation-track > li::after {
-  content: ""; position: absolute; top: 20px; left: calc(50% - 1px); width: 2px; height: 16px; background: var(--thread); opacity: 0.55;
+:root .watch-order #watch-order-list > li > a.relation-card:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+:root .watch-order #watch-order-list > li > .relation-card.is-current {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent), 0 4px 18px color-mix(in srgb, var(--accent) 18%, transparent);
 }
-:root .watch-order :is(ol, ul) > li > .relation-card { border-radius: 0; }
-.relation-card { display: grid; gap: 8px; align-content: start; color: var(--text); text-decoration: none; }
-.thread-knot {
-  position: absolute; z-index: 2; top: 3px; left: calc(50% - 10px); width: 20px; height: 20px;
-  display: grid; place-items: center; transform: rotate(45deg); border-radius: 4px;
-  background: var(--surface); box-shadow: inset 0 0 0 2px var(--thread);
-  color: var(--text); font: 700 10px/1 var(--font-mono);
-}
-.thread-knot > span { transform: rotate(-45deg); }
-/* Постер связанного тайтла. */
-.relation-poster {
-  position: relative; display: block; aspect-ratio: 2 / 3; overflow: hidden;
-  border: 1px solid var(--glass-line); border-radius: 10px; background: var(--surface-raised);
-  transition: transform var(--dur-3) var(--ease-spring), border-color var(--dur-2), box-shadow var(--dur-2);
-  box-shadow: 0 14px 26px -18px rgba(0, 0, 0, 0.7);
-}
-.relation-poster > img { width: 100%; height: 100%; object-fit: cover; }
-a.relation-card:hover .relation-poster, a.relation-card:focus-visible .relation-poster { border-color: color-mix(in srgb, var(--thread) 70%, transparent); }
-a.relation-card:focus-visible { outline: none; }
-a.relation-card:focus-visible .relation-poster { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
-.relation-card.is-current .relation-poster { border: 2px solid var(--accent); box-shadow: 0 16px 34px -18px var(--accent-glow); }
-
-/* Иероглиф связи — тушью в углу, как печать на табличке. */
-.relation-kanji {
-  position: absolute; z-index: 2; top: 6px; left: 6px; padding: 4px 4px 5px; border-radius: 4px;
-  background: rgba(var(--media-ink-rgb), 0.8); color: var(--media-text);
-  font: 400 13px/1 var(--font-heading);
-}
-/* Связь словами — лентой поперёк низа постера. */
-.relation-band {
-  position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; display: flex; align-items: baseline; justify-content: space-between; gap: 6px;
-  padding: 22px 5px 6px; background: linear-gradient(0deg, rgba(var(--media-ink-rgb), 0.92) 35%, rgba(var(--media-ink-rgb), 0));
-  color: var(--media-text);
-}
-.relation-band b { overflow: hidden; font-size: 0.625rem; font-weight: 800; letter-spacing: 0.03em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
-.relation-band span { flex: none; color: var(--media-text-dim); font: 600 0.6875rem/1 var(--font-mono); }
-.relation-band--before b { color: #ffb3d6; }
-.relation-band--after b { color: #d9c2ff; }
-.relation-band--current { background: linear-gradient(0deg, color-mix(in srgb, var(--accent) 88%, black) 35%, transparent); }
-.relation-band--current b, .relation-band--current span { color: #fff; }
-/* На маленьких табличках подпись мельче и без разрядки — «Продолжение» и «Альтернатива» влезают целиком. */
-@media (max-width: 520px) { .relation-band { padding-inline: 4px; } .relation-band b { font-size: 0.5625rem; letter-spacing: 0; } }
-.relation-copy { display: grid; gap: 3px; min-width: 0; padding-top: 2px; }
-.relation-copy strong {
+:root #watch-order-list .relation-poster { position: relative; display: block; width: 52px; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 8px; background: var(--surface-raised); }
+:root #watch-order-list .relation-poster > img { width: 100%; height: 100%; object-fit: cover; }
+:root #watch-order-list .relation-copy { display: grid; gap: 3px; justify-items: start; min-width: 0; padding: 0; }
+:root #watch-order-list .relation-copy strong {
   display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
-  font-size: 0.8125rem; font-weight: 700; line-height: 1.3;
+  font-size: 0.9rem; font-weight: 700; line-height: 1.25;
 }
-a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
-.relation-meta { display: flex; flex-wrap: wrap; gap: 0 6px; color: var(--text-muted); font-size: 0.6875rem; }
-@media (min-width: 900px) {
-  :root #watch-order-list.relation-track { margin-inline: 0; padding-inline: 4px; scroll-padding-inline: 4px; }
+:root #watch-order-list a.relation-card:hover .relation-copy strong { color: var(--accent-text); }
+:root #watch-order-list .relation-meta { display: block; max-width: 100%; overflow: hidden; color: var(--text-muted); font: 500 0.72rem/1.3 var(--font-mono); text-overflow: ellipsis; white-space: nowrap; }
+:root #watch-order-list .relation-meta > span + span::before { content: "·"; margin: 0 6px; }
+/* Связь — чип под названием. */
+:root #watch-order-list .relation-band {
+  position: static; transform: none; writing-mode: horizontal-tb; display: inline-flex; max-width: 100%; align-items: center;
+  padding: 2px 8px; border-radius: 6px; background: transparent; font-size: 0.68rem; font-weight: 700; letter-spacing: 0; text-transform: none; white-space: nowrap;
 }
+:root #watch-order-list .relation-band b { overflow: hidden; font-size: inherit; font-weight: inherit; letter-spacing: 0; text-overflow: ellipsis; text-transform: none; }
+:root #watch-order-list .relation-band--before { background: color-mix(in srgb, var(--accent-2) 14%, transparent); color: var(--accent-2-text); }
+:root #watch-order-list .relation-band--before b { color: inherit; }
+:root #watch-order-list .relation-band--after { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent-text); }
+:root #watch-order-list .relation-band--after b { color: inherit; }
+:root #watch-order-list .relation-band--side { background: color-mix(in srgb, var(--kitsunebi) 12%, transparent); color: var(--kitsunebi-text); }
+:root #watch-order-list .relation-band--side b { color: inherit; }
+:root #watch-order-list .relation-band--current { background: var(--accent); color: var(--primary-fg); }
+:root #watch-order-list .relation-band--current b { color: inherit; }
+:root #watch-order-list .relation-index {
+  display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid var(--line); border-radius: 6px;
+  color: var(--text-muted); font: 700 0.72rem/1 var(--font-mono);
+}
+:root #watch-order-list .relation-card.is-current .relation-index { border-color: transparent; background: var(--accent); color: var(--primary-fg); }
 @media (prefers-reduced-motion: reduce) {
-  .relation-poster { transform: none; transition: none; }
+  :root .watch-order #watch-order-list > li > a.relation-card:hover { transform: none; }
 }
 
 /* ==========================================================================
