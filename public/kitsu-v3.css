@@ -40,14 +40,13 @@
 }
 
 :root .section-kicker::before {
-  width: 10px;
-  height: 10px;
+  width: 2px;
+  height: 14px;
   flex: none;
-  border-radius: 80% 0 80% 0;
-  background: var(--accent-grad);
-  box-shadow: 0 0 10px var(--accent-glow);
+  border-radius: 1px;
+  background: var(--accent);
   content: "";
-  transform: rotate(-12deg);
+  transform: none;
 }
 
 /* Торийные балки над заголовками убраны: их роль теперь у лепестка */
@@ -106,16 +105,15 @@
 :root .button--primary,
 :root a.button--primary {
   border: 0;
-  background: var(--accent-grad);
-  box-shadow: 0 14px 32px -14px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: var(--accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(0, 0, 0, 0.18), 0 4px 14px color-mix(in srgb, var(--accent) 32%, transparent);
   color: var(--primary-fg);
 }
 
 :root .button--primary:hover {
-  background: var(--accent-grad);
-  box-shadow: 0 18px 40px -12px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.34);
+  background: var(--accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(0, 0, 0, 0.18), 0 6px 20px color-mix(in srgb, var(--accent) 40%, transparent);
   color: var(--primary-fg);
-  filter: brightness(1.07) saturate(1.05);
   transform: translateY(-2px);
 }
 
@@ -178,7 +176,7 @@
   left: 12px;
   height: 2px;
   border-radius: 2px;
-  background: var(--accent-grad);
+  background: var(--accent);
   box-shadow: 0 0 10px var(--accent-glow);
   content: "";
 }
@@ -201,13 +199,13 @@
 :root .header-login {
   border: 0;
   border-radius: 12px;
-  background: var(--accent-grad);
-  box-shadow: 0 10px 26px -12px var(--accent-glow);
+  background: var(--accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(0, 0, 0, 0.18), 0 4px 14px color-mix(in srgb, var(--accent) 32%, transparent);
   color: var(--primary-fg);
   font-weight: 700;
 }
 
-:root .header-login:hover { filter: brightness(1.07); color: var(--primary-fg); }
+:root .header-login:hover { background: var(--accent-strong); color: var(--primary-fg); }
 
 :root .notification-dot { background: var(--accent-2); box-shadow: 0 0 8px var(--accent-2-glow); }
 
@@ -225,7 +223,7 @@
   bottom: -1px;
   left: 0;
   height: 2px;
-  background: var(--accent-grad);
+  background: var(--accent);
   box-shadow: 0 0 12px var(--accent-glow);
   transform: scaleX(0);
   transform-origin: left;
@@ -385,7 +383,7 @@
 :root .feature-slider__progress { background: rgba(var(--media-text-rgb), 0.1); }
 
 :root .feature-slider__progress span {
-  background: var(--accent-grad);
+  background: var(--accent);
   box-shadow: 0 0 14px var(--accent-glow);
 }
 
@@ -544,7 +542,7 @@
 
 :root .continue-progress span {
   border-radius: inherit;
-  background: var(--accent-grad);
+  background: var(--accent);
   box-shadow: 0 0 12px var(--accent-glow);
 }
 
@@ -582,8 +580,8 @@
 
 :root .tabs .tab-indicator {
   border-radius: 10px;
-  background: var(--accent-grad);
-  box-shadow: 0 8px 20px -10px var(--accent-glow);
+  background: var(--accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(0, 0, 0, 0.18), 0 4px 14px color-mix(in srgb, var(--accent) 32%, transparent);
   transition: transform var(--dur-3) var(--ease-spring), width var(--dur-3) var(--ease-spring);
 }
 
@@ -640,7 +638,7 @@
 /* Нижняя черта при наведении — градиентом */
 :root .anime-card::after {
   border-radius: var(--card-radius);
-  background: var(--accent-grad) bottom / 100% 3px no-repeat;
+  background: var(--accent) bottom / 100% 3px no-repeat;
 }
 
 /* «Смотреть»: стеклянная капсула, выезжает снизу */
@@ -804,10 +802,10 @@
 }
 
 :root #schedule-days .day-tab.is-active {
-  border-color: transparent;
-  background: var(--accent-grad);
-  box-shadow: 0 14px 30px -14px var(--accent-glow);
-  color: var(--primary-fg);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  box-shadow: none;
+  color: var(--accent-text);
 }
 
 :root #schedule-days .day-tab.is-active :is(.day-tab__num, .day-tab__dow)  { color: var(--primary-fg); opacity: 1; }
@@ -853,11 +851,9 @@
 :root #schedule-items .schedule-item time,
 :root .schedule-item time,
 :root .schedule-item time > b {
-  background: var(--accent-grad);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
+  background: none;
+  color: var(--accent-text);
+  -webkit-text-fill-color: currentColor;
   font-family: var(--font-heading);
 }
 
@@ -1142,7 +1138,7 @@
   left: 10px;
   height: 2px;
   border-radius: 2px;
-  background: var(--accent-grad);
+  background: var(--accent);
   box-shadow: 0 0 10px var(--accent-glow);
   content: "";
 }
@@ -1182,7 +1178,7 @@
   height: 96px;
   border: 0;
   border-radius: 3px;
-  background: var(--accent-grad);
+  background: var(--accent);
   box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 16%, transparent), 0 20px 50px -10px var(--accent-glow);
   color: var(--primary-fg);
   transition: transform var(--dur-3) var(--ease-spring), box-shadow var(--dur-3);
@@ -1223,7 +1219,7 @@
   background: rgba(var(--media-text-rgb), 0.16);
 }
 
-:root .player-timeline span { border-radius: inherit; background: var(--accent-grad); box-shadow: 0 0 10px var(--accent-glow); }
+:root .player-timeline span { border-radius: inherit; background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
 
 :root .episode-strip { gap: 10px; border-top: 1px solid var(--glass-line); background: color-mix(in srgb, var(--surface-raised) 50%, transparent); }
 
@@ -1240,12 +1236,13 @@
   transition: transform var(--dur-2) var(--ease-spring), border-color var(--dur-1), background var(--dur-1), color var(--dur-1);
 }
 
+:root .episode-chip.is-selected:hover { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(0, 0, 0, 0.18), 0 6px 20px color-mix(in srgb, var(--accent) 40%, transparent); }
 :root .episode-chip:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 50%, transparent); color: var(--text); }
 
 :root .episode-chip.is-selected {
   border-color: transparent;
-  background: var(--accent-grad);
-  box-shadow: 0 10px 24px -10px var(--accent-glow);
+  background: var(--accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(0, 0, 0, 0.18), 0 4px 14px color-mix(in srgb, var(--accent) 32%, transparent);
   color: var(--primary-fg);
   outline: 0;
 }
@@ -1561,7 +1558,7 @@
 :root #watch-order-count { border-radius: 7px; }
 :root .ofuda { border-radius: 4px; }
 /* Знак над заголовком — ромб вместо лепестка */
-:root .section-kicker::before { width: 8px; height: 8px; border-radius: 1px; transform: rotate(45deg); }
+:root .section-kicker::before { width: 2px; height: 14px; border-radius: 1px; transform: none; }
 :root .title-poster-wrap::before { border-radius: 40px; }
 :root .player-switch { border-radius: 7px; }
 :root .player-switch > span { border-radius: 4px; }
@@ -1655,7 +1652,7 @@
   width: 14px;
   height: 2px;
   border-radius: 1px;
-  background: var(--accent-grad);
+  background: var(--accent);
   content: "";
   transform: translateX(-50%);
 }
@@ -1840,7 +1837,7 @@
   left: 0;
   width: 3px;
   border-radius: 0 2px 2px 0;
-  background: var(--accent-grad);
+  background: var(--accent);
   content: "";
   opacity: 0;
   transition: opacity var(--dur-1);
@@ -1879,7 +1876,7 @@
   place-items: center;
   border: 0;
   border-radius: 50%;
-  background: var(--accent-grad);
+  background: var(--accent);
   box-shadow: 0 10px 24px -12px var(--accent-glow);
   color: var(--primary-fg);
   font-family: var(--font-heading);
@@ -1893,8 +1890,8 @@
 
 :root .login-comment-box .button {
   border: 0;
-  background: var(--accent-grad);
-  box-shadow: 0 12px 28px -14px var(--accent-glow);
+  background: var(--accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(0, 0, 0, 0.18), 0 4px 14px color-mix(in srgb, var(--accent) 32%, transparent);
   color: var(--primary-fg);
 }
 
@@ -2589,7 +2586,6 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
   display: inline-flex; align-items: center; gap: 8px;
   color: var(--kitsunebi-text); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
 }
-.air-clock::before { content: ""; width: 8px; height: 8px; flex: none; border-radius: 2px; background: var(--kitsunebi); box-shadow: 0 0 10px var(--kitsunebi-glow); transform: rotate(45deg); }
 .air-clock b { color: var(--text); font: 600 0.9375rem/1 var(--font-mono); letter-spacing: 0; }
 :root .schedule-empty strong { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 400; letter-spacing: 0.02em; }
 :root .schedule-empty svg { color: var(--accent-text); }
@@ -2717,7 +2713,7 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
   background: color-mix(in srgb, var(--accent-2) 22%, var(--surface));
   color: var(--text); font-family: var(--font-heading); font-size: 1rem; line-height: 1;
 }
-:root .comment-avatar--me { border-color: transparent; background: var(--accent-grad); color: var(--primary-fg); }
+:root .comment-avatar--me { border-color: transparent; background: var(--accent); color: var(--primary-fg); }
 :root .comment-composer__body, :root .comment-inline { display: grid; gap: 8px; min-width: 0; }
 :root :is(.comment-composer, .comment-inline) textarea {
   width: 100%; min-height: 76px; padding: 12px 14px; resize: vertical;
@@ -2781,7 +2777,7 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 
 :root .episode-chip { position: relative; overflow: hidden; }
 /* Просмотренная: номер приглушён, в углу метка-галочка цветом огня. */
-:root .episode-chip.is-watched:not(.is-selected) { color: var(--text-muted); border-color: color-mix(in srgb, var(--kitsunebi) 30%, var(--glass-line)); }
+:root .episode-chip.is-watched:not(.is-selected) { color: var(--text-muted); background: color-mix(in srgb, var(--kitsunebi) 10%, transparent); }
 :root .episode-chip.is-watched::after {
   position: absolute; top: 3px; right: 3px; width: 7px; height: 4px;
   border-bottom: 2px solid var(--kitsunebi); border-left: 2px solid var(--kitsunebi);
@@ -2789,8 +2785,8 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 }
 /* Недосмотренная: полоска по низу на долю просмотренного. */
 :root .episode-chip.is-partial::before {
-  position: absolute; bottom: 0; left: 0; width: var(--watched, 0%); height: 3px;
-  background: var(--kitsunebi); content: "";
+  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(var(--kitsunebi), var(--kitsunebi)) left / var(--watched, 0%) 100% no-repeat, color-mix(in srgb, var(--kitsunebi) 15%, transparent); content: "";
 }
 
 :root .player-resume {
@@ -2807,7 +2803,7 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 :root .player-resume__copy strong { font-size: 0.9375rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 :root .player-resume__copy small { color: var(--media-text-dim); font-size: 0.8125rem; }
 :root .player-resume button { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border: 0; border-radius: 8px; font: inherit; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
-:root .player-resume__go { background: var(--accent-grad); color: var(--primary-fg); }
+:root .player-resume__go { background: var(--accent); color: var(--primary-fg); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(0, 0, 0, 0.18), 0 4px 14px color-mix(in srgb, var(--accent) 32%, transparent); }
 :root .player-resume__go svg { width: 16px; height: 16px; fill: currentColor; }
 :root .player-resume__restart { background: none; color: var(--media-text); }
 :root .player-resume__restart svg { width: 16px; height: 16px; }
@@ -2937,7 +2933,7 @@ html[data-palette="obsidian"] .auth-fig__img--obsidian { display: block; }
 :root .auth-tabs[hidden] { display: none; }
 :root .auth-tabs__thumb { position: absolute; top: 0; bottom: -1px; left: 0; width: 50%; transition: transform 520ms var(--ease-spring); }
 :root .auth-tabs__thumb::before { position: absolute; inset: 0 0 3px; content: ""; background: linear-gradient(0deg, var(--accent-soft), transparent); }
-:root .auth-tabs__thumb::after { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; content: ""; background: var(--accent-grad); border-radius: 2px; box-shadow: 0 0 18px var(--accent-glow); }
+:root .auth-tabs__thumb::after { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; content: ""; background: var(--accent); border-radius: 2px; box-shadow: 0 0 18px var(--accent-glow); }
 :root .auth-tabs:has([data-auth-tab="register"].is-active) .auth-tabs__thumb { transform: translateX(100%); }
 :root .auth-tab { position: relative; z-index: 1; display: grid; place-items: center; min-height: 48px; color: var(--text-muted); font-family: var(--font-heading); font-size: 1.0625rem; transition: color 240ms; }
 :root .auth-tab:hover { color: var(--text); }
@@ -2970,7 +2966,7 @@ html[data-palette="obsidian"] .auth-fig__img--obsidian { display: block; }
 :root .auth-field__box input:not(:placeholder-shown) ~ .auth-field__label,
 :root .auth-field__box input:-webkit-autofill ~ .auth-field__label { transform: translateY(-12px) scale(0.78); }
 :root .auth-field__box input:focus ~ .auth-field__label { color: var(--accent-text); }
-:root .auth-field__bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--accent-grad); transform: scaleX(0); transform-origin: 0 50%; transition: transform 460ms var(--ease-out); }
+:root .auth-field__bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--accent); transform: scaleX(0); transform-origin: 0 50%; transition: transform 460ms var(--ease-out); }
 :root .auth-field__box input:focus ~ .auth-field__bar { transform: scaleX(1); }
 :root .auth-field__box input[aria-invalid="true"] ~ .auth-field__bar { background: var(--red); transform: scaleX(1); }
 :root .auth-field__box input[aria-invalid="true"] ~ .auth-field__label { color: var(--red); }
@@ -2986,7 +2982,7 @@ html[data-palette="obsidian"] .auth-fig__img--obsidian { display: block; }
 /* Деления пароля: по одному на символ до восьми, на восьми — зелёные. */
 :root .auth-meter { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; height: 6px; }
 :root .auth-meter b { background: var(--glass-line); border-radius: 2px; transform-origin: 50% 100%; transition: background 220ms, transform 360ms var(--ease-spring); }
-:root .auth-meter b.is-on { background: var(--accent-grad); transform: scaleY(1.5); }
+:root .auth-meter b.is-on { background: var(--accent); transform: scaleY(1.5); }
 :root .auth-meter.is-full b.is-on { background: var(--green); }
 
 :root .auth-error { margin: 0; padding: 11px 14px 11px 16px; border-left: 3px solid var(--red); background: color-mix(in srgb, var(--red) 12%, transparent); color: var(--text); font-size: 0.875rem; line-height: 1.45; border-radius: 0 8px 8px 0; }
@@ -2996,8 +2992,8 @@ html[data-palette="obsidian"] .auth-fig__img--obsidian { display: block; }
 /* Кнопка: блик пробегает при наведении, при отправке по низу идёт огонёк. */
 :root .button.auth-submit {
   position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 56px; padding: 0 20px 0 24px;
-  border: 0; border-radius: 10px !important; background: var(--accent-grad); color: var(--primary-fg); font-size: 1rem; font-weight: 800; letter-spacing: 0.01em; text-decoration: none; cursor: pointer;
-  box-shadow: none; transition: transform 200ms var(--ease-out), filter 200ms;
+  border: 0; border-radius: 10px !important; background: var(--accent); color: var(--primary-fg); font-size: 1rem; font-weight: 800; letter-spacing: 0.01em; text-decoration: none; cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(0, 0, 0, 0.18), 0 4px 14px color-mix(in srgb, var(--accent) 32%, transparent); transition: transform 200ms var(--ease-out), filter 200ms;
 }
 :root .button.auth-submit.button--secondary { background: color-mix(in srgb, var(--accent) 18%, var(--surface-raised)); color: var(--text); }
 :root .auth-submit:hover { filter: brightness(1.08); }
@@ -3092,7 +3088,7 @@ body[data-page="profile"] { background: var(--canvas); }
 :root .pf-nav a, :root .pf-nav button { appearance: none; border: 0; background: none; font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; color: var(--text-muted); font-size: 0.9375rem; font-weight: 600; transition: color var(--dur-2); }
 :root .pf-nav a svg, :root .pf-nav button svg { width: 18px; height: 18px; }
 :root .pf-nav a:hover, :root .pf-nav a.is-active, :root .pf-nav button:hover, :root .pf-nav button.is-active { color: var(--accent-text); }
-:root .pf-nav__bar { position: absolute; left: 0; bottom: -1px; height: 3px; border-radius: 2px 2px 0 0; background: var(--accent-grad); transition: transform 0.4s var(--ease-out), width 0.4s var(--ease-out); }
+:root .pf-nav__bar { position: absolute; left: 0; bottom: -1px; height: 3px; border-radius: 2px 2px 0 0; background: var(--accent); transition: transform 0.4s var(--ease-out), width 0.4s var(--ease-out); }
 
 :root .pf-sec { margin-top: 44px; scroll-margin-top: 72px; opacity: 0; transform: translateY(18px); transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out); }
 :root .pf-sec.is-in { opacity: 1; transform: none; }
@@ -3104,7 +3100,7 @@ body[data-page="profile"] { background: var(--canvas); }
 :root .pf-seg { position: relative; display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
 :root .pf-seg button { position: relative; z-index: 1; min-height: 36px; padding: 0 14px; color: var(--text-muted); font-size: 0.8125rem; font-weight: 700; white-space: nowrap; transition: color var(--dur-2); }
 :root .pf-seg button[aria-pressed="true"] { color: var(--primary-fg); }
-:root .pf-seg__thumb { position: absolute; top: 3px; bottom: 3px; left: 0; border-radius: 7px; background: var(--accent-grad); transition: transform 0.4s var(--ease-out), width 0.4s var(--ease-out); }
+:root .pf-seg__thumb { position: absolute; top: 3px; bottom: 3px; left: 0; border-radius: 7px; background: var(--accent); transition: transform 0.4s var(--ease-out), width 0.4s var(--ease-out); }
 
 /* Время просмотра. */
 :root .pf-stats { display: grid; grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.6fr); gap: 16px; }
@@ -3155,7 +3151,7 @@ body[data-page="profile"] { background: var(--canvas); }
 :root .pf-hrow__main strong { overflow: hidden; font-size: 0.9375rem; text-overflow: ellipsis; white-space: nowrap; }
 :root .pf-hrow__meta { color: var(--text-muted); font-size: 0.75rem; }
 :root .pf-hrow__bar { display: block; height: 4px; margin-top: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
-:root .pf-hrow__bar i { display: block; width: var(--p); height: 100%; border-radius: 2px; background: var(--accent-grad); transform-origin: left; animation: pf-fill 0.9s var(--ease-out) both; }
+:root .pf-hrow__bar i { display: block; width: var(--p); height: 100%; border-radius: 2px; background: var(--accent); transform-origin: left; animation: pf-fill 0.9s var(--ease-out) both; }
 :root .pf-hrow__bar.is-done i { background: var(--green); }
 :root .pf-hrow__side { display: grid; justify-items: end; gap: 6px; color: var(--text-muted); font-size: 0.75rem; white-space: nowrap; }
 :root .pf-hrow__act { display: inline-flex; align-items: center; gap: 5px; color: var(--accent-text); font-weight: 700; }
@@ -3206,7 +3202,7 @@ body[data-page="profile"] { background: var(--canvas); }
 :root .pf-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 :root .pf-switch__track { position: relative; flex: none; width: 48px; height: 28px; border-radius: 8px; background: var(--line-strong); transition: background var(--dur-2); }
 :root .pf-switch__track i { position: absolute; left: 4px; top: 4px; width: 20px; height: 20px; border-radius: 5px; background: var(--paper); transition: transform 0.3s var(--ease-out); }
-:root .pf-switch input:checked + .pf-switch__track { background: var(--accent-grad); }
+:root .pf-switch input:checked + .pf-switch__track { background: var(--accent); }
 :root .pf-switch input:checked + .pf-switch__track i { transform: translateX(20px); background: var(--ink); }
 :root .pf-switch input:focus-visible + .pf-switch__track { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 :root .pf-switch__text { display: grid; gap: 2px; }
@@ -3258,7 +3254,7 @@ body[data-page="profile"].is-hidden-tab .pf-skel { animation-play-state: paused;
 /* Профиль: шапка сайта как на главной; кнопка аккаунта вместо «Войти». */
 :root .header-account { display: inline-flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 6px; color: var(--text); font-size: 0.875rem; font-weight: 700; transition: color var(--dur-2); }
 :root .header-account:hover { color: var(--accent-text); }
-:root .header-account__av { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--accent-grad); color: var(--primary-fg); font-family: var(--font-heading); font-size: 0.875rem; }
+:root .header-account__av { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--primary-fg); font-family: var(--font-heading); font-size: 0.875rem; }
 @media (max-width: 720px) { :root .header-account span:not(.header-account__av) { display: none; } }
 :root .pf-nav { top: var(--header-height); }
 :root .pf-sec { scroll-margin-top: calc(var(--header-height) + 64px); }
@@ -3273,7 +3269,7 @@ body[data-page="profile"].is-hidden-tab .pf-skel { animation-play-state: paused;
 :root .pf-hero__orb--a { right: 12%; top: -90px; }
 :root .pf-hero__orb--b { right: 3%; top: 38%; width: 120px; height: 120px; opacity: 0.16; transform: translate(calc(var(--mx, 0) * -34px), calc(var(--my, 0) * -22px)) rotate(45deg); }
 :root .pf-hero__body { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; padding: clamp(96px, 15vw, 168px) 0 8px; text-align: center; }
-:root .pf-avatar { position: relative; display: grid; place-items: center; width: clamp(104px, 14vw, 128px); aspect-ratio: 1; border: 4px solid var(--canvas); border-radius: 50%; background: var(--accent-grad); color: var(--primary-fg); font-family: var(--font-heading); font-size: 3rem; overflow: hidden; box-shadow: 0 0 0 2px var(--line-strong); }
+:root .pf-avatar { position: relative; display: grid; place-items: center; width: clamp(104px, 14vw, 128px); aspect-ratio: 1; border: 4px solid var(--canvas); border-radius: 50%; background: var(--accent); color: var(--primary-fg); font-family: var(--font-heading); font-size: 3rem; overflow: hidden; box-shadow: 0 0 0 2px var(--line-strong); }
 :root .pf-avatar.is-online { box-shadow: 0 0 0 2px var(--green); }
 :root .pf-avatar img { width: 100%; height: 100%; object-fit: cover; }
 :root .pf-avatar .pf-avatar__deco { position: absolute; inset: 0; pointer-events: none; }
@@ -3406,12 +3402,12 @@ body[data-page="profile"] { overflow-x: clip; }
 /* Выбор из коллекции. */
 :root .st-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 :root .st-chip { min-height: 36px; padding: 0 14px; border: 1px solid var(--line); border-radius: 8px; color: var(--text-secondary); font-size: 0.8125rem; font-weight: 700; transition: background var(--dur-2), color var(--dur-2), border-color var(--dur-2); }
-:root .st-chip[aria-pressed="true"] { border-color: transparent; background: var(--accent-grad); color: var(--primary-fg); }
+:root .st-chip[aria-pressed="true"] { border-color: color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-text); }
 :root .st-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 12px; }
 :root .st-pick { display: grid; justify-items: center; gap: 8px; padding: 10px 6px; border: 1px solid var(--line); border-radius: 12px; color: var(--text-secondary); font-size: 0.8125rem; font-weight: 600; transition: border-color var(--dur-2), background var(--dur-2), transform 0.3s var(--ease-out); }
 :root .st-pick:hover { transform: translateY(-2px); border-color: var(--line-strong); }
 :root .st-pick[aria-checked="true"] { border-color: var(--accent); background: var(--accent-softer); color: var(--text); }
-:root .st-pick__art { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; font-size: 1.25rem; background: var(--accent-grad); color: var(--primary-fg); }
+:root .st-pick__art { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; font-size: 1.25rem; background: var(--accent); color: var(--primary-fg); }
 :root .st-pick__art[data-tone="1"] { background: linear-gradient(145deg, #7aa7ff, #c4a1ff); }
 :root .st-pick__art[data-tone="2"] { background: linear-gradient(145deg, #5be3a8, #7de3ff); }
 :root .st-pick__art[data-tone="3"] { background: linear-gradient(145deg, #ffcb70, #ff9ccb); }
@@ -3566,7 +3562,7 @@ body[data-page="user"].is-hidden-tab .pf-skel { animation-play-state: paused; }
 :root .us-person { display: flex; align-items: center; gap: 14px; min-height: 76px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--text); transition: border-color var(--dur-2), background var(--dur-2), transform 0.3s var(--ease-out); }
 :root .us-person:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); background: var(--surface-raised); transform: translateY(-2px); }
 :root .us-person:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
-:root .us-av { flex: none; display: grid; place-items: center; width: 48px; height: 48px; overflow: hidden; border-radius: 50%; background: var(--accent-grad); color: var(--primary-fg); font-family: var(--font-heading); font-size: 1.25rem; }
+:root .us-av { flex: none; display: grid; place-items: center; width: 48px; height: 48px; overflow: hidden; border-radius: 50%; background: var(--accent); color: var(--primary-fg); font-family: var(--font-heading); font-size: 1.25rem; }
 :root .us-av img { width: 100%; height: 100%; object-fit: cover; }
 :root .us-av[data-tone="1"] { background: linear-gradient(145deg, #7aa7ff, #c4a1ff); color: #160f22; }
 :root .us-av[data-tone="2"] { background: linear-gradient(145deg, #5be3a8, #7de3ff); color: #0d1a17; }
@@ -3709,8 +3705,8 @@ body[data-page="bookmarks"].is-hidden-tab .pf-skel { animation-play-state: pause
 :root .bm-tabs [role="tab"]:hover { color: var(--text); }
 :root .bm-tabs [aria-selected="true"] { color: var(--text); }
 :root .bm-tabs [role="tab"] b { padding: 1px 6px; border-radius: 5px; background: var(--surface-raised); color: var(--text-secondary); font: 700 0.75rem/1.4 var(--font-mono); }
-:root .bm-tabs__bar { position: absolute; left: 0; bottom: 0; height: 3px; border-radius: 2px; background: var(--bookmark-color, var(--accent-grad)); transition: transform 0.4s var(--ease-out), width 0.4s var(--ease-out), background var(--dur-2); }
-:root .bm-tabs__bar[data-bookmark-tone=""] { background: var(--accent-grad); }
+:root .bm-tabs__bar { position: absolute; left: 0; bottom: 0; height: 3px; border-radius: 2px; background: var(--bookmark-color, var(--accent)); transition: transform 0.4s var(--ease-out), width 0.4s var(--ease-out), background var(--dur-2); }
+:root .bm-tabs__bar[data-bookmark-tone=""] { background: var(--accent); }
 
 :root .bm-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 22px; }
 :root .bm-search { position: relative; display: flex; align-items: center; flex: 1 1 260px; min-width: 0; }

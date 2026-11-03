@@ -379,7 +379,7 @@ const baselinePairs = {
 };
 const reinforcedTokens = ["accent-text", "green", "amber", "red", "info"];
 const primaryPairs = {
-  dark: { fg: "#1c0f2b", bg: "#c9a4f5" },
+  dark: { fg: "#1c0f2b", bg: "#b98af0" },
   light: { fg: "#ffffff", bg: "#6b3fc4" },
 };
 
