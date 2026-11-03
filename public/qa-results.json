@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template v3 · Сакура и Обсидиан",
-  "generated_at": "2026-11-03T03:32:21.104Z",
+  "generated_at": "2026-11-03T03:47:23.475Z",
   "summary": {
     "status": "pass",
     "total": 84,
@@ -31,7 +31,7 @@
       "id": "index.html.references",
       "label": "index.html: локальные ссылки",
       "status": "pass",
-      "detail": "60 локальных ссылок разрешены"
+      "detail": "58 локальных ссылок разрешены"
     },
     {
       "id": "index.html.aria",
@@ -73,7 +73,7 @@
       "id": "anime.html.references",
       "label": "anime.html: локальные ссылки",
       "status": "pass",
-      "detail": "48 локальных ссылок разрешены"
+      "detail": "46 локальных ссылок разрешены"
     },
     {
       "id": "anime.html.aria",
@@ -115,7 +115,7 @@
       "id": "auth.html.references",
       "label": "auth.html: локальные ссылки",
       "status": "pass",
-      "detail": "14 локальных ссылок разрешены"
+      "detail": "12 локальных ссылок разрешены"
     },
     {
       "id": "auth.html.aria",
@@ -157,7 +157,7 @@
       "id": "profile.html.references",
       "label": "profile.html: локальные ссылки",
       "status": "pass",
-      "detail": "50 локальных ссылок разрешены"
+      "detail": "48 локальных ссылок разрешены"
     },
     {
       "id": "profile.html.aria",
@@ -199,7 +199,7 @@
       "id": "profile-settings.html.references",
       "label": "profile-settings.html: локальные ссылки",
       "status": "pass",
-      "detail": "48 локальных ссылок разрешены"
+      "detail": "46 локальных ссылок разрешены"
     },
     {
       "id": "profile-settings.html.aria",
@@ -241,7 +241,7 @@
       "id": "user.html.references",
       "label": "user.html: локальные ссылки",
       "status": "pass",
-      "detail": "47 локальных ссылок разрешены"
+      "detail": "45 локальных ссылок разрешены"
     },
     {
       "id": "user.html.aria",
@@ -283,7 +283,7 @@
       "id": "bookmarks.html.references",
       "label": "bookmarks.html: локальные ссылки",
       "status": "pass",
-      "detail": "47 локальных ссылок разрешены"
+      "detail": "45 локальных ссылок разрешены"
     },
     {
       "id": "bookmarks.html.aria",

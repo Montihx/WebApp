@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu admin template v5 · Пульт лисьего огня",
-  "generated_at": "2026-11-03T03:32:21.142Z",
+  "generated_at": "2026-11-03T03:47:23.520Z",
   "summary": {
     "status": "pass",
     "total": 19,
@@ -43,7 +43,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "831 блоков, структура сбалансирована"
+      "detail": "844 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
