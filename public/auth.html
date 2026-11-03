@@ -22,9 +22,9 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="../tokens.css?v=v3-46" />
-    <link rel="stylesheet" href="./styles.css?v=v3-46" />
-    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-46" />
+    <link rel="stylesheet" href="../tokens.css?v=v3-47" />
+    <link rel="stylesheet" href="./styles.css?v=v3-47" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-47" />
   </head>
   <!--
     Экраны входа. Один файл, экран выбирается по хэшу: #login, #register, #forgot, #reset, #verify,
@@ -73,8 +73,8 @@
           <div class="auth-pane">
 
           <div class="auth-tabs" role="tablist" aria-label="Вход или регистрация" data-auth-tabs><span class="auth-tabs__thumb" aria-hidden="true"></span>
-            <a class="auth-tab" href="#login" role="tab" data-auth-tab="login">Вход</a>
-            <a class="auth-tab" href="#register" role="tab" data-auth-tab="register">Регистрация</a>
+            <a class="auth-tab" href="#login" role="tab" data-auth-tab="login"><i data-lucide="log-in"></i><span>Вход</span></a>
+            <a class="auth-tab" href="#register" role="tab" data-auth-tab="register"><i data-lucide="user-plus"></i><span>Регистрация</span></a>
           </div>
 
           <!-- POST /auth/login/access-token (form: username = ПОЧТА, password). 401 «Incorrect email or password»,
@@ -162,6 +162,6 @@
     </main>
 
     <script src="./vendor/lucide.min.js"></script>
-    <script src="./auth.js?v=v3-46"></script>
+    <script src="./auth.js?v=v3-47"></script>
   </body>
 </html>

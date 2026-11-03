@@ -6,6 +6,7 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const VIEWS = ["login", "register", "forgot", "reset", "verify", "sent-verify", "sent-reset", "reset-done"];
+  const POSES = { login: "login", register: "register", verify: "register", "sent-verify": "register", forgot: "forgot", reset: "forgot", "sent-reset": "forgot", "reset-done": "login" };
   const params = new URLSearchParams(location.search);
   const expired = params.get("expired") === "1";
   const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -29,6 +30,8 @@
     const entering = $(`[data-view="${view}"]`);
     if (entering) { entering.classList.remove("is-entering"); void entering.offsetWidth; entering.classList.add("is-entering"); }
     shown = view;
+    // Поза лисы зависит от экрана: вход, регистрация, восстановление (см. .auth-card[data-pose] в CSS).
+    $(".auth-card")?.setAttribute("data-pose", POSES[view] || "login");
     document.title = `${{ login: "Вход", register: "Регистрация", forgot: "Восстановление пароля", reset: "Новый пароль", verify: "Подтверждение почты" }[view] || "Аккаунт"} — Kitsu · Кицунэ`;
     if (view === "verify") paintVerify();
     const first = $(`[data-view="${view}"] input`);

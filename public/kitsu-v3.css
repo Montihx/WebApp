@@ -2922,15 +2922,21 @@ html[data-palette="obsidian"] .auth-fig__img--obsidian { display: block; }
 @keyframes auth-petal { 0% { opacity: 0; transform: translate(0, 0) rotate(0); } 10% { opacity: 0.95; } 100% { opacity: 0; transform: translate(-70px, 420px) rotate(300deg); } }
 
 /* Вкладки: подсветка выезжает под активной. */
-:root .auth-tabs { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--glass-line); }
+:root .auth-tabs { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border: 1px solid var(--glass-line); border-radius: 14px; background: color-mix(in srgb, var(--canvas) 55%, var(--surface)); box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35); }
 :root .auth-tabs[hidden] { display: none; }
-:root .auth-tabs__thumb { position: absolute; top: 0; bottom: -1px; left: 0; width: 50%; transition: transform 520ms var(--ease-spring); }
-:root .auth-tabs__thumb::before { position: absolute; inset: 0 0 3px; content: ""; background: linear-gradient(0deg, var(--accent-soft), transparent); }
-:root .auth-tabs__thumb::after { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; content: ""; background: var(--accent); border-radius: 2px; box-shadow: 0 0 18px var(--accent-glow); }
+:root .auth-tabs__thumb { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--accent) 16%, var(--surface-raised)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 6px 18px -8px color-mix(in srgb, var(--accent) 55%, transparent); transition: transform 520ms var(--ease-spring); }
+:root .auth-tabs__thumb::after { position: absolute; left: 22%; right: 22%; bottom: -1px; height: 2px; content: ""; background: var(--accent); border-radius: 2px; box-shadow: 0 0 12px var(--accent-glow); }
 :root .auth-tabs:has([data-auth-tab="register"].is-active) .auth-tabs__thumb { transform: translateX(100%); }
-:root .auth-tab { position: relative; z-index: 1; display: grid; place-items: center; min-height: 48px; color: var(--text-muted); font-family: var(--font-heading); font-size: 1.0625rem; transition: color 240ms; }
+:root .auth-tab { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 46px; border-radius: 10px; color: var(--text-muted); font-family: var(--font-heading); font-size: 1rem; transition: color 240ms; }
+:root .auth-tab svg { width: 18px; height: 18px; flex: none; transition: transform 320ms var(--ease-spring); }
 :root .auth-tab:hover { color: var(--text); }
-:root .auth-tab.is-active { color: var(--text); }
+:root .auth-tab.is-active { color: var(--accent-text); }
+:root .auth-tab.is-active svg { transform: scale(1.12); }
+
+/* Поза лисы по экрану: вход — спокойная, регистрация — подаётся к форме, восстановление — сникла. Двигается обёртка, сама картинка качается как раньше. */
+:root .auth-fig { --pose-x: 0px; --pose-y: 0px; --pose-r: 0deg; --pose-s: 1; transform-origin: 50% 100%; transform: translate(var(--pose-x), var(--pose-y)) rotate(var(--pose-r)) scale(var(--pose-s)); transition: transform 800ms var(--ease-spring), filter 600ms var(--ease-out); }
+:root .auth-card[data-pose="register"] .auth-fig { --pose-x: 14px; --pose-y: -4px; --pose-r: 2.4deg; --pose-s: 1.035; }
+:root .auth-card[data-pose="forgot"] .auth-fig { --pose-x: -6px; --pose-y: 12px; --pose-r: -2.6deg; --pose-s: 0.975; filter: saturate(0.82) brightness(0.93); }
 
 :root .auth-view { position: relative; z-index: 1; display: grid; gap: 16px; }
 :root .auth-view[hidden] { display: none; }
@@ -3030,6 +3036,8 @@ body[data-page="auth"].is-hidden-tab .auth-petal, body[data-page="auth"].is-hidd
   :root .auth-card { grid-template-columns: minmax(0, 1fr); }
   :root .auth-card { min-height: 0; }
   :root .auth-art { height: 150px; border-radius: 14.5px 14.5px 0 0; margin: var(--edge) var(--edge) 0; }
+  :root .auth-card[data-pose="register"] .auth-fig { --pose-x: 6px; --pose-y: -2px; --pose-r: 1.6deg; --pose-s: 1.02; }
+  :root .auth-card[data-pose="forgot"] .auth-fig { --pose-x: -3px; --pose-y: 6px; --pose-r: -1.8deg; --pose-s: 0.985; }
   :root .auth-fig { left: 50%; top: -104px; bottom: auto; width: 340px; height: 254px; margin-left: -170px; overflow: hidden; }
   :root .auth-fig__img { position: absolute; left: 0; top: 0; width: 100%; height: auto; object-fit: initial; }
   :root .auth-fig__img--obsidian, html[data-palette="obsidian"] .auth-fig__img--sakura { display: none; }
@@ -3052,7 +3060,7 @@ body[data-page="auth"].is-hidden-tab .auth-petal, body[data-page="auth"].is-hidd
   :root .auth-reel__col, :root .auth-fire, :root .auth-card, :root .auth-card__spark, :root .auth-fig__img, :root .auth-petal, :root .auth-art__fire, :root .auth-view > *, :root .auth-error, :root .auth-field__box, :root .auth-seal svg, :root .auth-seal::before, :root .auth-seal::after, :root .auth-submit.is-busy svg { animation: none !important; }
   :root .auth-card__spark { transform: translate(-50%, -50%) rotate(40deg); }
   :root .auth-fire { opacity: 0.6; }
-  :root .auth-tabs__thumb, :root .auth-field__bar, :root .auth-field__label, :root .auth-submit, :root .auth-submit svg { transition: none; }
+  :root .auth-tabs__thumb, :root .auth-fig, :root .auth-tab svg, :root .auth-field__bar, :root .auth-field__label, :root .auth-submit, :root .auth-submit svg { transition: none; }
 }
 
 /* ===== Профиль (profile.html) ===== */
