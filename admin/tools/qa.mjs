@@ -141,7 +141,7 @@ const baselinePairs = {
     text: "#f6f1f7",
     "text-secondary": "#cbc1d2",
     "text-muted": "#a197ab",
-    "accent-text": "#d8bbff",
+    "accent-text": "#dcc0f8",
     green: "#5be3a8",
     amber: "#ffcb70",
     red: "#ff5c7a",
@@ -168,7 +168,7 @@ const baselinePairs = {
 };
 const reinforcedTokens = ["accent-text", "green", "amber", "red", "info"];
 const primaryPairs = {
-  dark: { fg: "#1c0f2b", bg: "#c4a1ff" },
+  dark: { fg: "#1c0f2b", bg: "#c9a4f5" },
   light: { fg: "#ffffff", bg: "#6b3fc4" },
 };
 

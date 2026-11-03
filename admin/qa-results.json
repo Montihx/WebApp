@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "project": "Kitsu admin template v4 · Пульт лисьего огня",
-  "generated_at": "2026-10-26T02:36:43.577Z",
+  "project": "Kitsu admin template v5 · Пульт лисьего огня",
+  "generated_at": "2026-11-03T03:32:21.142Z",
   "summary": {
     "status": "pass",
     "total": 19,
@@ -25,13 +25,13 @@
       "id": "index.ids",
       "label": "index.html: уникальные ID",
       "status": "pass",
-      "detail": "13 уникальных ID"
+      "detail": "10 уникальных ID"
     },
     {
       "id": "index.references",
       "label": "index.html: локальные ссылки",
       "status": "pass",
-      "detail": "6 локальных ссылок разрешены"
+      "detail": "7 локальных ссылок разрешены"
     },
     {
       "id": "index.buttons",
@@ -43,7 +43,7 @@
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "681 блоков, структура сбалансирована"
+      "detail": "831 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -79,7 +79,7 @@
       "id": "css.tabularNums",
       "label": "CSS: tabular-nums на числовых колонках",
       "status": "pass",
-      "detail": "9 правил с tabular-nums"
+      "detail": "11 правил с tabular-nums"
     },
     {
       "id": "css.contrastSync",
@@ -155,9 +155,9 @@
     {
       "theme": "dark",
       "token": "accent-text",
-      "foreground": "#d8bbff",
+      "foreground": "#dcc0f8",
       "background": "#15111b",
-      "ratio": 11.057723543369715,
+      "ratio": 11.471353832951584,
       "threshold": 6,
       "tier": "reinforced"
     },
@@ -237,8 +237,8 @@
       "theme": "dark",
       "token": "primary-fg",
       "foreground": "#1c0f2b",
-      "background": "#c4a1ff",
-      "ratio": 8.57990578485062,
+      "background": "#c9a4f5",
+      "ratio": 8.773469697690908,
       "threshold": 4.5,
       "tier": "baseline"
     },

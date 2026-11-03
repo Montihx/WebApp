@@ -1,11 +1,11 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template v3 · Сакура и Обсидиан",
-  "generated_at": "2026-10-26T02:36:59.870Z",
+  "generated_at": "2026-11-03T03:32:21.104Z",
   "summary": {
     "status": "pass",
-    "total": 49,
-    "passed": 49,
+    "total": 84,
+    "passed": 84,
     "failed": 0
   },
   "results": [
@@ -13,7 +13,7 @@
       "id": "files.required",
       "label": "Обязательные файлы",
       "status": "pass",
-      "detail": "10 файлов на месте"
+      "detail": "20 файлов на месте"
     },
     {
       "id": "index.html.document",
@@ -25,19 +25,19 @@
       "id": "index.html.ids",
       "label": "index.html: уникальные ID",
       "status": "pass",
-      "detail": "42 уникальных ID"
+      "detail": "49 уникальных ID"
     },
     {
       "id": "index.html.references",
       "label": "index.html: локальные ссылки",
       "status": "pass",
-      "detail": "52 локальных ссылок разрешены"
+      "detail": "60 локальных ссылок разрешены"
     },
     {
       "id": "index.html.aria",
       "label": "index.html: ARIA-ссылки",
       "status": "pass",
-      "detail": "15 ссылок разрешены"
+      "detail": "20 ссылок разрешены"
     },
     {
       "id": "index.html.buttons",
@@ -49,7 +49,7 @@
       "id": "index.html.images",
       "label": "index.html: alt у изображений",
       "status": "pass",
-      "detail": "37 изображений проверено"
+      "detail": "29 изображений проверено"
     },
     {
       "id": "index.html.anchors",
@@ -67,19 +67,19 @@
       "id": "anime.html.ids",
       "label": "anime.html: уникальные ID",
       "status": "pass",
-      "detail": "71 уникальных ID"
+      "detail": "69 уникальных ID"
     },
     {
       "id": "anime.html.references",
       "label": "anime.html: локальные ссылки",
       "status": "pass",
-      "detail": "40 локальных ссылок разрешены"
+      "detail": "48 локальных ссылок разрешены"
     },
     {
       "id": "anime.html.aria",
       "label": "anime.html: ARIA-ссылки",
       "status": "pass",
-      "detail": "26 ссылок разрешены"
+      "detail": "27 ссылок разрешены"
     },
     {
       "id": "anime.html.buttons",
@@ -91,7 +91,7 @@
       "id": "anime.html.images",
       "label": "anime.html: alt у изображений",
       "status": "pass",
-      "detail": "11 изображений проверено"
+      "detail": "14 изображений проверено"
     },
     {
       "id": "anime.html.anchors",
@@ -100,10 +100,220 @@
       "detail": "нет href=\"#\" и javascript-ссылок"
     },
     {
+      "id": "auth.html.document",
+      "label": "auth.html: документ",
+      "status": "pass",
+      "detail": "lang=ru, viewport и один H1"
+    },
+    {
+      "id": "auth.html.ids",
+      "label": "auth.html: уникальные ID",
+      "status": "pass",
+      "detail": "3 уникальных ID"
+    },
+    {
+      "id": "auth.html.references",
+      "label": "auth.html: локальные ссылки",
+      "status": "pass",
+      "detail": "14 локальных ссылок разрешены"
+    },
+    {
+      "id": "auth.html.aria",
+      "label": "auth.html: ARIA-ссылки",
+      "status": "pass",
+      "detail": "1 ссылок разрешены"
+    },
+    {
+      "id": "auth.html.buttons",
+      "label": "auth.html: типы кнопок",
+      "status": "pass",
+      "detail": "у каждой кнопки указан type"
+    },
+    {
+      "id": "auth.html.images",
+      "label": "auth.html: alt у изображений",
+      "status": "pass",
+      "detail": "42 изображений проверено"
+    },
+    {
+      "id": "auth.html.anchors",
+      "label": "auth.html: ссылки без заглушек",
+      "status": "pass",
+      "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "profile.html.document",
+      "label": "profile.html: документ",
+      "status": "pass",
+      "detail": "lang=ru, viewport и один H1"
+    },
+    {
+      "id": "profile.html.ids",
+      "label": "profile.html: уникальные ID",
+      "status": "pass",
+      "detail": "42 уникальных ID"
+    },
+    {
+      "id": "profile.html.references",
+      "label": "profile.html: локальные ссылки",
+      "status": "pass",
+      "detail": "50 локальных ссылок разрешены"
+    },
+    {
+      "id": "profile.html.aria",
+      "label": "profile.html: ARIA-ссылки",
+      "status": "pass",
+      "detail": "20 ссылок разрешены"
+    },
+    {
+      "id": "profile.html.buttons",
+      "label": "profile.html: типы кнопок",
+      "status": "pass",
+      "detail": "у каждой кнопки указан type"
+    },
+    {
+      "id": "profile.html.images",
+      "label": "profile.html: alt у изображений",
+      "status": "pass",
+      "detail": "7 изображений проверено"
+    },
+    {
+      "id": "profile.html.anchors",
+      "label": "profile.html: ссылки без заглушек",
+      "status": "pass",
+      "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "profile-settings.html.document",
+      "label": "profile-settings.html: документ",
+      "status": "pass",
+      "detail": "lang=ru, viewport и один H1"
+    },
+    {
+      "id": "profile-settings.html.ids",
+      "label": "profile-settings.html: уникальные ID",
+      "status": "pass",
+      "detail": "49 уникальных ID"
+    },
+    {
+      "id": "profile-settings.html.references",
+      "label": "profile-settings.html: локальные ссылки",
+      "status": "pass",
+      "detail": "48 локальных ссылок разрешены"
+    },
+    {
+      "id": "profile-settings.html.aria",
+      "label": "profile-settings.html: ARIA-ссылки",
+      "status": "pass",
+      "detail": "25 ссылок разрешены"
+    },
+    {
+      "id": "profile-settings.html.buttons",
+      "label": "profile-settings.html: типы кнопок",
+      "status": "pass",
+      "detail": "у каждой кнопки указан type"
+    },
+    {
+      "id": "profile-settings.html.images",
+      "label": "profile-settings.html: alt у изображений",
+      "status": "pass",
+      "detail": "7 изображений проверено"
+    },
+    {
+      "id": "profile-settings.html.anchors",
+      "label": "profile-settings.html: ссылки без заглушек",
+      "status": "pass",
+      "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "user.html.document",
+      "label": "user.html: документ",
+      "status": "pass",
+      "detail": "lang=ru, viewport и один H1"
+    },
+    {
+      "id": "user.html.ids",
+      "label": "user.html: уникальные ID",
+      "status": "pass",
+      "detail": "29 уникальных ID"
+    },
+    {
+      "id": "user.html.references",
+      "label": "user.html: локальные ссылки",
+      "status": "pass",
+      "detail": "47 локальных ссылок разрешены"
+    },
+    {
+      "id": "user.html.aria",
+      "label": "user.html: ARIA-ссылки",
+      "status": "pass",
+      "detail": "11 ссылок разрешены"
+    },
+    {
+      "id": "user.html.buttons",
+      "label": "user.html: типы кнопок",
+      "status": "pass",
+      "detail": "у каждой кнопки указан type"
+    },
+    {
+      "id": "user.html.images",
+      "label": "user.html: alt у изображений",
+      "status": "pass",
+      "detail": "7 изображений проверено"
+    },
+    {
+      "id": "user.html.anchors",
+      "label": "user.html: ссылки без заглушек",
+      "status": "pass",
+      "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
+      "id": "bookmarks.html.document",
+      "label": "bookmarks.html: документ",
+      "status": "pass",
+      "detail": "lang=ru, viewport и один H1"
+    },
+    {
+      "id": "bookmarks.html.ids",
+      "label": "bookmarks.html: уникальные ID",
+      "status": "pass",
+      "detail": "30 уникальных ID"
+    },
+    {
+      "id": "bookmarks.html.references",
+      "label": "bookmarks.html: локальные ссылки",
+      "status": "pass",
+      "detail": "47 локальных ссылок разрешены"
+    },
+    {
+      "id": "bookmarks.html.aria",
+      "label": "bookmarks.html: ARIA-ссылки",
+      "status": "pass",
+      "detail": "13 ссылок разрешены"
+    },
+    {
+      "id": "bookmarks.html.buttons",
+      "label": "bookmarks.html: типы кнопок",
+      "status": "pass",
+      "detail": "у каждой кнопки указан type"
+    },
+    {
+      "id": "bookmarks.html.images",
+      "label": "bookmarks.html: alt у изображений",
+      "status": "pass",
+      "detail": "7 изображений проверено"
+    },
+    {
+      "id": "bookmarks.html.anchors",
+      "label": "bookmarks.html: ссылки без заглушек",
+      "status": "pass",
+      "detail": "нет href=\"#\" и javascript-ссылок"
+    },
+    {
       "id": "css.structure",
       "label": "CSS: синтаксическая структура",
       "status": "pass",
-      "detail": "1364 блоков, структура сбалансирована"
+      "detail": "1176 блоков, структура сбалансирована"
     },
     {
       "id": "css.themes",
@@ -157,7 +367,7 @@
       "id": "css.kitsune",
       "label": "CSS: арт-направление «Кицунэ»",
       "status": "pass",
-      "detail": "hero 520–720 px, офуда (10, иероглифы aria-hidden), ханко, зерно, сэйгайха, лисий огонь, токены движения"
+      "detail": "hero 520–720 px, офуда (1, иероглифы aria-hidden), ханко, зерно, сэйгайха, лисий огонь, токены движения"
     },
     {
       "id": "css.continueRail",
@@ -211,7 +421,7 @@
       "id": "css.tabularNums",
       "label": "CSS: tabular-nums на числовых узлах",
       "status": "pass",
-      "detail": "16 правил с tabular-nums"
+      "detail": "14 правил с tabular-nums"
     },
     {
       "id": "js.headerSearch",
@@ -241,7 +451,7 @@
       "id": "html.posterFacts",
       "label": "HTML: серии и рейтинг под названием",
       "status": "pass",
-      "detail": "рейтинг и количество серий убраны с изображения; под названием показаны вышедшие/всего серии и компактная оценка"
+      "detail": "оценка — в углу постера вместо статуса; под названием — серии"
     },
     {
       "id": "html.heroSlider",
@@ -259,7 +469,7 @@
       "id": "html.titleMobile",
       "label": "HTML: мобильный тайтл и список",
       "status": "pass",
-      "detail": "mobile status без лишней ведущей иконки, 6 metadata-строк с возрастным рейтингом и 5 статусов с отдельным удалением синхронизированы"
+      "detail": "mobile status без лишней ведущей иконки, 5 строк фактов из API, возраст меткой у названия и 5 статусов с отдельным удалением синхронизированы"
     },
     {
       "id": "html.titleNotifications",
@@ -335,9 +545,9 @@
     {
       "theme": "dark",
       "token": "accent-text",
-      "foreground": "#d8bbff",
+      "foreground": "#dcc0f8",
       "background": "#15111b",
-      "ratio": 11.057723543369715,
+      "ratio": 11.471353832951584,
       "threshold": 6,
       "tier": "reinforced"
     },
@@ -417,8 +627,8 @@
       "theme": "dark",
       "token": "primary-fg",
       "foreground": "#1c0f2b",
-      "background": "#c4a1ff",
-      "ratio": 8.57990578485062,
+      "background": "#c9a4f5",
+      "ratio": 8.773469697690908,
       "threshold": 4.5,
       "tier": "baseline"
     },
