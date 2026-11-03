@@ -6,7 +6,6 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
   const STATE = new URLSearchParams(location.search).get("state");
   const ICON_ATTRS = { "aria-hidden": "true", "stroke-width": 1.8 };
   const icons = (root) => window.lucide?.createIcons({ attrs: ICON_ATTRS, root });
@@ -506,19 +505,9 @@
     $$("[data-reveal]").forEach((n) => { if (!n.hidden) n.classList.add("is-in"); });
   }
 
-  function initHeroPointer() {
-    if (!finePointer || reduced) return;
-    const hero = $("[data-hero]");
-    hero.addEventListener("pointermove", (e) => {
-      const r = hero.getBoundingClientRect();
-      hero.style.setProperty("--mx", ((e.clientX - r.left) / r.width - 0.5).toFixed(3));
-      hero.style.setProperty("--my", ((e.clientY - r.top) / r.height - 0.5).toFixed(3));
-    });
-  }
-
   document.addEventListener("visibilitychange", () => document.body.classList.toggle("is-hidden-tab", document.hidden));
   icons(document);
-  initNav(); initHeroPointer(); initChart(); initMarks(); initDialog();
+  initNav(); initChart(); initMarks(); initDialog();
   loadHero(); loadHistory(); loadCols();
   $("[data-history-more]").addEventListener("click", () => loadHistory(true));
 })();

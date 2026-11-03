@@ -2425,21 +2425,18 @@ html[data-theme="light"] .title-backdrop-plane {
   color: var(--text); font: 700 10px/1 var(--font-mono);
 }
 .thread-knot > span { transform: rotate(-45deg); }
-/* Табличка висит чуть криво и выпрямляется под рукой. */
+/* Постер связанного тайтла. */
 .relation-poster {
   position: relative; display: block; aspect-ratio: 2 / 3; overflow: hidden;
   border: 1px solid var(--glass-line); border-radius: 10px; background: var(--surface-raised);
-  transform: rotate(var(--tilt, -1.2deg)); transform-origin: 50% -16px;
   transition: transform var(--dur-3) var(--ease-spring), border-color var(--dur-2), box-shadow var(--dur-2);
   box-shadow: 0 14px 26px -18px rgba(0, 0, 0, 0.7);
 }
-:root #watch-order-list.relation-track > li:nth-child(2n) .relation-poster { --tilt: 1deg; }
-:root #watch-order-list.relation-track > li:nth-child(3n) .relation-poster { --tilt: -0.6deg; }
 .relation-poster > img { width: 100%; height: 100%; object-fit: cover; }
-a.relation-card:hover .relation-poster, a.relation-card:focus-visible .relation-poster { --tilt: 0deg; border-color: color-mix(in srgb, var(--thread) 70%, transparent); }
+a.relation-card:hover .relation-poster, a.relation-card:focus-visible .relation-poster { border-color: color-mix(in srgb, var(--thread) 70%, transparent); }
 a.relation-card:focus-visible { outline: none; }
 a.relation-card:focus-visible .relation-poster { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
-.relation-card.is-current .relation-poster { --tilt: 0deg; border: 2px solid var(--accent); box-shadow: 0 16px 34px -18px var(--accent-glow); }
+.relation-card.is-current .relation-poster { border: 2px solid var(--accent); box-shadow: 0 16px 34px -18px var(--accent-glow); }
 
 /* Иероглиф связи — тушью в углу, как печать на табличке. */
 .relation-kanji {
@@ -3074,9 +3071,9 @@ body[data-page="profile"] { background: var(--canvas); }
   background-image: radial-gradient(70% 120% at 12% 0%, var(--accent-soft), transparent 70%), radial-gradient(60% 110% at 100% 100%, color-mix(in srgb, var(--accent-2) 22%, transparent), transparent 70%); }
 :root .pf-hero__grid { position: absolute; inset: 0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 44px 44px; opacity: 0.45;
   -webkit-mask-image: linear-gradient(180deg, #000, transparent 92%); mask-image: linear-gradient(180deg, #000, transparent 92%); }
-:root .pf-hero__orb { position: absolute; width: 220px; height: 220px; border-radius: 28px; background: var(--accent-grad); opacity: 0.22; transform: translate(calc(var(--mx, 0) * 26px), calc(var(--my, 0) * 18px)) rotate(45deg); transition: transform 0.5s var(--ease-out); }
+:root .pf-hero__orb { position: absolute; width: 220px; height: 220px; border-radius: 28px; background: var(--accent-grad); opacity: 0.22; transform: rotate(45deg); }
 :root .pf-hero__orb--a { right: 12%; top: -90px; }
-:root .pf-hero__orb--b { right: 3%; top: 38%; width: 120px; height: 120px; opacity: 0.16; transform: translate(calc(var(--mx, 0) * -34px), calc(var(--my, 0) * -22px)) rotate(45deg); }
+:root .pf-hero__orb--b { right: 3%; top: 38%; width: 120px; height: 120px; opacity: 0.16; transform: rotate(45deg); }
 :root .pf-hero__body { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; column-gap: 24px; align-items: start; padding: 0 28px 28px; }
 :root .pf-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 6px; background: var(--surface-raised); color: var(--text-secondary); font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
 :root .pf-chip svg { width: 14px; height: 14px; }
@@ -3265,9 +3262,9 @@ body[data-page="profile"].is-hidden-tab .pf-skel { animation-play-state: paused;
   background-image: radial-gradient(70% 120% at 12% 0%, var(--accent-soft), transparent 70%), radial-gradient(60% 110% at 100% 100%, color-mix(in srgb, var(--accent-2) 22%, transparent), transparent 70%); }
 :root .pf-hero__cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, var(--canvas) 100%); }
 :root .pf-hero__grid { position: absolute; inset: 0; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 44px 44px; opacity: 0.45; -webkit-mask-image: linear-gradient(180deg, #000, transparent 90%); mask-image: linear-gradient(180deg, #000, transparent 90%); }
-:root .pf-hero__orb { position: absolute; width: 220px; height: 220px; border-radius: 28px; background: var(--accent-grad); opacity: 0.22; transform: translate(calc(var(--mx, 0) * 26px), calc(var(--my, 0) * 18px)) rotate(45deg); transition: transform 0.5s var(--ease-out); }
+:root .pf-hero__orb { position: absolute; width: 220px; height: 220px; border-radius: 28px; background: var(--accent-grad); opacity: 0.22; transform: rotate(45deg); }
 :root .pf-hero__orb--a { right: 12%; top: -90px; }
-:root .pf-hero__orb--b { right: 3%; top: 38%; width: 120px; height: 120px; opacity: 0.16; transform: translate(calc(var(--mx, 0) * -34px), calc(var(--my, 0) * -22px)) rotate(45deg); }
+:root .pf-hero__orb--b { right: 3%; top: 38%; width: 120px; height: 120px; opacity: 0.16; transform: rotate(45deg); }
 :root .pf-hero__body { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; padding: clamp(96px, 15vw, 168px) 0 8px; text-align: center; }
 :root .pf-avatar { position: relative; display: grid; place-items: center; width: clamp(104px, 14vw, 128px); aspect-ratio: 1; border: 4px solid var(--canvas); border-radius: 50%; background: var(--accent); color: var(--primary-fg); font-family: var(--font-heading); font-size: 3rem; overflow: hidden; box-shadow: 0 0 0 2px var(--line-strong); }
 :root .pf-avatar.is-online { box-shadow: 0 0 0 2px var(--green); }
