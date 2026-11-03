@@ -2068,6 +2068,17 @@
 
 /* Продолжить смотреть: компактные кадры 16:9 */
 :root .continue-grid { grid-auto-columns: clamp(200px, 22vw, 268px); gap: clamp(10px, 1.4vw, 16px); }
+/* История просмотра: компактные карточки, в ряд влезает больше. */
+:root .continue-grid { grid-auto-columns: clamp(156px, 17vw, 216px); gap: clamp(8px, 1.1vw, 12px); }
+:root .continue-progress-copy { right: 9px; bottom: 12px; left: 9px; gap: 6px; }
+:root .continue-progress-copy strong { padding: 2px 7px; font-size: 0.6875rem; }
+:root .continue-progress-copy small { font-size: 0.6875rem; }
+:root .continue-progress { right: 9px; bottom: 7px; left: 9px; }
+:root .continue-copy { padding-top: 8px; }
+:root .continue-copy h3 { font-size: 0.9rem; }
+:root .continue-copy p { margin-top: 2px; font-size: 0.72rem; }
+:root .continue-play svg { width: 36px; height: 36px; }
+:root .continue-remove svg { width: 14px; height: 14px; }
 
 /* Карточка: текст под постером в масштабе постера */
 :root .card-title-row h3 { font-size: clamp(0.8125rem, 0.9vw + 0.45rem, 0.9375rem); }
