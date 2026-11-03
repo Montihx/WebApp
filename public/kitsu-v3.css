@@ -3802,23 +3802,7 @@ body[data-page="bookmarks"].is-hidden-tab .pf-skel { animation-play-state: pause
 
 /* Более плотный межстрочный интервал на заголовках */
 :root h1, :root h2 {
-  line-height: 0.95;
-}
-
-/* Плавное появление секций при переключении табов */
-:root .tab-panel:not([hidden]) {
-  animation: kv-tab-in 400ms var(--ease-out);
-}
-
-@keyframes kv-tab-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  line-height: 1.05;
 }
 
 /* Тёплый отсвет на активных элементах навигации */
@@ -3838,10 +3822,6 @@ body[data-page="bookmarks"].is-hidden-tab .pf-skel { animation-play-state: pause
 
 /* Отключить всё при уменьшении движения */
 @media (prefers-reduced-motion: reduce) {
-  :root .tab-panel:not([hidden]) {
-    animation: none;
-  }
-
   :root body {
     transition: none;
   }

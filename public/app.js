@@ -2126,28 +2126,6 @@
   }
 
   /* ================================================================
-     6. АДМИНКА — каскад виджетов
-     ================================================================ */
-
-  function initAdminWidgets() {
-    // Только в админке (проверяем по наличию специфичных элементов)
-    const widgets = document.querySelectorAll(
-      ".admin-card, .stat-card, .dash-card, .kv-admin-target"
-    );
-    if (!widgets.length) return;
-    if (prefersReduced()) {
-      widgets.forEach(w => w.style.opacity = "1");
-      return;
-    }
-
-    widgets.forEach((widget, i) => {
-      if (widget.classList.contains("kv-admin-widget")) return;
-      widget.classList.add("kv-admin-widget");
-      widget.style.animationDelay = (i * 40) + "ms";
-    });
-  }
-
-  /* ================================================================
      7. ГЛАВНАЯ — каскад для слайдера при первой загрузке
      ================================================================ */
 
@@ -2194,7 +2172,6 @@
     initReveal();
     initTitleParallax();
     initProgressBars();
-    initAdminWidgets();
     initHeroEntrance();
   }
 
@@ -2215,7 +2192,6 @@
     setTimeout(() => {
       addRevealClasses();
       initReveal();
-      initAdminWidgets();
     }, 50);
   });
 

@@ -1381,28 +1381,6 @@ main { view-transition-name: main-view; }
    Добавлено поверх всего, не меняет структуру
    ================================================================ */
 
-/* Каскадное появление виджетов */
-:root .kv-admin-widget {
-  animation: kv-widget-in 400ms var(--ease-out) backwards;
-}
-
-:root .kv-admin-widget:nth-child(1) { animation-delay: 40ms; }
-:root .kv-admin-widget:nth-child(2) { animation-delay: 80ms; }
-:root .kv-admin-widget:nth-child(3) { animation-delay: 120ms; }
-:root .kv-admin-widget:nth-child(4) { animation-delay: 160ms; }
-:root .kv-admin-widget:nth-child(5) { animation-delay: 200ms; }
-
-@keyframes kv-widget-in {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
 /* Плавный переход фона при смене темы */
 :root body {
   transition: background-color 400ms var(--ease-out), color 400ms var(--ease-out);
@@ -1410,11 +1388,6 @@ main { view-transition-name: main-view; }
 
 /* Отключить всё при уменьшении движения */
 @media (prefers-reduced-motion: reduce) {
-  :root .kv-admin-widget {
-    opacity: 1;
-    animation: none;
-  }
-
   :root body {
     transition: none;
   }
