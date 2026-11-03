@@ -2906,9 +2906,6 @@ html[data-theme="light"] .auth-scene::after { background: radial-gradient(65% 75
 
 /* Витрина слева: ромбы цвета акцента и узор из точек. Яркий фон нужен, чтобы персонаж на нём «читался». */
 :root .auth-art { position: relative; z-index: 1; overflow: hidden; margin: var(--edge) 0 var(--edge) var(--edge); border-radius: 14.5px 0 0 14.5px; background: linear-gradient(165deg, color-mix(in srgb, var(--accent) 34%, var(--surface-raised)), color-mix(in srgb, var(--accent-2) 12%, var(--surface)) 70%, var(--surface)); }
-:root .auth-art__lozenge { position: absolute; left: 50%; top: 48%; width: 330px; height: 330px; margin: -165px 0 0 -165px; border-radius: 24px; background: var(--accent-grad); opacity: 0.95; rotate: 45deg; translate: calc(var(--mx, 0) * -12px) calc(var(--my, 0) * -9px); box-shadow: 0 0 80px var(--accent-glow); }
-:root .auth-art__lozenge--ring { width: 440px; height: 440px; margin: -220px 0 0 -220px; border-radius: 28px; background: none; box-shadow: none; border: 2px solid color-mix(in srgb, var(--accent-text) 55%, transparent); opacity: 0.7; animation: auth-spin 60s linear infinite; }
-@keyframes auth-spin { to { rotate: 405deg; } }
 
 /* Персонаж: стоит на нижнем краю карточки, голова и ушки поднимаются над верхним, хвост выходит слева. */
 :root .auth-fig { position: absolute; z-index: 4; left: -58px; bottom: -8px; width: 490px; height: calc(100% + 150px); pointer-events: none; }
@@ -3026,14 +3023,13 @@ html[data-palette="obsidian"] .auth-fig__img--obsidian { display: block; }
 @keyframes auth-stamp { from { clip-path: inset(0 100% 0 0); transform: translateY(-14px) rotate(-8deg); } to { clip-path: inset(0 0 0 0); } }
 @keyframes auth-twinkle { 0%, 100% { opacity: 0.1; transform: rotate(45deg) scale(0.5); } 50% { opacity: 1; transform: rotate(45deg) scale(1); } }
 
-body[data-page="auth"].is-hidden-tab .auth-art__lozenge--ring, body[data-page="auth"].is-hidden-tab .auth-petal, body[data-page="auth"].is-hidden-tab .auth-art__fire, body[data-page="auth"].is-hidden-tab .auth-fig__img, body[data-page="auth"].is-hidden-tab .auth-card__spark { animation-play-state: paused; }
+body[data-page="auth"].is-hidden-tab .auth-petal, body[data-page="auth"].is-hidden-tab .auth-art__fire, body[data-page="auth"].is-hidden-tab .auth-fig__img, body[data-page="auth"].is-hidden-tab .auth-card__spark { animation-play-state: paused; }
 
 @media (max-width: 860px) {
   :root .auth-layout { width: min(480px, 100% - 32px); }
   :root .auth-card { grid-template-columns: minmax(0, 1fr); }
   :root .auth-card { min-height: 0; }
   :root .auth-art { height: 150px; border-radius: 14.5px 14.5px 0 0; margin: var(--edge) var(--edge) 0; }
-  :root .auth-art__lozenge { top: 70%; width: 170px; height: 170px; margin: -85px 0 0 -85px; } :root .auth-art__lozenge--ring { width: 230px; height: 230px; margin: -115px 0 0 -115px; }
   :root .auth-fig { left: 50%; top: -104px; bottom: auto; width: 340px; height: 254px; margin-left: -170px; overflow: hidden; }
   :root .auth-fig__img { position: absolute; left: 0; top: 0; width: 100%; height: auto; object-fit: initial; }
   :root .auth-fig__img--obsidian, html[data-palette="obsidian"] .auth-fig__img--sakura { display: none; }
@@ -3053,7 +3049,7 @@ body[data-page="auth"].is-hidden-tab .auth-art__lozenge--ring, body[data-page="a
   :root .auth-view h2 { font-size: 1.5rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  :root .auth-reel__col, :root .auth-fire, :root .auth-card, :root .auth-card__spark, :root .auth-fig__img, :root .auth-art__lozenge--ring, :root .auth-petal, :root .auth-art__fire, :root .auth-view > *, :root .auth-error, :root .auth-field__box, :root .auth-seal svg, :root .auth-seal::before, :root .auth-seal::after, :root .auth-submit.is-busy svg { animation: none !important; }
+  :root .auth-reel__col, :root .auth-fire, :root .auth-card, :root .auth-card__spark, :root .auth-fig__img, :root .auth-petal, :root .auth-art__fire, :root .auth-view > *, :root .auth-error, :root .auth-field__box, :root .auth-seal svg, :root .auth-seal::before, :root .auth-seal::after, :root .auth-submit.is-busy svg { animation: none !important; }
   :root .auth-card__spark { transform: translate(-50%, -50%) rotate(40deg); }
   :root .auth-fire { opacity: 0.6; }
   :root .auth-tabs__thumb, :root .auth-field__bar, :root .auth-field__label, :root .auth-submit, :root .auth-submit svg { transition: none; }
