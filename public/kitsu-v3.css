@@ -2909,7 +2909,6 @@ html[data-theme="light"] .auth-scene::after { background: radial-gradient(65% 75
 :root .auth-art__lozenge { position: absolute; left: 50%; top: 48%; width: 330px; height: 330px; margin: -165px 0 0 -165px; border-radius: 24px; background: var(--accent-grad); opacity: 0.95; rotate: 45deg; translate: calc(var(--mx, 0) * -12px) calc(var(--my, 0) * -9px); box-shadow: 0 0 80px var(--accent-glow); }
 :root .auth-art__lozenge--ring { width: 440px; height: 440px; margin: -220px 0 0 -220px; border-radius: 28px; background: none; box-shadow: none; border: 2px solid color-mix(in srgb, var(--accent-text) 55%, transparent); opacity: 0.7; animation: auth-spin 60s linear infinite; }
 @keyframes auth-spin { to { rotate: 405deg; } }
-:root .auth-art__dots { position: absolute; right: 16px; top: 18px; width: 120px; height: 84px; color: color-mix(in srgb, var(--accent-text) 70%, transparent); }
 
 /* Персонаж: стоит на нижнем краю карточки, голова и ушки поднимаются над верхним, хвост выходит слева. */
 :root .auth-fig { position: absolute; z-index: 4; left: -58px; bottom: -8px; width: 490px; height: calc(100% + 150px); pointer-events: none; }
@@ -3035,7 +3034,6 @@ body[data-page="auth"].is-hidden-tab .auth-art__lozenge--ring, body[data-page="a
   :root .auth-card { min-height: 0; }
   :root .auth-art { height: 150px; border-radius: 14.5px 14.5px 0 0; margin: var(--edge) var(--edge) 0; }
   :root .auth-art__lozenge { top: 70%; width: 170px; height: 170px; margin: -85px 0 0 -85px; } :root .auth-art__lozenge--ring { width: 230px; height: 230px; margin: -115px 0 0 -115px; }
-  :root .auth-art__dots { width: 84px; height: 59px; right: 12px; top: 12px; }
   :root .auth-fig { left: 50%; top: -104px; bottom: auto; width: 340px; height: 254px; margin-left: -170px; overflow: hidden; }
   :root .auth-fig__img { position: absolute; left: 0; top: 0; width: 100%; height: auto; object-fit: initial; }
   :root .auth-fig__img--obsidian, html[data-palette="obsidian"] .auth-fig__img--sakura { display: none; }
