@@ -2503,7 +2503,9 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
    Расписание и обновления: чистые карточки-строки одной высоты
    ========================================================================== */
 /* Размытый кадр за строкой убран: фон ровный, постер слева. */
-:root .air-backdrop { display: none; }
+:root .air-backdrop,
+:root .schedule-card .schedule-item > .air-backdrop,
+:root .schedule-card .schedule-item > .air-backdrop > img { display: none; }
 :root .schedule-card .schedule-item--air,
 :root .schedule-card .schedule-item--air:has(.schedule-countdown) {
   grid-template-columns: 48px minmax(0, 1fr) auto; align-items: center;
@@ -2522,7 +2524,7 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 :root .schedule-card .schedule-item--air .air-time > span { display: block; text-align: right; color: var(--text-muted); -webkit-text-fill-color: var(--text-muted); font-size: 0.7rem; }
 :root .schedule-card .schedule-item--air .air-poster { width: 48px; height: auto; aspect-ratio: 3 / 4; border-radius: 8px; outline: 0; object-fit: cover; }
 :root .schedule-card .schedule-item--air .air-copy { display: grid; gap: 3px; min-width: 0; }
-:root .schedule-card .schedule-item--air .air-copy strong { color: var(--text); font-size: 0.95rem; line-height: 1.25; text-shadow: none; }
+:root .schedule-card .schedule-item--air .air-copy strong { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 1; white-space: nowrap; text-overflow: ellipsis; color: var(--text); font-size: 0.95rem; line-height: 1.25; text-shadow: none; }
 :root .schedule-card .schedule-item--air .air-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); font-size: 0.78rem; }
 :root .schedule-card .schedule-item--air .air-copy small[hidden] { display: none; }
 /* В обновлениях тип («ТВ-сериал», «Фильм») — последняя строка, он лишний: строки выходят такими же по высоте, как релизы. */
