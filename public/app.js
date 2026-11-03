@@ -2046,35 +2046,6 @@
   }
 
   /* ================================================================
-     3. SPOTLIGHT НА КАРТОЧКАХ
-     Свечение следует за курсором. Только для устройств с курсором.
-     ================================================================ */
-
-  function initSpotlight() {
-    if (!hasHover()) return;
-    if (prefersReduced()) return;
-
-    let rafId = null;
-
-    document.addEventListener("mousemove", event => {
-      const card = event.target.closest(".anime-card");
-      if (!card) return;
-
-      // Отменяем предыдущий запрос для производительности
-      if (rafId) cancelAnimationFrame(rafId);
-
-      rafId = requestAnimationFrame(() => {
-        const rect = card.getBoundingClientRect();
-        const x = ((event.clientX - rect.left) / rect.width) * 100;
-        const y = ((event.clientY - rect.top) / rect.height) * 100;
-        card.style.setProperty("--kv-mx", x.toFixed(1) + "%");
-        card.style.setProperty("--kv-my", y.toFixed(1) + "%");
-        rafId = null;
-      });
-    }, { passive: true });
-  }
-
-  /* ================================================================
      4. ПАРАЛЛАКС НА СТРАНИЦЕ ТАЙТЛА
      ================================================================ */
 
@@ -2086,14 +2057,22 @@
     if (!bg) return;
     if (prefersReduced()) return;
 
+    // Исходный transform из CSS (десктоп: scale(1.08), мобильный: none).
+    // На мобильном фон короткий и без запаса по краям — параллакс не нужен.
+    const baseTransform = window.getComputedStyle(bg).transform;
+    if (!baseTransform || baseTransform === "none") return;
+    const factor = parseFloat(
+      window.getComputedStyle(document.documentElement).getPropertyValue("--kv-parallax-factor")
+    ) || 0.18;
+
     let ticking = false;
 
     function update() {
       const scrollY = window.scrollY || window.pageYOffset;
       // Не двигаем слишком далеко — максимум 120px
       const maxShift = 120;
-      const shift = Math.min(scrollY * 0.18, maxShift);
-      bg.style.transform = "translateY(" + shift.toFixed(1) + "px)";
+      const shift = Math.min(scrollY * factor, maxShift);
+      bg.style.transform = "translateY(" + shift.toFixed(1) + "px) " + baseTransform;
       ticking = false;
     }
 
@@ -2184,6 +2163,20 @@
     hero.style.transform = "translateY(12px)";
     hero.style.transition = "opacity 600ms cubic-bezier(.16,1,.3,1), transform 600ms cubic-bezier(.16,1,.3,1)";
 
+    // После анимации убираем инлайн-стили, чтобы не перекрывать CSS слайдера
+    let cleaned = false;
+    const cleanup = () => {
+      if (cleaned) return;
+      cleaned = true;
+      hero.style.opacity = "";
+      hero.style.transform = "";
+      hero.style.transition = "";
+    };
+    hero.addEventListener("transitionend", event => {
+      if (event.target === hero && event.propertyName === "opacity") cleanup();
+    });
+    window.setTimeout(cleanup, 900);
+
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         hero.style.opacity = "1";
@@ -2199,7 +2192,6 @@
   function init() {
     addRevealClasses();
     initReveal();
-    initSpotlight();
     initTitleParallax();
     initProgressBars();
     initAdminWidgets();

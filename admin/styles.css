@@ -1383,8 +1383,7 @@ main { view-transition-name: main-view; }
 
 /* Каскадное появление виджетов */
 :root .kv-admin-widget {
-  opacity: 0;
-  animation: kv-widget-in 400ms var(--ease-out) forwards;
+  animation: kv-widget-in 400ms var(--ease-out) backwards;
 }
 
 :root .kv-admin-widget:nth-child(1) { animation-delay: 40ms; }

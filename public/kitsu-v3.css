@@ -3805,11 +3805,6 @@ body[data-page="bookmarks"].is-hidden-tab .pf-skel { animation-play-state: pause
   line-height: 0.95;
 }
 
-/* Тонкие рамки на карточках для глубины */
-:root .anime-card {
-  border: 1px solid color-mix(in srgb, var(--line) 50%, transparent);
-}
-
 /* Плавное появление секций при переключении табов */
 :root .tab-panel:not([hidden]) {
   animation: kv-tab-in 400ms var(--ease-out);
@@ -3877,44 +3872,17 @@ body[data-page="bookmarks"].is-hidden-tab .pf-skel { animation-play-state: pause
 }
 
 /* ================================================================
-   2. SPOTLIGHT НА КАРТОЧКАХ (.anime-card)
-   Свечение следует за курсором. Работает только на устройствах
-   с курсором. ::after у .anime-card свободен — проверено.
+   2. БЛИК ЗА КУРСОРОМ — уже есть в оригинале (.poster-frame::after,
+   --mx/--my из app.js); .anime-card::after занят линией под постером.
+   Дубль из kv-fx удалён, чтобы не ломать оригинальные правила.
    ================================================================ */
-
-:root .anime-card {
-  --kv-mx: 50%;
-  --kv-my: 50%;
-}
-
-:root .anime-card::after {
-  content: "";
-  position: absolute;
-  inset: -3px;
-  border-radius: inherit;
-  pointer-events: none;
-  z-index: 1;
-  background: radial-gradient(
-    circle at var(--kv-mx) var(--kv-my),
-    var(--accent-glow),
-    transparent var(--kv-spotlight-size, 65%)
-  );
-  opacity: 0;
-  transition: opacity 350ms var(--ease-out);
-}
-
-@media (hover: hover) {
-  :root .anime-card:hover::after {
-    opacity: 1;
-  }
-}
 
 /* ================================================================
    3. КАСКАДНОЕ ПОЯВЛЕНИЕ КАРТОЧЕК В РЯДАХ
    ================================================================ */
 
 :root .poster-row > .anime-card {
-  animation: kv-card-in 450ms var(--ease-out) both;
+  animation: kv-card-in 450ms var(--ease-out) backwards;
 }
 
 :root .poster-row > .anime-card:nth-child(1) { animation-delay: calc(var(--kv-stagger-step, 45ms) * 1); }
@@ -3963,18 +3931,15 @@ body[data-page="bookmarks"].is-hidden-tab .pf-skel { animation-play-state: pause
    ================================================================ */
 
 :root .title-hero .breadcrumbs {
-  opacity: 0;
-  animation: kv-fade-up 450ms 150ms var(--ease-out) forwards;
+  animation: kv-fade-up 450ms 150ms var(--ease-out) backwards;
 }
 
 :root .title-hero .title-poster-wrap {
-  opacity: 0;
-  animation: kv-fade-up 500ms 250ms var(--ease-out) forwards;
+  animation: kv-fade-up 500ms 250ms var(--ease-out) backwards;
 }
 
 :root .title-hero .title-main-copy > * {
-  opacity: 0;
-  animation: kv-fade-up 500ms var(--ease-out) forwards;
+  animation: kv-fade-up 500ms var(--ease-out) backwards;
 }
 
 :root .title-hero .title-main-copy > *:nth-child(1) { animation-delay: 300ms; }
@@ -4041,8 +4006,7 @@ body[data-page="bookmarks"].is-hidden-tab .pf-skel { animation-play-state: pause
    ================================================================ */
 
 :root .comment-thread > li {
-  opacity: 0;
-  animation: kv-comment-in 400ms var(--ease-out) forwards;
+  animation: kv-comment-in 400ms var(--ease-out) backwards;
 }
 
 :root .comment-thread > li:nth-child(1) { animation-delay: 50ms; }
@@ -4100,8 +4064,7 @@ body[data-page="bookmarks"].is-hidden-tab .pf-skel { animation-play-state: pause
    ================================================================ */
 
 :root .kv-admin-widget {
-  opacity: 0;
-  animation: kv-widget-in 400ms var(--ease-out) forwards;
+  animation: kv-widget-in 400ms var(--ease-out) backwards;
 }
 
 :root .kv-admin-widget:nth-child(1) { animation-delay: 40ms; }
@@ -4129,10 +4092,6 @@ body[data-page="bookmarks"].is-hidden-tab .pf-skel { animation-play-state: pause
   :root .kv-reveal {
     opacity: 1;
     transform: none;
-    transition: none;
-  }
-
-  :root .anime-card::after {
     transition: none;
   }
 
