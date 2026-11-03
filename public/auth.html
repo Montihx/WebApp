@@ -22,9 +22,9 @@
         } catch (_) {}
       })();
     </script>
-    <link rel="stylesheet" href="../tokens.css?v=v3-47" />
-    <link rel="stylesheet" href="./styles.css?v=v3-47" />
-    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-47" />
+    <link rel="stylesheet" href="../tokens.css?v=v3-48" />
+    <link rel="stylesheet" href="./styles.css?v=v3-48" />
+    <link rel="stylesheet" href="./kitsu-v3.css?v=v3-48" />
   </head>
   <!--
     Экраны входа. Один файл, экран выбирается по хэшу: #login, #register, #forgot, #reset, #verify,
@@ -63,9 +63,11 @@
           <!-- Слева — витрина. Персонаж стоит поверх и выходит за рамку карточки. -->
           <aside class="auth-art" aria-hidden="true">
           </aside>
-          <!-- Персонаж: прозрачный WebP, стоит на нижнем краю карточки и выходит за верхнюю и левую рамку. Две версии под палитры: Сакура — auth-kitsune.webp, Обсидиан — auth-kitsune-amber.webp (портрет 2:3, ноги у нижнего края). -->
+          <!-- Персонаж: прозрачный WebP, стоит на нижнем краю карточки и выходит за верхнюю и левую рамку. Сакура: три позы по экрану — auth-kitsune-login/register/forgot.webp. Две версии под палитры: Сакура — позы выше, Обсидиан — auth-kitsune-amber.webp (портрет 2:3, ноги у нижнего края). -->
           <div class="auth-fig" aria-hidden="true">
-            <img class="auth-fig__img auth-fig__img--sakura" src="./img/auth-kitsune.webp" alt="" width="1024" height="1536" decoding="async" loading="lazy" />
+            <span class="auth-pose" data-pose-img="login"><img class="auth-fig__img" src="./img/auth-kitsune-login.webp" alt="" width="1024" height="1536" decoding="async" /></span>
+            <span class="auth-pose" data-pose-img="register"><img class="auth-fig__img" src="./img/auth-kitsune-register.webp" alt="" width="1024" height="1536" decoding="async" /></span>
+            <span class="auth-pose" data-pose-img="forgot"><img class="auth-fig__img" src="./img/auth-kitsune-forgot.webp" alt="" width="1024" height="1536" decoding="async" /></span>
             <img class="auth-fig__img auth-fig__img--obsidian" src="./img/auth-kitsune-amber.webp" alt="" width="1024" height="1536" decoding="async" loading="lazy" />
             <span class="auth-art__fire auth-art__fire--1"></span><span class="auth-art__fire auth-art__fire--2"></span><span class="auth-art__fire auth-art__fire--3"></span>
             <span class="auth-petal auth-petal--1"></span><span class="auth-petal auth-petal--2"></span><span class="auth-petal auth-petal--3"></span>
@@ -162,6 +164,6 @@
     </main>
 
     <script src="./vendor/lucide.min.js"></script>
-    <script src="./auth.js?v=v3-47"></script>
+    <script src="./auth.js?v=v3-48"></script>
   </body>
 </html>
