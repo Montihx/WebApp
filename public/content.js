@@ -401,7 +401,7 @@
       ];
       cols.innerHTML = list.map(c => `<a class="collection-tile" href="#collections" aria-label="Коллекция «${esc(c.title)}», ${c.items_count} ${M.plural(c.items_count, 'тайтл', 'тайтла', 'тайтлов')}">
         <span class="collection-tile__frame">${c.cover ? `<img decoding="async" src="${esc(M.poster(c.cover))}" alt="" loading="lazy" referrerpolicy="no-referrer" />` : '<span class="collection-tile__art" aria-hidden="true"></span>'}
-          <span class="collection-tile__count">${c.items_count} ${M.plural(c.items_count, 'тайтл', 'тайтла', 'тайтлов')}</span>
+          <span class="collection-tile__count"><i data-lucide="layers"></i>${c.items_count} ${M.plural(c.items_count, 'тайтл', 'тайтла', 'тайтлов')}</span>
           <span class="collection-tile__copy"><strong>${esc(c.title)}</strong><span class="collection-tile__stats"><span><i data-lucide="heart"></i>${nf.format(c.likes_count)}</span><span><i data-lucide="eye"></i>${nf.format(c.views_count)}</span></span></span>
         </span></a>`).join('');
     }
