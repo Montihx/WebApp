@@ -2515,7 +2515,7 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
    ========================================================================== */
 /* Фоновый кадр: размытый кадр того же тайтла за карточкой. Слой вне потока (absolute), в сетке только постер, текст и время. */
 :root .schedule-card .schedule-item > .air-backdrop { display: block; position: absolute; overflow: hidden; border-radius: 10px; background: rgb(var(--media-ink-rgb)); pointer-events: none; }
-:root #schedule-items .schedule-item > .air-backdrop { top: 0; bottom: 0; left: 48px; right: 0; z-index: 0; }
+:root #schedule-items .schedule-item > .air-backdrop { top: 0; bottom: 0; left: 58px; right: 0; z-index: 0; }
 :root .schedule-card .schedule-item--update > .air-backdrop { inset: 0; z-index: -1; }
 :root .schedule-card .schedule-item > .air-backdrop > img {
   position: absolute; inset: -12px; display: block; width: calc(100% + 24px); height: calc(100% + 24px); max-width: none;
@@ -2553,13 +2553,13 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 /* Расписание дня: вертикальный таймлайн — время слева, ось с квадратными узлами, карточки справа. */
 /* Строки берут высоту по содержимому (max-content): иначе в сетке с max-height треки сжимаются до нуля (min-height: 0 у строк), карточки вылезают и перекрывают друг друга, а маркер «сейчас» обрезается. */
 :root #schedule-items { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); grid-auto-rows: max-content; align-content: start; gap: 12px; padding: 8px 0 32px; }
-:root #schedule-items::before { content: ""; position: absolute; left: 40px; top: 12px; bottom: 36px; width: 2px; border-radius: 1px; background: var(--line); }
+:root #schedule-items::before { content: ""; position: absolute; left: 50px; top: 12px; bottom: 36px; width: 2px; border-radius: 1px; background: var(--line); }
 :root #schedule-items .schedule-item--air:not(.schedule-item--update) {
-  position: relative; display: grid; grid-template-columns: 34px 14px minmax(0, 1fr); align-items: center; gap: 0;
+  position: relative; display: grid; grid-template-columns: 44px 14px minmax(0, 1fr); align-items: center; gap: 0;
   height: auto; min-width: 0; min-height: 0; max-height: none; padding: 0; overflow: visible; border: 0; background: transparent; box-shadow: none; transform: none;
 }
 :root #schedule-items .schedule-item--air:not(.schedule-item--update):hover { background: transparent; transform: none; }
-:root #schedule-items .schedule-item--air:not(.schedule-item--update) .air-time { grid-column: 1; grid-row: 1; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; }
+:root #schedule-items .schedule-item--air:not(.schedule-item--update) .air-time { grid-column: 1; grid-row: 1; display: grid; justify-items: end; padding-right: 6px; }
 :root #schedule-items .schedule-item--air:not(.schedule-item--update) .air-time > span { display: none; }
 :root #schedule-items .schedule-item--air:not(.schedule-item--update) .air-time > b { font: 700 0.78rem/1.15 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-muted); -webkit-text-fill-color: var(--text-muted); background: none; }
 /* Узел оси: квадрат, не круг */
@@ -2590,8 +2590,8 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 :root #schedule-items .air-card .air-copy .schedule-countdown[hidden], :root #schedule-items .air-card .air-copy .air-done[hidden] { display: none; }
 /* Маркер «сейчас» поперёк оси */
 /* Маркер позиционирован, чтобы рисоваться поверх оси (ось ::before контейнера иначе перечёркивала узел двумя полосками). */
-:root #schedule-items .air-now { position: relative; z-index: 1; display: grid; grid-template-columns: 34px 14px minmax(0, 1fr); align-items: center; min-height: 18px; margin: 0; transform: none; }
-:root .air-now__time { justify-self: end; padding-right: 6px; color: var(--accent-2-text); font: 700 0.78rem/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+:root #schedule-items .air-now { position: relative; z-index: 1; display: grid; grid-template-columns: 44px 14px minmax(0, 1fr); align-items: center; min-height: 18px; margin: 0; transform: none; }
+:root .air-now__time { display: grid; justify-items: end; padding-right: 6px; color: var(--accent-2-text); font: 700 0.78rem/1 var(--font-mono); font-variant-numeric: tabular-nums; }
 :root .air-now__dot,
 :root #schedule-items .air-now__dot {
   position: relative; justify-self: center; width: 10px; height: 10px; margin: 0 auto; border: 0; border-radius: 3px;
@@ -2604,10 +2604,12 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 :root .air-now__line b { color: var(--accent-2-text); font-size: 0.85rem; font-weight: 700; }
 :root .air-now__line::after { content: ""; flex: 1; height: 2px; border-radius: 1px; background: color-mix(in srgb, var(--accent-2) 45%, transparent); }
 @media (max-width: 360px) {
-  :root #schedule-items::before { left: 35px; }
-  :root #schedule-items .schedule-item--air:not(.schedule-item--update), :root #schedule-items .air-now { grid-template-columns: 30px 12px minmax(0, 1fr); }
+  :root #schedule-items::before { left: 45px; }
+  :root #schedule-items .schedule-item--air:not(.schedule-item--update), :root #schedule-items .air-now { grid-template-columns: 40px 12px minmax(0, 1fr); }
   :root #schedule-items .schedule-item--air:not(.schedule-item--update) .air-time > b, :root .air-now__time { font-size: 0.72rem; }
-  :root #schedule-items .schedule-item > .air-backdrop { left: 42px; }
+  /* «19:30» при 0.72rem ≈ 34.6px: отступ 5px, чтобы четыре цифры точно влезли в колонку 40px */
+  :root #schedule-items .schedule-item--air:not(.schedule-item--update) .air-time, :root .air-now__time { padding-right: 5px; }
+  :root #schedule-items .schedule-item > .air-backdrop { left: 52px; }
 }
 @media (prefers-reduced-motion: reduce) { :root #schedule-items .air-card { transition: none; } }
 
