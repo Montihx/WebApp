@@ -2611,15 +2611,6 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 }
 @media (prefers-reduced-motion: reduce) { :root #schedule-items .air-card { transition: none; } }
 
-/* «Сейчас у вас 12:23» — в шапке карточки расписания, справа. */
-:root .schedule-card .schedule-head:has(.air-clock) { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; column-gap: 12px; }
-:root .schedule-card .schedule-head:has(.air-clock) > h2 { flex: 1 0 100%; }
-.air-clock {
-  margin: 0;
-  display: inline-flex; align-items: center; gap: 8px;
-  color: var(--kitsunebi-text); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-}
-.air-clock b { color: var(--text); font: 600 0.9375rem/1 var(--font-mono); letter-spacing: 0; }
 :root .schedule-empty strong { font-family: var(--font-heading); font-size: 1.25rem; font-weight: 400; letter-spacing: 0.02em; }
 :root .schedule-empty svg { color: var(--accent-text); }
 @media (max-width: 420px) {

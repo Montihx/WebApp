@@ -283,9 +283,8 @@
       const date = M.parseDateAsUtc(row.next_episode_at), diff = date.getTime() - Date.now(), air = M.airLabel(row.next_episode_at);
       return `<a class="schedule-item schedule-item--air${diff > 0 ? '' : ' is-aired'}${next ? ' is-next' : ''}" href="${href(row.local_slug)}"><span class="air-backdrop" aria-hidden="true"><img src="${esc(row.local_poster)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span><time class="air-time" datetime="${row.next_episode_at}"><span>${fmt(date, { weekday: 'short' })}</span><b>${fmt(date, { hour: '2-digit', minute: '2-digit' })}</b></time><span class="air-card"><img class="air-poster" src="${esc(row.local_poster)}" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="air-copy"><strong>${esc(row.anime.russian)}</strong><small>${row.next_episode} серия${row.genres ? `<span class="air-genres"> · ${esc(row.genres)}</span>` : ''}</small><small class="schedule-countdown"${air && air.status !== 'past' ? '' : ' hidden'}>${air && air.status !== 'past' ? `Выйдет ${air.label}` : ''}</small><small class="air-done"${diff > 0 ? ' hidden' : ''}>Вышла</small></span></span></a>`;
     }
-    // "Сейчас у вас" lives in the card header, not between rows.
+    // Текущее время нужно только маркеру «сейчас» в ленте дня.
     const clock = () => fmt(new Date(), { hour: '2-digit', minute: '2-digit' });
-    $('#schedule-title')?.closest('.schedule-head')?.querySelector('.section-kicker')?.insertAdjacentHTML('afterend', `<p class="air-clock" aria-live="off"><span>Сейчас у вас</span><b id="schedule-now">${clock()}</b></p>`);
     // Over the list: the selected date in words and a way back to today.
     $('#schedule-items').insertAdjacentHTML('beforebegin', '<div class="air-dayhead"><strong id="schedule-date"></strong><button type="button" class="air-today" id="schedule-today" hidden>К сегодня<i data-lucide="arrow-right"></i></button></div>');
     $('#schedule-today').addEventListener('click', () => { selectDay(M.dateKey(new Date())); $('#schedule-days .is-active')?.scrollIntoView?.({ inline: 'center', block: 'nearest' }); });
@@ -366,8 +365,6 @@
       const panel = $('#schedule-items');
       if (panel.querySelectorAll('.schedule-item.is-aired').length !== airedCount) renderItems();
       else { const marker = panel.querySelector('.air-now__time'); if (marker) marker.textContent = clock(); }
-      const nowClock = $('#schedule-now');
-      if (nowClock) nowClock.textContent = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     }
     let timer = setInterval(refresh, 60000);
     addEventListener('pagehide', () => clearInterval(timer));
