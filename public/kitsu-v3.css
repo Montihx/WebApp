@@ -2574,10 +2574,10 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 :root #schedule-items .schedule-item--air:not(.schedule-item--update) .air-time > b { font: 700 0.66rem/1.15 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-muted); -webkit-text-fill-color: var(--text-muted); background: none; }
 /* Узел оси: квадрат, не круг */
 :root #schedule-items .schedule-item--air:not(.schedule-item--update)::before {
-  content: ""; position: static; grid-column: 2; grid-row: 1; width: 10px; height: 10px; margin: 0 auto;
+  content: ""; position: static; grid-column: 2; grid-row: 1; width: 8px; height: 8px; margin: 0 auto;
   border-radius: 3px; background: var(--line-strong); box-shadow: none; opacity: 1;
 }
-:root #schedule-items .schedule-item--air.is-aired:not(.schedule-item--update)::before { background: var(--accent-2); box-shadow: 0 0 0 3px var(--canvas), 0 0 0 7px color-mix(in srgb, var(--accent-2) 22%, transparent); }
+:root #schedule-items .schedule-item--air.is-aired:not(.schedule-item--update)::before { background: var(--green); box-shadow: 0 0 0 1.5px var(--canvas), 0 0 0 3px color-mix(in srgb, var(--green) 30%, transparent); }
 :root #schedule-items .schedule-item--air.is-next:not(.schedule-item--update)::before { background: var(--text); box-shadow: none; }
 /* Карточка события: тот же размер, что у строки «Обновлений»; за ней размытый кадр тайтла. */
 :root #schedule-items .air-card {
@@ -2596,23 +2596,23 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 /* Чипы статуса — маленькие, чтобы не раздувать карточку; текст переносится, а не обрезается. */
 :root #schedule-items .air-card .air-copy .schedule-countdown { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; overflow: visible; padding: 1px 6px; border-radius: 6px; background: rgba(var(--media-ink-rgb), 0.55); color: var(--media-text); font: 600 0.7rem/1.25 var(--font-body); font-variant-numeric: tabular-nums; text-overflow: clip; white-space: normal; }
 :root #schedule-items .air-card .air-copy .schedule-countdown::before { width: 11px; height: 11px; }
-:root #schedule-items .air-card .air-copy .air-done { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 6px; background: rgba(232, 138, 168, 0.26); color: #ffc6d8; font-size: 0.7rem; font-weight: 700; line-height: 1.25; }
+:root #schedule-items .air-card .air-copy .air-done { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 6px; background: rgba(91, 227, 168, 0.22); color: #9af0c8; font-size: 0.7rem; font-weight: 700; line-height: 1.25; }
 :root #schedule-items .air-card .air-copy .schedule-countdown[hidden], :root #schedule-items .air-card .air-copy .air-done[hidden] { display: none; }
 /* Маркер «сейчас» поперёк оси */
 /* Маркер позиционирован, чтобы рисоваться поверх оси (ось ::before контейнера иначе перечёркивала узел двумя полосками). */
 :root #schedule-items .air-now { position: relative; z-index: 1; display: grid; grid-template-columns: 36px 14px minmax(0, 1fr); align-items: center; min-height: 18px; margin: 0; transform: none; }
-:root .air-now__time { display: grid; justify-items: end; padding-right: 4px; color: var(--accent-2-text); font: 700 0.66rem/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+:root .air-now__time { display: grid; justify-items: end; padding-right: 4px; color: var(--green); font: 700 0.66rem/1 var(--font-mono); font-variant-numeric: tabular-nums; }
 :root .air-now__dot,
 :root #schedule-items .air-now__dot {
-  position: relative; justify-self: center; width: 10px; height: 10px; margin: 0 auto; border: 0; border-radius: 3px;
-  background: var(--accent-2); background-image: none;
-  box-shadow: 0 0 0 3px var(--canvas), 0 0 0 7px color-mix(in srgb, var(--accent-2) 22%, transparent);
+  position: relative; justify-self: center; width: 8px; height: 8px; margin: 0 auto; border: 0; border-radius: 3px;
+  background: var(--green); background-image: none;
+  box-shadow: 0 0 0 1.5px var(--canvas), 0 0 0 3px color-mix(in srgb, var(--green) 30%, transparent);
 }
 :root .air-now__dot::before,
 :root .air-now__dot::after { content: none; }
-:root .air-now__line { display: flex; align-items: center; gap: 10px; min-width: 0; }
-:root .air-now__line b { color: var(--accent-2-text); font-size: 0.85rem; font-weight: 700; }
-:root .air-now__line::after { content: ""; flex: 1; height: 2px; border-radius: 1px; background: color-mix(in srgb, var(--accent-2) 45%, transparent); }
+:root .air-now__line { display: flex; align-items: center; gap: 10px; min-width: 0; padding-left: 8px; }
+:root .air-now__line b { color: var(--green); font-size: 0.78rem; font-weight: 700; }
+:root .air-now__line::after { content: ""; flex: 1; height: 2px; border-radius: 1px; background: color-mix(in srgb, var(--green) 45%, transparent); }
 @media (max-width: 360px) {
   :root #schedule-items::before { left: 39px; }
   :root #schedule-items .schedule-item--air:not(.schedule-item--update), :root #schedule-items .air-now { grid-template-columns: 34px 12px minmax(0, 1fr); }
