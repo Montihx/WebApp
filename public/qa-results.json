@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu public template v3 · Сакура и Обсидиан",
-  "generated_at": "2026-11-03T04:02:59.166Z",
+  "generated_at": "2026-11-04T04:06:30.323Z",
   "summary": {
     "status": "pass",
     "total": 84,
@@ -109,13 +109,13 @@
       "id": "auth.html.ids",
       "label": "auth.html: уникальные ID",
       "status": "pass",
-      "detail": "3 уникальных ID"
+      "detail": "2 уникальных ID"
     },
     {
       "id": "auth.html.references",
       "label": "auth.html: локальные ссылки",
       "status": "pass",
-      "detail": "12 локальных ссылок разрешены"
+      "detail": "14 локальных ссылок разрешены"
     },
     {
       "id": "auth.html.aria",
@@ -133,7 +133,7 @@
       "id": "auth.html.images",
       "label": "auth.html: alt у изображений",
       "status": "pass",
-      "detail": "42 изображений проверено"
+      "detail": "44 изображений проверено"
     },
     {
       "id": "auth.html.anchors",
@@ -151,19 +151,19 @@
       "id": "profile.html.ids",
       "label": "profile.html: уникальные ID",
       "status": "pass",
-      "detail": "42 уникальных ID"
+      "detail": "46 уникальных ID"
     },
     {
       "id": "profile.html.references",
       "label": "profile.html: локальные ссылки",
       "status": "pass",
-      "detail": "48 локальных ссылок разрешены"
+      "detail": "47 локальных ссылок разрешены"
     },
     {
       "id": "profile.html.aria",
       "label": "profile.html: ARIA-ссылки",
       "status": "pass",
-      "detail": "20 ссылок разрешены"
+      "detail": "28 ссылок разрешены"
     },
     {
       "id": "profile.html.buttons",
@@ -627,8 +627,8 @@
       "theme": "dark",
       "token": "primary-fg",
       "foreground": "#1c0f2b",
-      "background": "#c9a4f5",
-      "ratio": 8.773469697690908,
+      "background": "#b98af0",
+      "ratio": 6.903160758041802,
       "threshold": 4.5,
       "tier": "baseline"
     },

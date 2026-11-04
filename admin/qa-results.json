@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "project": "Kitsu admin template v5 · Пульт лисьего огня",
-  "generated_at": "2026-11-03T04:02:59.208Z",
+  "generated_at": "2026-11-04T04:06:30.413Z",
   "summary": {
     "status": "pass",
     "total": 19,
@@ -237,8 +237,8 @@
       "theme": "dark",
       "token": "primary-fg",
       "foreground": "#1c0f2b",
-      "background": "#c9a4f5",
-      "ratio": 8.773469697690908,
+      "background": "#b98af0",
+      "ratio": 6.903160758041802,
       "threshold": 4.5,
       "tier": "baseline"
     },
