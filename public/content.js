@@ -278,10 +278,10 @@
       if (!days.some(day => day.key === activeKey)) activeKey = today;
       $('#schedule-days').innerHTML = days.map(day => `<button type="button" class="day-tab${day.key === activeKey ? ' is-active' : ''}${day.key === today ? ' is-today' : ''}" role="tab" id="day-${day.key}" aria-controls="schedule-items" aria-selected="${day.key === activeKey}" tabindex="${day.key === activeKey ? '0' : '-1'}" data-calendar-day="${day.key}" aria-label="${fmt(day.date, { weekday: 'long', day: 'numeric', month: 'long' })}: ${day.count ? `${day.count} ${M.plural(day.count, 'серия', 'серии', 'серий')}` : 'серий нет'}"><span class="day-tab__dow">${fmt(day.date, { weekday: 'short' })}</span><span class="day-tab__num">${day.date.getDate()}</span><span class="day-tab__load${day.count ? '' : ' is-quiet'}">${day.count ? `${day.count} ${M.plural(day.count, 'серия', 'серии', 'серий')}` : 'затишье'}</span></button>`).join('');
     }
-    // One row per episode: big local time, poster, title over a blurred still of the same title.
-    function airRow(row) {
+    // One event per episode on the day timeline: time on the left, card with poster and title on the right.
+    function airRow(row, next = false) {
       const date = M.parseDateAsUtc(row.next_episode_at), diff = date.getTime() - Date.now(), air = M.airLabel(row.next_episode_at);
-      return `<a class="schedule-item schedule-item--air${diff > 0 ? '' : ' is-aired'}" href="${href(row.local_slug)}"><span class="air-backdrop" aria-hidden="true"><img src="${esc(row.local_poster)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span><img class="air-poster" src="${esc(row.local_poster)}" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="air-copy"><strong>${esc(row.anime.russian)}</strong><small>${row.next_episode} серия${row.genres ? `<span class="air-genres"> · ${esc(row.genres)}</span>` : ''}</small><small class="schedule-countdown"${air && air.status !== 'past' ? '' : ' hidden'}>${air && air.status !== 'past' ? `Выйдет ${air.label}` : ''}</small><small class="air-done"${diff > 0 ? ' hidden' : ''}>Вышла</small></span><time class="air-time" datetime="${row.next_episode_at}"><span>${fmt(date, { weekday: 'short' })}</span><b>${fmt(date, { hour: '2-digit', minute: '2-digit' })}</b></time></a>`;
+      return `<a class="schedule-item schedule-item--air${diff > 0 ? '' : ' is-aired'}${next ? ' is-next' : ''}" href="${href(row.local_slug)}"><span class="air-backdrop" aria-hidden="true"><img src="${esc(row.local_poster)}" alt="" loading="lazy" referrerpolicy="no-referrer"></span><time class="air-time" datetime="${row.next_episode_at}"><span>${fmt(date, { weekday: 'short' })}</span><b>${fmt(date, { hour: '2-digit', minute: '2-digit' })}</b></time><span class="air-card"><img class="air-poster" src="${esc(row.local_poster)}" alt="" loading="lazy" referrerpolicy="no-referrer"><span class="air-copy"><strong>${esc(row.anime.russian)}</strong><small>${row.next_episode} серия${row.genres ? `<span class="air-genres"> · ${esc(row.genres)}</span>` : ''}</small><small class="schedule-countdown"${air && air.status !== 'past' ? '' : ' hidden'}>${air && air.status !== 'past' ? `Выйдет ${air.label}` : ''}</small><small class="air-done"${diff > 0 ? ' hidden' : ''}>Вышла</small></span></span></a>`;
     }
     // "Сейчас у вас" lives in the card header, not between rows.
     const clock = () => fmt(new Date(), { hour: '2-digit', minute: '2-digit' });
@@ -296,8 +296,10 @@
       $('#schedule-date').textContent = text.charAt(0).toUpperCase() + text.slice(1);
       $('#schedule-today').hidden = activeKey === M.dateKey(new Date());
     }
+    let airedCount = 0;
     function renderItems() {
       renderDayHead();
+      airedCount = 0;
       const rows = schedule.filter(row => M.dateKey(M.parseDateAsUtc(row.next_episode_at)) === activeKey);
       const panel = $('#schedule-items');
       panel.setAttribute('aria-labelledby', `day-${activeKey}`);
@@ -307,7 +309,12 @@
         window.lucide?.createIcons?.({ attrs: { 'aria-hidden': 'true' } });
         return;
       }
-      panel.innerHTML = rows.map(airRow).join('');
+      // The first future event gets .is-next; on today's list a "now" line sits between past and future events.
+      const now = Date.now(), firstFuture = rows.findIndex(row => M.parseDateAsUtc(row.next_episode_at).getTime() > now);
+      airedCount = firstFuture < 0 ? rows.length : firstFuture;
+      const items = rows.map((row, index) => airRow(row, index === firstFuture));
+      if (activeKey === M.dateKey(new Date())) items.splice(airedCount, 0, `<div class="air-now" aria-hidden="true"><span class="air-now__time">${clock()}</span><span class="air-now__dot"></span><span class="air-now__line"><b>сейчас</b></span></div>`);
+      panel.innerHTML = items.join('');
     }
     function selectDay(key, focus = false) {
       activeKey = key;
@@ -355,6 +362,10 @@
         if (countdown) { countdown.hidden = diff <= 0; if (air && diff > 0) countdown.textContent = `Выйдет ${air.label}`; }
         if (done) done.hidden = diff > 0;
       });
+      // Past/future boundary moved: redraw so the "now" line and .is-next jump to the right place.
+      const panel = $('#schedule-items');
+      if (panel.querySelectorAll('.schedule-item.is-aired').length !== airedCount) renderItems();
+      else { const marker = panel.querySelector('.air-now__time'); if (marker) marker.textContent = clock(); }
       const nowClock = $('#schedule-now');
       if (nowClock) nowClock.textContent = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     }

@@ -32,7 +32,7 @@ test('midnight follows today but preserves an explicitly selected different day'
     const context = {
       document: {hidden: false}, M: {dateKey: () => '2026-09-09'}, Date,
       activeKey: '2026-09-08', renderedDate: '2026-09-08', followToday,
-      days: 0, items: 0, $: () => ({querySelectorAll: () => []}),
+      days: 0, items: 0, airedCount: 0, clock: () => '00:00', $: () => ({querySelectorAll: () => [], querySelector: () => null}),
     };
     runInNewContext(`function renderDays(){days++;} function renderItems(){items++;} ${refresh}; refresh();`, context);
     assert.equal(context.activeKey, followToday ? '2026-09-09' : '2026-09-08');
@@ -150,12 +150,14 @@ test('related titles render as row cards with an order index and the current one
   assert.doesNotMatch(source, /thread-knot|relation-kanji/);
   assert.match(source, /alt="Постер «\$\{esc\(row.title\)\}»"/);
 });
-test('schedule and updates rows carry a blurred still; the clock sits in the card header', () => {
+test('schedule is a day timeline (time, axis node, card, now marker); the clock sits in the card header', () => {
   const source = read('public/content.js');
   assert.match(source, /class="air-backdrop" aria-hidden="true"><img src="\$\{esc\(row.local_poster\)\}" alt=""/);
   assert.match(source, /schedule-item--update" href="\$\{href\(row.slug\)\}"><span class="air-backdrop" aria-hidden="true">/);
   assert.match(source, /closest\('\.schedule-head'\)\?\.querySelector\('\.section-kicker'\)\?\.insertAdjacentHTML\('afterend', `<p class="air-clock"/);
-  assert.doesNotMatch(source, /air-now/, 'no clock line between rows');
+  assert.match(source, /class="air-now" aria-hidden="true"><span class="air-now__time">\$\{clock\(\)\}<\/span><span class="air-now__dot">/, 'now marker between past and future events');
+  assert.match(source, /<time class="air-time"[^`]*<\/time><span class="air-card"><img class="air-poster"/, 'time sits before the card, outside it');
+  assert.match(source, /is-next/);
   const refresh = source.slice(source.indexOf('    function refresh()'), source.indexOf('    let timer'));
   assert.match(refresh, /#schedule-now/);
   assert.doesNotMatch(refresh, /innerHTML/);
