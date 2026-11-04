@@ -2549,6 +2549,16 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 :root .schedule-card .schedule-item--update .air-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--media-text-dim); font-size: 0.78rem; line-height: 1.35; }
 /* Тип («ТВ-сериал», «Фильм») — последняя строка, он лишний. */
 :root .schedule-card .schedule-item--update .air-copy small:last-child { display: none; }
+/* Обновления: статус серии — плашка с иконкой, как чип «Выйдет через…» в расписании. */
+:root .schedule-card .schedule-item--update .air-copy small:first-of-type {
+  display: block; width: fit-content; max-width: 100%; margin-top: 3px; padding: 1px 7px 1px 6px; overflow: hidden;
+  border-radius: 6px; background: rgba(var(--media-ink-rgb), 0.55); color: var(--media-text);
+  font: 600 0.7rem/1.25 var(--font-body); text-overflow: ellipsis; white-space: nowrap;
+}
+:root .schedule-card .schedule-item--update .air-copy small:first-of-type::before {
+  content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 5px; vertical-align: -1.5px; background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M10 8.5l5 3.5-5 3.5z' fill='%23000'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M10 8.5l5 3.5-5 3.5z' fill='%23000'/%3E%3C/svg%3E") center / contain no-repeat;
+}
 
 /* Расписание дня: вертикальный таймлайн — время слева, ось с квадратными узлами, карточки справа. */
 /* Строки берут высоту по содержимому (max-content): иначе в сетке с max-height треки сжимаются до нуля (min-height: 0 у строк), карточки вылезают и перекрывают друг друга, а маркер «сейчас» обрезается. */
