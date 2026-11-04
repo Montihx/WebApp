@@ -2576,13 +2576,21 @@ html[data-theme="light"] .air-stub { --stub-fire: #7de3ff; --stub-done: #5fd99a;
 :root #schedule-items .air-card .air-done { background: color-mix(in srgb, var(--accent-2) 16%, transparent); color: var(--accent-2-text); font-weight: 700; }
 :root #schedule-items .air-card .schedule-countdown { background: var(--surface-hover); color: var(--text-secondary); font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 600; }
 /* Чип не режем многоточием: правило «.air-copy small» (nowrap + ellipsis) иначе перебивало его по специфичности. */
-:root #schedule-items .air-card .air-copy .schedule-countdown { display: inline-flex; max-width: 100%; overflow: visible; padding: 4px 10px; text-overflow: clip; white-space: normal; line-height: 1.25; }
+:root #schedule-items .air-card .air-copy .schedule-countdown { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; overflow: visible; padding: 3px 8px; font-size: 0.75rem; text-overflow: clip; white-space: normal; line-height: 1.25; }
 :root #schedule-items .air-card .air-copy .schedule-countdown[hidden] { display: none; }
 :root #schedule-items .air-card .air-done[hidden], :root #schedule-items .air-card .schedule-countdown[hidden] { display: none; }
 /* Маркер «сейчас» поперёк оси */
-:root #schedule-items .air-now { display: grid; grid-template-columns: 56px 24px minmax(0, 1fr); align-items: center; min-height: 18px; margin: 0; transform: none; }
+/* Маркер позиционирован, чтобы рисоваться поверх оси (ось ::before контейнера иначе перечёркивала узел двумя полосками). */
+:root #schedule-items .air-now { position: relative; z-index: 1; display: grid; grid-template-columns: 56px 24px minmax(0, 1fr); align-items: center; min-height: 18px; margin: 0; transform: none; }
 :root .air-now__time { justify-self: end; color: var(--accent-2-text); font: 700 0.9rem/1 var(--font-mono); font-variant-numeric: tabular-nums; }
-:root .air-now__dot { justify-self: center; width: 10px; height: 10px; border-radius: 3px; background: var(--accent-2); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-2) 22%, transparent); }
+:root .air-now__dot,
+:root #schedule-items .air-now__dot {
+  position: relative; justify-self: center; width: 10px; height: 10px; border: 0; border-radius: 3px;
+  background: var(--accent-2); background-image: none;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-2) 22%, transparent);
+}
+:root .air-now__dot::before,
+:root .air-now__dot::after { content: none; }
 :root .air-now__line { display: flex; align-items: center; gap: 10px; min-width: 0; }
 :root .air-now__line b { color: var(--accent-2-text); font-size: 0.85rem; font-weight: 700; }
 :root .air-now__line::after { content: ""; flex: 1; height: 2px; border-radius: 1px; background: color-mix(in srgb, var(--accent-2) 45%, transparent); }
