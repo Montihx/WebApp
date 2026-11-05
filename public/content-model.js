@@ -229,5 +229,58 @@
       return at;
     },
   };
-  window.KitsuContent = { animeCard, bookmarkFacts, episodesShort, bookmarkStatuses, bookmarkRemove, formatScore, library, ageLabel, seasonLabel, weekdayLabel, episodesLabel, lastUpdateLabel, relations, relationShort, relationKanji, relationTone, plural, airLabel, kindLabel, parseDateAsUtc, dateKey, formatCountdown, countdownState, watchOrder, mergeSchedule, scheduleDays, updateLabel, titles, poster };
+  // «Где продолжить чтение» (плашка на странице тайтла). Сервер отдаёт только код статуса и числа
+  // (coverage: { status, unit, covered_up_to, source_url, is_last_season }); текст собирается здесь,
+  // чтобы его можно было локализовать, а числа не выдумывались: next = covered_up_to + 1 только при status = known.
+  const CONTINUE_READING_TEXT = {
+    ru: {
+      label: 'Где продолжить чтение',
+      known_chapter: 'Аниме закончилось на главе {n}. Продолжайте читать с главы {next}.',
+      known_volume: 'Аниме закончилось на томе {n}. Продолжайте читать с тома {next}.',
+      partial_cut_chapter: 'Аниме оборвалось на середине главы {n}. Продолжайте с этой главы или с начала арки.',
+      caught_up: 'Аниме догнало источник: продолжения пока нет.',
+      original_ending: 'У аниме оригинальная концовка: прямого продолжения в источнике нет.',
+      no_data: 'Данных о том, где продолжить чтение, нет.',
+      source: 'Источник: {url}'
+    },
+    en: {
+      label: 'Where to continue reading',
+      known_chapter: 'The anime ended at chapter {n}. Continue reading from chapter {next}.',
+      known_volume: 'The anime ended at volume {n}. Continue reading from volume {next}.',
+      partial_cut_chapter: 'The anime stopped mid-chapter {n}. Continue from that chapter or the start of the arc.',
+      caught_up: 'The anime has caught up with the source: no continuation yet.',
+      original_ending: 'The anime has an original ending: no direct continuation in the source.',
+      no_data: 'There is no data on where to continue reading.',
+      source: 'Source: {url}'
+    }
+  };
+  // Демо-coverage по slug. Адреса в source_url — ЗАГЛУШКИ на зарезервированном домене example.org, НЕ реальные источники.
+  // Объекта нет → плашка не рендерится. У всех демо-тайтлов is_last_season: true.
+  const readingCoverage = {
+    frieren: { status: 'known', unit: 'chapter', covered_up_to: 118, source_url: 'https://example.org/stub/frieren-manga', is_last_season: true },
+    'steins-gate': { status: 'known', unit: 'volume', covered_up_to: 3, source_url: 'https://example.org/stub/steins-gate-source', is_last_season: true },
+    'one-piece': { status: 'caught_up', unit: 'chapter', covered_up_to: null, source_url: null, is_last_season: true },
+    monster: { status: 'original_ending', unit: 'chapter', covered_up_to: null, source_url: null, is_last_season: true },
+    'vinland-saga': { status: 'no_data', unit: 'chapter', covered_up_to: null, source_url: null, is_last_season: true }
+  };
+  // Текст плашки по (coverage, locale). null — плашку не показывать (нет объекта или не последний сезон).
+  // Склонять единицу не нужно (глава/том стоят в готовых фразах), поэтому plural() здесь не нужен.
+  function continueReadingText(coverage, locale = 'ru') {
+    if (!coverage || typeof coverage !== 'object' || coverage.is_last_season !== true) return null;
+    const dict = CONTINUE_READING_TEXT[locale] || CONTINUE_READING_TEXT.ru;
+    const unit = coverage.unit === 'volume' ? 'volume' : 'chapter';
+    const n = coverage.covered_up_to;
+    const hasN = typeof n === 'number' && Number.isFinite(n) && n >= 0;
+    let key = 'no_data';
+    if (coverage.status === 'known' && hasN) key = `known_${unit}`;
+    else if (coverage.status === 'partial_cut' && hasN && unit === 'chapter') key = 'partial_cut_chapter';
+    else if (coverage.status === 'caught_up' || coverage.status === 'original_ending') key = coverage.status;
+    // Всё остальное (в т. ч. known без числа или неизвестный код) честно сводится к «данных нет»: чисел не выдумываем.
+    const vars = key.startsWith('known_') ? { n, next: n + 1 } : key === 'partial_cut_chapter' ? { n } : {};
+    const text = dict[key].replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? ''));
+    const url = key !== 'no_data' && typeof coverage.source_url === 'string' && /^https?:\/\//i.test(coverage.source_url) ? coverage.source_url : null;
+    const shown = url ? url.replace(/^https?:\/\//i, '').replace(/\/$/, '') : '';
+    return { status: key, tone: key === 'no_data' ? 'muted' : 'accent', label: dict.label, text, source: url ? { url, text: dict.source.replace('{url}', shown) } : null };
+  }
+  window.KitsuContent = { animeCard, bookmarkFacts, episodesShort, bookmarkStatuses, bookmarkRemove, formatScore, library, ageLabel, seasonLabel, weekdayLabel, episodesLabel, lastUpdateLabel, relations, relationShort, relationKanji, relationTone, plural, airLabel, kindLabel, parseDateAsUtc, dateKey, formatCountdown, countdownState, watchOrder, mergeSchedule, scheduleDays, updateLabel, titles, poster, readingCoverage, continueReadingText };
 })();

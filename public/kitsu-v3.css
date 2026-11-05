@@ -4154,3 +4154,29 @@ body[data-page="bookmarks"].is-hidden-tab .pf-skel { animation-play-state: pause
     }
   }
 }
+
+/* ================================================================
+   ПЛАШКА «ГДЕ ПРОДОЛЖИТЬ ЧТЕНИЕ» — страница тайтла (только последний сезон)
+   ================================================================ */
+
+/* Секция лежит между плеером и «Похожим»: отступы им уже даны, своих не добавляем */
+:root .continue-read-section { padding: 0; }
+
+:root .continue-read {
+  display: grid; gap: 6px; padding: 14px 16px; border-radius: 10px;
+  border-left: 2px solid var(--accent); background: var(--accent-soft);
+}
+:root .continue-read--muted { border-left-color: var(--line-strong); background: var(--surface); }
+
+:root .continue-read__label {
+  display: inline-flex; align-items: center; gap: 8px; margin: 0;
+  color: var(--accent-text); font: 700 0.75rem/1.3 var(--font-body); letter-spacing: 0.04em; text-transform: uppercase;
+}
+:root .continue-read--muted .continue-read__label { color: var(--text-muted); }
+:root .continue-read__label svg { flex: none; width: 16px; height: 16px; }
+
+:root .continue-read__text { margin: 0; color: var(--text); font-size: 0.9rem; line-height: 1.5; }
+:root .continue-read--muted .continue-read__text { color: var(--text-secondary); }
+
+:root .continue-read__source { justify-self: start; color: var(--text-muted); font-size: 0.75rem; line-height: 1.4; text-decoration: underline; overflow-wrap: anywhere; }
+:root .continue-read__source:hover { color: var(--text); }

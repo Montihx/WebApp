@@ -50,6 +50,18 @@
     window.lucide?.createIcons?.({ attrs: { 'aria-hidden': 'true' }, root: $('[data-facts]') });
   }
 
+  // «Где продолжить чтение»: только у последнего сезона и только если сервер прислал coverage (иначе плашки нет вовсе).
+  function renderContinueReading(title) {
+    $('#continue-read')?.remove();
+    const locale = (document.documentElement.lang || 'ru').slice(0, 2).toLowerCase();
+    const view = M.continueReadingText(M.readingCoverage[title.slug], locale);
+    const anchor = document.querySelector('[aria-labelledby="related-title"]');
+    if (!view || !anchor) return;
+    const source = view.source ? `<a class="continue-read__source" href="${esc(view.source.url)}" target="_blank" rel="noopener noreferrer nofollow">${esc(view.source.text)}</a>` : '';
+    anchor.insertAdjacentHTML('beforebegin', `<section class="continue-read-section" id="continue-read" aria-labelledby="continue-read-label"><div class="page-container"><div class="continue-read${view.tone === 'muted' ? ' continue-read--muted' : ''}"><p class="continue-read__label" id="continue-read-label"><i data-lucide="book-open"></i><span>${esc(view.label)}</span></p><p class="continue-read__text">${esc(view.text)}</p>${source}</div></div></section>`);
+    window.lucide?.createIcons?.({ attrs: { 'aria-hidden': 'true' }, root: $('#continue-read') });
+  }
+
   function initTitle() {
     const requested = new URLSearchParams(location.search).get('title');
     const title = Object.hasOwn(M.titles, requested) ? M.titles[requested] : M.titles.monster;
@@ -57,6 +69,7 @@
     document.body.dataset.episodesTotal = title.episodes_total;
     document.body.dataset.animePoster = title.poster_url;
     renderFacts(title);
+    renderContinueReading(title);
     if (title.slug !== 'monster') {
       document.title = `${title.title} — Kitsu`;
       $('#title-name').textContent = title.title;
